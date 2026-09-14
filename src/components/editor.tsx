@@ -35,6 +35,7 @@ import { Dropdown } from './dropdown';
 import { EditorToolbar, type EditorMode } from './editor-toolbar';
 import { useAccount } from './account-provider';
 import { InlinePdfText } from './inline-pdf-text';
+import { PdfTextSizeInput } from './pdf-text-size-input';
 import { DownloadGate } from './download-gate';
 import { defaultTextChange, hasTextChanges } from '@/lib/editor-text';
 import { exportWorkspacePdf, requestTextPdf } from '@/lib/editor-text-client';
@@ -1928,22 +1929,16 @@ export function Editor() {
                     />
                     <label>
                       Text size
-                      <input
-                        type="number"
-                        min={4}
-                        max={144}
-                        step={0.5}
-                        value={
+                      <PdfTextSizeInput
+                        key={originalSelection.id}
+                        block={originalSelection}
+                        size={
                           (
                             state.textChanges?.[pageModel.id]?.[originalSelection.id] ||
                             originalSelection
                           ).size
                         }
-                        onChange={(event) =>
-                          updateOriginalText(originalSelection, {
-                            size: Math.max(4, Math.min(144, Number(event.target.value) || 4)),
-                          })
-                        }
+                        onChange={(size) => updateOriginalText(originalSelection, { size })}
                       />
                     </label>
                     <label>

@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { randomBytes } from 'node:crypto';
 import { init } from '@embedpdf/pdfium';
 import { PNG } from 'pngjs';
+import { isPdfTextSize } from '../src/lib/pdf-text-size.mjs';
 
 const fonts = [
   'Helvetica',
@@ -96,9 +97,7 @@ export async function processTextPdf(bytes, job) {
           throw new Error('A text block was changed more than once in this request.');
         if (
           !fonts.includes(change.font) ||
-          !Number.isFinite(change.size) ||
-          change.size < 4 ||
-          change.size > 144 ||
+          !isPdfTextSize(change.size) ||
           !/^#[\da-f]{6}$/i.test(change.color) ||
           typeof change.text !== 'string' ||
           change.text.length > 2000 ||
@@ -107,7 +106,7 @@ export async function processTextPdf(bytes, job) {
           )
         )
           throw new Error(
-            'Replacement text supports Latin characters on a single line. Use a font size from 4 to 144 points.',
+            'Replacement text supports Latin characters on a single line and needs a valid positive font size.',
           );
         changes.set(change.id, change);
       }
@@ -169,6 +168,10 @@ export async function processTextPdf(bytes, job) {
             const matrix = [0, 4, 8, 12, 16, 20].map((offset) =>
               heap.getValue(scratch + 24 + offset, 'float'),
             );
+            if (!isPdfTextSize(size) || !matrix.every(Number.isFinite)) {
+              skipped++;
+              continue;
+            }
             const rgba = [48, 52, 56, 60].map((offset) => heap.getValue(scratch + offset, 'i32'));
             const fontHandle = api.FPDFTextObj_GetFont(object);
             const fontLen = api.FPDFFont_GetBaseFontName(fontHandle, 0, 0);

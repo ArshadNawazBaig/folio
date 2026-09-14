@@ -4,6 +4,9 @@ import { PDFDocument, StandardFonts, degrees, rgb } from 'pdf-lib';
 import { processTextPdf } from '../scripts/pdf-text-engine.mjs';
 import { createSample } from '../src/lib/sample';
 import type { TextInspection, TextBlock } from '../src/lib/pro-types';
+import { createScaledTextPdf } from './fixtures/scaled-text-pdf';
+import { workspaceSchema } from '../src/lib/workspace-types';
+import { pdfTextSizeFromPoints, pdfTextSizeInPoints } from '../src/lib/pdf-text-size.mjs';
 async function text(bytes: Uint8Array, password?: string) {
   const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs');
   const task = getDocument({ data: bytes.slice(), password, useSystemFonts: true });
@@ -29,6 +32,73 @@ function change(block: TextBlock, replacement: string) {
     color: block.color,
   };
 }
+test('scaled receipt text previews, survives workspace serialization, and exports at its original size', async () => {
+  const source = await createScaledTextPdf();
+  const inspection = (await processTextPdf(source, { operation: 'inspect' })) as TextInspection;
+  const blocks = inspection.blocks.slice(0, 3);
+  assert.deepEqual(
+    blocks.map((block) => block.size),
+    [1, 0.5, 200],
+  );
+  blocks.forEach((block, index) => {
+    assert.ok(Math.abs(pdfTextSizeInPoints(block, block.size) - [14, 12, 10][index]) < 0.0001);
+  });
+  const changes = blocks.map((block, index) => change(block, `Updated ${index + 1}`));
+  const snapshot = workspaceSchema.parse({
+    state: {
+      pages: [{ id: 'receipt', sourceIndex: 0, width: 300, height: 500, rotation: 0 }],
+      annotations: [],
+      formValues: {},
+      textChanges: { receipt: Object.fromEntries(changes.map((edit) => [edit.id, edit])) },
+    },
+    inspection,
+    page: 0,
+    mode: 'original-text',
+    flatten: false,
+  });
+  const restored = workspaceSchema.parse(JSON.parse(JSON.stringify(snapshot)));
+  const restoredChanges = Object.values(restored.state.textChanges!.receipt);
+  const preview = await processTextPdf(source, {
+    operation: 'preview',
+    page: 0,
+    changes: restoredChanges,
+  });
+  assert.ok(preview.preview);
+  const exported = (await processTextPdf(source, {
+    operation: 'edit',
+    changes: restoredChanges,
+  })) as Uint8Array;
+  const after = (await processTextPdf(exported, { operation: 'inspect' })) as TextInspection;
+  for (const [index, original] of blocks.entries()) {
+    assert.equal(after.blocks[index].text, `Updated ${index + 1}`);
+    assert.equal(after.blocks[index].size, original.size);
+    assert.deepEqual(after.blocks[index].matrix, original.matrix);
+  }
+  assert.equal(after.blocks[3].text, 'Keep this receipt');
+  const resized = (await processTextPdf(source, {
+    operation: 'edit',
+    changes: [{ ...changes[0], size: pdfTextSizeFromPoints(blocks[0], 18) }],
+  })) as Uint8Array;
+  const resizedBlock = ((await processTextPdf(resized, { operation: 'inspect' })) as TextInspection)
+    .blocks[0];
+  assert.ok(Math.abs(pdfTextSizeInPoints(resizedBlock, resizedBlock.size) - 18) < 0.0001);
+  for (const size of [0, -1, NaN, Infinity, 10001]) {
+    await assert.rejects(
+      processTextPdf(source, { operation: 'preview', page: 0, changes: [{ ...changes[0], size }] }),
+      /valid positive font size/,
+    );
+    assert.equal(
+      workspaceSchema.safeParse({
+        ...snapshot,
+        state: {
+          ...snapshot.state,
+          textChanges: { receipt: { [changes[0].id]: { ...changes[0], size } } },
+        },
+      }).success,
+      false,
+    );
+  }
+});
 test('Pro replaces actual source text and preserves unrelated pages', async () => {
   const source = await createSample();
   const inspection = (await processTextPdf(source, { operation: 'inspect' })) as TextInspection;

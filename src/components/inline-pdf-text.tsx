@@ -102,13 +102,15 @@ export function InlinePdfText({
           const transform = viewport.transform;
           const vx = transform[0] * matrix[0] + transform[2] * matrix[1];
           const vy = transform[1] * matrix[0] + transform[3] * matrix[1];
+          const heightX = transform[0] * matrix[2] + transform[2] * matrix[3];
+          const heightY = transform[1] * matrix[2] + transform[3] * matrix[3];
           boxes[block.id] = {
             left: Math.min(p[0], q[0]),
             top: Math.min(p[1], q[1]),
             width: Math.abs(q[0] - p[0]),
             height: Math.abs(q[1] - p[1]),
             angle: (Math.atan2(vy, vx) * 180) / Math.PI,
-            fontScale: Math.hypot(vx, vy) || 1,
+            fontScale: Math.hypot(heightX, heightY) || 1,
           };
         }
         if (!cancelled) {

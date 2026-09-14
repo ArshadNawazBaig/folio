@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { z } from 'zod';
 import { replacementFonts, type TextInspection, type TextPreview } from '../pro-types';
+import { isPdfTextSize } from '../pdf-text-size.mjs';
 import { ApiError } from './http';
 const edit = z
   .object({
@@ -10,7 +11,7 @@ const edit = z
     original: z.string().max(10000),
     text: z.string().max(2000),
     font: z.enum(replacementFonts),
-    size: z.number().min(4).max(144),
+    size: z.number().refine(isPdfTextSize, 'Choose a valid positive text size.'),
     color: z.string().regex(/^#[\da-f]{6}$/i),
   })
   .strict();

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { replacementFonts } from './pro-types';
+import { isPdfTextSize } from './pdf-text-size.mjs';
 import type { EditorMode, EditorState } from './types';
 import type { TextInspection } from './pro-types';
 export const WORKSPACE_LIMIT = 8 * 1024 * 1024;
@@ -11,7 +12,7 @@ const textChange = z.object({
   original: z.string().max(10000),
   text: z.string().max(2000),
   font: z.enum(replacementFonts),
-  size: number.min(4).max(144),
+  size: number.refine(isPdfTextSize, 'Choose a valid positive text size.'),
   color,
 });
 export const workspaceSchema = z

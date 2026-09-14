@@ -21,6 +21,7 @@ import { useAccount } from './account-provider';
 import { DownloadGate } from './download-gate';
 import { Dropdown } from './dropdown';
 import { PdfCanvas } from './pdf-canvas';
+import { PdfTextSizeInput } from './pdf-text-size-input';
 import { accountFetch, AccountRequestError } from '@/lib/auth-client';
 import { saveProDraft, readProDraft, clearProDraft } from '@/lib/pro-draft';
 import { loadViewer } from '@/lib/pdf-viewer';
@@ -688,13 +689,11 @@ export function ProTextEditor() {
                     <div className="pro-style-fields">
                       <label className="pro-field">
                         Size
-                        <input
-                          type="number"
-                          min={4}
-                          max={144}
-                          step={0.5}
-                          value={value.size}
-                          onChange={(e) => update({ size: Number(e.target.value) })}
+                        <PdfTextSizeInput
+                          key={selected.id}
+                          block={selected}
+                          size={value.size}
+                          onChange={(size) => update({ size })}
                         />
                       </label>
                       <label className="pro-field">

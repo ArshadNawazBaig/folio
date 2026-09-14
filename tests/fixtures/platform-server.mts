@@ -325,8 +325,37 @@ try {
       pages: [{ id: 'page', sourceIndex: 0, width: 595, height: 842, rotation: 0 }],
       annotations: [],
       formValues: {},
+      textChanges: {
+        page: {
+          '0:0': {
+            id: '0:0',
+            original: 'Receipt total',
+            text: 'Updated receipt total',
+            font: 'Helvetica-Bold',
+            size: 1,
+            color: '#000000',
+          },
+        },
+      },
     },
-    inspection: null,
+    inspection: {
+      pageCount: 1,
+      skipped: 0,
+      blocks: [
+        {
+          id: '0:0',
+          page: 0,
+          objectIndex: 0,
+          text: 'Receipt total',
+          font: 'Helvetica-Bold',
+          replacementFont: 'Helvetica-Bold',
+          size: 1,
+          color: '#000000',
+          bounds: [36, 430, 120, 450],
+          matrix: [14, 0, 0, 14, 36, 440],
+        },
+      ],
+    },
     page: 0,
     mode: 'text',
     flatten: false,
