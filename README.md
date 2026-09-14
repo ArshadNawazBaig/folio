@@ -45,6 +45,7 @@ The editor toolbar exposes Move, Undo/Redo, Add Text, Edit Text, Eraser, Highlig
 ## Folio Pro
 
 - Replace or delete existing PDF text objects, with replacement font, size, and color controls.
+- Search 1,817 Google Font families for original-text edits, added text, and signatures, with available weights and italics. Fonts load on demand and are embedded in exported PDFs; choices survive cloud save and refresh. See [document font setup and caching](docs/document-fonts.md).
 - Find and replace text across pages, undo/redo changes, preview the resulting PDF, and download it.
 - Add an AES-256 opening password to a PDF.
 - Translate PDFs with Google Cloud Translation and convert to Word, Excel, and PowerPoint with ConvertAPI when configured. Prepare without sign-in; download with Pro.
@@ -77,7 +78,7 @@ The super admin **Blog posts** workspace at `/admin/blog` includes a rich post e
 
 Translation and PDF-to-Word, Excel, and PowerPoint have implemented provider integrations and download recovery. Their service credentials have not been connected here. Unconfigured services keep processing disabled, allow original previews, and are excluded from indexing and the sitemap. See the setup guide for provider limits and connected verification.
 
-OCR, Office-to-PDF, automatic paragraph reflow, certificate signatures, password removal, and secure redaction are not implemented. Cropping and text deletion are **not secure redaction**. Visual signatures do not create digital certificates. New/replacement text uses standard PDF Latin fonts; unsupported characters generate an actionable error. The source PDF can contain other scripts.
+OCR, Office-to-PDF, automatic paragraph reflow, certificate signatures, password removal, and secure redaction are not implemented. Cropping and text deletion are **not secure redaction**. Visual signatures do not create digital certificates. Replacement text supports Latin characters with original, standard PDF, or selected Google fonts; unsupported characters generate an actionable error. The source PDF can contain other scripts.
 
 Pro edits supported top-level, unclipped text objects. Scanned, outlined, nested, and certain specially rendered text are skipped. It preserves object placement and uses the selected replacement font; it does not promise original embedded-font matching or automatic layout reflow. Encrypted, digitally signed, and XFA documents are rejected by the Pro engine. Pro files are limited to 10 MB and 100 pages, with 500 Pro download requests per day and 20 per minute per account. Anonymous inspection and image previews have separate instance limits.
 

@@ -26,6 +26,7 @@ import type {
 import { baseName } from './utils';
 import { annotationUrl } from './annotation-url';
 import { hasTextChanges } from './editor-text';
+import { documentFontUrl, parseDocumentFont, standardDocumentFonts } from './document-fonts.mjs';
 
 function color(hex = '#202522') {
   const value = hex.replace('#', '');
@@ -115,8 +116,18 @@ async function annotate(
   const pos = pagePoint(page, rotation, a.x, a.y + a.height);
   const common = { ...pos, rotate: degrees(rotation), color: color(a.color), opacity: a.opacity };
   if (a.kind === 'text' || a.kind === 'signature') {
-    const chosen =
-      a.kind === 'signature' ? await doc.embedFont(StandardFonts.TimesRomanItalic) : font;
+    const chosen = a.font
+      ? font
+      : a.kind === 'signature'
+        ? await doc.embedFont(StandardFonts.TimesRomanItalic)
+        : font;
+    if (a.font) {
+      const characters = new Set(chosen.getCharacterSet());
+      if ([...a.text].some((char) => !/\s/u.test(char) && !characters.has(char.codePointAt(0)!)))
+        throw new Error(
+          'The selected font does not contain all characters in this text. Choose another font before downloading.',
+        );
+    }
     const start = pagePoint(page, rotation, a.x, a.y + a.size);
     page.drawText(a.text, {
       ...common,
@@ -256,7 +267,16 @@ async function annotate(
     if (field instanceof PDFTextField) field.setFontSize(a.size);
   }
 }
-export async function exportEditor(bytes: Uint8Array, state: EditorState, flatten = false) {
+export async function exportEditor(
+  bytes: Uint8Array,
+  state: EditorState,
+  flatten = false,
+  loadFont = async (value: string) => {
+    const response = await fetch(documentFontUrl(value));
+    if (!response.ok) throw new Error('A document font could not be loaded. Retry the download.');
+    return new Uint8Array(await response.arrayBuffer());
+  },
+) {
   if (hasTextChanges(state))
     throw new Error('Original text changes must be included through the finished-document export.');
   if (!state.pages.length) throw new Error('Your document needs at least one page.');
@@ -284,9 +304,40 @@ export async function exportEditor(bytes: Uint8Array, state: EditorState, flatte
     prepared[i].setRotation(degrees(state.pages[i].rotation));
   }
   const font = await doc.embedFont(StandardFonts.Helvetica);
+  const customFonts = new Map<string, typeof font>();
+  const fontIds = [
+    ...new Set(
+      state.annotations
+        .filter((a) => ['text', 'signature'].includes(a.kind))
+        .flatMap((a) => (a.font ? [a.font] : [])),
+    ),
+  ];
+  if (fontIds.some((value) => parseDocumentFont(value))) {
+    const { default: fontkit } = await import('@pdf-lib/fontkit');
+    doc.registerFontkit(fontkit);
+  }
+  for (const value of fontIds) {
+    if (parseDocumentFont(value))
+      customFonts.set(
+        value,
+        await doc.embedFont(await loadFont(value), {
+          subset: true,
+          features: { liga: false, clig: false, kern: false },
+        }),
+      );
+    else if (standardDocumentFonts.includes(value))
+      customFonts.set(value, await doc.embedFont(value));
+    else throw new Error('Choose an available text font.');
+  }
   for (let i = 0; i < state.pages.length; i++)
     for (const a of state.annotations.filter((a) => a.pageId === state.pages[i].id))
-      await annotate(doc, prepared[i], state.pages[i], a, font);
+      await annotate(
+        doc,
+        prepared[i],
+        state.pages[i],
+        a,
+        a.font ? customFonts.get(a.font) || font : font,
+      );
   const form = doc.getForm();
   for (const [name, value] of Object.entries(state.formValues)) {
     const f = form.getFieldMaybe(name);

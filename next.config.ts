@@ -11,6 +11,10 @@ const config: NextConfig = {
       './src/lib/pdf-text-size.mjs',
       './src/lib/pdf-text-position.mjs',
       './src/lib/pdf-original-fonts.mjs',
+      './src/lib/document-fonts.mjs',
+      './src/lib/document-font-registry.mjs',
+      './src/lib/document-font-catalog.json',
+      './src/lib/server/document-fonts.mjs',
       './public/fonts/pdf/*',
       './node_modules/@pdf-lib/fontkit/**/*',
       './node_modules/@embedpdf/pdfium/**/*',
@@ -44,7 +48,6 @@ const config: NextConfig = {
         '/support',
         '/maintenance',
         '/auth/:path*',
-        '/api/:path*',
       ].map((source) => ({
         source,
         headers: [
@@ -52,6 +55,11 @@ const config: NextConfig = {
           { key: 'Cache-Control', value: 'private, no-store' },
         ],
       })),
+      { source: '/api/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
+      {
+        source: '/api/:path((?!fonts(?:/|$)).*)',
+        headers: [{ key: 'Cache-Control', value: 'private, no-store' }],
+      },
     ];
   },
 };

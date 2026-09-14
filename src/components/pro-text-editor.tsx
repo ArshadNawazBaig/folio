@@ -19,14 +19,10 @@ import {
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { useAccount } from './account-provider';
 import { DownloadGate } from './download-gate';
-import { Dropdown } from './dropdown';
+import { FontPicker } from './font-picker';
 import { PdfCanvas } from './pdf-canvas';
 import { PdfTextSizeInput } from './pdf-text-size-input';
-import {
-  defaultTextChange as defaultChange,
-  textFontOptions,
-  unchangedText,
-} from '@/lib/editor-text';
+import { defaultTextChange as defaultChange, unchangedText } from '@/lib/editor-text';
 import { accountFetch, AccountRequestError } from '@/lib/auth-client';
 import { saveProDraft, readProDraft, clearProDraft } from '@/lib/pro-draft';
 import { loadViewer } from '@/lib/pdf-viewer';
@@ -662,11 +658,12 @@ export function ProTextEditor() {
                         onChange={(e) => update({ text: e.target.value })}
                       />
                     </label>
-                    <Dropdown
+                    <FontPicker
+                      key={selected.id}
                       label="Replacement font"
                       value={value.font}
-                      options={textFontOptions(selected)}
-                      onValueChange={(font) => update({ font: font as TextChange['font'] })}
+                      original={selected}
+                      onChange={(font) => update({ font })}
                       disabled={!!busy || !canEdit}
                     />
                     <div className="pro-style-fields">

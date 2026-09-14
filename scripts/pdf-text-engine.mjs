@@ -3,6 +3,11 @@ import { randomBytes } from 'node:crypto';
 import { init } from '@embedpdf/pdfium';
 import { PNG } from 'pngjs';
 import fontkit from '@pdf-lib/fontkit';
+import {
+  findDocumentFont,
+  isDocumentFont,
+  loadDocumentFont,
+} from '../src/lib/server/document-fonts.mjs';
 import { isPdfTextSize } from '../src/lib/pdf-text-size.mjs';
 import { isPdfTextOffset, moveTextMatrix } from '../src/lib/pdf-text-position.mjs';
 import {
@@ -144,7 +149,9 @@ export async function processTextPdf(bytes, job) {
   }
   async function loadFontFace(face, text) {
     if (!loadedFonts.has(face.name)) {
-      const data = await readFile(new URL(`../public${face.url}`, import.meta.url));
+      const data = face.google
+        ? await loadDocumentFont(face.name)
+        : await readFile(new URL(`../public${face.url}`, import.meta.url));
       const parsed = fontkit.create(data);
       const ptr = alloc(data.length);
       try {
@@ -199,7 +206,7 @@ export async function processTextPdf(bytes, job) {
       for (const change of job.changes) {
         if (changes.has(change.id))
           throw new Error('A text block was changed more than once in this request.');
-        if (change.font !== 'original' && !fonts.includes(change.font))
+        if (change.font !== 'original' && !isDocumentFont(change.font))
           throw new Error('Choose an available text font.');
         if (!isPdfTextSize(change.size)) throw new Error('Choose a valid positive text size.');
         if (!isPdfTextOffset(change.offset)) throw new Error('Choose a valid text position.');
@@ -338,7 +345,11 @@ export async function processTextPdf(bytes, job) {
               );
               const exactFace = completeOriginalFont(font);
               const complete =
-                missing.size && exactFace ? await loadFontFace(exactFace, change.text) : 0;
+                findDocumentFont(change.font) && change.text
+                  ? await loadFontFace({ name: change.font, google: true }, change.text)
+                  : missing.size && exactFace
+                    ? await loadFontFace(exactFace, change.text)
+                    : 0;
               const runs = [];
               if (missing.size && !complete) {
                 const fallback = await loadFontFace(

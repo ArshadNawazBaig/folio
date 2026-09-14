@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { replacementFonts, textFonts } from './pro-types';
+import { replacementFonts, type TextFont, type DocumentFont } from './pro-types';
+import { isDocumentFont } from './document-font-registry.mjs';
 import { isPdfTextSize } from './pdf-text-size.mjs';
 import type { EditorMode, EditorState } from './types';
 import type { TextInspection } from './pro-types';
@@ -11,7 +12,7 @@ const textChange = z.object({
   id,
   original: z.string().max(10000),
   text: z.string().max(2000),
-  font: z.enum(textFonts),
+  font: z.custom<TextFont>((value) => value === 'original' || isDocumentFont(value)),
   size: number.refine(isPdfTextSize, 'Choose a valid positive text size.'),
   color,
   offset: z
@@ -62,6 +63,7 @@ export const workspaceSchema = z
             text: z.string().max(50000),
             color,
             size: number.nonnegative(),
+            font: z.custom<DocumentFont>(isDocumentFont).optional(),
             opacity: number.min(0).max(1),
             points: z
               .array(z.object({ x: number, y: number }))

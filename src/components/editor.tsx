@@ -1,7 +1,15 @@
 'use client';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -32,17 +40,15 @@ import { UploadArea } from './upload';
 import { PdfCanvas } from './pdf-canvas';
 import { EditorContentSkeleton } from './editor-skeleton';
 import { Dropdown } from './dropdown';
+import { FontPicker } from './font-picker';
+import { documentFontStyle } from '@/lib/document-fonts.mjs';
+import { useDocumentFonts } from '@/lib/document-font-client';
 import { EditorToolbar, type EditorMode } from './editor-toolbar';
 import { useAccount } from './account-provider';
 import { InlinePdfText } from './inline-pdf-text';
 import { PdfTextSizeInput } from './pdf-text-size-input';
 import { DownloadGate } from './download-gate';
-import {
-  defaultTextChange,
-  hasTextChanges,
-  textFontOptions,
-  unchangedText,
-} from '@/lib/editor-text';
+import { defaultTextChange, hasTextChanges, unchangedText } from '@/lib/editor-text';
 import { exportWorkspacePdf, requestTextPdf } from '@/lib/editor-text-client';
 import { readProDraft } from '@/lib/pro-draft';
 import { AccountRequestError } from '@/lib/auth-client';
@@ -72,6 +78,9 @@ export function Editor() {
     index: 0,
   });
   const state = history.states[history.index];
+  const annotationFonts = useDocumentFonts(
+    state.annotations.flatMap((annotation) => (annotation.font ? [annotation.font] : [])),
+  );
   const stateRef = useRef(state);
   useEffect(() => {
     stateRef.current = state;
@@ -1480,6 +1489,7 @@ export function Editor() {
                             width: a.width * scale,
                             height: a.height * scale,
                             fontSize: a.size * scale,
+                            ...(a.font ? (documentFontStyle(a.font) as CSSProperties) : {}),
                             color: a.color,
                           }}
                           onPointerDown={(e) => beginMove(e, a)}
@@ -1541,7 +1551,11 @@ export function Editor() {
                                 aria-label="Edit added text"
                                 autoFocus
                                 value={a.text}
-                                style={{ fontSize: a.size * scale, color: a.color }}
+                                style={{
+                                  fontSize: a.size * scale,
+                                  color: a.color,
+                                  ...(a.font ? (documentFontStyle(a.font) as CSSProperties) : {}),
+                                }}
                                 onPointerDown={(event) => event.stopPropagation()}
                                 onChange={(event) =>
                                   updateAnnotation(
@@ -1912,7 +1926,8 @@ export function Editor() {
                     <p className="panel-description">
                       Type directly on the page. Drag the move handle to reposition this text.
                     </p>
-                    <Dropdown
+                    <FontPicker
+                      key={originalSelection.id}
                       label="Text font"
                       value={
                         (
@@ -1920,10 +1935,8 @@ export function Editor() {
                           defaultTextChange(originalSelection)
                         ).font
                       }
-                      options={textFontOptions(originalSelection)}
-                      onValueChange={(font) =>
-                        updateOriginalText(originalSelection, { font: font as TextChange['font'] })
-                      }
+                      original={originalSelection}
+                      onChange={(font) => updateOriginalText(originalSelection, { font })}
                     />
                     <label>
                       Text size
@@ -2015,6 +2028,18 @@ export function Editor() {
                         This covers content visually. The original content can still be recovered;
                         use a dedicated redaction tool for sensitive information.
                       </p>
+                    )}
+                    {['text', 'signature'].includes(selected.kind) && (
+                      <FontPicker
+                        key={selected.id}
+                        value={
+                          selected.font ||
+                          (selected.kind === 'signature' ? 'Times-Italic' : 'Helvetica')
+                        }
+                        onChange={(font) => {
+                          if (font !== 'original') updateAnnotation(selected.id, { font });
+                        }}
+                      />
                     )}
                     {['text', 'signature', 'field'].includes(selected.kind) && (
                       <label>
@@ -2269,8 +2294,20 @@ export function Editor() {
               </div>
             </aside>
           </div>
-          {(autosave.phase === 'error' || previewError || error || notice) && (
+          {(autosave.phase === 'error' ||
+            previewError ||
+            annotationFonts.error ||
+            error ||
+            notice) && (
             <section className="editor-notifications" aria-label="Editor notifications">
+              {annotationFonts.error && (
+                <div className="editor-toast error-message" role="alert">
+                  <span>{annotationFonts.error}</span>
+                  <button className="text-link" onClick={annotationFonts.retry}>
+                    Retry fonts
+                  </button>
+                </div>
+              )}
               {autosave.phase === 'error' && (
                 <div className="editor-toast error-message" role="alert">
                   <span>{autosave.error} Your current edits remain in this tab.</span>

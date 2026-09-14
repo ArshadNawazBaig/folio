@@ -10,7 +10,8 @@ export const replacementFonts = [
 ] as const;
 export type ReplacementFont = (typeof replacementFonts)[number];
 export const textFonts = ['original', ...replacementFonts] as const;
-export type TextFont = (typeof textFonts)[number];
+export type DocumentFont = ReplacementFont | `google:${string}:${number}:${'normal' | 'italic'}`;
+export type TextFont = 'original' | DocumentFont;
 export type TextBlock = {
   id: string;
   page: number;

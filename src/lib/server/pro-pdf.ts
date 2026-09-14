@@ -1,8 +1,10 @@
 import 'server-only';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
+import { tmpdir } from 'node:os';
 import { z } from 'zod';
-import { textFonts, type TextInspection, type TextPreview } from '../pro-types';
+import { type TextFont, type TextInspection, type TextPreview } from '../pro-types';
+import { isDocumentFont } from '../document-font-registry.mjs';
 import { isPdfTextSize } from '../pdf-text-size.mjs';
 import { ApiError } from './http';
 const edit = z
@@ -10,7 +12,7 @@ const edit = z
     id: z.string().regex(/^\d+:\d+$/),
     original: z.string().max(10000),
     text: z.string().max(2000),
-    font: z.enum(textFonts),
+    font: z.custom<TextFont>((value) => value === 'original' || isDocumentFont(value)),
     size: z.number().refine(isPdfTextSize, 'Choose a valid positive text size.'),
     color: z.string().regex(/^#[\da-f]{6}$/i),
     offset: z
@@ -52,7 +54,10 @@ export function runProPdf(
     const child = spawn(
       process.execPath,
       ['--max-old-space-size=256', path.join(process.cwd(), 'scripts/pro-pdf-worker.mjs')],
-      { env: { LANG: 'C.UTF-8', NODE_ENV: 'production' }, stdio: ['pipe', 'pipe', 'ignore'] },
+      {
+        env: { LANG: 'C.UTF-8', NODE_ENV: 'production', TMPDIR: tmpdir() },
+        stdio: ['pipe', 'pipe', 'ignore'],
+      },
     );
     let finished = false,
       size = 0;

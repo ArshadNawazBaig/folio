@@ -21,6 +21,8 @@ import {
 } from '@/lib/pdf-original-fonts.mjs';
 import { screenTextOffset, viewportTextOffset } from '@/lib/pdf-text-position.mjs';
 import { PdfPageSkeleton } from './editor-skeleton';
+import { documentFontStyle } from '@/lib/document-fonts.mjs';
+import { useDocumentFonts } from '@/lib/document-font-client';
 
 type Geometry = {
   left: number;
@@ -171,6 +173,7 @@ export function InlinePdfText({
   save: () => void;
 }) {
   const [geometry, setGeometry] = useState<Record<string, Geometry>>({});
+  const documentFonts = useDocumentFonts(Object.values(changes).map((change) => change.font));
   const [originalFonts, setOriginalFonts] = useState<Record<string, CSSProperties>>({});
   const [expandedFonts, setExpandedFonts] = useState<Record<string, CSSProperties>>({});
   const [baseWidth, setBaseWidth] = useState(1);
@@ -497,7 +500,7 @@ export function InlinePdfText({
               ? needsCompleteFont(block, value.text)
                 ? expandedFonts[block.id] || originalTextFont(block)
                 : originalFonts[block.id] || originalTextFont(block)
-              : textFont(value.font)),
+              : (documentFontStyle(value.font) as CSSProperties)),
             fontSize: value.size * box.fontScale * scale,
             color: value.color,
             left: originX,
@@ -680,6 +683,14 @@ export function InlinePdfText({
         })}
       </div>
       <div className="inline-text-status" aria-live="polite">
+        {documentFonts.error && (
+          <span role="alert">
+            {documentFonts.error}
+            <button className="text-link" onClick={documentFonts.retry}>
+              Retry fonts
+            </button>
+          </span>
+        )}
         {error ? (
           <>
             <span role="alert">

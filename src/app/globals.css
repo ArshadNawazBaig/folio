@@ -3596,6 +3596,84 @@ dialog::backdrop {
   font-family: Arial, sans-serif;
   line-height: 1.25;
 }
+.annotation[style*='font-family'] .annotation-content {
+  font-family: inherit;
+  font-weight: inherit;
+  font-style: inherit;
+}
+.font-picker {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.font-picker > small {
+  color: var(--muted);
+}
+.font-style-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+.font-picker-popup {
+  width: max(var(--anchor-width), 310px);
+  max-width: calc(100vw - 24px);
+  max-height: min(520px, var(--available-height), 70dvh);
+}
+.font-picker-popup > :not(.font-library-list) {
+  flex-shrink: 0;
+}
+.font-library-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  font-size: 11px;
+  color: #737b6c;
+  border-bottom: 1px solid #e0e4da;
+}
+.font-library-list {
+  max-height: min(320px, 36vh);
+}
+.font-library-preview {
+  padding: 14px 12px;
+  border-top: 1px solid #e0e4da;
+  font-size: 20px;
+  min-height: 58px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.font-library-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-top: 1px solid #e0e4da;
+  font-size: 12px;
+  color: #737b6c;
+}
+.font-picker-error {
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #a33524;
+  line-height: 1.5;
+}
+.font-picker-error button {
+  display: block;
+  margin-top: 8px;
+}
+.font-library-loading {
+  display: grid;
+  gap: 24px;
+  padding: 18px 12px;
+}
+.font-library-loading span {
+  height: 22px;
+  width: 70%;
+  border-radius: 4px;
+  background: #eef0e7;
+}
 .canvas-bottom-space {
   height: 40px;
 }

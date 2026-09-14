@@ -1,4 +1,4 @@
-import type { TextChange } from './pro-types';
+import type { DocumentFont, TextChange } from './pro-types';
 export type AnnotationKind =
   | 'text'
   | 'highlight'
@@ -27,6 +27,7 @@ export type Annotation = {
   text: string;
   color: string;
   size: number;
+  font?: DocumentFont;
   opacity: number;
   points?: { x: number; y: number }[];
   dataUrl?: string;
