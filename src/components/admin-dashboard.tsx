@@ -20,6 +20,7 @@ import {
   ChevronRight,
   AlertCircle,
   LogOut,
+  BookOpen,
 } from 'lucide-react';
 import { Logo } from './logo';
 import { Dropdown } from './dropdown';
@@ -274,6 +275,10 @@ export function AdminDashboard() {
               {label}
             </button>
           ))}
+          <Link href="/admin/blog">
+            <BookOpen size={18} />
+            Blog posts
+          </Link>
         </nav>
         <Link className="admin-back" href="/">
           Open website <ArrowUpRight size={16} />

@@ -6808,7 +6808,7 @@ dialog::backdrop {
   flex: 1;
   align-content: start;
 }
-.admin-sidebar nav button {
+.admin-sidebar nav :is(button, a) {
   border: 0;
   background: transparent;
   color: #5d6658;
@@ -6821,10 +6821,10 @@ dialog::backdrop {
   gap: 12px;
   cursor: pointer;
 }
-.admin-sidebar nav button:hover {
+.admin-sidebar nav :is(button, a):hover {
   background: #f0f2e9;
 }
-.admin-sidebar nav button[aria-current] {
+.admin-sidebar nav :is(button, a)[aria-current] {
   background: #e7ecdd;
   color: #2e4128;
   font-weight: 700;
@@ -7453,7 +7453,7 @@ dialog::backdrop {
     overflow-x: auto;
     padding-bottom: 6px;
   }
-  .admin-sidebar nav button {
+  .admin-sidebar nav :is(button, a) {
     white-space: nowrap;
     flex-shrink: 0;
     padding: 11px 13px;

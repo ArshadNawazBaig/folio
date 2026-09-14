@@ -33,3 +33,4 @@ dist-ssr
 
 .next-auth-tests
 test-results-auth
+test-results-blog

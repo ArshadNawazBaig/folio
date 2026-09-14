@@ -69,6 +69,8 @@ Open [localhost:3000/support](http://localhost:3000/support) for customer inquir
 
 Follow [docs/ADMIN.md](docs/ADMIN.md) to apply migration 003 and provision your first super admin. No default admin password or client-side role switch is provided.
 
+The super admin **Blog posts** workspace at `/admin/blog` includes a rich post editor, cloud autosave, previews, revisions, publishing/scheduling, and Trash. Readers can find published articles at `/blog` and sign in to like them. Apply [migration 009](supabase/migrations/009_blog.sql) after the earlier migrations; see [docs/BLOG.md](docs/BLOG.md) for setup and editorial workflows.
+
 **Purchases are disabled until your accounts, keys, webhook, database migrations, and matching Stripe prices are configured.** No live payment has been tested. See [docs/BILLING.md](docs/BILLING.md) for the complete setup and verification workflow.
 
 ## Current boundaries

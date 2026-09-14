@@ -5,6 +5,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { createSample } from '../src/lib/sample';
 import { DEFAULT_CATALOG, DEFAULT_SETTINGS } from '../src/lib/platform';
 import { FREE_STORAGE_LIMIT, PRO_STORAGE_LIMIT } from '../src/lib/cloud-types';
+import { blankDraft, type BlogPost, type BlogDraft } from '../src/lib/blog';
 const emptyStorage = {
   limit: FREE_STORAGE_LIMIT,
   used: 0,
@@ -521,6 +522,241 @@ test('editor skeleton preserves the workspace layout during refresh recovery', a
   } finally {
     gate.release();
   }
+});
+
+test('blog editor saves rich text, restores it after refresh, previews and publishes intentionally', async ({
+  page,
+}) => {
+  await mockGoogle(page, true);
+  const posts = new Map<string, BlogPost>();
+  const live = new Map<string, BlogDraft>();
+  const versions = new Map<
+    string,
+    { id: string; version: number; draft: BlogDraft; created_at: string }[]
+  >();
+  let failSave = false;
+  await page.route('**/api/admin/blog**', async (route) => {
+    const url = new URL(route.request().url()),
+      parts = url.pathname.split('/'),
+      id = parts[4],
+      method = route.request().method();
+    if (!id && method === 'POST') {
+      const body = route.request().postDataJSON(),
+        now = new Date().toISOString();
+      const source = posts.get(body.sourceId);
+      const p: BlogPost = {
+        id: body.id,
+        draft: source
+          ? {
+              ...source.draft,
+              title: `${source.draft.title} (copy)`,
+              slug: `copy-${body.id.slice(0, 8)}`,
+            }
+          : blankDraft(`untitled-${body.id.slice(0, 8)}`),
+        status: 'draft',
+        version: 1,
+        published_version: null,
+        published_at: null,
+        public_slug: null,
+        created_at: now,
+        updated_at: now,
+        like_count: 0,
+      };
+      posts.set(p.id, p);
+      await route.fulfill({ status: 201, json: { post: p } });
+      return;
+    }
+    if (!id) {
+      const status = url.searchParams.get('status'),
+        rows = [...posts.values()].filter((p) =>
+          status === 'trashed' ? p.status === 'trashed' : p.status !== 'trashed',
+        );
+      await route.fulfill({ json: { posts: rows, total: rows.length } });
+      return;
+    }
+    const p = posts.get(id)!;
+    if (parts[5] === 'revisions') {
+      await route.fulfill({ json: { revisions: versions.get(id) || [] } });
+      return;
+    }
+    if (method === 'GET') {
+      await route.fulfill({ json: { post: p } });
+      return;
+    }
+    const body = route.request().postDataJSON();
+    if (failSave) {
+      await route.fulfill({
+        status: 503,
+        json: { error: 'The save could not finish. Please retry.' },
+      });
+      return;
+    }
+    if (body.version !== p.version) {
+      await route.fulfill({
+        status: 409,
+        json: { error: 'This post changed in another tab. Your edits are still here.' },
+      });
+      return;
+    }
+    versions.set(id, [
+      {
+        id: crypto.randomUUID(),
+        version: p.version,
+        draft: structuredClone(p.draft),
+        created_at: new Date().toISOString(),
+      },
+      ...(versions.get(id) || []),
+    ]);
+    p.draft = structuredClone(body.draft);
+    p.version++;
+    p.updated_at = new Date().toISOString();
+    if (body.operation === 'publish') {
+      live.set(id, structuredClone(p.draft));
+      p.public_slug = p.draft.slug;
+      p.status = 'published';
+      p.published_version = p.version;
+      p.published_at = body.publishAt || p.published_at || new Date().toISOString();
+    }
+    if (body.operation === 'trash') p.status = 'trashed';
+    if (['restore', 'unpublish'].includes(body.operation)) p.status = 'draft';
+    await route.fulfill({ json: { post: p } });
+  });
+  await page.goto('/admin/blog');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page).toHaveURL(/\/admin\/blog$/);
+  await page.getByRole('button', { name: 'New post', exact: true }).click();
+  await expect(page).toHaveURL(/\/admin\/blog\/[0-9a-f-]+$/);
+  const id = page.url().split('/').pop()!;
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page
+    .getByRole('textbox', { name: 'Post title', exact: true })
+    .fill('A calmer way to work with PDFs');
+  const content = page.getByRole('textbox', { name: 'Post content', exact: true });
+  await content.fill(
+    'Create a little space for good work. Keep your documents clear, organized, and ready to share.',
+  );
+  await content.press('ControlOrMeta+a');
+  await page.getByRole('button', { name: 'Bold', exact: true }).click();
+  await expect(content.locator('strong')).toContainText('Create a little space');
+  await page.getByRole('button', { name: 'Insert link', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Link address' }).fill('https://example.test/documents');
+  await page.getByRole('button', { name: 'Apply link', exact: true }).click();
+  await expect(content.locator('a')).toHaveAttribute('href', 'https://example.test/documents');
+  await content.press('ArrowRight');
+  await content.press('Enter');
+  await page.getByRole('button', { name: 'Insert table', exact: true }).click();
+  await expect(content.locator('table')).toBeVisible();
+  for (const [i, heading] of ['Document', 'Purpose', 'Review'].entries()) {
+    await content.locator('th').nth(i).click();
+    await page.keyboard.type(heading);
+  }
+  await content.locator('td').first().click();
+  await page.keyboard.type('A useful document');
+  await page
+    .getByRole('textbox', { name: 'Post excerpt', exact: true })
+    .fill('A practical guide to keeping everyday documents organized.');
+  await page.getByRole('textbox', { name: 'Post tags', exact: true }).fill('PDF, Productivity');
+  await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+  await expect.poll(() => posts.get(id)?.draft.title).toBe('A calmer way to work with PDFs');
+  expect(posts.get(id)?.draft.slug).toBe('a-calmer-way-to-work-with-pdfs');
+  expect(posts.get(id)?.draft.tags).toEqual(['PDF', 'Productivity']);
+  await expect(page.getByText('All changes saved', { exact: true })).toBeVisible();
+  const accessibility = await new AxeBuilder({ page }).include('main').analyze();
+  expect(accessibility.violations).toEqual([]);
+  await page.screenshot({ path: '/tmp/folio-blog-editor-desktop.png', animations: 'disabled' });
+  await page.reload();
+  await expect(content.locator('strong').first()).toContainText('Create a little space');
+  await expect(content.locator('table')).toContainText('A useful document');
+  await page.getByRole('button', { name: 'Preview', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'A calmer way to work with PDFs', exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('article strong').first()).toContainText('Create a little space');
+  await page.getByRole('button', { name: 'Write', exact: true }).click();
+  await page.getByRole('button', { name: 'Publish', exact: true }).click();
+  await page.getByRole('button', { name: 'Publish now', exact: true }).click();
+  await expect.poll(() => live.get(id)?.title).toBe('A calmer way to work with PDFs');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page
+    .getByRole('textbox', { name: 'Post title', exact: true })
+    .fill('A private draft update');
+  await expect.poll(() => posts.get(id)?.draft.title).toBe('A private draft update');
+  expect(live.get(id)?.title).toBe('A calmer way to work with PDFs');
+  await page.getByRole('button', { name: 'Revisions', exact: true }).click();
+  await page
+    .getByRole('button', { name: /Version/ })
+    .first()
+    .click();
+  await page.getByRole('button', { name: 'Restore draft', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: 'Post title', exact: true })).toHaveValue(
+    'A calmer way to work with PDFs',
+  );
+  await expect(page.getByText('All changes saved', { exact: true })).toBeVisible();
+  failSave = true;
+  await page
+    .getByRole('textbox', { name: 'Post title', exact: true })
+    .fill('Keep these unsaved words');
+  await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'The save could not finish' }),
+  ).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Post title', exact: true })).toHaveValue(
+    'Keep these unsaved words',
+  );
+  failSave = false;
+  await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+  await expect(page.getByText('All changes saved', { exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  await expect(content).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: '/tmp/folio-blog-editor-mobile.png', animations: 'disabled' });
+  await page.getByRole('button', { name: 'Post settings', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: 'Post excerpt', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Close post settings', exact: true }).click();
+  await page.getByRole('link', { name: 'All posts', exact: true }).click();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await expect(
+    page.getByRole('link', { name: 'Keep these unsaved words', exact: true }),
+  ).toBeVisible();
+  await page.screenshot({ path: '/tmp/folio-blog-manager.png', animations: 'disabled' });
+  await page.getByRole('button', { name: 'Trash Keep these unsaved words' }).click();
+  await page.getByRole('button', { name: 'Move to Trash', exact: true }).click();
+  await expect.poll(() => posts.get(id)?.status).toBe('trashed');
+  await page.getByRole('combobox', { name: 'Post status' }).click();
+  await page.getByRole('option', { name: 'Trash', exact: true }).click();
+  await page.getByRole('button', { name: 'Restore Keep these unsaved words' }).click();
+  await expect.poll(() => posts.get(id)?.status).toBe('draft');
+  await page.getByRole('combobox', { name: 'Post status' }).click();
+  await page.getByRole('option', { name: 'All posts', exact: true }).click();
+  await page.getByRole('button', { name: 'Duplicate Keep these unsaved words' }).click();
+  await expect(page.getByRole('textbox', { name: 'Post title', exact: true })).toHaveValue(
+    'Keep these unsaved words (copy)',
+  );
+  const copyId = page.url().split('/').pop()!;
+  expect(posts.size).toBe(2);
+  expect(posts.get(copyId)?.status).toBe('draft');
+  posts.get(copyId)!.version++;
+  await page
+    .getByRole('textbox', { name: 'Post title', exact: true })
+    .fill('Preserve my conflicting edit');
+  await page.getByRole('button', { name: 'Save draft', exact: true }).click();
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'This post changed in another tab' }),
+  ).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Post title', exact: true })).toHaveValue(
+    'Preserve my conflicting edit',
+  );
+});
+
+test('readers cannot open the blog writing workspace', async ({ page }) => {
+  await mockGoogle(page);
+  await page.goto('/admin/blog');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page).toHaveURL(/\/dashboard\?notice=admin-required$/);
+  await page.goto('/admin/blog');
+  await expect(page.getByRole('link', { name: 'Back to your dashboard' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'New post' })).toHaveCount(0);
 });
 
 test('assigned super admin can sign in and sign out from the dashboard', async ({ page }) => {

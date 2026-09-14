@@ -21,7 +21,13 @@ export function safeAuthDestination(value: unknown) {
     return '/account';
   try {
     const url = new URL(value, 'https://folio.invalid');
-    if (url.origin !== 'https://folio.invalid' || !destinations.has(url.pathname))
+    if (url.pathname !== value.split('?')[0]) return '/account';
+    const blogPath = /^\/blog(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/.test(url.pathname);
+    const adminBlogPath = /^\/admin\/blog(?:\/[0-9a-f-]{36})?$/.test(url.pathname);
+    if (
+      url.origin !== 'https://folio.invalid' ||
+      (!destinations.has(url.pathname) && !blogPath && !adminBlogPath)
+    )
       return '/account';
     const plan = url.searchParams.get('plan');
     if (url.pathname === '/dashboard') {
@@ -42,7 +48,8 @@ export function authCallbackUrl(origin: string, destination: string) {
 }
 export function afterSignIn(destination: string, isAdmin: boolean) {
   const target = safeAuthDestination(destination);
-  if (target === '/admin' && !isAdmin) return '/dashboard?notice=admin-required';
+  if ((target === '/admin' || target.startsWith('/admin/')) && !isAdmin)
+    return '/dashboard?notice=admin-required';
   if (target === '/account') return isAdmin ? '/admin' : '/dashboard';
   return target;
 }

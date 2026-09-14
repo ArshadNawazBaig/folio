@@ -5,7 +5,7 @@ The dashboard is at `/admin`. Without configured accounts, it shows an explicit 
 ## Connect the first administrator
 
 1. Configure Supabase Google/email authentication and server credentials as described in [SETUP.md](SETUP.md).
-2. Apply migrations 001–008 in order as described in [SETUP.md](SETUP.md). For an existing installation, apply only missing migrations. Migration 003 enables administration; [007_admin_user_deletion.sql](../supabase/migrations/007_admin_user_deletion.sql) adds permanent user deletion after the storage migrations, and [008_plan_storage_limits.sql](../supabase/migrations/008_plan_storage_limits.sql) adds account storage quotas. Applying these migrations does not delete existing users or files.
+2. Apply migrations 001–009 in order as described in [SETUP.md](SETUP.md). For an existing installation, apply only missing migrations. Migration 003 enables administration; [007_admin_user_deletion.sql](../supabase/migrations/007_admin_user_deletion.sql) adds permanent user deletion after the storage migrations, and [008_plan_storage_limits.sql](../supabase/migrations/008_plan_storage_limits.sql) adds account storage quotas. [009_blog.sql](../supabase/migrations/009_blog.sql) enables the blog workspace at `/admin/blog`; see [BLOG.md](BLOG.md). Applying these migrations does not delete existing users or files.
 3. Sign in once at `/account` with the Google account (or email link) you will use as administrator.
 4. In your trusted Supabase SQL editor, replace the email below with that account’s email and run:
 

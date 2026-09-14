@@ -37,6 +37,7 @@ export function Footer() {
             Explore all tools <ArrowUpRight size={13} />
           </Link>
           <Link href="/guides">Helpful guides</Link>
+          <Link href="/blog">The Folio blog</Link>
           <Link href="/pricing">Pricing</Link>
           <Link href="/support">Contact support</Link>
           <Link href="/about">About Folio</Link>

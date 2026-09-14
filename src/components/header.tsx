@@ -16,6 +16,7 @@ const nav = [
   ['Translate PDF', '/translate-pdf'],
   ['All tools', '/tools'],
   ['Pricing', '/pricing'],
+  ['Blog', '/blog'],
 ];
 export function Header() {
   const { user, loading } = useAccount();
