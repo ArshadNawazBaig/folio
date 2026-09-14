@@ -84,13 +84,25 @@ export async function assertServiceAvailable() {
 export function databaseError(error: { message?: string } | null) {
   if (!error) return;
   const message = error.message || '';
+  if (message.includes('deletion_checkout_busy'))
+    throw new ApiError(
+      409,
+      'Checkout is currently in progress for this user. Wait a minute and retry deletion.',
+    );
+  if (message.includes('deletion_in_progress'))
+    throw new ApiError(
+      409,
+      'This account is being permanently deleted. Retry deletion to finish; it cannot be activated.',
+    );
+  if (message.includes('user_missing'))
+    throw new ApiError(404, 'This user no longer exists. Refresh the user list.');
   if (message.includes('pricing_changed'))
     throw new ApiError(
       409,
       'Pricing changed while you were editing. Reload and review the latest plan.',
     );
   if (message.includes('protected_admin'))
-    throw new ApiError(400, 'Super admin accounts cannot be suspended here.');
+    throw new ApiError(400, 'Super admin accounts cannot be suspended or deleted here.');
   if (/admin_required|ticket_forbidden/.test(message))
     throw new ApiError(403, 'You do not have access to this action.');
   throw new ApiError(503, 'The change could not be saved. Please try again.');

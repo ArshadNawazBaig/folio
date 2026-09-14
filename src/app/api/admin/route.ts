@@ -10,6 +10,7 @@ import {
   databaseError,
 } from '@/lib/server/platform';
 import { stripeClient, syncSubscription, billingReady } from '@/lib/server/billing';
+import { deleteUser } from '@/lib/server/delete-user';
 export const runtime = 'nodejs';
 const querySchema = z.object({
   view: z
@@ -41,6 +42,10 @@ export async function GET(request: Request) {
       );
       databaseError(error);
       result[q.view] = data;
+      if (q.view === 'users') {
+        const readiness = await db.from('user_deletions').select('user_id').limit(0);
+        result.userDeletionReady = !readiness.error;
+      }
     }
     if (q.view === 'overview' || q.view === 'audit') {
       const { data, error } = await db
@@ -96,6 +101,10 @@ export async function POST(request: Request) {
       throw new ApiError(400, 'Review the form values and include a reason for the change.');
     const action = parsed.data,
       db = adminDb();
+    if (action.action === 'delete_user') {
+      await deleteUser(actor.id, action.userId, action.reason);
+      return Response.json({ saved: true, deleted: true });
+    }
     if (action.action === 'settings') {
       const { error } = await db.rpc('admin_save_settings', {
         actor: actor.id,

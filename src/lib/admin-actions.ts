@@ -2,6 +2,14 @@ import { z } from 'zod';
 import { pricingSchema, settingsSchema } from './platform';
 const reason = z.string().trim().min(3).max(500);
 export const adminAction = z.discriminatedUnion('action', [
+  z
+    .object({
+      action: z.literal('delete_user'),
+      userId: z.uuid(),
+      confirmation: z.literal('DELETE'),
+      reason,
+    })
+    .strict(),
   z.object({ action: z.literal('settings'), settings: settingsSchema }).strict(),
   z
     .object({

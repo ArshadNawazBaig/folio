@@ -84,6 +84,7 @@ export type AdminUser = {
   suspended: boolean;
   is_admin: boolean;
   grant_until: string | null;
+  deletion_pending?: boolean;
 };
 export type AdminSubscription = {
   stripe_subscription_id: string;

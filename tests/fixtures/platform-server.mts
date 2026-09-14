@@ -41,6 +41,8 @@ for (const name of [
   '003_platform_admin.sql',
   '004_cloud_documents.sql',
   '006_editor_autosave.sql',
+  '005_cloud_recovery.sql',
+  '007_admin_user_deletion.sql',
 ])
   await db.exec(
     await readFile(new URL(`../../supabase/migrations/${name}`, import.meta.url), 'utf8'),
@@ -53,7 +55,10 @@ await db.query('insert into super_admins(user_id) values ($1)', [admin]);
 await db.exec('set role service_role');
 const fetchOriginal = globalThis.fetch;
 const cloudObjects = new Map<string, { size: number; content_type: string }>();
+const recoveryObjects = new Set<string>();
 let failCloudDelete = false;
+let failAuthDelete = false;
+let loseAuthDeleteResponse = false;
 const ident = (s: string) => {
   assert.match(s, /^[a-z_]+$/);
   return `"${s}"`;
@@ -73,6 +78,7 @@ globalThis.fetch = async (input, init) => {
     const user = (
       await db.query<{ email: string }>('select email from auth.users where id=$1', [token])
     ).rows[0];
+    if (!user) return Response.json({ message: 'User not found' }, { status: 401 });
     return Response.json({
       id: token,
       email: user.email,
@@ -84,6 +90,29 @@ globalThis.fetch = async (input, init) => {
     });
   }
   assert.equal(req.headers.get('apikey'), 'test-service');
+  if (url.pathname.startsWith('/auth/v1/admin/users/') && req.method === 'DELETE') {
+    if (failAuthDelete) return Response.json({ message: 'Auth unavailable' }, { status: 503 });
+    const id = url.pathname.split('/').pop()!;
+    const exists = await db.query('select id from auth.users where id=$1', [id]);
+    if (!exists.rows.length) return Response.json({ code: 'user_not_found' }, { status: 404 });
+    const ownedObjects = await db.query('select id from storage.objects where owner_id=$1', [id]);
+    assert.equal(ownedObjects.rows.length, 0, 'Auth deletion must follow storage cleanup');
+    await db.exec('reset role');
+    try {
+      await db.query('delete from auth.users where id=$1', [id]);
+    } finally {
+      await db.exec('set role service_role');
+    }
+    if (loseAuthDeleteResponse)
+      return Response.json({ message: 'Response lost after commit' }, { status: 503 });
+    return Response.json({
+      id,
+      aud: 'authenticated',
+      app_metadata: {},
+      user_metadata: {},
+      created_at: new Date().toISOString(),
+    });
+  }
   if (url.pathname.startsWith('/storage/v1/object/info/folio-documents/')) {
     const path = url.pathname.split('/folio-documents/')[1];
     const object = cloudObjects.get(path);
@@ -107,10 +136,23 @@ globalThis.fetch = async (input, init) => {
         '?token=fixture',
     });
   }
-  if (url.pathname === '/storage/v1/object/folio-documents' && req.method === 'DELETE') {
+  if (
+    ['/storage/v1/object/folio-documents', '/storage/v1/object/folio-recovery'].includes(
+      url.pathname,
+    ) &&
+    req.method === 'DELETE'
+  ) {
     if (failCloudDelete) return Response.json({ message: 'Storage unavailable' }, { status: 503 });
     const body = await req.json();
-    for (const path of body.prefixes) cloudObjects.delete(path);
+    const bucket = url.pathname.split('/').pop()!;
+    for (const path of body.prefixes) {
+      if (bucket === 'folio-documents') cloudObjects.delete(path);
+      else recoveryObjects.delete(path);
+    }
+    await db.query('delete from storage.objects where bucket_id=$1 and name=any($2::text[])', [
+      bucket,
+      body.prefixes,
+    ]);
     return Response.json([]);
   }
   try {
@@ -139,6 +181,7 @@ globalThis.fetch = async (input, init) => {
         'support_messages',
         'admin_audit',
         'cloud_documents',
+        'user_deletions',
       ].includes(table),
     );
     const params: unknown[] = [];
@@ -783,8 +826,273 @@ try {
     ).rows[0].monthly_amount,
     DEFAULT_CATALOG.monthlyAmount,
   );
+  // Activation restores access; deletion is a separate, confirmed operation.
+  const activate = {
+    action: 'user',
+    userId: customer,
+    operation: 'restore',
+    reason: 'Account reviewed',
+  };
+  assert.equal((await adminApi.POST(request('/api/admin', admin, activate))).status, 200);
+  assert.equal((await filesApi.GET(request('/api/account/files', customer))).status, 200);
+  const deletion = {
+    action: 'delete_user',
+    userId: customer,
+    confirmation: 'DELETE',
+    reason: 'Customer requested deletion',
+  };
+  assert.equal((await adminApi.POST(request('/api/admin', undefined, deletion))).status, 401);
+  assert.equal((await adminApi.POST(request('/api/admin', other, deletion))).status, 403);
+  assert.equal(
+    (await adminApi.POST(request('/api/admin', admin, { ...deletion, confirmation: 'yes' })))
+      .status,
+    400,
+  );
+  assert.equal(
+    (await adminApi.POST(request('/api/admin', admin, { ...deletion, userId: admin }))).status,
+    400,
+  );
+  await db.query('insert into super_admins(user_id) values ($1)', [other]);
+  assert.equal(
+    (await adminApi.POST(request('/api/admin', admin, { ...deletion, userId: other }))).status,
+    400,
+  );
+  await db.query('delete from super_admins where user_id=$1', [other]);
+  const absent = '00000000-0000-4000-8000-000000000099';
+  assert.equal(
+    (await adminApi.POST(request('/api/admin', admin, { ...deletion, userId: absent }))).status,
+    404,
+  );
+  const ready = await (await adminApi.GET(request('/api/admin?view=users', admin))).json();
+  assert.equal(ready.userDeletionReady, true);
+  await db.query(
+    "update billing_customers set checkout_lock_until=now()+interval '1 minute' where user_id=$1",
+    [customer],
+  );
+  assert.equal((await adminApi.POST(request('/api/admin', admin, deletion))).status, 409);
+  assert.equal((await db.query('select * from user_deletions')).rows.length, 0);
+  await db.query('update billing_customers set checkout_lock_until=null where user_id=$1', [
+    customer,
+  ]);
+
+  // Owned, claimed-guest, orphaned and recovery objects must all be removed.
+  const ownedPath = `${customer}/owned.pdf`,
+    claimedPath = 'guest/claimed/document.pdf';
+  const orphanPath = `${customer}/orphan.pdf`,
+    otherPath = `${other}/keep.pdf`;
+  for (const [owner, objectPath] of [
+    [customer, ownedPath],
+    [customer, claimedPath],
+    [other, otherPath],
+  ]) {
+    await db.query(
+      "insert into cloud_documents(user_id,name,object_path,size,status) values ($1,'Saved.pdf',$2,80,'ready')",
+      [owner, objectPath],
+    );
+  }
+  for (const objectPath of [ownedPath, claimedPath, orphanPath, otherPath]) {
+    cloudObjects.set(objectPath, { size: 80, content_type: 'application/pdf' });
+    await db.query(
+      "insert into storage.objects(bucket_id,name,owner_id) values ('folio-documents',$1,$2)",
+      [objectPath, objectPath === claimedPath ? null : objectPath.split('/')[0]],
+    );
+  }
+  for (const owner of [customer, other]) {
+    const objectPath = `${owner}/pro-text.json`;
+    recoveryObjects.add(objectPath);
+    await db.query(
+      "insert into storage.objects(bucket_id,name,owner_id) values ('folio-recovery',$1,$2)",
+      [objectPath, owner],
+    );
+  }
+  await db.query(
+    "insert into support_tickets(email,name,subject,message) values ('CUSTOMER@example.test','Guest','Old inquiry','Private text')",
+  );
+  await db.query(
+    "insert into support_tickets(user_id,email,name,subject,message) values ($1,'other@example.test','Other','Keep inquiry','Keep text')",
+    [other],
+  );
+  // Former administrator references must not block removal or erase others' grants.
+  await db.query(
+    "insert into access_grants(user_id,until_at,reason,granted_by) values ($1,now()+interval '1 day','Keep grant',$2)",
+    [other, customer],
+  );
+  await db.query(
+    "insert into admin_audit(actor_id,action,target) values ($1,'past.action','past-target')",
+    [customer],
+  );
+
+  delete process.env.STRIPE_SECRET_KEY;
+  let response = await adminApi.POST(request('/api/admin', admin, deletion));
+  assert.equal(response.status, 503);
+  assert.match(await response.text(), /Connect Stripe/);
+  assert.equal(cloudObjects.has(ownedPath), true);
+  assert.equal((await filesApi.GET(request('/api/account/files', customer))).status, 403);
+  assert.equal((await adminApi.POST(request('/api/admin', admin, activate))).status, 409);
+  const pending = await (await adminApi.GET(request('/api/admin?view=users', admin))).json();
+  assert.equal(
+    pending.users.rows.find((row: { id: string }) => row.id === customer).deletion_pending,
+    true,
+  );
+  for (const query of [
+    'update billing_customers set checkout_lock_until=now() where user_id=$1',
+    "insert into cloud_documents(user_id,name,object_path,size) values ($1,'Later.pdf','late/upload.pdf',80)",
+    'update access_grants set until_at=now() where user_id=$1',
+  ])
+    await assert.rejects(db.query(query, [customer]), /deletion_in_progress/);
+
+  process.env.STRIPE_SECRET_KEY = 'sk_test_fixture';
+  let failBillingDelete = true,
+    stripeDeleted = false,
+    stripeDeleteCount = 0;
+  mock.method(resources.Customers.prototype, 'retrieve', async (id: string) => {
+    assert.equal(id, 'cus_customer');
+    return { id, deleted: stripeDeleted };
+  });
+  mock.method(resources.Customers.prototype, 'del', async (id: string) => {
+    assert.equal(id, 'cus_customer');
+    if (failBillingDelete) throw new Error('Stripe unavailable');
+    stripeDeleteCount++;
+    stripeDeleted = true;
+    return { id, deleted: true };
+  });
+  response = await adminApi.POST(request('/api/admin', admin, deletion));
+  assert.equal(response.status, 503);
+  assert.match(await response.text(), /Billing cleanup/);
+  assert.equal(cloudObjects.has(ownedPath), true);
+  failBillingDelete = false;
+  failCloudDelete = true;
+  response = await adminApi.POST(request('/api/admin', admin, deletion));
+  assert.equal(response.status, 503);
+  assert.match(await response.text(), /files could not be deleted/);
+  assert.equal(stripeDeleteCount, 1);
+  assert.equal(cloudObjects.has(ownedPath), true);
+  assert.equal(
+    (await db.query('select id from auth.users where id=$1', [customer])).rows.length,
+    1,
+  );
+  failCloudDelete = false;
+  failAuthDelete = true;
+  response = await adminApi.POST(request('/api/admin', admin, deletion));
+  assert.equal(response.status, 503);
+  assert.match(await response.text(), /Account deletion could not finish/);
+  assert.equal(cloudObjects.has(ownedPath), false);
+  assert.equal(cloudObjects.has(claimedPath), false);
+  assert.equal(cloudObjects.has(orphanPath), false);
+  assert.equal(recoveryObjects.has(`${customer}/pro-text.json`), false);
+  assert.equal(
+    (await db.query('select id from cloud_documents where user_id=$1', [customer])).rows.length,
+    2,
+    'Keep metadata until Auth cleanup succeeds',
+  );
+  failAuthDelete = false;
+  loseAuthDeleteResponse = true;
+  response = await adminApi.POST(request('/api/admin', admin, deletion));
+  assert.equal(response.status, 200, await response.clone().text());
+  loseAuthDeleteResponse = false;
+  assert.deepEqual(await response.json(), { saved: true, deleted: true });
+  assert.equal(
+    (await adminApi.POST(request('/api/admin', admin, deletion))).status,
+    200,
+    'Completed deletion is safe to retry',
+  );
+  assert.equal(stripeDeleteCount, 1);
+  assert.equal(
+    (await db.query('select id from auth.users where id=$1', [customer])).rows.length,
+    0,
+  );
+  for (const table of [
+    'cloud_documents',
+    'billing_customers',
+    'billing_subscriptions',
+    'account_controls',
+    'access_grants',
+    'pro_usage',
+  ])
+    assert.equal(
+      (await db.query(`select user_id from ${ident(table)} where user_id=$1`, [customer])).rows
+        .length,
+      0,
+      table,
+    );
+  assert.equal(
+    (await db.query("select id from support_tickets where lower(email)='customer@example.test'"))
+      .rows.length,
+    0,
+  );
+  assert.equal(
+    (
+      await db.query('select id from support_messages where author_id=$1 or ticket_id=$2', [
+        customer,
+        id,
+      ])
+    ).rows.length,
+    0,
+  );
+  const audit = await db.query<{ action: string }>(
+    'select action from admin_audit where actor_id=$1::uuid or target=$1::text',
+    [customer],
+  );
+  assert.deepEqual(
+    audit.rows.map((row) => row.action),
+    ['user.delete'],
+  );
+  assert.equal(
+    (await db.query("select id from admin_audit where target=$1 or target='sub_customer'", [id]))
+      .rows.length,
+    0,
+  );
+  assert.equal(
+    (
+      await db.query<{ status: string }>('select status from user_deletions where user_id=$1', [
+        customer,
+      ])
+    ).rows[0].status,
+    'deleted',
+  );
+  assert.equal(cloudObjects.has(otherPath), true);
+  assert.equal(recoveryObjects.has(`${other}/pro-text.json`), true);
+  assert.equal(
+    (await db.query('select id from support_tickets where user_id=$1', [other])).rows.length,
+    1,
+  );
+  assert.equal(
+    (
+      await db.query<{ granted_by: string | null }>(
+        'select granted_by from access_grants where user_id=$1',
+        [other],
+      )
+    ).rows[0].granted_by,
+    null,
+  );
+  assert.equal((await filesApi.GET(request('/api/account/files', customer))).status, 401);
+  assert.equal((await filesApi.GET(request('/api/account/files', other))).status, 200);
+
+  // Even a still-valid JWT cannot recreate deleted recovery data or run admin RPCs.
+  await db.exec('reset role; set role authenticated');
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)", [customer]);
+  await assert.rejects(
+    db.query("insert into storage.objects(bucket_id,name) values ('folio-recovery',$1)", [
+      `${customer}/pro-text.json`,
+    ]),
+    /row-level security/,
+  );
+  for (const query of [
+    "select public.begin_user_deletion($1,$2,'Reason')",
+    'select public.user_deletion_objects($1,$2)',
+    'select public.finish_user_deletion($1,$2)',
+  ])
+    await assert.rejects(db.query(query, [admin, other]), /permission denied/);
+  await db.exec('reset role; set role service_role');
+  // A user without any Stripe customer can also be deleted without Stripe configured.
+  delete process.env.STRIPE_SECRET_KEY;
+  response = await adminApi.POST(request('/api/admin', admin, { ...deletion, userId: other }));
+  assert.equal(response.status, 200, await response.clone().text());
+  assert.equal(cloudObjects.has(otherPath), false);
+  assert.equal(recoveryObjects.has(`${other}/pro-text.json`), false);
+  assert.equal((await adminApi.GET(request('/api/admin', admin))).status, 200);
   console.log(
-    'Server routes verified: admin authorization, grants, suspension, support ownership, maintenance recovery.',
+    'Server routes verified: admin authorization, activation, complete user deletion, failure recovery, storage isolation, billing cleanup, support and maintenance.',
   );
 } finally {
   mock.restoreAll();

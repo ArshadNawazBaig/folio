@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
@@ -18,12 +19,13 @@ import {
   ChevronLeft,
   ChevronRight,
   AlertCircle,
+  LogOut,
 } from 'lucide-react';
 import { Logo } from './logo';
 import { Dropdown } from './dropdown';
 import { SignInForm } from './sign-in-form';
 import { useAccount } from './account-provider';
-import { accountFetch } from '@/lib/auth-client';
+import { accountFetch, authClient } from '@/lib/auth-client';
 import {
   DEFAULT_CATALOG,
   DEFAULT_SETTINGS,
@@ -55,6 +57,7 @@ type Snapshot = {
   catalog: PricingCatalog;
   settings: SiteSettings;
   stripeReady: boolean;
+  userDeletionReady?: boolean;
   overview?: AdminOverview;
   users?: { rows: AdminUser[]; total: number };
   subscriptions?: { rows: AdminSubscription[]; total: number };
@@ -78,6 +81,8 @@ const empty: Snapshot = {
 const date = (value: string | null) => (value ? new Date(value).toLocaleDateString() : '—');
 export function AdminDashboard() {
   const { user, configured, loading: accountLoading } = useAccount();
+  const router = useRouter();
+  const [signingOut, setSigningOut] = useState(false);
   const [section, setSection] = useState<AdminSection>('overview'),
     [data, setData] = useState<Snapshot>(empty),
     [authorized, setAuthorized] = useState(false),
@@ -96,6 +101,7 @@ export function AdminDashboard() {
     [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS),
     [pending, setPending] = useState<AdminAction | null>(null),
     [reason, setReason] = useState('');
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const modal = useRef<HTMLDialogElement>(null),
     generation = useRef(0);
   const load = useCallback(async () => {
@@ -150,6 +156,7 @@ export function AdminDashboard() {
   useEffect(() => {
     if (reviewOpen) {
       setReason('');
+      setDeleteConfirmation('');
       setError('');
       modal.current?.showModal();
     } else modal.current?.close();
@@ -177,15 +184,47 @@ export function AdminDashboard() {
       });
       setPending(null);
       setReply('');
-      setNotice('Saved. The change has been recorded in the activity log.');
+      setNotice(
+        action.action === 'delete_user'
+          ? 'The user and their app data have been permanently deleted.'
+          : action.action === 'user' && action.operation === 'restore'
+            ? 'The user is active and can access their account again.'
+            : 'Saved. The change has been recorded in the activity log.',
+      );
       await load();
     } catch (e) {
+      // A failed deletion can already have suspended the account. Refresh the
+      // row so activation stays disabled and the retry action reflects that.
+      if (action.action === 'delete_user') await load();
       setError(e instanceof Error ? e.message : 'The change could not be saved.');
     } finally {
       setBusy(false);
     }
   }
-  const enabled = authorized && !busy && !loading;
+  async function signOut() {
+    if (signingOut || busy) return;
+    setSigningOut(true);
+    setError('');
+    try {
+      const client = authClient();
+      if (!client) throw new Error('Accounts are not connected.');
+      const result = await client.auth.signOut({ scope: 'local' });
+      if (result.error) throw result.error;
+      generation.current++;
+      setAuthorized(false);
+      setData(empty);
+      setPending(null);
+      setTicket(null);
+      setReply('');
+      setSettings(DEFAULT_SETTINGS);
+      setPricing(DEFAULT_CATALOG);
+      router.replace('/account');
+    } catch {
+      setError('Sign-out could not finish. Please try again.');
+      setSigningOut(false);
+    }
+  }
+  const enabled = authorized && !busy && !loading && !signingOut;
   const total =
     section === 'users'
       ? data.users?.total || 0
@@ -194,13 +233,17 @@ export function AdminDashboard() {
         : data.tickets?.total || 0;
   const title = navigation.find((item) => item[0] === section)![1];
   const actionTitle =
-    pending?.action === 'pricing'
-      ? 'Publish new pricing?'
-      : pending?.action === 'subscription'
-        ? 'Change this subscription?'
-        : pending?.action === 'user'
-          ? 'Update this user’s access?'
-          : 'Save site settings?';
+    pending?.action === 'delete_user'
+      ? 'Permanently delete this user?'
+      : pending?.action === 'pricing'
+        ? 'Publish new pricing?'
+        : pending?.action === 'subscription'
+          ? 'Change this subscription?'
+          : pending?.action === 'user'
+            ? pending.operation === 'restore'
+              ? 'Activate this user?'
+              : 'Update this user’s access?'
+            : 'Save site settings?';
   return (
     <div className="admin-shell">
       <aside className="admin-sidebar">
@@ -233,14 +276,26 @@ export function AdminDashboard() {
             <span className="eyebrow">FOLIO CONTROL ROOM</span>
             <h1>{title}</h1>
           </div>
-          <button
-            className="button secondary"
-            onClick={() => void load()}
-            disabled={!user || loading || busy}
-          >
-            <RefreshCw size={15} />
-            {loading ? 'Refreshing…' : 'Refresh'}
-          </button>
+          <div className="admin-topbar-actions">
+            <button
+              className="button secondary"
+              onClick={() => void load()}
+              disabled={!user || loading || busy || signingOut}
+            >
+              <RefreshCw size={15} />
+              {loading ? 'Refreshing…' : 'Refresh'}
+            </button>
+            {user && (
+              <button
+                className="button secondary"
+                disabled={signingOut || busy}
+                onClick={() => void signOut()}
+              >
+                <LogOut size={15} />
+                {signingOut ? 'Signing out…' : 'Sign out'}
+              </button>
+            )}
+          </div>
         </header>
         {!configured && (
           <div className="admin-setup" role="status">
@@ -381,6 +436,12 @@ export function AdminDashboard() {
                 />
               </label>
             </div>
+            {section === 'users' && authorized && !data.userDeletionReady && (
+              <p className="service-note">
+                To enable permanent user deletion, apply migration 007_admin_user_deletion.sql in
+                your Supabase SQL Editor, then refresh this list.
+              </p>
+            )}
             <div className="admin-table-scroll">
               <table>
                 <thead>
@@ -406,16 +467,18 @@ export function AdminDashboard() {
                             <span className="admin-status">
                               {row.is_admin
                                 ? 'Super admin'
-                                : row.suspended
-                                  ? 'Suspended'
-                                  : 'Active'}
+                                : row.deletion_pending
+                                  ? 'Deletion pending'
+                                  : row.suspended
+                                    ? 'Suspended'
+                                    : 'Active'}
                             </span>
                           </td>
                           <td>{date(row.grant_until)}</td>
                           <td>
                             <div className="admin-row-actions">
                               <button
-                                disabled={!enabled || row.is_admin}
+                                disabled={!enabled || row.is_admin || row.deletion_pending}
                                 onClick={() =>
                                   setPending({
                                     action: 'user',
@@ -426,10 +489,10 @@ export function AdminDashboard() {
                                   })
                                 }
                               >
-                                {row.suspended ? 'Restore' : 'Suspend'}
+                                {row.suspended ? 'Activate' : 'Suspend'}
                               </button>
                               <button
-                                disabled={!enabled}
+                                disabled={!enabled || row.deletion_pending}
                                 onClick={() =>
                                   setPending({
                                     action: 'user',
@@ -444,7 +507,7 @@ export function AdminDashboard() {
                               </button>
                               {row.grant_until && (
                                 <button
-                                  disabled={!enabled}
+                                  disabled={!enabled || row.deletion_pending}
                                   onClick={() =>
                                     setPending({
                                       action: 'user',
@@ -458,6 +521,20 @@ export function AdminDashboard() {
                                   Revoke grant
                                 </button>
                               )}
+                              <button
+                                className="admin-delete-user"
+                                disabled={!enabled || row.is_admin || !data.userDeletionReady}
+                                onClick={() =>
+                                  setPending({
+                                    action: 'delete_user',
+                                    userId: row.id,
+                                    confirmation: 'DELETE',
+                                    reason: '',
+                                  })
+                                }
+                              >
+                                {row.deletion_pending ? 'Retry deletion' : 'Delete user'}
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -919,20 +996,43 @@ export function AdminDashboard() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
+              if (pending.action === 'delete_user' && deleteConfirmation !== 'DELETE') return;
               void save('reason' in pending ? { ...pending, reason } : pending);
             }}
           >
             <p>
-              {pending.action === 'pricing'
-                ? `${pending.pricing.name}: ${money(pending.pricing.monthlyAmount)}/month${pending.pricing.trialEnabled ? `, with ${pending.pricing.trialDays} days for ${money(pending.pricing.trialAmount)}.` : ', with no introductory offer.'} Existing subscriptions keep their current prices.`
-                : pending.action === 'subscription'
-                  ? `${pending.subscriptionId}: ${pending.operation === 'cancel_now' ? 'End the subscription and paid access immediately. This does not issue a refund.' : pending.operation === 'cancel_end' ? 'Stop renewal at the end of the paid period.' : 'Continue automatic renewal at the existing price.'}`
-                  : pending.action === 'user'
-                    ? `${pending.operation.replaceAll('_', ' ')} for account ${pending.userId}. This does not change Stripe billing.`
-                    : pending.action === 'settings'
-                      ? `Maintenance will be ${pending.settings.maintenance ? 'on' : 'off'}. New purchases will be ${pending.settings.purchasesEnabled ? 'enabled when billing is ready' : 'paused'}.`
-                      : 'Update this inquiry.'}
+              {pending.action === 'delete_user'
+                ? `Delete ${data.users?.rows.find((row) => row.id === pending.userId)?.email || pending.userId} and permanently remove their login, stored PDFs, recovery drafts, profile, support conversations, and app billing data. Subscriptions will be canceled. This cannot be undone.`
+                : pending.action === 'pricing'
+                  ? `${pending.pricing.name}: ${money(pending.pricing.monthlyAmount)}/month${pending.pricing.trialEnabled ? `, with ${pending.pricing.trialDays} days for ${money(pending.pricing.trialAmount)}.` : ', with no introductory offer.'} Existing subscriptions keep their current prices.`
+                  : pending.action === 'subscription'
+                    ? `${pending.subscriptionId}: ${pending.operation === 'cancel_now' ? 'End the subscription and paid access immediately. This does not issue a refund.' : pending.operation === 'cancel_end' ? 'Stop renewal at the end of the paid period.' : 'Continue automatic renewal at the existing price.'}`
+                    : pending.action === 'user'
+                      ? `${pending.operation === 'restore' ? 'Activate' : pending.operation.replaceAll('_', ' ')} for account ${pending.userId}. This does not change Stripe billing.`
+                      : pending.action === 'settings'
+                        ? `Maintenance will be ${pending.settings.maintenance ? 'on' : 'off'}. New purchases will be ${pending.settings.purchasesEnabled ? 'enabled when billing is ready' : 'paused'}.`
+                        : 'Update this inquiry.'}
             </p>
+            {pending.action === 'delete_user' && (
+              <>
+                <p className="service-note">
+                  A minimal deletion audit record is kept. Stripe retains historical payment
+                  records; this action does not issue refunds. If cleanup fails, the user stays
+                  suspended until you retry deletion.
+                </p>
+                <label>
+                  Type DELETE to confirm
+                  <input
+                    autoComplete="off"
+                    value={deleteConfirmation}
+                    onChange={(e) => setDeleteConfirmation(e.target.value)}
+                    required
+                    pattern="DELETE"
+                    disabled={busy}
+                  />
+                </label>
+              </>
+            )}
             {pending.action === 'user' && pending.operation === 'grant' && (
               <label>
                 Days of courtesy access
@@ -976,8 +1076,21 @@ export function AdminDashboard() {
               >
                 Cancel
               </button>
-              <button className="button primary" disabled={busy || !authorized}>
-                {busy ? 'Saving…' : 'Confirm change'}
+              <button
+                className="button primary"
+                disabled={
+                  busy ||
+                  !authorized ||
+                  (pending.action === 'delete_user' && deleteConfirmation !== 'DELETE')
+                }
+              >
+                {pending.action === 'delete_user'
+                  ? busy
+                    ? 'Deleting…'
+                    : 'Permanently delete user'
+                  : busy
+                    ? 'Saving…'
+                    : 'Confirm change'}
               </button>
             </div>
           </form>

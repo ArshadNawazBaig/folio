@@ -48,7 +48,12 @@ export async function POST(request: Request) {
           { user_id: user.id, stripe_customer_id: customer.id },
           { onConflict: 'user_id', ignoreDuplicates: true },
         );
-      if (error) throw error;
+      if (error) {
+        // Deletion may suspend the account while customer creation is in
+        // flight. Do not leave the newly created Stripe customer orphaned.
+        if (error.message.includes('deletion_in_progress')) await stripe.customers.del(customer.id);
+        throw error;
+      }
       customerId = customer.id;
     }
     const { data: claimed, error: claimError } = await db.rpc('claim_checkout', {

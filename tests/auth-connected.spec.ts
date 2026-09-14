@@ -145,7 +145,7 @@ test('Google creates a PKCE session, uses the customer account, and signs out', 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: '/tmp/folio-google-login-mobile.png', fullPage: true });
 });
-test('assigned super admin lands in the dashboard after Google sign-in', async ({ page }) => {
+test('assigned super admin can sign in and sign out from the dashboard', async ({ page }) => {
   await mockGoogle(page, true);
   await page.goto('/admin');
   await page.getByRole('button', { name: 'Continue with Google' }).click();
@@ -155,7 +155,143 @@ test('assigned super admin lands in the dashboard after Google sign-in', async (
     page.locator('.admin-metrics article').filter({ hasText: 'Total users' }),
   ).toContainText('3');
   await expect(page.getByRole('button', { name: 'Users', exact: true })).toBeEnabled();
+  const signOut = page.getByRole('button', { name: 'Sign out', exact: true });
+  for (const width of [1440, 320]) {
+    await page.setViewportSize({ width, height: 960 });
+    await expect(signOut).toBeInViewport();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+  }
+  const logout = page.waitForRequest(
+    (request) => new URL(request.url()).pathname === '/auth/v1/logout',
+  );
+  await signOut.click();
+  expect(new URL((await logout).url()).searchParams.get('scope')).toBe('local');
+  await expect(page).toHaveURL(/\/account$/);
+  await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeEnabled();
+  await page.goto('/admin');
+  await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeEnabled();
+  await expect(signOut).toHaveCount(0);
+  await expect(
+    page.locator('.admin-metrics article').filter({ hasText: 'Total users' }),
+  ).not.toContainText('3');
 });
+test('super admin activates users and confirms deletion with retry after cleanup failure', async ({
+  page,
+}) => {
+  await mockGoogle(page, true);
+  const customerId = '00000000-0000-4000-8000-000000000002';
+  const account = {
+    id: customerId,
+    email: 'member@example.test',
+    created_at: new Date().toISOString(),
+    last_sign_in_at: null,
+    suspended: true,
+    is_admin: false,
+    grant_until: null,
+    deletion_pending: false,
+  };
+  let rows = [
+    account,
+    {
+      ...account,
+      id: '00000000-0000-4000-8000-000000000001',
+      email: 'admin@example.test',
+      is_admin: true,
+      suspended: false,
+    },
+  ];
+  let deletionAttempts = 0;
+  const actions: Record<string, unknown>[] = [];
+  await page.route('**/api/admin*', async (route) => {
+    if (route.request().method() === 'POST') {
+      const body = route.request().postDataJSON();
+      actions.push(body);
+      expect(body.userId).toBe(customerId);
+      if (body.action === 'user') {
+        expect(body.operation).toBe('restore');
+        account.suspended = false;
+      } else {
+        expect(body.action).toBe('delete_user');
+        expect(body.confirmation).toBe('DELETE');
+        expect(body.reason).toBe('Customer requested removal');
+        deletionAttempts++;
+        if (deletionAttempts === 1) {
+          account.suspended = true;
+          account.deletion_pending = true;
+          await route.fulfill({
+            status: 503,
+            json: { error: 'Storage cleanup failed. Retry deletion to continue.' },
+          });
+          return;
+        }
+        rows = rows.filter((row) => row.id !== customerId);
+      }
+      await route.fulfill({ json: { saved: true } });
+      return;
+    }
+    await route.fulfill({
+      json: {
+        catalog: DEFAULT_CATALOG,
+        settings: DEFAULT_SETTINGS,
+        stripeReady: true,
+        userDeletionReady: true,
+        overview: { users: 2, paid: 0, trials: 0, operations: 0, suspended: 1, openTickets: 0 },
+        users: { rows, total: rows.length },
+      },
+    });
+  });
+  await page.goto('/admin');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page).toHaveURL(/\/admin$/);
+  await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Users', exact: true }).click();
+  const row = page.getByRole('row').filter({ hasText: 'member@example.test' });
+  const protectedRow = page.getByRole('row').filter({ hasText: 'admin@example.test' });
+  await expect(
+    protectedRow.getByRole('button', { name: 'Delete user', exact: true }),
+  ).toBeDisabled();
+  await expect(protectedRow.getByRole('button', { name: 'Suspend', exact: true })).toBeDisabled();
+  await row.getByRole('button', { name: 'Activate', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('heading')).toHaveText('Activate this user?');
+  await dialog.getByRole('textbox', { name: 'Reason for this change' }).fill('Account reviewed');
+  await dialog.getByRole('button', { name: 'Confirm change' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(row.getByRole('button', { name: 'Suspend', exact: true })).toBeEnabled();
+  await expect(page.getByRole('status')).toContainText('The user is active');
+  await row.getByRole('button', { name: 'Delete user', exact: true }).click();
+  await expect(dialog).toContainText('member@example.test');
+  const confirm = dialog.getByRole('button', { name: 'Permanently delete user', exact: true });
+  await expect(confirm).toBeDisabled();
+  await dialog
+    .getByRole('textbox', { name: 'Reason for this change' })
+    .fill('Customer requested removal');
+  await dialog.getByRole('textbox', { name: 'Type DELETE to confirm' }).fill('delete');
+  await expect(confirm).toBeDisabled();
+  expect(deletionAttempts).toBe(0);
+  await dialog.getByRole('textbox', { name: 'Type DELETE to confirm' }).fill('DELETE');
+  await confirm.click();
+  await expect(dialog.getByRole('alert')).toContainText('Storage cleanup failed');
+  await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(row).toContainText('Deletion pending');
+  await expect(row.getByRole('button', { name: 'Activate', exact: true })).toBeDisabled();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await row.getByRole('button', { name: 'Retry deletion', exact: true }).click();
+  await expect(confirm).toBeDisabled();
+  await dialog.getByRole('textbox', { name: 'Type DELETE to confirm' }).fill('DELETE');
+  await dialog
+    .getByRole('textbox', { name: 'Reason for this change' })
+    .fill('Customer requested removal');
+  await confirm.click();
+  await expect(dialog).toBeHidden();
+  await expect(row).toHaveCount(0);
+  await expect(page.getByRole('status')).toContainText('permanently deleted');
+  expect(actions.map((action) => action.action)).toEqual(['user', 'delete_user', 'delete_user']);
+});
+
 test('regular Google account requested admin access is kept in its own account', async ({
   page,
 }) => {
