@@ -1,6 +1,7 @@
 'use client';
-import { authClient } from './auth-client';
-type RecoverySlot =
+import { accountFetch, authClient } from './auth-client';
+import type { StorageUsage } from './cloud-types';
+export type RecoverySlot =
   'pro-text' | 'translate-pdf' | 'pdf-to-word' | 'pdf-to-excel' | 'pdf-to-powerpoint';
 const bucket = 'folio-recovery';
 const limit = 40 * 1024 * 1024;
@@ -33,6 +34,14 @@ export async function saveCloudRecovery(slot: RecoverySlot, value: unknown, expi
   const path = `${account.id}/${slot}.json`;
   return mutate(path, async () => {
     if ((await identity())?.id !== account.id) return false;
+    const { storage } = (await (await accountFetch('/api/account/files')).json()) as {
+      storage: StorageUsage;
+    };
+    const previousSize = storage.recovery.find((draft) => draft.slot === slot)?.size || 0;
+    if (body.size > previousSize && storage.used - previousSize + body.size > storage.limit)
+      throw new Error(
+        'There is not enough private storage for this recovery draft. Delete older files or recovery drafts in My files, then retry saving.',
+      );
     const { error } = await account.client.storage
       .from(bucket)
       .upload(path, body, { contentType: 'application/json', cacheControl: '0', upsert: true });

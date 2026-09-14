@@ -112,7 +112,7 @@ export function Pricing({
                 'Merge, split, rotate, and organize pages',
                 'Convert PDFs to images and extract text',
                 'Fill forms and create fillable fields',
-                'Save drafts on this device',
+                '100 MB of private cloud storage',
                 'No account needed for local tools',
               ].map((item) => (
                 <li key={item}>
@@ -174,6 +174,7 @@ export function Pricing({
             <ul>
               {[
                 'Everything in Folio Free',
+                '1 GB of private cloud storage',
                 'Replace and delete existing PDF text',
                 'Change replacement fonts, sizes, and colors',
                 'Find and replace across the document',

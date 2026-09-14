@@ -43,6 +43,7 @@ for (const name of [
   '006_editor_autosave.sql',
   '005_cloud_recovery.sql',
   '007_admin_user_deletion.sql',
+  '008_plan_storage_limits.sql',
 ])
   await db.exec(
     await readFile(new URL(`../../supabase/migrations/${name}`, import.meta.url), 'utf8'),
@@ -467,6 +468,8 @@ try {
   const ownFiles = await (await filesApi.GET(request('/api/account/files', customer))).json();
   assert.equal(ownFiles.files.length, 1);
   assert.equal(ownFiles.files[0].status, 'ready');
+  assert.equal(ownFiles.storage.limit, 100 * 1024 * 1024);
+  assert.equal(ownFiles.storage.used, 80);
   assert.equal('user_id' in ownFiles.files[0], false);
   const others = await (
     await filesApi.GET(request('/api/account/files?user_id=' + customer, other))
@@ -493,6 +496,44 @@ try {
   assert.equal((await fileApi.DELETE(fileRequest(customer, 'DELETE'), fileContext)).status, 200);
   assert.equal(cloudObjects.has(reserved.path), false);
   assert.equal((await fileApi.GET(fileRequest(customer), fileContext)).status, 404);
+  const capacityUploads: string[] = [];
+  for (let i = 0; i < 2; i++) {
+    const reservation = await filesApi.POST(
+      request('/api/account/files', customer, { name: 'Capacity.pdf', size: 50 * 1024 * 1024 }),
+    );
+    assert.equal(reservation.status, 201);
+    capacityUploads.push((await reservation.json()).id);
+  }
+  const fullStorage = await (await filesApi.GET(request('/api/account/files', customer))).json();
+  assert.equal(fullStorage.storage.full, true);
+  const rejectedUpload = await filesApi.POST(
+    request('/api/account/files', customer, { name: 'Too much.pdf', size: 1 }),
+  );
+  assert.equal(rejectedUpload.status, 409);
+  assert.match(await rejectedUpload.text(), /Delete older files/);
+  const blockedWorkspace = await workspacesApi.POST(
+    workspaceRequest(
+      { id: '00000000-0000-4000-8000-000000000097', name: 'Another.pdf', size: 1 },
+      customer,
+      '',
+      'POST',
+    ),
+  );
+  assert.equal(blockedWorkspace.status, 409);
+  for (const uploadId of capacityUploads) {
+    const removed = await fileApi.DELETE(
+      new Request(`http://localhost/api/account/files/${uploadId}`, {
+        method: 'DELETE',
+        headers: { authorization: 'Bearer ' + customer },
+      }),
+      { params: Promise.resolve({ id: uploadId }) },
+    );
+    assert.equal(removed.status, 200);
+  }
+  assert.equal(
+    (await (await filesApi.GET(request('/api/account/files', customer))).json()).storage.used,
+    0,
+  );
   assert.equal((await adminApi.GET(request('/api/admin'))).status, 401);
   assert.equal((await adminApi.GET(request('/api/admin', customer))).status, 403);
   assert.equal(
@@ -540,6 +581,10 @@ try {
     }),
   );
   assert.equal(grant.status, 200, await grant.clone().text());
+  assert.equal(
+    (await (await filesApi.GET(request('/api/account/files', customer))).json()).storage.limit,
+    1024 * 1024 * 1024,
+  );
   assert.equal((await pdfApi.POST(request('/api/pro/pdf', customer, {}))).status, 400); // Permission granted; invalid file still rejected.
   const exported = await documentExport.POST(
     request('/api/documents/export', customer, { artifact }),
@@ -892,10 +937,17 @@ try {
   }
   for (const objectPath of [ownedPath, claimedPath, orphanPath, otherPath]) {
     cloudObjects.set(objectPath, { size: 80, content_type: 'application/pdf' });
+    // An orphan from before quota enforcement must still be removed by account deletion.
+    if (objectPath === orphanPath)
+      await db.exec('reset role; alter table storage.objects disable trigger folio_storage_quota;');
     await db.query(
       "insert into storage.objects(bucket_id,name,owner_id) values ('folio-documents',$1,$2)",
       [objectPath, objectPath === claimedPath ? null : objectPath.split('/')[0]],
     );
+    if (objectPath === orphanPath)
+      await db.exec(
+        'alter table storage.objects enable trigger folio_storage_quota; set role service_role;',
+      );
   }
   for (const owner of [customer, other]) {
     const objectPath = `${owner}/pro-text.json`;
@@ -1075,7 +1127,7 @@ try {
     db.query("insert into storage.objects(bucket_id,name) values ('folio-recovery',$1)", [
       `${customer}/pro-text.json`,
     ]),
-    /row-level security/,
+    /row-level security|suspended/,
   );
   for (const query of [
     "select public.begin_user_deletion($1,$2,'Reason')",

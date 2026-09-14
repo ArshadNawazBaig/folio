@@ -20,18 +20,27 @@ import { Dropdown } from '../dropdown';
 import { accountFetch, authClient } from '@/lib/auth-client';
 import { useAccount } from '../account-provider';
 import { finishCloudUpload, readCloudPdf, uploadCloudPdf } from '@/lib/cloud-client';
-import { type CloudDocument } from '@/lib/cloud-types';
+import { storageLabel, type StorageUsage, type CloudDocument } from '@/lib/cloud-types';
+import { clearCloudRecovery, type RecoverySlot } from '@/lib/cloud-recovery';
 import { download, formatBytes } from '@/lib/utils';
 import { LegacyDraftImport } from './legacy-draft-import';
 import s from './dashboard.module.css';
 type Props = {
   files: CloudDocument[];
+  storage: StorageUsage;
   loading: boolean;
   error: string;
   refresh: () => Promise<void>;
   compact?: boolean;
 };
-export function CloudFiles({ files, loading, error, refresh, compact = false }: Props) {
+const recoveryNames: Record<RecoverySlot, string> = {
+  'pro-text': 'PDF text editing draft',
+  'translate-pdf': 'Translation draft',
+  'pdf-to-word': 'Word conversion draft',
+  'pdf-to-excel': 'Excel conversion draft',
+  'pdf-to-powerpoint': 'PowerPoint conversion draft',
+};
+export function CloudFiles({ files, storage, loading, error, refresh, compact = false }: Props) {
   const { user, access } = useAccount();
   const router = useRouter();
   const userId = user?.id;
@@ -56,7 +65,9 @@ export function CloudFiles({ files, loading, error, refresh, compact = false }: 
   const [busy, setBusy] = useState('');
   const [actionError, setActionError] = useState('');
   const [notice, setNotice] = useState('');
-  const [selected, setSelected] = useState<CloudDocument | null>(null);
+  const [selected, setSelected] = useState<
+    (CloudDocument & { recoverySlot?: RecoverySlot }) | null
+  >(null);
   const [action, setAction] = useState<'rename' | 'delete'>('rename');
   const [name, setName] = useState('');
   const input = useRef<HTMLInputElement>(null);
@@ -75,6 +86,12 @@ export function CloudFiles({ files, loading, error, refresh, compact = false }: 
     }
   }
   async function upload(file: File) {
+    if (storage.full || file.size > storage.available) {
+      setActionError(
+        'There is not enough private storage for this PDF. Delete older files or recovery drafts below, then try again.',
+      );
+      return;
+    }
     await perform(
       'Uploading PDF…',
       async () => {
@@ -105,7 +122,7 @@ export function CloudFiles({ files, loading, error, refresh, compact = false }: 
           <p>
             {compact
               ? 'Your latest work, ready to open.'
-              : 'Up to 50 MB per PDF · 500 MB storage · 200 files'}
+              : `Up to 50 MB per PDF · ${storageLabel(storage.limit)} private storage · 200 files`}
           </p>
         </div>
         <div className={s.inlineActions}>
@@ -121,7 +138,7 @@ export function CloudFiles({ files, loading, error, refresh, compact = false }: 
           )}
           <button
             className="button secondary"
-            disabled={!!busy}
+            disabled={!!busy || loading || !!error || storage.full}
             onClick={() => input.current?.click()}
           >
             <Upload size={16} /> Upload PDF
@@ -141,6 +158,12 @@ export function CloudFiles({ files, loading, error, refresh, compact = false }: 
           />
         </div>
       </div>
+      {storage.full && !loading && !error && (
+        <p className="service-note" role="status">
+          Your private storage is full. Delete older files or recovery drafts to upload more.
+          Existing files remain available.
+        </p>
+      )}
       {!compact && (
         <>
           <div className={s.fileControls}>
@@ -214,7 +237,7 @@ export function CloudFiles({ files, loading, error, refresh, compact = false }: 
             {!query && (
               <button
                 className="text-link"
-                disabled={!!busy}
+                disabled={!!busy || storage.full}
                 onClick={() => input.current?.click()}
               >
                 Upload your first PDF <ArrowUpRight size={15} />
@@ -335,6 +358,50 @@ export function CloudFiles({ files, loading, error, refresh, compact = false }: 
         )}
       </>
       {!compact && <LegacyDraftImport refresh={refresh} />}
+      {!compact && !!storage.recovery.length && (
+        <div className={s.recoveryDrafts}>
+          <h3>Recovery drafts</h3>
+          <p>Saved work from other tools also counts toward your private storage.</p>
+          {storage.recovery
+            .filter((draft) => draft.slot in recoveryNames)
+            .map((draft) => {
+              const slot = draft.slot as RecoverySlot;
+              const label = recoveryNames[slot];
+              return (
+                <div className={s.fileRow} key={slot}>
+                  <span className={s.fileIcon}>
+                    <FileText size={23} />
+                  </span>
+                  <div className={s.fileName}>
+                    <strong>{label}</strong>
+                    <small>{formatBytes(draft.size)}</small>
+                  </div>
+                  <button
+                    className="icon-button"
+                    disabled={!!busy}
+                    aria-label={`Delete ${label}`}
+                    onClick={() => {
+                      setSelected({
+                        id: slot,
+                        recoverySlot: slot,
+                        name: label,
+                        size: draft.size,
+                        status: 'ready',
+                        created_at: '',
+                        updated_at: '',
+                      });
+                      setAction('delete');
+                      setActionError('');
+                      dialog.current?.showModal();
+                    }}
+                  >
+                    <Trash2 size={17} />
+                  </button>
+                </div>
+              );
+            })}
+        </div>
+      )}
       <dialog
         className={`confirm-dialog ${s.dialog}`}
         ref={dialog}
@@ -358,16 +425,18 @@ export function CloudFiles({ files, loading, error, refresh, compact = false }: 
             void perform(
               action === 'rename' ? 'Renaming PDF…' : 'Deleting PDF…',
               async () => {
-                await accountFetch(
-                  `/api/account/files/${selected.id}`,
-                  action === 'rename'
-                    ? {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'rename', name }),
-                      }
-                    : { method: 'DELETE' },
-                );
+                if (selected.recoverySlot) await clearCloudRecovery(selected.recoverySlot);
+                else
+                  await accountFetch(
+                    `/api/account/files/${selected.id}`,
+                    action === 'rename'
+                      ? {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ action: 'rename', name }),
+                        }
+                      : { method: 'DELETE' },
+                  );
                 dialog.current?.close();
                 await refresh();
               },
@@ -388,8 +457,9 @@ export function CloudFiles({ files, loading, error, refresh, compact = false }: 
             </label>
           ) : (
             <p>
-              “{selected?.name}” will be permanently removed from your cloud library. Download a
-              copy first if you need to keep it.
+              {selected?.recoverySlot
+                ? `“${selected.name}” will be permanently deleted. You will no longer be able to restore this saved draft.`
+                : `“${selected?.name}” will be permanently removed from your cloud library. Download a copy first if you need to keep it.`}
             </p>
           )}
           {actionError && (

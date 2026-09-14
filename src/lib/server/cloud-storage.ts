@@ -8,7 +8,7 @@ export function cloudError(error: { message: string } | null) {
   if (error.message.includes('storage_limit'))
     throw new ApiError(
       409,
-      'Your cloud storage is full. Remove a file or incomplete upload to make room. Each upload needs 50 MB of free space.',
+      'There is not enough private storage for this upload. Delete older files or recovery drafts in My files, then try again.',
     );
   if (/cloud_documents|reserve_cloud_document|schema cache/i.test(error.message))
     throw new ApiError(503, 'Cloud storage is not ready yet. Please try again later.');

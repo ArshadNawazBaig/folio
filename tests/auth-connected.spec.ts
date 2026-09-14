@@ -4,6 +4,14 @@ import { createHash } from 'node:crypto';
 import AxeBuilder from '@axe-core/playwright';
 import { createSample } from '../src/lib/sample';
 import { DEFAULT_CATALOG, DEFAULT_SETTINGS } from '../src/lib/platform';
+import { FREE_STORAGE_LIMIT, PRO_STORAGE_LIMIT } from '../src/lib/cloud-types';
+const emptyStorage = {
+  limit: FREE_STORAGE_LIMIT,
+  used: 0,
+  available: FREE_STORAGE_LIMIT,
+  full: false,
+  recovery: [],
+};
 async function mockGoogle(page: Page, admin = false, fail = false) {
   let challenge = '';
   const id = '00000000-0000-4000-8000-000000000001',
@@ -95,7 +103,9 @@ async function mockGoogle(page: Page, admin = false, fail = false) {
       },
     });
   });
-  await page.route('**/api/account/files', (route) => route.fulfill({ json: { files: [] } }));
+  await page.route('**/api/account/files', (route) =>
+    route.fulfill({ json: { files: [], storage: emptyStorage } }),
+  );
   await page.route('**/api/account/billing', (route) =>
     route.fulfill({ json: { hasCustomer: false, subscription: null } }),
   );
@@ -145,6 +155,98 @@ test('Google creates a PKCE session, uses the customer account, and signs out', 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: '/tmp/folio-google-login-mobile.png', fullPage: true });
 });
+test('private storage shows plan capacity, blocks full uploads and frees space after deleting drafts', async ({
+  page,
+}) => {
+  await mockGoogle(page);
+  const MB = 1024 * 1024;
+  let capacity = FREE_STORAGE_LIMIT,
+    fileBytes = 80 * MB,
+    recoveryBytes = 20 * MB,
+    uploads = 0;
+  await page.route('**/api/account/files', async (route) => {
+    if (route.request().method() === 'POST') {
+      uploads++;
+      throw new Error('Over-limit uploads must not be sent');
+    }
+    const used = fileBytes + recoveryBytes;
+    await route.fulfill({
+      json: {
+        files: [
+          {
+            id: '00000000-0000-4000-8000-000000000021',
+            name: 'Saved proposal.pdf',
+            size: fileBytes,
+            status: 'ready',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        ],
+        storage: {
+          limit: capacity,
+          used,
+          available: Math.max(0, capacity - used),
+          full: used >= capacity,
+          recovery: recoveryBytes ? [{ slot: 'pro-text', size: recoveryBytes }] : [],
+        },
+      },
+    });
+  });
+  await page.route(
+    'https://folio-auth-tests.example.test/storage/v1/object/folio-recovery',
+    async (route) => {
+      expect(route.request().method()).toBe('DELETE');
+      expect(route.request().postDataJSON().prefixes).toEqual([
+        '00000000-0000-4000-8000-000000000001/pro-text.json',
+      ]);
+      recoveryBytes = 0;
+      await route.fulfill({ json: [] });
+    },
+  );
+  await page.goto('/account');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.getByRole('link', { name: 'My files', exact: false }).first().click();
+  const upload = page.getByRole('button', { name: 'Upload PDF', exact: true });
+  await expect(upload).toBeDisabled();
+  await expect(page.getByRole('progressbar', { name: 'Cloud storage used' })).toHaveAttribute(
+    'max',
+    String(FREE_STORAGE_LIMIT),
+  );
+  await expect(page.getByText('100.0 MB of 100 MB', { exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Saved proposal.pdf', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Delete PDF text editing draft', exact: true }).click();
+  await expect(page.getByRole('dialog')).toContainText('no longer be able to restore');
+  await page.getByRole('button', { name: 'Delete file', exact: true }).click();
+  await expect(upload).toBeEnabled();
+  await expect(page.getByRole('heading', { name: 'Recovery drafts' })).toHaveCount(0);
+  await expect(page.getByText('80.0 MB of 100 MB', { exact: true })).toBeVisible();
+  fileBytes = 99 * MB;
+  await page.getByRole('button', { name: 'Refresh files' }).click();
+  await expect(page.getByText('99.0 MB of 100 MB', { exact: true })).toBeVisible();
+  await page.getByLabel('Upload PDF to cloud').setInputFiles({
+    name: 'Too large.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.alloc(2 * MB),
+  });
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'not enough private storage' }),
+  ).toBeVisible();
+  expect(uploads).toBe(0);
+  capacity = PRO_STORAGE_LIMIT;
+  await page.getByRole('button', { name: 'Refresh files' }).click();
+  await expect(page.getByText('99.0 MB of 1 GB', { exact: true })).toBeVisible();
+  await expect(upload).toBeEnabled();
+  fileBytes = 250 * MB;
+  capacity = FREE_STORAGE_LIMIT;
+  await page.getByRole('button', { name: 'Refresh files' }).click();
+  await expect(page.getByText('250.0 MB of 100 MB', { exact: true })).toBeVisible();
+  await expect(upload).toBeDisabled();
+  await expect(page.getByRole('link', { name: 'Saved proposal.pdf', exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
 test('assigned super admin can sign in and sign out from the dashboard', async ({ page }) => {
   await mockGoogle(page, true);
   await page.goto('/admin');
@@ -428,7 +530,8 @@ test('cloud library uploads, renames, downloads and opens real PDF bytes', async
       expect(body.size).toBe(bytes.length);
       name = body.name;
       await route.fulfill({ status: 201, json: { id, path: `account/${id}.pdf` } });
-    } else await route.fulfill({ json: { files: uploaded ? [record()] : [] } });
+    } else
+      await route.fulfill({ json: { files: uploaded ? [record()] : [], storage: emptyStorage } });
   });
   await page.route(`**/api/account/files/${id}`, async (route) => {
     if (route.request().method() === 'PATCH') {
@@ -512,7 +615,7 @@ test('editor cloud saves and browser draft imports include the finished PDF edit
       expect(body.size).toBeGreaterThan(0);
       const id = '00000000-0000-4000-8000-00000000001' + uploaded.length;
       await route.fulfill({ status: 201, json: { id, path: `account/${id}.pdf` } });
-    } else await route.fulfill({ json: { files: [] } });
+    } else await route.fulfill({ json: { files: [], storage: emptyStorage } });
   });
   await page.route('**/api/account/files/*', (route) =>
     route.fulfill({ json: { status: 'ready' } }),
@@ -749,6 +852,7 @@ test('inline text workspace saves privately, restores annotations and only expor
           created_at: file.updatedAt,
           updated_at: file.updatedAt,
         })),
+        storage: emptyStorage,
       },
     }),
   );

@@ -2,12 +2,7 @@ import { z } from 'zod';
 import { adminDb, requireUser } from '@/lib/server/auth';
 import { apiError, ApiError, boundedBody } from '@/lib/server/http';
 import { cloudError, cloudFields } from '@/lib/server/cloud-storage';
-import {
-  CLOUD_FILE_LIMIT,
-  CLOUD_STORAGE_LIMIT,
-  CLOUD_FILE_COUNT,
-  pdfName,
-} from '@/lib/cloud-types';
+import { CLOUD_FILE_LIMIT, CLOUD_FILE_COUNT, pdfName } from '@/lib/cloud-types';
 export async function GET(request: Request) {
   try {
     const user = await requireUser(request);
@@ -18,7 +13,13 @@ export async function GET(request: Request) {
       .order('updated_at', { ascending: false })
       .limit(CLOUD_FILE_COUNT);
     cloudError(error);
-    return Response.json({ files: data, storageLimit: CLOUD_STORAGE_LIMIT });
+    const storage = await adminDb().rpc('account_storage_status', { actor: user.id });
+    if (storage.error)
+      throw new ApiError(
+        503,
+        'Storage limits are not ready. Please ask support to complete the storage setup.',
+      );
+    return Response.json({ files: data, storageLimit: storage.data.limit, storage: storage.data });
   } catch (error) {
     return apiError(error);
   }

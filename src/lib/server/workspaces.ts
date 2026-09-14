@@ -66,7 +66,7 @@ export function workspaceError(error: { message: string } | null) {
   if (/storage_limit/.test(error.message))
     throw new ApiError(
       409,
-      'Your storage is full. Remove a file from My files or sign in to keep more documents.',
+      'There is not enough private storage to save this document. Delete older files or recovery drafts in My files, then try again.',
     );
   if (/invalid_workspace|workspace_bound/.test(error.message))
     throw new ApiError(

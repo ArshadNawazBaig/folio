@@ -22,7 +22,13 @@ import { SignInForm } from '../sign-in-form';
 import { SupportPanel } from '../support-panel';
 import { accountFetch, authClient } from '@/lib/auth-client';
 import { displayName, type DashboardView } from '@/lib/dashboard';
-import { CLOUD_STORAGE_LIMIT, type CloudDocument } from '@/lib/cloud-types';
+import {
+  FREE_STORAGE_LIMIT,
+  PRO_STORAGE_LIMIT,
+  storageLabel,
+  type StorageUsage,
+  type CloudDocument,
+} from '@/lib/cloud-types';
 import { formatBytes } from '@/lib/utils';
 import { CloudFiles } from './cloud-files';
 import { DashboardBilling, DashboardSettings } from './account-settings';
@@ -71,6 +77,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
   const { user, access, error: accountError } = useAccount();
   const router = useRouter();
   const [files, setFiles] = useState<CloudDocument[]>([]);
+  const [storage, setStorage] = useState<StorageUsage | null>(null);
   const [loading, setLoading] = useState(true);
   const [fileError, setFileError] = useState('');
   const [sessionError, setSessionError] = useState('');
@@ -80,7 +87,10 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
     setFileError('');
     try {
       const data = await (await accountFetch('/api/account/files', { signal })).json();
-      if (!signal?.aborted) setFiles(data.files);
+      if (!signal?.aborted) {
+        setFiles(data.files);
+        setStorage(data.storage || null);
+      }
     } catch (error) {
       if (!signal?.aborted)
         setFileError(error instanceof Error ? error.message : 'Your files could not be loaded.');
@@ -112,7 +122,8 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
   }
   const name = displayName(user?.user_metadata);
   const ready = files.filter((f) => f.status === 'ready');
-  const bytes = ready.reduce((n, f) => n + f.size + (f.workspace_size || 0), 0);
+  const bytes = storage?.used ?? files.reduce((n, f) => n + f.size + (f.workspace_size || 0), 0);
+  const capacity = storage?.limit ?? (access.pro ? PRO_STORAGE_LIMIT : FREE_STORAGE_LIMIT);
   const titles = {
     overview: `Welcome back${name === 'Your account' ? '' : `, ${name.split(' ')[0]}`}.`,
     files: 'A home for your documents.',
@@ -154,9 +165,16 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                 ? 'Storage unavailable'
                 : loading
                   ? 'Loading storage…'
-                  : `${bytes ? formatBytes(bytes) : '0 KB'} of ${formatBytes(CLOUD_STORAGE_LIMIT)}`}
+                  : `${bytes ? formatBytes(bytes) : '0 KB'} of ${storageLabel(capacity)}`}
             </span>
-            <progress aria-label="Cloud storage used" value={bytes} max={CLOUD_STORAGE_LIMIT} />
+            <progress
+              aria-label="Cloud storage used"
+              value={Math.min(bytes, capacity)}
+              max={capacity}
+            />
+            {!loading && !fileError && bytes >= capacity && (
+              <span>Storage full. Delete older files to upload more.</span>
+            )}
             <Link href="/dashboard?view=files">
               Manage files <ArrowRight size={14} />
             </Link>
@@ -284,6 +302,15 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
             <CloudFiles
               key={view}
               files={files}
+              storage={
+                storage ?? {
+                  used: bytes,
+                  limit: capacity,
+                  available: Math.max(0, capacity - bytes),
+                  full: bytes >= capacity,
+                  recovery: [],
+                }
+              }
               loading={loading}
               error={fileError}
               refresh={loadFiles}

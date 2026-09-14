@@ -1,7 +1,20 @@
 export const CLOUD_BUCKET = 'folio-documents';
 export const CLOUD_FILE_LIMIT = 50 * 1024 * 1024;
-export const CLOUD_STORAGE_LIMIT = 500 * 1024 * 1024;
+export const FREE_STORAGE_LIMIT = 100 * 1024 * 1024;
+export const PRO_STORAGE_LIMIT = 1024 * 1024 * 1024;
 export const CLOUD_FILE_COUNT = 200;
+export type StorageUsage = {
+  limit: number;
+  used: number;
+  available: number;
+  full: boolean;
+  recovery: { slot: string; size: number }[];
+};
+export function storageLabel(bytes: number) {
+  return bytes >= PRO_STORAGE_LIMIT
+    ? `${bytes / PRO_STORAGE_LIMIT} GB`
+    : `${bytes / 1024 / 1024} MB`;
+}
 export type CloudDocument = {
   id: string;
   name: string;

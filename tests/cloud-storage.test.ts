@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 import { cloudTestSchema } from './fixtures/cloud-schema';
-import { CLOUD_FILE_LIMIT, CLOUD_STORAGE_LIMIT, pdfName } from '../src/lib/cloud-types';
+import { CLOUD_FILE_LIMIT, FREE_STORAGE_LIMIT, pdfName } from '../src/lib/cloud-types';
 const alice = '00000000-0000-4000-8000-000000000001';
 const bob = '00000000-0000-4000-8000-000000000002';
 test('private storage enforces ownership even with broad existing bucket policies', async () => {
@@ -20,6 +20,8 @@ test('private storage enforces ownership even with broad existing bucket policie
       '004_cloud_documents.sql',
       '006_editor_autosave.sql',
       '005_cloud_recovery.sql',
+      '007_admin_user_deletion.sql',
+      '008_plan_storage_limits.sql',
     ])
       await db.exec(
         await readFile(new URL(`../supabase/migrations/${name}`, import.meta.url), 'utf8'),
@@ -73,18 +75,19 @@ test('private storage enforces ownership even with broad existing bucket policie
     assert.equal((await db.query('select * from storage.objects')).rows.length, 0);
     await assert.rejects(
       db.query("insert into storage.objects(bucket_id,name) values('folio-documents','anything')"),
-      /row-level security/,
+      /row-level security|workspace_missing/,
     );
     await db.exec('set role service_role');
-    const pending = await reserve(bob, 1);
-    for (let i = 1; i < CLOUD_STORAGE_LIMIT / CLOUD_FILE_LIMIT; i++) await reserve(bob, 1);
+    const pending = await reserve(bob, CLOUD_FILE_LIMIT);
+    for (let i = 1; i < FREE_STORAGE_LIMIT / CLOUD_FILE_LIMIT; i++)
+      await reserve(bob, CLOUD_FILE_LIMIT);
     await assert.rejects(
       reserve(bob, 1),
       /storage_limit/,
-      'Pending uploads reserve their maximum size',
+      'Pending uploads count toward the account limit',
     );
     await db.query("update cloud_documents set status='ready' where id=$1", [pending.id]);
-    // Still less than a full upload slot remains: reservations do not oversubscribe quota.
+    // Finishing an upload preserves the exact byte reservation.
     await assert.rejects(reserve(bob, 1), /storage_limit/);
     await db.query('delete from cloud_documents where id=$1', [pending.id]);
     await reserve(bob, 1);
