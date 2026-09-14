@@ -11,8 +11,8 @@
   --rose: #f1e1dc;
   --sand: #efe8d8;
   --radius: 9px;
-  --sans: 'Manrope', Arial, sans-serif;
-  --serif: 'DM Serif Display', Georgia, serif;
+  --sans: var(--font-manrope), Arial, sans-serif;
+  --serif: var(--font-dm-serif), Georgia, serif;
 }
 * {
   box-sizing: border-box;
@@ -3452,6 +3452,10 @@ dialog::backdrop {
   pointer-events: none;
   z-index: 0;
 }
+.editable-page:has(> .inline-pdf-preview) > .pdf-canvas,
+.editable-page:has(> .inline-preview-loading) > .pdf-canvas {
+  visibility: hidden;
+}
 .inline-pdf-text {
   position: absolute;
   inset: 0;
@@ -3461,6 +3465,38 @@ dialog::backdrop {
 .inline-text-node {
   position: absolute;
   pointer-events: none;
+}
+.inline-text-node.selected {
+  z-index: 3;
+}
+.inline-text-node.moving {
+  z-index: 4;
+}
+.inline-text-move {
+  position: absolute;
+  left: -27px;
+  top: -5px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #708d58;
+  border-radius: 5px;
+  background: var(--paper, #fffdf8);
+  color: #496037;
+  box-shadow: 0 2px 6px #20261e14;
+  cursor: grab;
+  touch-action: none;
+  pointer-events: auto;
+  z-index: 4;
+}
+.inline-text-node.moving .inline-text-move {
+  cursor: grabbing;
+}
+.inline-text-move:focus-visible {
+  outline: 2px solid #496037;
+  outline-offset: 2px;
 }
 .inline-text-target {
   position: absolute;
@@ -3487,7 +3523,8 @@ dialog::backdrop {
   outline-offset: 2px;
 }
 .inline-text-input,
-.inline-text-pending {
+.inline-text-pending,
+.inline-text-value {
   position: absolute;
   margin: 0;
   padding: 0;
@@ -3506,6 +3543,30 @@ dialog::backdrop {
   cursor: text;
   z-index: 2;
 }
+.inline-text-preparing {
+  position: absolute;
+  inset: -3px;
+  border: 1px dashed #708d58;
+  border-radius: 2px;
+  pointer-events: none;
+}
+.inline-text-retry {
+  position: absolute;
+  top: 100%;
+  min-width: 110px;
+  padding: 5px 10px;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font: 12px/1.5 var(--sans);
+  pointer-events: auto;
+}
+.inline-preview-loading {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  pointer-events: none;
+}
 .inline-text-status {
   position: absolute;
   left: 0;
@@ -3517,6 +3578,10 @@ dialog::backdrop {
 }
 .inline-text-status [role='alert'] {
   color: #a33524;
+}
+.inline-text-status button {
+  margin-left: 8px;
+  pointer-events: auto;
 }
 .inline-annotation-input {
   width: 100%;
@@ -6623,7 +6688,7 @@ dialog::backdrop {
   justify-content: center;
 }
 .pro-edit-first h3 {
-  font-family: 'DM Serif Display', serif;
+  font-family: var(--serif);
   font-weight: 400;
   font-size: 30px;
   line-height: 1.25;
@@ -6715,7 +6780,7 @@ dialog::backdrop {
 }
 .download-gate-header h2,
 .admin-confirm h2 {
-  font-family: 'DM Serif Display', serif;
+  font-family: var(--serif);
   font-weight: 400;
   font-size: 30px;
   line-height: 1.2;
@@ -6859,7 +6924,7 @@ dialog::backdrop {
   flex-shrink: 0;
 }
 .admin-topbar h1 {
-  font-family: 'DM Serif Display', serif;
+  font-family: var(--serif);
   font-size: 40px;
   font-weight: 400;
   margin: 8px 0 0;

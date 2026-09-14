@@ -2,7 +2,7 @@ import 'server-only';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { z } from 'zod';
-import { replacementFonts, type TextInspection, type TextPreview } from '../pro-types';
+import { textFonts, type TextInspection, type TextPreview } from '../pro-types';
 import { isPdfTextSize } from '../pdf-text-size.mjs';
 import { ApiError } from './http';
 const edit = z
@@ -10,9 +10,16 @@ const edit = z
     id: z.string().regex(/^\d+:\d+$/),
     original: z.string().max(10000),
     text: z.string().max(2000),
-    font: z.enum(replacementFonts),
+    font: z.enum(textFonts),
     size: z.number().refine(isPdfTextSize, 'Choose a valid positive text size.'),
     color: z.string().regex(/^#[\da-f]{6}$/i),
+    offset: z
+      .object({
+        x: z.number().finite().min(-100000).max(100000),
+        y: z.number().finite().min(-100000).max(100000),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export const proJob = z.discriminatedUnion('operation', [

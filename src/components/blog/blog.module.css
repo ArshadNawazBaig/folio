@@ -122,7 +122,7 @@
   color: #70825c;
 }
 .coverPlaceholder > span {
-  font-family: 'DM Serif Display', serif;
+  font-family: var(--serif);
   font-size: 22px;
   font-style: italic;
 }

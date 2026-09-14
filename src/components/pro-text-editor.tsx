@@ -22,29 +22,20 @@ import { DownloadGate } from './download-gate';
 import { Dropdown } from './dropdown';
 import { PdfCanvas } from './pdf-canvas';
 import { PdfTextSizeInput } from './pdf-text-size-input';
+import {
+  defaultTextChange as defaultChange,
+  textFontOptions,
+  unchangedText,
+} from '@/lib/editor-text';
 import { accountFetch, AccountRequestError } from '@/lib/auth-client';
 import { saveProDraft, readProDraft, clearProDraft } from '@/lib/pro-draft';
 import { loadViewer } from '@/lib/pdf-viewer';
 import { getPendingDocument } from '@/lib/storage';
 import { download, baseName, formatBytes } from '@/lib/utils';
-import {
-  replacementFonts,
-  type TextBlock,
-  type TextChange,
-  type TextInspection,
-  type TextPreview,
-} from '@/lib/pro-types';
+import { type TextChange, type TextInspection, type TextPreview } from '@/lib/pro-types';
 
 type SourceFile = { bytes: Uint8Array; name: string };
 type Changes = Record<string, TextChange>;
-const defaultChange = (block: TextBlock): TextChange => ({
-  id: block.id,
-  original: block.text,
-  text: block.text,
-  font: block.replacementFont,
-  size: block.size,
-  color: block.color,
-});
 export function ProTextEditor() {
   const router = useRouter();
   const { user, access } = useAccount();
@@ -120,11 +111,12 @@ export function ProTextEditor() {
         for (const block of inspection.blocks.filter((block) => block.page === page)) {
           const [a, bm, c, d, e, f] = viewport.transform;
           const [left, bottom, right, top] = block.bounds;
+          const offset = changes[block.id]?.offset || { x: 0, y: 0 };
           const b = [
-            a * left + c * bottom + e,
-            bm * left + d * bottom + f,
-            a * right + c * top + e,
-            bm * right + d * top + f,
+            a * (left + offset.x) + c * (bottom + offset.y) + e,
+            bm * (left + offset.x) + d * (bottom + offset.y) + f,
+            a * (right + offset.x) + c * (top + offset.y) + e,
+            bm * (right + offset.x) + d * (top + offset.y) + f,
           ];
           boxes[block.id] = [
             Math.min(b[0], b[2]),
@@ -141,7 +133,7 @@ export function ProTextEditor() {
     return () => {
       cancelled = true;
     };
-  }, [doc, inspection, page, canvasWidth]);
+  }, [doc, inspection, page, canvasWidth, changes]);
   useEffect(() => {
     const handler = (event: BeforeUnloadEvent) => {
       if (dirty) event.preventDefault();
@@ -348,13 +340,7 @@ export function ProTextEditor() {
     if (!value || !selected) return;
     const next = { ...value, ...patch };
     const updated = { ...changes };
-    if (
-      next.text === selected.text &&
-      next.font === selected.replacementFont &&
-      next.size === selected.size &&
-      next.color === selected.color
-    )
-      delete updated[selected.id];
+    if (unchangedText(selected, next)) delete updated[selected.id];
     else updated[selected.id] = next;
     commit(updated);
   }
@@ -679,10 +665,7 @@ export function ProTextEditor() {
                     <Dropdown
                       label="Replacement font"
                       value={value.font}
-                      options={replacementFonts.map((font) => ({
-                        value: font,
-                        label: font.replace('-', ' '),
-                      }))}
+                      options={textFontOptions(selected)}
                       onValueChange={(font) => update({ font: font as TextChange['font'] })}
                       disabled={!!busy || !canEdit}
                     />
@@ -706,8 +689,8 @@ export function ProTextEditor() {
                       </label>
                     </div>
                     <p className="pro-font-note">
-                      Original font: {selected.font}. Replacement uses the selected standard font.
-                      Longer text may need a smaller size.
+                      The original font is preserved where available. Missing characters use a
+                      matching font automatically.
                     </p>
                     <button className="text-link" onClick={() => update({ text: '' })}>
                       <Trash2 size={14} />

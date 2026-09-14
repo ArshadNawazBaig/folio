@@ -9,12 +9,18 @@ export const replacementFonts = [
   'Courier-Bold',
 ] as const;
 export type ReplacementFont = (typeof replacementFonts)[number];
+export const textFonts = ['original', ...replacementFonts] as const;
+export type TextFont = (typeof textFonts)[number];
 export type TextBlock = {
   id: string;
   page: number;
   objectIndex: number;
   text: string;
   font: string;
+  fontWeight?: number;
+  fontItalic?: boolean;
+  fontCharacters?: string;
+  fontCategory?: 'sans' | 'serif' | 'mono';
   replacementFont: ReplacementFont;
   size: number;
   color: string;
@@ -27,9 +33,10 @@ export type TextChange = {
   id: string;
   original: string;
   text: string;
-  font: ReplacementFont;
+  font: TextFont;
   size: number;
   color: string;
+  offset?: { x: number; y: number };
 };
 export type ProPlan = {
   id: 'trial' | 'month';

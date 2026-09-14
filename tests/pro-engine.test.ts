@@ -5,6 +5,11 @@ import { processTextPdf } from '../scripts/pdf-text-engine.mjs';
 import { createSample } from '../src/lib/sample';
 import type { TextInspection, TextBlock } from '../src/lib/pro-types';
 import { createScaledTextPdf } from './fixtures/scaled-text-pdf';
+import { createEmbeddedFontPdf } from './fixtures/embedded-font-pdf';
+import { createReceiptNumberPdf } from './fixtures/receipt-number-pdf';
+import { createSubsetFontPdf } from './fixtures/subset-font-pdf';
+import { createEncodedReceiptPdf } from './fixtures/encoded-receipt-pdf';
+import { defaultTextChange } from '../src/lib/editor-text';
 import { workspaceSchema } from '../src/lib/workspace-types';
 import { pdfTextSizeFromPoints, pdfTextSizeInPoints } from '../src/lib/pdf-text-size.mjs';
 async function text(bytes: Uint8Array, password?: string) {
@@ -27,11 +32,194 @@ function change(block: TextBlock, replacement: string) {
     id: block.id,
     original: block.text,
     text: replacement,
-    font: block.replacementFont,
+    font: defaultTextChange(block).font,
     size: block.size,
     color: block.color,
   };
 }
+test('editing embedded fonts retains their family, weight, italic style and rendering', async () => {
+  const source = await createEmbeddedFontPdf();
+  const before = (await processTextPdf(source, { operation: 'inspect' })) as TextInspection;
+  assert.equal(before.blocks.length, 3);
+  for (const block of before.blocks) {
+    const edit = change(block, block.text.replace('Original', 'Updated'));
+    assert.equal(edit.font, 'original');
+    const exported = (await processTextPdf(source, {
+      operation: 'edit',
+      changes: [edit],
+    })) as Uint8Array;
+    const after = (await processTextPdf(exported, { operation: 'inspect' })) as TextInspection;
+    assert.deepEqual(
+      after.blocks.map(({ text: _text, bounds: _bounds, ...style }) => style),
+      before.blocks.map(({ text: _text, bounds: _bounds, ...style }) => style),
+    );
+    assert.equal(after.blocks[block.objectIndex].text, edit.text);
+    const preview = await processTextPdf(source, {
+      operation: 'preview',
+      changes: [edit],
+      page: 0,
+    });
+    assert.ok(preview.preview);
+  }
+  const originalPreview = await processTextPdf(source, {
+    operation: 'preview',
+    changes: [],
+    page: 0,
+  });
+  const unchangedPreview = await processTextPdf(source, {
+    operation: 'preview',
+    changes: before.blocks.map(defaultTextChange),
+    page: 0,
+  });
+  assert.equal(unchangedPreview.preview, originalPreview.preview);
+});
+
+test('known subset fonts are completed with the same family and weight for all receipt digits', async () => {
+  const source = await createReceiptNumberPdf('geist');
+  const inspection = (await processTextPdf(source, { operation: 'inspect' })) as TextInspection;
+  const block = inspection.blocks[0];
+  assert.ok(!block.fontCharacters?.includes('4'));
+  const output = (await processTextPdf(source, {
+    operation: 'edit',
+    changes: [change(block, '0123456789')],
+  })) as Uint8Array;
+  const after = (await processTextPdf(output, { operation: 'inspect' })) as TextInspection;
+  assert.equal(after.blocks[0].text, '0123456789');
+  assert.equal(after.blocks[0].font, 'GeistMono-SemiBold');
+  assert.equal(after.blocks[0].fontWeight, 600);
+  assert.equal(after.blocks[0].size, block.size);
+  assert.deepEqual(after.blocks[0].matrix, block.matrix);
+  assert.ok(after.blocks[0].fontCharacters?.includes('4'));
+});
+
+test('subset fonts preserve available characters and complete known fonts for new characters', async () => {
+  const source = await createEmbeddedFontPdf(true);
+  const inspection = (await processTextPdf(source, { operation: 'inspect' })) as TextInspection;
+  const block = inspection.blocks[0];
+  const result = (await processTextPdf(source, {
+    operation: 'edit',
+    changes: [change(block, 'Original receipt')],
+  })) as Uint8Array;
+  const after = (await processTextPdf(result, { operation: 'inspect' })) as TextInspection;
+  assert.equal(after.blocks[0].font, block.font);
+  assert.equal(after.blocks[0].text, 'Original receipt');
+  const completed = (await processTextPdf(source, {
+    operation: 'edit',
+    changes: [change(block, 'Missing Z')],
+  })) as Uint8Array;
+  assert.equal(
+    ((await processTextPdf(completed, { operation: 'inspect' })) as TextInspection).blocks[0].text,
+    'Missing Z',
+  );
+  const fallback = (await processTextPdf(source, {
+    operation: 'edit',
+    changes: [{ ...change(block, 'Missing Z'), font: 'Helvetica' }],
+  })) as Uint8Array;
+  assert.equal(
+    ((await processTextPdf(fallback, { operation: 'inspect' })) as TextInspection).blocks[0].text,
+    'Missing Z',
+  );
+});
+test('unavailable fonts substitute only missing characters with matching serif, sans, mono, bold and italic faces', async () => {
+  for (const category of ['Sans', 'Serif', 'Mono'] as const) {
+    for (const style of ['Regular', 'Bold', 'Italic', 'BoldItalic']) {
+      const source = await createSubsetFontPdf(category, style);
+      const before = (await processTextPdf(source, { operation: 'inspect' })) as TextInspection;
+      const block = before.blocks[0];
+      assert.equal(block.fontCharacters?.includes('4'), false);
+      const output = (await processTextPdf(source, {
+        operation: 'edit',
+        changes: [change(block, 'Original 4Z receipt')],
+      })) as Uint8Array;
+      const after = (await processTextPdf(output, { operation: 'inspect' })) as TextInspection;
+      assert.equal(
+        after.blocks
+          .map((b) => b.text)
+          .join('')
+          .replace(/\s+/g, ' '),
+        'Original 4Z receipt',
+      );
+      assert.equal(after.blocks[0].font, block.font);
+      assert.equal(after.blocks[2].font, block.font);
+      assert.equal(after.blocks[1].text.trim(), '4Z');
+      assert.equal(
+        after.blocks[1].font,
+        `Liberation${category}${style === 'Regular' ? '' : `-${style}`}`,
+      );
+      assert.ok(after.blocks[1].fontCharacters?.includes('4'));
+    }
+  }
+});
+test('text movement preserves style and physical placement with scaled and replacement fonts', async () => {
+  const source = await createScaledTextPdf();
+  const original = ((await processTextPdf(source, { operation: 'inspect' })) as TextInspection)
+    .blocks[0];
+  for (const font of ['original', 'Times-Italic'] as const) {
+    const moved = { ...change(original, 'Moved receipt'), font, offset: { x: 35, y: -60 } };
+    const output = (await processTextPdf(source, {
+      operation: 'edit',
+      changes: [moved],
+    })) as Uint8Array;
+    const after = ((await processTextPdf(output, { operation: 'inspect' })) as TextInspection)
+      .blocks[0];
+    assert.equal(after.matrix![4], original.matrix![4] + 35);
+    assert.equal(after.matrix![5], original.matrix![5] - 60);
+    assert.deepEqual(after.matrix!.slice(0, 4), original.matrix!.slice(0, 4));
+  }
+  for (const offset of [
+    { x: NaN, y: 0 },
+    { x: 100001, y: 0 },
+    { x: 0, y: Infinity },
+  ]) {
+    await assert.rejects(
+      processTextPdf(source, {
+        operation: 'edit',
+        changes: [{ ...change(original, 'Moved receipt'), offset }],
+      }),
+    );
+  }
+});
+test('moving and resizing original encoded text preserves its glyphs without accepting new control characters', async () => {
+  const source = await createEncodedReceiptPdf();
+  const before = (await processTextPdf(source, { operation: 'inspect' })) as TextInspection;
+  const original = before.blocks.find((block) => block.text.includes('\u0002'))!;
+  assert.ok(original);
+  const moved = {
+    ...defaultTextChange(original),
+    size: original.size * 1.25,
+    offset: { x: 35, y: -40 },
+  };
+  const other = change(before.blocks[1], 'Updated total');
+  const preview = await processTextPdf(source, {
+    operation: 'preview',
+    page: 0,
+    changes: [moved, other],
+  });
+  assert.ok(preview.preview);
+  const output = (await processTextPdf(source, {
+    operation: 'edit',
+    changes: [moved, other],
+  })) as Uint8Array;
+  const after = (await processTextPdf(output, { operation: 'inspect' })) as TextInspection;
+  assert.equal(after.blocks[0].text, original.text);
+  assert.equal(after.blocks[0].font, original.font);
+  assert.equal(after.blocks[0].matrix![4], original.matrix![4] + 35);
+  assert.equal(after.blocks[0].matrix![5], original.matrix![5] - 40);
+  assert.equal(after.blocks[1].text, 'Updated total');
+  for (const patch of [{ text: original.text + '\u0002' }, { font: 'Helvetica' }])
+    await assert.rejects(
+      processTextPdf(source, { operation: 'edit', changes: [{ ...moved, ...patch }] }),
+      /New text supports Latin/,
+    );
+  await assert.rejects(
+    processTextPdf(source, {
+      operation: 'edit',
+      changes: [{ ...moved, original: '\u0002', text: '\u0002' }],
+    }),
+    /changed since/,
+  );
+});
+
 test('scaled receipt text previews, survives workspace serialization, and exports at its original size', async () => {
   const source = await createScaledTextPdf();
   const inspection = (await processTextPdf(source, { operation: 'inspect' })) as TextInspection;
@@ -85,7 +273,7 @@ test('scaled receipt text previews, survives workspace serialization, and export
   for (const size of [0, -1, NaN, Infinity, 10001]) {
     await assert.rejects(
       processTextPdf(source, { operation: 'preview', page: 0, changes: [{ ...changes[0], size }] }),
-      /valid positive font size/,
+      /valid positive text size/,
     );
     assert.equal(
       workspaceSchema.safeParse({
@@ -259,7 +447,9 @@ test('workspace export preserves independent text edits on reordered and duplica
   state.pages = [state.pages[2], duplicate, first];
   state.textChanges = {
     [first.id]: { [title.id]: change(title, 'Original page edit') },
-    [duplicate.id]: { [title.id]: change(title, 'Duplicate page edit') },
+    [duplicate.id]: {
+      [title.id]: { ...change(title, 'Duplicate page edit'), offset: { x: 22, y: -35 } },
+    },
   };
   state.annotations = [
     {
@@ -286,6 +476,15 @@ test('workspace export preserves independent text edits on reordered and duplica
     operation: 'edit',
     changes: arrangedTextChanges(state),
   })) as Uint8Array;
+  const inspectedEdits = (await processTextPdf(edited, { operation: 'inspect' })) as TextInspection;
+  const movedDuplicate = inspectedEdits.blocks.find(
+    (block) => block.text === 'Duplicate page edit',
+  )!;
+  const unchangedPosition = inspectedEdits.blocks.find(
+    (block) => block.text === 'Original page edit',
+  )!;
+  assert.equal(movedDuplicate.matrix![4], unchangedPosition.matrix![4] + 22);
+  assert.equal(movedDuplicate.matrix![5], unchangedPosition.matrix![5] - 35);
   const output = await exportEditor(edited, {
     ...withoutTextChanges(state),
     pages: state.pages.map((page, sourceIndex) => ({ ...page, sourceIndex })),

@@ -293,7 +293,7 @@
   margin-bottom: 30px;
 }
 .quickCard h2 {
-  font-family: 'DM Serif Display', serif;
+  font-family: var(--serif);
   font-size: 27px;
   line-height: 1.25;
   font-weight: 400;

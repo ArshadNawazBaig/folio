@@ -392,7 +392,7 @@
   border: 0;
   outline: none;
   background: transparent;
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--sans);
   font-size: 38px;
   letter-spacing: -1.6px;
   font-weight: 700;
@@ -481,7 +481,7 @@
   padding: 26px 22px 40px;
 }
 .inspectorHeading h2 {
-  font-family: 'DM Serif Display', serif;
+  font-family: var(--serif);
   font-weight: 400;
   font-size: 23px;
   letter-spacing: -0.35px;
@@ -780,7 +780,7 @@
   flex-shrink: 0;
 }
 .dialog h2 {
-  font-family: 'DM Serif Display', serif;
+  font-family: var(--serif);
   font-size: 26px;
   font-weight: 400;
   letter-spacing: -0.5px;

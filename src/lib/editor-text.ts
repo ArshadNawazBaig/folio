@@ -1,14 +1,30 @@
 import type { EditorState } from './types';
-import type { TextBlock, TextChange } from './pro-types';
+import { replacementFonts, type TextBlock, type TextChange } from './pro-types';
 
 export const defaultTextChange = (block: TextBlock): TextChange => ({
   id: block.id,
   original: block.text,
   text: block.text,
-  font: block.replacementFont,
+  font: 'original',
   size: block.size,
   color: block.color,
 });
+export function textFontOptions(block: TextBlock) {
+  return [
+    { value: 'original', label: `Original · ${block.font.replace(/^[A-Z]{6}\+/, '')}` },
+    ...replacementFonts.map((font) => ({ value: font, label: font.replace('-', ' ') })),
+  ];
+}
+export function unchangedText(block: TextBlock, change: TextChange) {
+  return (
+    change.text === block.text &&
+    change.font === 'original' &&
+    change.size === block.size &&
+    change.color === block.color &&
+    !change.offset?.x &&
+    !change.offset?.y
+  );
+}
 export function hasTextChanges(state: EditorState) {
   return state.pages.some((page) => Object.keys(state.textChanges?.[page.id] || {}).length > 0);
 }

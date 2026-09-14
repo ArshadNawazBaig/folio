@@ -37,16 +37,16 @@ import { useAccount } from './account-provider';
 import { InlinePdfText } from './inline-pdf-text';
 import { PdfTextSizeInput } from './pdf-text-size-input';
 import { DownloadGate } from './download-gate';
-import { defaultTextChange, hasTextChanges } from '@/lib/editor-text';
+import {
+  defaultTextChange,
+  hasTextChanges,
+  textFontOptions,
+  unchangedText,
+} from '@/lib/editor-text';
 import { exportWorkspacePdf, requestTextPdf } from '@/lib/editor-text-client';
 import { readProDraft } from '@/lib/pro-draft';
 import { AccountRequestError } from '@/lib/auth-client';
-import {
-  replacementFonts,
-  type TextBlock,
-  type TextChange,
-  type TextInspection,
-} from '@/lib/pro-types';
+import { type TextBlock, type TextChange, type TextInspection } from '@/lib/pro-types';
 import { readWorkspace } from '@/lib/workspace-client';
 import { useWorkspaceSync } from './use-workspace-sync';
 import type { WorkspaceRecord } from '@/lib/workspace-types';
@@ -267,7 +267,7 @@ export function Editor() {
           throw new Error(
             'The editor supports up to 500 pages per document. Use Split PDF to work with a smaller section.',
           );
-        const viewer = await loadViewer(value);
+        const viewer = await loadViewer(value, true);
         if (version !== loadVersion.current) {
           void viewer.loadingTask.destroy();
           return;
@@ -418,7 +418,7 @@ export function Editor() {
     try {
       // Recreate only the viewer. Reopening the workspace would replace edit
       // history, selections, and changes that have not reached storage yet.
-      const viewer = await loadViewer(bytes);
+      const viewer = await loadViewer(bytes, true);
       if (!saveMounted.current || version !== loadVersion.current) {
         void viewer.loadingTask.destroy();
         return;
@@ -545,13 +545,7 @@ export function Editor() {
     const current = stateRef.current;
     const pageChanges = { ...current.textChanges?.[pageModel.id] };
     const next = { ...(pageChanges[block.id] || defaultTextChange(block)), ...patch };
-    if (
-      next.text === block.text &&
-      next.font === block.replacementFont &&
-      next.size === block.size &&
-      next.color === block.color
-    )
-      delete pageChanges[block.id];
+    if (unchangedText(block, next)) delete pageChanges[block.id];
     else pageChanges[block.id] = next;
     commit(
       { ...current, textChanges: { ...current.textChanges, [pageModel.id]: pageChanges } },
@@ -743,11 +737,16 @@ export function Editor() {
     setPropertiesTab('style');
   }
   function pointerDown(e: React.PointerEvent<HTMLDivElement>) {
-    if (busy || mode === 'form-fill' || mode === 'original-text' || e.button !== 0) return;
+    if (busy || mode === 'form-fill' || e.button !== 0) return;
+    if (mode === 'original-text') {
+      setOriginalSelection(null);
+      return;
+    }
     if ((e.target as HTMLElement).closest('.annotation') && (mode === 'select' || mode === 'erase'))
       return;
     if (mode === 'select') {
       setSelectedId('');
+      setOriginalSelection(null);
       if (scrollArea.current && e.pointerType !== 'touch') {
         e.currentTarget.setPointerCapture(e.pointerId);
         pan.current = {
@@ -909,6 +908,7 @@ export function Editor() {
     e.preventDefault();
     pageArea.current?.setPointerCapture(e.pointerId);
     setSelectedId(a.id);
+    setOriginalSelection(null);
     gesture.current = { id: a.id, clientX: e.clientX, clientY: e.clientY, a, resize, moved: false };
     setPropertiesTab('style');
   }
@@ -1449,6 +1449,7 @@ export function Editor() {
                       page={pageModel}
                       width={canvasWidth}
                       inspection={textInspection}
+                      selected={originalSelection?.id || ''}
                       changes={state.textChanges?.[pageModel.id] || {}}
                       enabled={mode === 'original-text' || mode === 'select'}
                       disabled={!!busy}
@@ -1909,7 +1910,7 @@ export function Editor() {
                   <>
                     <h2>Text appearance</h2>
                     <p className="panel-description">
-                      Type directly on the page. Appearance changes update automatically.
+                      Type directly on the page. Drag the move handle to reposition this text.
                     </p>
                     <Dropdown
                       label="Text font"
@@ -1919,10 +1920,7 @@ export function Editor() {
                           defaultTextChange(originalSelection)
                         ).font
                       }
-                      options={replacementFonts.map((font) => ({
-                        value: font,
-                        label: font.replace('-', ' '),
-                      }))}
+                      options={textFontOptions(originalSelection)}
                       onValueChange={(font) =>
                         updateOriginalText(originalSelection, { font: font as TextChange['font'] })
                       }
@@ -1957,8 +1955,8 @@ export function Editor() {
                       />
                     </label>
                     <p className="panel-description">
-                      PDF text is stored in separate blocks. Scanned pages need OCR; replacement
-                      fonts may differ from embedded fonts.
+                      The original font is preserved where available. Missing characters use a
+                      matching font automatically.
                     </p>
                   </>
                 ) : selected ? (
