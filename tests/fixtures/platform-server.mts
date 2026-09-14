@@ -1012,6 +1012,8 @@ try {
     test_mode: true,
   };
   lemon.orders.set('60', payment);
+  // A paid setup fee also produces an initial invoice before monthly billing begins.
+  lemon.invoices = [{ ...payment, subscription_id: 501, billing_reason: 'initial' }];
   function signedEvent(event: unknown, valid = true) {
     const body = JSON.stringify(event);
     return new Request('http://localhost/api/billing/webhook', {

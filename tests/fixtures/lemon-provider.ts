@@ -13,6 +13,20 @@ export const lemon = {
     if (this.fail) return Response.json({ errors: [] }, { status: 503 });
     const url = new URL(req.url),
       [, , type, id] = url.pathname.split('/');
+    // The invoice API uses camelCase sort keys, unlike the prices API.
+    // Mirror its actual response so an invalid list query cannot pass billing tests.
+    if (type === 'subscription-invoices' && url.searchParams.get('sort') === '-created_at')
+      return Response.json(
+        {
+          errors: [
+            {
+              title: 'Invalid Query Parameter',
+              detail: 'Sort parameter created_at is not allowed.',
+            },
+          ],
+        },
+        { status: 400 },
+      );
     const resource = (attributes: unknown) => Response.json({ data: { type, id, attributes } });
     if (type === 'stores') return resource({ currency: 'USD' });
     if (type === 'variants')

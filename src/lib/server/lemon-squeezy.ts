@@ -54,10 +54,11 @@ export async function lemonGet<T>(type: string, id: string | number) {
   return result.data.attributes;
 }
 export async function lemonList<T>(type: string, filters: Record<string, string>, page = 1) {
+  // These endpoints already return newest records first. Do not share a sort
+  // key: prices accepts created_at, but subscription-invoices rejects it.
   const params = new URLSearchParams({
     'page[size]': '100',
     'page[number]': String(page),
-    sort: '-created_at',
   });
   for (const [key, value] of Object.entries(filters)) params.set(`filter[${key}]`, value);
   return lemonRequest<{ data: LemonResource<T>[]; meta?: { page?: { lastPage: number } } }>(

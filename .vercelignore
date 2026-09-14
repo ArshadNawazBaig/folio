@@ -1,0 +1,13 @@
+.git
+.next
+.next-auth-tests
+node_modules
+.env*
+*.local
+*.log
+*.tsbuildinfo
+playwright-report
+test-results*
+tests
+playwright*.config.ts
+.DS_Store

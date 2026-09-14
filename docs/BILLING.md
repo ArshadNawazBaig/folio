@@ -34,6 +34,19 @@ LEMON_SQUEEZY_TRIAL_VARIANT_ID=
 
 Use the store's standard `STORE.lemonsqueezy.com` hosted checkout and billing domains. Custom payment domains are currently rejected by the payment-link allowlist. The customer portal is retrieved through the user's verified subscription; the browser cannot choose another customer's ID. Configure portal product switching so customers cannot switch into unrelated products or repeat the introductory variant. [Customer portal](https://docs.lemonsqueezy.com/help/online-store/customer-portal).
 
+## Payment completed but the account still shows Free
+
+The return page does not activate a subscription. Folio must receive the signed `subscription_created` event containing the original checkout's `meta.custom_data.folio_checkout` token, then verify the subscription and payment through Lemon Squeezy's API.
+
+1. Check **Settings → Webhooks → Recent events** in the same test/live mode as the purchase. Open the failed `subscription_created` delivery.
+2. For local development, the webhook URL must use a public HTTPS tunnel forwarding to `http://localhost:3000`, followed by `/api/billing/webhook`. `https://localhost:3000/api/billing/webhook` and `https://3000/api/billing/webhook` cannot reach your computer from Lemon Squeezy. Keep the development server and tunnel running; update the webhook whenever the tunnel address changes. `NEXT_PUBLIC_SITE_URL` can remain `http://localhost:3000` for local browser redirects.
+3. Ensure the webhook signing secret matches `LEMON_SQUEEZY_WEBHOOK_SECRET` and restart the app after changing environment variables.
+4. Resend the original `subscription_created` event and check for HTTP 200. Then refresh the subscription in Folio's dashboard. Resend any later failed payment/refund events as well. Do not make another purchase to recover an existing one.
+
+If the original event has no Folio checkout token, the purchase cannot be automatically assigned to an account. Do not grant access by matching the checkout email; the signed token binds the purchase to the signed-in Folio user even when the billing email differs. [Viewing and resending webhook events](https://docs.lemonsqueezy.com/help/webhooks#viewing-webhook-events).
+
+Invoice and price list endpoints return newest records first by default. Their explicit sort parameter names differ; a shared `sort=-created_at` makes invoice verification fail with HTTP 400. The server relies on the documented default order. [Subscription invoice API](https://docs.lemonsqueezy.com/api/subscription-invoices/list-all-subscription-invoices), [Prices API](https://docs.lemonsqueezy.com/api/prices/list-all-prices).
+
 ## Admin operations
 
 At `/admin` → **Pricing plans**, enter the name, USD prices, trial duration, and both variant IDs. Create **new variants** in Lemon Squeezy before changing a published offer. The API supports retrieving products and variants; Folio validates existing variants and publishes an immutable application pricing version. It does not create products through an unsupported API or silently alter subscribers' prices. [Variants API](https://docs.lemonsqueezy.com/api/variants/the-variant-object).

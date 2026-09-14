@@ -32,6 +32,7 @@ dist-ssr
 *.sw?
 
 .next-auth-tests
+.vercel
 test-results-auth
 test-results-blog
 test-results-design
