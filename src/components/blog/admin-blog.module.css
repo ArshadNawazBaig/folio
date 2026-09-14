@@ -10,7 +10,7 @@
   width: 100%;
 }
 .access :global(.button) {
-  margin: 8px 8px 0 0;
+  margin: 0;
 }
 .intro {
   font-size: 12px;
@@ -738,6 +738,8 @@
 }
 .toast > span {
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .toast > button {
   display: grid;
@@ -756,8 +758,8 @@
   max-height: 80dvh;
   margin: auto;
   border: 1px solid #d5dec9;
-  border-radius: 15px;
-  background: #fffefa;
+  border-radius: var(--dialog-radius);
+  background: var(--surface);
   color: #303b29;
   box-shadow: 0 30px 80px #1b251f33;
   overflow: hidden;
@@ -767,7 +769,7 @@
   flex-direction: column;
 }
 .dialog::backdrop {
-  background: #1d282873;
+  background: #20252280;
   backdrop-filter: blur(5px);
 }
 .dialog > header {

@@ -56,16 +56,9 @@ test('anyone can edit and preview their PDF; payment appears only at download an
   await expect(gate.getByText('A premium plan is required', { exact: false })).toBeVisible();
   await expect(gate.getByText('Keep this tab open', { exact: false })).toBeVisible();
   await expect(gate.locator('.plan-price')).toHaveText('$1 for 7 days');
-  const signIn = gate.getByRole('link', { name: 'Sign in to start for $1' });
-  await expect(signIn).toHaveAttribute('target', '_blank');
-  const popupEvent = page.waitForEvent('popup');
-  await signIn.click();
-  const popup = await popupEvent;
-  await popup.waitForLoadState();
-  await expect(popup).toHaveURL(/account/);
-  await popup.close();
-  await gate.getByRole('button', { name: 'I’ve paid — download my PDF' }).click();
-  await expect(gate.getByText('Premium access is not active yet.', { exact: false })).toBeVisible();
+  await expect(gate.getByRole('button', { name: 'Continue with Google' })).toBeVisible();
+  await expect(gate.getByRole('button', { name: 'I’ve paid — download my PDF' })).toBeHidden();
+  await expect(gate.getByRole('alert')).toBeHidden();
   expect(paidRequests).toEqual([]);
   const accessibility = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])

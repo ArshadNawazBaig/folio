@@ -49,11 +49,11 @@ export default async function PricingPage() {
             ],
             [
               'Which payment methods are available?',
-              'Checkout is hosted by Stripe. Available payment methods and the final total are shown there before you confirm a purchase. Folio does not collect your card details.',
+              'Checkout is hosted by Lemon Squeezy. Available payment methods and the final total are shown there before you confirm a purchase. Folio does not collect your card details.',
             ],
             [
               'Can I cancel?',
-              'Use Manage billing in your account to open Stripe’s billing portal. Cancellation at the end of a billing period keeps access until the paid period ends. Failed or unpaid renewals do not grant another paid period.',
+              'Use Manage billing in your account to open Lemon Squeezy’s billing portal. Cancellation at the end of a billing period keeps access until the paid period ends. Failed or unpaid renewals do not grant another paid period.',
             ],
             [
               'Are translation and OCR included?',

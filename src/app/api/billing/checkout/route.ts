@@ -1,13 +1,15 @@
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { adminDb, requireUser } from '@/lib/server/auth';
-import { availablePlans, billingReady, stripeClient } from '@/lib/server/billing';
+import { availablePlans, billingReady } from '@/lib/server/billing';
+import { lemonConfig, lemonRequest } from '@/lib/server/lemon-squeezy';
+import { isLemonUrl } from '@/lib/lemon-squeezy';
 import { apiError, ApiError, boundedBody } from '@/lib/server/http';
 import { siteUrl } from '@/lib/seo';
-import { checkoutOffer, usedIntroOffer } from '@/lib/billing-offers';
 import { assertServiceAvailable, getPlatform } from '@/lib/server/platform';
-import { money } from '@/lib/platform';
+import { offerTerms } from '@/lib/platform';
+export const runtime = 'nodejs';
 export async function POST(request: Request) {
-  let unlock: (() => Promise<void>) | undefined;
   try {
     const user = await requireUser(request);
     await assertServiceAvailable();
@@ -18,129 +20,114 @@ export async function POST(request: Request) {
       .safeParse(JSON.parse((await boundedBody(request, 2048)).toString()));
     if (!parsed.success)
       throw new ApiError(400, 'Choose an available introductory offer or the monthly plan.');
-    const plan = parsed.data.plan;
+    const { plan, pricingVersion } = parsed.data;
     const { catalog } = await getPlatform(true);
-    if (parsed.data.pricingVersion !== catalog.version)
+    if (pricingVersion !== catalog.version)
       throw new ApiError(
         409,
         'Pricing has changed. Close this checkout prompt and review the current plan before buying.',
       );
-    const price = catalog.monthlyPriceId!;
     if (!(await availablePlans()).some((p) => p.id === plan))
       throw new ApiError(400, 'This plan is not available.');
-    const stripe = stripeClient();
-    const db = adminDb();
-    const { data: existing, error: lookupError } = await db
-      .from('billing_customers')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    if (lookupError) throw lookupError;
-    let customerId = existing?.stripe_customer_id as string | undefined;
-    if (!customerId) {
-      const customer = await stripe.customers.create(
-        { email: user.email, metadata: { folio_user_id: user.id } },
-        { idempotencyKey: `folio-customer-${user.id}` },
-      );
-      const { error } = await db
-        .from('billing_customers')
-        .upsert(
-          { user_id: user.id, stripe_customer_id: customer.id },
-          { onConflict: 'user_id', ignoreDuplicates: true },
-        );
-      if (error) {
-        // Deletion may suspend the account while customer creation is in
-        // flight. Do not leave the newly created Stripe customer orphaned.
-        if (error.message.includes('deletion_in_progress')) await stripe.customers.del(customer.id);
-        throw error;
-      }
-      customerId = customer.id;
-    }
-    const { data: claimed, error: claimError } = await db.rpc('claim_checkout', {
+    const variantId = (plan === 'trial' ? catalog.trialPriceId : catalog.monthlyPriceId)!;
+    const config = lemonConfig(),
+      db = adminDb(),
+      token = randomUUID();
+    const reserved = await db.rpc('reserve_lemon_checkout', {
       account_id: user.id,
+      token,
+      version_value: catalog.version,
+      plan_value: plan,
+      variant_value: variantId,
+      store_value: config.storeId,
+      test_value: config.testMode,
+      terms_value: catalog,
     });
-    if (claimError) throw claimError;
-    if (!claimed) throw new ApiError(409, 'Checkout is already opening. Please wait a moment.');
-    unlock = async () => {
-      const { error } = await db
-        .from('billing_customers')
-        .update({ checkout_lock_until: null })
-        .eq('user_id', user.id);
-      if (error) throw error;
-    };
-    const subscriptions = stripe.subscriptions.list({
-      customer: customerId,
-      status: 'all',
-      limit: 100,
-    });
-    for await (const subscription of subscriptions) {
-      if (!['canceled', 'incomplete_expired'].includes(subscription.status))
+    if (reserved.error) {
+      if (reserved.error.message.includes('subscription_exists'))
         throw new ApiError(
           409,
           'You already have a subscription. Use Manage billing in your account.',
         );
-      if (plan === 'trial' && usedIntroOffer(subscription))
+      if (reserved.error.message.includes('intro_used'))
         throw new ApiError(
           409,
-          `The introductory offer is available once per account. Choose the ${money(catalog.monthlyAmount)} monthly plan.`,
+          'The introductory offer is available once per account. Choose the monthly plan.',
         );
+      throw new ApiError(
+        503,
+        'Checkout could not be prepared. Check the billing database setup and try again.',
+      );
     }
-    const { data: current, error: currentError } = await db
-      .from('billing_customers')
-      .select('checkout_session_id')
-      .eq('user_id', user.id)
-      .single();
-    if (currentError) throw currentError;
-    if (current.checkout_session_id) {
-      const session = await stripe.checkout.sessions.retrieve(current.checkout_session_id, {
-        expand: ['line_items', 'subscription'],
-      });
-      if (session.status === 'open') {
-        if (
-          session.metadata?.folio_plan === plan &&
-          session.metadata?.pricing_version === catalog.version &&
-          session.line_items?.data.some((line) => line.price?.id === price) &&
-          (plan !== 'trial' ||
-            session.line_items?.data.some((line) => line.price?.id === catalog.trialPriceId)) &&
-          session.url
-        )
-          return Response.json({ url: session.url });
-        // Switching offers must not open checkout with the old price or trial settings.
-        await stripe.checkout.sessions.expire(session.id);
-      }
-      if (session.status === 'complete') {
-        const subscription = typeof session.subscription === 'object' ? session.subscription : null;
-        if (!subscription || !['canceled', 'incomplete_expired'].includes(subscription.status))
-          throw new ApiError(
-            409,
-            'Your purchase is being confirmed. Refresh your account shortly.',
-          );
-        // A completed checkout for a terminated plan must allow re-subscription.
-      }
+    const row = reserved.data;
+    if (row.id !== token) {
+      if (
+        row.plan === plan &&
+        row.pricing_version === catalog.version &&
+        row.variant_id === variantId &&
+        row.store_id === config.storeId &&
+        row.test_mode === config.testMode &&
+        Date.parse(row.expires_at) > Date.now() &&
+        row.url &&
+        isLemonUrl(row.url, 'checkout')
+      )
+        return Response.json({ url: row.url });
+      throw new ApiError(
+        409,
+        'A checkout is already open or awaiting confirmation. Complete it, or wait up to 17 minutes for it to expire before opening another plan.',
+      );
     }
-    const session = await stripe.checkout.sessions.create(
-      {
-        mode: 'subscription',
-        customer: customerId,
-        client_reference_id: user.id,
-        ...checkoutOffer(plan, price, catalog.trialPriceId || undefined, catalog),
-        payment_method_collection: 'always',
-        success_url: `${siteUrl}/dashboard?view=billing&checkout=success`,
-        cancel_url: `${siteUrl}/pricing?checkout=cancelled`,
+    const result = await lemonRequest<{
+      data: { id: string; attributes: { url: string; test_mode: boolean } };
+    }>('/checkouts', 'POST', {
+      data: {
+        type: 'checkouts',
+        attributes: {
+          // No custom_price: that would also replace every recurring payment.
+          product_options: {
+            name: catalog.name,
+            description: offerTerms(catalog, plan),
+            enabled_variants: [Number(variantId)],
+            redirect_url: `${siteUrl}/dashboard?view=billing&checkout=success`,
+            receipt_button_text: 'Return to Folio',
+            receipt_link_url: `${siteUrl}/dashboard?view=billing`,
+          },
+          checkout_options: {
+            embed: false,
+            discount: false,
+            skip_trial: plan === 'month',
+            subscription_preview: true,
+            button_color: '#c44934',
+          },
+          checkout_data: {
+            email: user.email,
+            custom: { folio_checkout: token },
+            variant_quantities: [{ variant_id: Number(variantId), quantity: 1 }],
+          },
+          expires_at: row.expires_at,
+          test_mode: config.testMode,
+        },
+        relationships: {
+          store: { data: { type: 'stores', id: config.storeId } },
+          variant: { data: { type: 'variants', id: variantId } },
+        },
       },
-      {
-        idempotencyKey: `folio-checkout-${user.id}-${plan}-${catalog.version}-${current.checkout_session_id || 'initial'}`,
-      },
-    );
-    const { error } = await db
-      .from('billing_customers')
-      .update({ checkout_session_id: session.id })
-      .eq('user_id', user.id);
-    if (error) throw error;
-    return Response.json({ url: session.url });
+    });
+    const checkout = result.data;
+    if (
+      !checkout?.id ||
+      checkout.attributes.test_mode !== config.testMode ||
+      !isLemonUrl(checkout.attributes.url, 'checkout')
+    )
+      throw new ApiError(503, 'Checkout returned an unexpected payment link.');
+    const saved = await db
+      .from('lemon_checkouts')
+      .update({ checkout_id: checkout.id, url: checkout.attributes.url })
+      .eq('id', token);
+    if (saved.error)
+      throw new ApiError(503, 'Checkout could not be saved. Please try again shortly.');
+    return Response.json({ url: checkout.attributes.url });
   } catch (error) {
     return apiError(error);
-  } finally {
-    await unlock?.().catch(() => {});
   }
 }

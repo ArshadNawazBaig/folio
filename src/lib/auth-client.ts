@@ -1,5 +1,6 @@
 'use client';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { authCallbackUrl } from './auth-navigation';
 let client: SupabaseClient | undefined;
 export class AccountRequestError extends Error {
   constructor(
@@ -22,6 +23,28 @@ export function authClient() {
     },
   });
   return client;
+}
+export async function googleSignInUrl(destination: string, returnToEditor = false) {
+  const client = authClient();
+  if (!client) throw new Error('Google sign-in is not connected yet.');
+  const { data, error } = await client.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: authCallbackUrl(window.location.origin, destination, returnToEditor),
+      queryParams: { prompt: 'select_account' },
+      skipBrowserRedirect: true,
+    },
+  });
+  if (error) throw error;
+  if (!data.url) throw new Error('Google sign-in could not be started.');
+  const url = new URL(data.url),
+    service = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!);
+  if (
+    url.origin !== service.origin ||
+    url.pathname !== `${service.pathname.replace(/\/$/, '')}/auth/v1/authorize`
+  )
+    throw new Error('The sign-in address could not be verified.');
+  return url.href;
 }
 export async function accountFetch(url: string, init: RequestInit = {}) {
   const client = authClient();

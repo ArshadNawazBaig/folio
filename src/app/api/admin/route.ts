@@ -9,7 +9,8 @@ import {
   clearPlatformCache,
   databaseError,
 } from '@/lib/server/platform';
-import { stripeClient, syncSubscription, billingReady } from '@/lib/server/billing';
+import { changeSubscription, billingReady } from '@/lib/server/billing';
+import { validateLemonVariant } from '@/lib/server/lemon-squeezy';
 import { deleteUser } from '@/lib/server/delete-user';
 export const runtime = 'nodejs';
 const querySchema = z.object({
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
     const q = parsed.data,
       db = adminDb();
     const platform = await getPlatform(true);
-    const result: Record<string, unknown> = { ...platform, stripeReady: billingReady() };
+    const result: Record<string, unknown> = { ...platform, billingReady: billingReady() };
     if (q.view === 'overview') {
       const { data, error } = await db.rpc('admin_overview', { actor: actor.id });
       databaseError(error);
@@ -136,7 +137,7 @@ export async function POST(request: Request) {
       databaseError(error);
     }
     if (action.action === 'pricing' || action.action === 'subscription') {
-      // Stable operation IDs make retries traceable and bind Stripe idempotency to one payload.
+      // Stable operation IDs make retries traceable and bind retries to one payload.
       const fingerprint = createHash('sha256').update(JSON.stringify(action)).digest('hex');
       const { data: previous, error: previousError } = await db
         .from('admin_audit')
@@ -170,7 +171,6 @@ export async function POST(request: Request) {
       if (bound!.actor_id !== actor.id || bound!.detail.fingerprint !== fingerprint)
         throw new ApiError(409, 'This request ID was already used for a different change.');
       if (bound!.detail.completed) return Response.json({ saved: true });
-      const stripe = stripeClient();
       if (action.action === 'pricing') {
         const { data: published, error: publishedError } = await db
           .from('pricing_versions')
@@ -185,59 +185,32 @@ export async function POST(request: Request) {
               409,
               'Pricing changed while you were editing. Reload and review the latest plan.',
             );
-          // Pin bootstrap price IDs before switching the active catalog, so old subscribers
-          // keep their purchased terms even if deployment variables are later removed.
-          if (catalog.version === 'initial' && catalog.monthlyPriceId) {
-            const { error: pinError } = await db
-              .from('pricing_versions')
-              .update({
-                monthly_price_id: catalog.monthlyPriceId,
-                trial_price_id: catalog.trialPriceId,
-              })
-              .eq('id', 'initial')
-              .is('monthly_price_id', null);
-            databaseError(pinError);
-          }
           const p = action.pricing;
-          const product = await stripe.products.create(
-            { name: p.name, metadata: { folio_pricing_version: action.requestId } },
-            { idempotencyKey: `folio-product-${action.requestId}` },
-          );
-          const monthly = await stripe.prices.create(
-            {
-              product: product.id,
-              currency: p.currency,
-              unit_amount: p.monthlyAmount,
-              recurring: { interval: 'month' },
-              nickname: `${p.name} monthly`,
-            },
-            { idempotencyKey: `folio-monthly-${action.requestId}` },
-          );
-          let trialId: string | null = null;
-          if (p.trialEnabled) {
-            const intro = await stripe.products.create(
-              {
-                name: `${p.name} — ${p.trialDays}-day introductory access`,
-                metadata: { folio_pricing_version: action.requestId },
-              },
-              { idempotencyKey: `folio-intro-product-${action.requestId}` },
+          const candidate = {
+            ...p,
+            version: action.requestId,
+            monthlyPriceId: action.monthlyVariantId,
+            trialPriceId: action.trialVariantId,
+          };
+          if (
+            action.monthlyVariantId === action.trialVariantId ||
+            !(await validateLemonVariant(action.monthlyVariantId, 'month', candidate)) ||
+            (p.trialEnabled &&
+              !(await validateLemonVariant(action.trialVariantId, 'trial', candidate)))
+          )
+            throw new ApiError(
+              400,
+              'The Lemon Squeezy variants must match these USD amounts, monthly renewal, and introductory setup fee and trial duration. Create new variants in Lemon Squeezy before publishing.',
             );
-            const trial = await stripe.prices.create(
-              {
-                product: intro.id,
-                currency: p.currency,
-                unit_amount: p.trialAmount,
-                nickname: 'One-time introductory payment',
-              },
-              { idempotencyKey: `folio-intro-${action.requestId}` },
-            );
-            trialId = trial.id;
-          }
           const { error } = await db.rpc('admin_publish_pricing', {
             actor: actor.id,
             expected_version: action.expectedVersion,
             version_value: action.requestId,
-            pricing: { ...p, monthlyPriceId: monthly.id, trialPriceId: trialId },
+            pricing: {
+              ...p,
+              monthlyPriceId: action.monthlyVariantId,
+              trialPriceId: p.trialEnabled ? action.trialVariantId : null,
+            },
           });
           if (error) {
             // A concurrent retry may have committed this exact version already.
@@ -259,22 +232,10 @@ export async function POST(request: Request) {
           .maybeSingle();
         databaseError(error);
         if (!owned) throw new ApiError(404, 'This subscription is not a Folio subscription.');
-        if (action.operation === 'cancel_now')
-          await stripe.subscriptions.cancel(
-            action.subscriptionId,
-            { prorate: false, invoice_now: false },
-            { idempotencyKey: `folio-admin-${action.requestId}` },
-          );
-        else
-          await stripe.subscriptions.update(
-            action.subscriptionId,
-            { cancel_at_period_end: action.operation === 'cancel_end' },
-            { idempotencyKey: `folio-admin-${action.requestId}` },
-          );
-        await syncSubscription(
+        await changeSubscription(
           action.subscriptionId,
+          action.operation,
           `admin_${action.requestId}`,
-          Math.floor(Date.now() / 1000),
         );
       }
       const { error: finishError } = await db

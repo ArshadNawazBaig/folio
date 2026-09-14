@@ -5,7 +5,7 @@ The dashboard is at `/admin`. Without configured accounts, it shows an explicit 
 ## Connect the first administrator
 
 1. Configure Supabase Google/email authentication and server credentials as described in [SETUP.md](SETUP.md).
-2. Apply migrations 001–009 in order as described in [SETUP.md](SETUP.md). For an existing installation, apply only missing migrations. Migration 003 enables administration; [007_admin_user_deletion.sql](../supabase/migrations/007_admin_user_deletion.sql) adds permanent user deletion after the storage migrations, and [008_plan_storage_limits.sql](../supabase/migrations/008_plan_storage_limits.sql) adds account storage quotas. [009_blog.sql](../supabase/migrations/009_blog.sql) enables the blog workspace at `/admin/blog`; see [BLOG.md](BLOG.md). Applying these migrations does not delete existing users or files.
+2. Apply migrations 001–010 in order as described in [SETUP.md](SETUP.md). For an existing installation, apply only missing migrations. Migration 003 enables administration; [007_admin_user_deletion.sql](../supabase/migrations/007_admin_user_deletion.sql) adds permanent user deletion after the storage migrations, and [008_plan_storage_limits.sql](../supabase/migrations/008_plan_storage_limits.sql) adds account storage quotas. [009_blog.sql](../supabase/migrations/009_blog.sql) enables the blog workspace at `/admin/blog`; see [BLOG.md](BLOG.md). [010_lemon_squeezy.sql](../supabase/migrations/010_lemon_squeezy.sql) enables Lemon Squeezy checkout and subscription binding. Applying these migrations does not delete existing users or files.
 3. Sign in once at `/account` with the Google account (or email link) you will use as administrator.
 4. In your trusted Supabase SQL editor, replace the email below with that account’s email and run:
 
@@ -32,7 +32,7 @@ Never ship the service role key to the browser. The API uses Supabase `getUser` 
 | Pricing plans | Change Pro name, USD monthly amount, paid introductory amount/duration, and offer availability; publish a new version                                |
 | Support inbox | Read inquiries, reply in-app, change open/pending/resolved status and low/normal/high priority                                                       |
 | Site settings | Maintenance mode/message, pause new purchases, site announcement                                                                                     |
-| Activity log  | Paginated changes, actor IDs, reasons, operation details, pending/completed Stripe requests                                                          |
+| Activity log  | Paginated changes, actor IDs, reasons, operation details, pending/completed Lemon Squeezy requests                                                   |
 
 Account suspension blocks authenticated processing and new purchases. It does not cancel billing or delete saved documents. Support and billing-portal access remain available so suspended users can ask for help and cancel. Courtesy grants do not charge or cancel a subscription. Anonymous previews remain available because they do not require an account.
 
@@ -42,9 +42,9 @@ Account suspension blocks authenticated processing and new purchases. It does no
 
 Open **Users → Delete user**, check the account shown, enter `DELETE`, and provide a reason. The server verifies super admin membership on every request and rejects deletion of yourself or any other super admin, even if the browser request is modified.
 
-Deletion first suspends the account and blocks new uploads, reactivation and checkout writes. It then removes the linked Stripe customer, deletes stored PDFs and recovery drafts through the Storage API, and hard-deletes the Supabase login identity. The database removes document metadata/editor snapshots, account settings, usage, grants, billing mappings/subscriptions, support conversations, and related activity entries. Claimed guest documents and orphaned uploads under the account's folder are included; unrelated guest sessions cannot be attributed to this user and retain their normal expiry.
+Deletion first suspends the account and blocks new uploads, reactivation and checkout writes. It cancels mapped Lemon Squeezy subscriptions, removes stored PDFs and recovery drafts through the Storage API, and hard-deletes the Supabase identity. Database cascades remove the user’s application billing, support, quota, and workspace records. Cleanup failures keep the account suspended for a retry.
 
-Stripe customer deletion cancels its active subscriptions. Stripe retains historical payment records and this action does not issue refunds. A configured `STRIPE_SECRET_KEY` is required for accounts with a Stripe customer. [Stripe customer deletion](https://docs.stripe.com/api/customers/delete?lang=node).
+Lemon Squeezy retains historical payment records; Folio does not delete its customer records or issue refunds. Connected Lemon Squeezy credentials are required to verify cancellation before deleting an account with subscriptions. Uncompleted checkout links must expire before deletion. See [BILLING.md](BILLING.md).
 
 If billing, storage or Auth cleanup fails, the dashboard reports the failure and shows **Deletion pending → Retry deletion**. The account stays suspended and cannot be activated once permanent deletion starts. Retry after resolving the service error; already completed steps are safe to repeat. An active checkout creation briefly prevents deletion so its customer mapping can finish. Never manually remove Storage SQL rows to bypass a failure: Supabase requires owned files to be removed before deleting their user. [Supabase user management](https://supabase.com/docs/guides/auth/managing-user-data).
 
@@ -52,17 +52,17 @@ A minimal deletion record retains the account UUID, requesting administrator, ti
 
 Until migration 007 is applied in **Supabase → SQL Editor**, the dashboard keeps Delete user disabled and displays setup instructions. Existing Activate/Suspend controls continue working. No additional environment variables are needed.
 
-Ending a subscription immediately revokes paid access after the canonical Stripe update is synchronized. Scheduled cancellation retains access through the paid period. Courtesy access, if separately granted, can outlast the subscription; revoke it separately when appropriate. Cancellation does not issue a refund. Refunds and disputes are handled in Stripe; this dashboard does not provide refunds or automatic dispute revocation.
+Ending access immediately cancels renewal and persistently revokes application paid access. Scheduled cancellation retains access through the paid period. Courtesy grants are separate. Refunds are managed in Lemon Squeezy; supported refund webhooks update paid coverage.
 
 ## Publishing pricing
 
 The initial plan is **$1 USD for 7 days, then $25 USD/month**, with a direct **$25 USD/month** option. The plan editor supports USD only, monthly amounts from $1 to $1,000, introductory amounts from $0.50 to $1,000, and durations from 1 to 30 days. Disabling the introductory offer leaves direct monthly billing available.
 
-Connect Stripe and webhook credentials before publishing. Review the amounts, renewal terms, and reason in the confirmation dialog. Publishing creates new Stripe prices; it does not charge anyone. The database atomically switches the active version and records the change. Existing subscriptions retain their previous Stripe price and introductory terms. The first publication pins configured initial price IDs in the database; do not delete old pricing versions.
+Connect Lemon Squeezy and its webhook before publishing. Create new subscription variants in Lemon Squeezy, then enter their numeric IDs and matching amounts/trial terms in Folio. Publication validates provider settings and atomically selects a new pricing version. Existing checkout term snapshots remain unchanged.
 
-The public pricing page, download dialog, and checkout use the current catalog. Checkout rejects a stale displayed version and asks the user to review the current terms. The introductory offer remains once per account across price versions. An already-created Stripe Checkout session retains its original terms, including after a price change or purchase pause; expire outstanding sessions in Stripe if required.
+The public pricing page, download dialog, and checkout use the current catalog. Stale versions are rejected at checkout. Introductory eligibility is once per account. Existing checkout links remain payable until expiry even if new purchases are paused.
 
-Stable request IDs bind retries to one administrator and one payload. Database version checks prevent overwriting another admin’s newer publication. Stripe and PostgreSQL cannot commit atomically: an interrupted publication may leave unused Stripe products/prices, and failed subscription synchronization should be retried using the same pending review. Inspect activity and Stripe records after a persistent error. Existing subscriptions are not bulk migrated by the dashboard.
+Stable request IDs bind retries to the administrator and payload. Database version checks prevent stale pricing publications. Provider changes and database writes are separate operations: retry synchronization after transient failures and inspect the audit log. Existing subscribers are never automatically moved to a new variant.
 
 ## Maintenance and recovery
 
@@ -88,6 +88,6 @@ When a Pro text download opens the payment prompt, signed-in users save source b
 
 ## Verification status and deployment
 
-Automated tests exercise PostgreSQL role boundaries, activation/suspension, deletion authorization and confirmations, complete data removal, cross-account isolation, retries after billing/storage/Auth failures, stale JWT rejection, support ownership, pricing version conflicts, HTTP authorization, maintenance recovery, anonymous preview versus export gating, browser draft recovery, responsive layouts, and accessibility. Server-route tests use mocked Supabase transport over a real local PostgreSQL engine, and mocked Stripe SDK methods to verify publication retries, subscription synchronization and customer deletion. Real Google login, Supabase email delivery, Stripe checkout/webhooks, admin pricing publication, cancellation, and renewals still require the connected test-mode workflow in [BILLING.md](BILLING.md). No real users were deleted to test this feature.
+Automated tests cover PostgreSQL role boundaries, admin operations, support ownership, document access, maintenance, deletion retries, and Lemon Squeezy billing with simulated transport. Real checkout, renewals, and portal actions require the connected test-mode workflow in [BILLING.md](BILLING.md). No real users or payments are used by these tests.
 
 This version uses synchronous bounded PDF workers and instance-level public request budgets. Before large-scale deployment, add distributed ingress abuse controls, isolated workers, queueing, monitoring, database query tuning, and measured capacity planning as described in [ARCHITECTURE.md](ARCHITECTURE.md). No million-user capacity claim is made.

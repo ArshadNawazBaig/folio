@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { ArrowRight, Loader2, Mail } from 'lucide-react';
-import { authClient } from '@/lib/auth-client';
+import { authClient, googleSignInUrl } from '@/lib/auth-client';
 import { authCallbackUrl, safeAuthDestination } from '@/lib/auth-navigation';
 import { useAccount } from './account-provider';
 export function SignInForm({ destination = '/account' }: { destination?: string }) {
@@ -18,24 +18,7 @@ export function SignInForm({ destination = '/account' }: { destination?: string 
     setBusy('google');
     setError('');
     try {
-      const { data, error } = await client.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: authCallbackUrl(window.location.origin, target),
-          queryParams: { prompt: 'select_account' },
-          skipBrowserRedirect: true,
-        },
-      });
-      if (error) throw error;
-      if (!data.url) throw new Error('Google sign-in could not be started. Please try again.');
-      const url = new URL(data.url),
-        service = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!);
-      if (
-        url.origin !== service.origin ||
-        url.pathname !== `${service.pathname.replace(/\/$/, '')}/auth/v1/authorize`
-      )
-        throw new Error('The sign-in address could not be verified.');
-      window.location.assign(url.href);
+      window.location.assign(await googleSignInUrl(target));
     } catch {
       setError('Google sign-in could not start. Please try again or use an email link.');
       setBusy(null);

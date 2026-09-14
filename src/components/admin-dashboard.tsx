@@ -1,13 +1,11 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
   CreditCard,
   Tag,
-  Settings,
   Inbox,
   History,
   ArrowUpRight,
@@ -20,9 +18,9 @@ import {
   ChevronRight,
   AlertCircle,
   LogOut,
-  BookOpen,
 } from 'lucide-react';
-import { Logo } from './logo';
+import { AdminNavigation } from './admin-navigation';
+import { adminNavigation as navigation } from '@/lib/admin-navigation';
 import { Dropdown } from './dropdown';
 import { SignInForm } from './sign-in-form';
 import { useAccount } from './account-provider';
@@ -53,19 +51,10 @@ import {
   ThreadSkeleton,
 } from './skeleton';
 
-const navigation = [
-  ['overview', 'Overview', LayoutDashboard],
-  ['users', 'Users', Users],
-  ['subscriptions', 'Subscriptions', CreditCard],
-  ['pricing', 'Pricing plans', Tag],
-  ['support', 'Support inbox', Inbox],
-  ['settings', 'Site settings', Settings],
-  ['audit', 'Activity log', History],
-] as const;
 type Snapshot = {
   catalog: PricingCatalog;
   settings: SiteSettings;
-  stripeReady: boolean;
+  billingReady: boolean;
   userDeletionReady?: boolean;
   overview?: AdminOverview;
   users?: { rows: AdminUser[]; total: number };
@@ -85,14 +74,14 @@ type Snapshot = {
 const empty: Snapshot = {
   catalog: DEFAULT_CATALOG,
   settings: DEFAULT_SETTINGS,
-  stripeReady: false,
+  billingReady: false,
 };
 const date = (value: string | null) => (value ? new Date(value).toLocaleDateString() : '—');
-export function AdminDashboard() {
+export function AdminDashboard({ initialSection = 'overview' }: { initialSection?: AdminSection }) {
   const { user, configured, loading: accountLoading } = useAccount();
   const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
-  const [section, setSection] = useState<AdminSection>('overview'),
+  const [section, setSection] = useState<AdminSection>(initialSection),
     [data, setData] = useState<Snapshot>(empty),
     [authorized, setAuthorized] = useState(false),
     [loading, setLoading] = useState(false),
@@ -110,6 +99,8 @@ export function AdminDashboard() {
     [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS),
     [pending, setPending] = useState<AdminAction | null>(null),
     [reason, setReason] = useState('');
+  const [monthlyVariantId, setMonthlyVariantId] = useState('');
+  const [trialVariantId, setTrialVariantId] = useState('');
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [loadedKey, setLoadedKey] = useState('');
   const queryKey = [user?.id, section, search, page, ticketFilter, ticket?.id].join('|');
@@ -139,6 +130,8 @@ export function AdminDashboard() {
       setAuthorized(true);
       setSettings(result.settings);
       const c = result.catalog;
+      setMonthlyVariantId(c.monthlyPriceId || '');
+      setTrialVariantId(c.trialPriceId || '');
       setPricing({
         name: c.name,
         currency: c.currency,
@@ -177,7 +170,14 @@ export function AdminDashboard() {
     setData(empty);
     setAuthorized(false);
   }, [user?.id]);
+  useEffect(() => {
+    setSection(initialSection);
+    setPage(1);
+    setSearch('');
+    setTicket(null);
+  }, [initialSection]);
   function navigate(next: AdminSection) {
+    router.replace(next === 'overview' ? '/admin' : `/admin?view=${next}`, { scroll: false });
     setSection(next);
     setPage(1);
     setSearch('');
@@ -259,34 +259,7 @@ export function AdminDashboard() {
             : 'Save site settings?';
   return (
     <div className="admin-shell">
-      <aside className="admin-sidebar">
-        <Logo />
-        <span className="admin-label">
-          <ShieldCheck size={13} /> SUPER ADMIN
-        </span>
-        <nav aria-label="Admin navigation">
-          {navigation.map(([key, label, Icon]) => (
-            <button
-              key={key}
-              aria-current={section === key ? 'page' : undefined}
-              onClick={() => navigate(key)}
-            >
-              <Icon size={18} />
-              {label}
-            </button>
-          ))}
-          <Link href="/admin/blog">
-            <BookOpen size={18} />
-            Blog posts
-          </Link>
-        </nav>
-        <Link className="admin-back" href="/">
-          Open website <ArrowUpRight size={16} />
-        </Link>
-        <Link className="admin-back" href="/account">
-          Your account <ArrowUpRight size={16} />
-        </Link>
-      </aside>
+      <AdminNavigation section={section} onNavigate={navigate} />
       <main id="main" className="admin-main" data-skeleton-loading={dataPending || undefined}>
         {dataPending && (
           <LoadingLabel>
@@ -341,8 +314,8 @@ export function AdminDashboard() {
                   }
                 </pre>
                 <p>
-                  Apply migrations 001, 002, and 003 in order. Keep the service role and Stripe keys
-                  on the server.
+                  Apply the Supabase migrations through 010 in order. Keep the service role and
+                  Lemon Squeezy keys on the server.
                 </p>
               </details>
             </div>
@@ -433,11 +406,11 @@ export function AdminDashboard() {
                     </span>
                   </li>
                   <li>
-                    Stripe billing{' '}
+                    Lemon Squeezy billing{' '}
                     <span>
                       {dataPending ? (
                         <Skeleton width={94} height={11} />
-                      ) : data.stripeReady ? (
+                      ) : data.billingReady ? (
                         'Configured'
                       ) : (
                         'Awaiting setup'
@@ -625,7 +598,7 @@ export function AdminDashboard() {
                             <button
                               disabled={
                                 !enabled ||
-                                !data.stripeReady ||
+                                !data.billingReady ||
                                 ['canceled', 'incomplete_expired'].includes(row.status)
                               }
                               onClick={() =>
@@ -643,7 +616,7 @@ export function AdminDashboard() {
                             <button
                               disabled={
                                 !enabled ||
-                                !data.stripeReady ||
+                                !data.billingReady ||
                                 ['canceled', 'incomplete_expired'].includes(row.status)
                               }
                               onClick={() =>
@@ -676,8 +649,8 @@ export function AdminDashboard() {
             <Pagination page={page} total={total} onChange={setPage} />
             <p className="admin-footnote">
               Suspension blocks account actions and Pro downloads. Billing cancellation and support
-              stay available. Courtesy grants do not create a Stripe charge or cancel an existing
-              subscription.
+              stay available. Courtesy grants do not create a Lemon Squeezy charge or cancel an
+              existing subscription.
             </p>
           </section>
         )}
@@ -687,8 +660,9 @@ export function AdminDashboard() {
               <span className="eyebrow">NEW PURCHASES</span>
               <h2>Make the plan fit your business.</h2>
               <p>
-                Publishing creates new Stripe prices. Existing subscriptions retain their original
-                prices and introductory terms.
+                Create new variants in Lemon Squeezy, then enter their IDs here. Publishing verifies
+                the prices and trial settings before enabling new purchases. Existing subscriptions
+                keep their purchased terms.
               </p>
               <form
                 onSubmit={(e) => {
@@ -703,12 +677,14 @@ export function AdminDashboard() {
                     requestId: crypto.randomUUID(),
                     expectedVersion: data.catalog.version,
                     pricing: parsed.data,
+                    monthlyVariantId,
+                    trialVariantId: parsed.data.trialEnabled ? trialVariantId : null,
                     reason: '',
                   });
                 }}
               >
                 <fieldset
-                  disabled={!enabled || !data.stripeReady}
+                  disabled={!enabled || !data.billingReady}
                   aria-hidden={dataPending || undefined}
                 >
                   <label>
@@ -721,6 +697,30 @@ export function AdminDashboard() {
                       required
                     />
                   </label>
+                  <label>
+                    Lemon Squeezy monthly variant ID
+                    <input
+                      value={monthlyVariantId}
+                      onChange={(e) => setMonthlyVariantId(e.target.value.trim())}
+                      inputMode="numeric"
+                      pattern="[1-9][0-9]*"
+                      required
+                      placeholder="e.g. 123456"
+                    />
+                  </label>
+                  {pricing.trialEnabled && (
+                    <label>
+                      Lemon Squeezy introductory variant ID
+                      <input
+                        value={trialVariantId}
+                        onChange={(e) => setTrialVariantId(e.target.value.trim())}
+                        inputMode="numeric"
+                        pattern="[1-9][0-9]*"
+                        required
+                        placeholder="Separate variant with setup fee and trial"
+                      />
+                    </label>
+                  )}
                   <label>
                     Monthly price (USD)
                     <input
@@ -780,17 +780,23 @@ export function AdminDashboard() {
                       />
                     </label>
                   </div>
-                  <button className="button primary" disabled={!enabled || !data.stripeReady}>
-                    Review & publish pricing <ArrowUpRight size={16} />
-                  </button>
+                  <div className="form-actions">
+                    {!data.billingReady && (
+                      <p className="service-note" id="pricing-connection-note">
+                        Connect Lemon Squeezy before publishing a plan. Editing prices does not
+                        charge any customer.
+                      </p>
+                    )}
+                    <button
+                      className="button primary"
+                      disabled={!enabled || !data.billingReady}
+                      aria-describedby={!data.billingReady ? 'pricing-connection-note' : undefined}
+                    >
+                      Review & publish pricing <ArrowUpRight size={16} />
+                    </button>
+                  </div>
                 </fieldset>
               </form>
-              {!data.stripeReady && (
-                <p className="service-note">
-                  Connect Stripe before publishing a plan. Editing prices does not charge any
-                  customer.
-                </p>
-              )}
             </section>
             <div>
               <section className="admin-card admin-price-preview">
@@ -913,9 +919,11 @@ export function AdminDashboard() {
                     onChange={(e) => setSettings((s) => ({ ...s, announcement: e.target.value }))}
                   />
                 </label>
-                <button className="button primary">
-                  Review changes <Check size={16} />
-                </button>
+                <div className="form-actions">
+                  <button className="button primary">
+                    Review changes <Check size={16} />
+                  </button>
+                </div>
               </fieldset>
             </form>
           </section>
@@ -1092,91 +1100,96 @@ export function AdminDashboard() {
           else setPending(null);
         }}
       >
-        <button
-          className="icon-button gate-close"
-          aria-label="Close review"
-          disabled={busy}
-          onClick={() => setPending(null)}
-        >
-          <X size={20} />
-        </button>
-        <h2 id="admin-confirm-title">{actionTitle}</h2>
+        <header className="dialog-header">
+          <h2 id="admin-confirm-title">{actionTitle}</h2>
+          <button
+            className="icon-button"
+            aria-label="Close review"
+            disabled={busy}
+            onClick={() => setPending(null)}
+          >
+            <X size={20} />
+          </button>
+        </header>
         {pending && (
           <form
+            className="dialog-form"
             onSubmit={(e) => {
               e.preventDefault();
               if (pending.action === 'delete_user' && deleteConfirmation !== 'DELETE') return;
               void save('reason' in pending ? { ...pending, reason } : pending);
             }}
           >
-            <p>
-              {pending.action === 'delete_user'
-                ? `Delete ${data.users?.rows.find((row) => row.id === pending.userId)?.email || pending.userId} and permanently remove their login, stored PDFs, recovery drafts, profile, support conversations, and app billing data. Subscriptions will be canceled. This cannot be undone.`
-                : pending.action === 'pricing'
-                  ? `${pending.pricing.name}: ${money(pending.pricing.monthlyAmount)}/month${pending.pricing.trialEnabled ? `, with ${pending.pricing.trialDays} days for ${money(pending.pricing.trialAmount)}.` : ', with no introductory offer.'} Existing subscriptions keep their current prices.`
-                  : pending.action === 'subscription'
-                    ? `${pending.subscriptionId}: ${pending.operation === 'cancel_now' ? 'End the subscription and paid access immediately. This does not issue a refund.' : pending.operation === 'cancel_end' ? 'Stop renewal at the end of the paid period.' : 'Continue automatic renewal at the existing price.'}`
-                    : pending.action === 'user'
-                      ? `${pending.operation === 'restore' ? 'Activate' : pending.operation.replaceAll('_', ' ')} for account ${pending.userId}. This does not change Stripe billing.`
-                      : pending.action === 'settings'
-                        ? `Maintenance will be ${pending.settings.maintenance ? 'on' : 'off'}. New purchases will be ${pending.settings.purchasesEnabled ? 'enabled when billing is ready' : 'paused'}.`
-                        : 'Update this inquiry.'}
-            </p>
-            {pending.action === 'delete_user' && (
-              <>
-                <p className="service-note">
-                  A minimal deletion audit record is kept. Stripe retains historical payment
-                  records; this action does not issue refunds. If cleanup fails, the user stays
-                  suspended until you retry deletion.
-                </p>
+            <div className="dialog-body">
+              <p>
+                {pending.action === 'delete_user'
+                  ? `Delete ${data.users?.rows.find((row) => row.id === pending.userId)?.email || pending.userId} and permanently remove their login, stored PDFs, recovery drafts, profile, support conversations, and app billing data. Subscriptions will be canceled. This cannot be undone.`
+                  : pending.action === 'pricing'
+                    ? `${pending.pricing.name}: ${money(pending.pricing.monthlyAmount)}/month${pending.pricing.trialEnabled ? `, with ${pending.pricing.trialDays} days for ${money(pending.pricing.trialAmount)}.` : ', with no introductory offer.'} Existing subscriptions keep their current prices.`
+                    : pending.action === 'subscription'
+                      ? `${pending.subscriptionId}: ${pending.operation === 'cancel_now' ? 'Cancel renewal and end Folio paid access immediately. This does not issue a refund.' : pending.operation === 'cancel_end' ? 'Stop renewal at the end of the paid period.' : 'Continue automatic renewal at the existing price.'}`
+                      : pending.action === 'user'
+                        ? `${pending.operation === 'restore' ? 'Activate' : pending.operation.replaceAll('_', ' ')} for account ${pending.userId}. This does not change Lemon Squeezy billing.`
+                        : pending.action === 'settings'
+                          ? `Maintenance will be ${pending.settings.maintenance ? 'on' : 'off'}. New purchases will be ${pending.settings.purchasesEnabled ? 'enabled when billing is ready' : 'paused'}.`
+                          : 'Update this inquiry.'}
+              </p>
+              {pending.action === 'delete_user' && (
+                <>
+                  <p className="service-note">
+                    A minimal deletion audit record is kept. Lemon Squeezy retains historical
+                    payment records; this action does not issue refunds. If cleanup fails, the user
+                    stays suspended until you retry deletion.
+                  </p>
+                  <label>
+                    Type DELETE to confirm
+                    <input
+                      autoComplete="off"
+                      value={deleteConfirmation}
+                      onChange={(e) => setDeleteConfirmation(e.target.value)}
+                      required
+                      pattern="DELETE"
+                      disabled={busy}
+                    />
+                  </label>
+                </>
+              )}
+              {pending.action === 'user' && pending.operation === 'grant' && (
                 <label>
-                  Type DELETE to confirm
+                  Days of courtesy access
                   <input
-                    autoComplete="off"
-                    value={deleteConfirmation}
-                    onChange={(e) => setDeleteConfirmation(e.target.value)}
-                    required
-                    pattern="DELETE"
-                    disabled={busy}
+                    type="number"
+                    min={1}
+                    max={365}
+                    value={pending.days}
+                    onChange={(e) =>
+                      setPending((p) =>
+                        p?.action === 'user' ? { ...p, days: Number(e.target.value) } : p,
+                      )
+                    }
                   />
                 </label>
-              </>
-            )}
-            {pending.action === 'user' && pending.operation === 'grant' && (
-              <label>
-                Days of courtesy access
-                <input
-                  type="number"
-                  min={1}
-                  max={365}
-                  value={pending.days}
-                  onChange={(e) =>
-                    setPending((p) =>
-                      p?.action === 'user' ? { ...p, days: Number(e.target.value) } : p,
-                    )
-                  }
-                />
-              </label>
-            )}
-            {'reason' in pending && (
-              <label>
-                Reason for this change
-                <textarea
-                  required
-                  minLength={3}
-                  maxLength={500}
-                  rows={3}
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                />
-              </label>
-            )}
-            {error && (
-              <p className="error-message" role="alert">
-                {error}
-              </p>
-            )}
-            <div className="gate-actions">
+              )}
+              {'reason' in pending && (
+                <label>
+                  Reason for this change
+                  <textarea
+                    required
+                    minLength={3}
+                    maxLength={500}
+                    rows={3}
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                  />
+                </label>
+              )}
+              {error && (
+                <p className="error-message" role="alert">
+                  {error}
+                </p>
+              )}
+            </div>
+            <footer className="dialog-footer">
               <button
                 type="button"
                 className="button secondary"
@@ -1201,7 +1214,7 @@ export function AdminDashboard() {
                     ? 'Saving…'
                     : 'Confirm change'}
               </button>
-            </div>
+            </footer>
           </form>
         )}
       </dialog>

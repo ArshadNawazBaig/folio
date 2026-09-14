@@ -6,6 +6,8 @@ import { afterSignIn, safeAuthDestination, signInHref } from '@/lib/auth-navigat
 export function AuthCallback() {
   const started = useRef(false),
     [error, setError] = useState(''),
+    [returnToEditor, setReturnToEditor] = useState(false),
+    [signedIn, setSignedIn] = useState(false),
     [destination, setDestination] = useState('/account');
   useEffect(() => {
     if (started.current) return;
@@ -14,6 +16,8 @@ export function AuthCallback() {
       fragment = new URLSearchParams(url.hash.slice(1));
     const code = url.searchParams.get('code'),
       next = safeAuthDestination(url.searchParams.get('next'));
+    const editorReturn = url.searchParams.get('return_to') === 'editor';
+    setReturnToEditor(editorReturn);
     const providerError = url.searchParams.get('error') || fragment.get('error');
     setDestination(next);
     // Remove authorization codes and provider errors from history before doing network work.
@@ -43,6 +47,13 @@ export function AuthCallback() {
         );
         return;
       }
+      if (editorReturn) {
+        // Supabase persists and broadcasts the verified session to the editor tab.
+        // Never navigate that tab or reload its in-memory document state.
+        setSignedIn(true);
+        window.close();
+        return;
+      }
       // Only the verified server response determines an admin landing destination.
       try {
         const access = await (await accountFetch('/api/account/access')).json();
@@ -52,21 +63,40 @@ export function AuthCallback() {
       }
     })().catch(() =>
       setError(
-        'Sign-in could not finish. Please start again. Your local documents are still on this device.',
+        'Sign-in could not finish. Please try again. Your document is still in its editor tab.',
       ),
     );
   }, []);
   return (
     <div className="account-card">
-      <h1>Welcome back.</h1>
-      {error ? (
+      <h1>{signedIn ? 'You’re signed in.' : 'Welcome back.'}</h1>
+      {signedIn ? (
+        <>
+          <p role="status">Return to your document tab to continue. Your edits have stayed open.</p>
+          <button className="button primary" onClick={() => window.close()}>
+            Close this tab
+          </button>
+        </>
+      ) : error ? (
         <>
           <p role="alert" className="error-message">
             {error}
           </p>
-          <Link className="button primary" href={signInHref(destination)}>
-            Back to sign in
-          </Link>
+          {returnToEditor ? (
+            <>
+              <p>
+                Your edits are still in the editor. Close this tab and try Google sign-in again from
+                your document.
+              </p>
+              <button className="button primary" onClick={() => window.close()}>
+                Close this tab
+              </button>
+            </>
+          ) : (
+            <Link className="button primary" href={signInHref(destination)}>
+              Back to sign in
+            </Link>
+          )}
         </>
       ) : (
         <p role="status">Finishing your sign-in…</p>

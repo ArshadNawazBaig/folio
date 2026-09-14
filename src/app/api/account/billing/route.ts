@@ -6,10 +6,11 @@ export async function GET(request: Request) {
     const db = adminDb();
     const [customer, subscriptions] = await Promise.all([
       db
-        .from('billing_customers')
-        .select('stripe_customer_id')
+        .from('lemon_checkouts')
+        .select('customer_id')
         .eq('user_id', user.id)
-        .maybeSingle(),
+        .not('customer_id', 'is', null)
+        .limit(1),
       db
         .from('billing_subscriptions')
         .select('status,current_period_end,cancel_at_period_end')
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
     if (customer.error || subscriptions.error)
       throw new ApiError(503, 'Billing details could not be loaded. Please try again.');
     return Response.json({
-      hasCustomer: !!customer.data,
+      hasCustomer: !!customer.data?.length,
       subscription: subscriptions.data?.[0] || null,
     });
   } catch (error) {

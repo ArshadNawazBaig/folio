@@ -2,7 +2,7 @@
 
 ## Implemented
 
-1. Next.js App Router serves server-rendered content for the homepage, directories, tool pages, pricing, guides, and informational pages. Local tool pages and guides are prerendered; pricing and service availability are read at request time. Public content and links are present without JavaScript. Pricing includes the agreed $1 USD introductory week and $25 USD monthly renewal in server-rendered content and metadata; Stripe availability loads separately. No misleading free Pro offer is embedded in structured data.
+1. Next.js App Router serves server-rendered content for the homepage, directories, tool pages, pricing, guides, and informational pages. Local tool pages and guides are prerendered; pricing and service availability are read at request time. Public content and links are present without JavaScript. Pricing includes the agreed $1 USD introductory week and $25 USD monthly renewal in server-rendered content and metadata; Lemon Squeezy availability loads separately. No misleading free Pro offer is embedded in structured data.
 2. Every public route has a unique title, description, absolute canonical URL, Open Graph metadata, and a Twitter summary card. Social images are generated at `/og?title=…` as PNGs.
 3. Available tool pages contain visible task-specific instructions, limitations, FAQs, and relevant internal links. The content is not hidden in an editor canvas.
 4. JSON-LD describes the website, available SoftwareApplication tools, BreadcrumbLists, and guide Articles. Free tools have a zero-price offer; Pro tools omit offers until authoritative pricing is available. There are no fabricated reviews, ratings, customers, or awards. Structured data is escaped before being embedded.

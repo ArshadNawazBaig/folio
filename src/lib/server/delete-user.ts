@@ -1,6 +1,6 @@
 import 'server-only';
 import { adminDb } from './auth';
-import { stripeClient } from './billing';
+import { changeSubscription } from './billing';
 import { ApiError } from './http';
 import { databaseError } from './platform';
 
@@ -16,33 +16,24 @@ export async function deleteUser(actor: string, userId: string, reason: string) 
   databaseError(started.error);
   if (started.data?.status === 'deleted') return;
 
-  const customer = await db
-    .from('billing_customers')
-    .select('stripe_customer_id')
-    .eq('user_id', userId)
-    .maybeSingle();
-  databaseError(customer.error);
-  if (customer.data) {
-    if (!process.env.STRIPE_SECRET_KEY)
-      throw new ApiError(
-        503,
-        'Connect Stripe before deleting this billing account. The user is suspended; retry deletion after connecting Stripe.',
-      );
-    try {
-      const stripe = stripeClient();
-      const record = await stripe.customers.retrieve(customer.data.stripe_customer_id);
-      // Stripe customer deletion also cancels active subscriptions. Deleted
-      // customers remain retrievable, which makes this step safe to retry.
-      if (!record.deleted) {
-        const removed = await stripe.customers.del(record.id);
-        if (!removed.deleted) throw new Error('Customer deletion was not confirmed.');
-      }
-    } catch {
-      throw new ApiError(
-        503,
-        'Billing cleanup could not finish. The user remains suspended. Retry deletion to continue.',
+  const subscriptions = await db
+    .from('billing_subscriptions')
+    .select('stripe_subscription_id')
+    .eq('user_id', userId);
+  databaseError(subscriptions.error);
+  try {
+    for (const subscription of subscriptions.data || []) {
+      await changeSubscription(
+        subscription.stripe_subscription_id,
+        'cancel_now',
+        `deletion_${userId}_${subscription.stripe_subscription_id}`,
       );
     }
+  } catch {
+    throw new ApiError(
+      503,
+      'Billing cleanup could not finish. The user remains suspended. Connect Lemon Squeezy and retry deletion to cancel renewals before removing their data.',
+    );
   }
 
   const objects = await db.rpc('user_deletion_objects', { actor, target_user: userId });

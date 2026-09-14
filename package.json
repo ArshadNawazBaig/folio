@@ -16,6 +16,7 @@
     "format": "prettier --write src tests scripts docs *.ts *.json README.md",
     "format:check": "prettier --check src tests scripts docs *.ts *.json README.md",
     "test:auth": "playwright test --config=playwright.auth.config.ts",
+    "test:design": "playwright test --config=playwright.design.config.ts",
     "test:blog": "playwright test --config=playwright.blog.config.ts",
     "check:setup": "node scripts/check-setup.mjs"
   },
@@ -44,7 +45,6 @@
     "react-dom": "^19.2.8",
     "server-only": "^0.0.1",
     "sharp": "^0.35.4",
-    "stripe": "^22.6.2",
     "zod": "^4.6.4"
   },
   "devDependencies": {

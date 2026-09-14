@@ -492,7 +492,7 @@ export function RemotePdfWorkspace({
           </button>
         )}
       </div>
-      <p className="service-note">
+      <p className="service-note service-note--footer">
         {ready
           ? `${translation ? 'Translation sends this PDF to Google Cloud Translation.' : 'Conversion sends this PDF to ConvertAPI.'} Processing starts when you choose ${translation ? 'Translate PDF' : 'Convert'}. Prepared files remain available for 24 hours; layout and recognition quality depend on your source document.`
           : 'This processing service is not connected yet. Local previews work, and your file is not uploaded.'}{' '}

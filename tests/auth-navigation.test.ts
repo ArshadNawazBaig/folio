@@ -47,3 +47,11 @@ test('admin landing follows verified roles while preserving customer checkout in
   assert.equal(afterSignIn('/dashboard?view=files', true), '/dashboard?view=files');
   assert.equal(afterSignIn('/pricing?plan=month', true), '/pricing?plan=month');
 });
+test('editor sign-in returns to its own tab without changing normal authentication redirects', () => {
+  const normal = new URL(authCallbackUrl('https://folio.test', '/account'));
+  assert.equal(normal.searchParams.has('return_to'), false);
+  const editor = new URL(authCallbackUrl('https://folio.test', '/account', true));
+  assert.equal(editor.pathname, '/auth/callback');
+  assert.equal(editor.searchParams.get('return_to'), 'editor');
+  assert.equal(editor.searchParams.get('next'), '/account');
+});

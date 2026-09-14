@@ -19,10 +19,10 @@ export function catalogFromRow(row: Record<string, unknown>): PricingCatalog {
     trialEnabled: Boolean(row.trial_enabled),
     monthlyPriceId:
       (row.monthly_price_id as string | null) ||
-      (row.id === 'initial' ? process.env.STRIPE_PRO_MONTHLY_PRICE_ID || null : null),
+      (row.id === 'initial' ? process.env.LEMON_SQUEEZY_MONTHLY_VARIANT_ID || null : null),
     trialPriceId:
       (row.trial_price_id as string | null) ||
-      (row.id === 'initial' ? process.env.STRIPE_PRO_TRIAL_PRICE_ID || null : null),
+      (row.id === 'initial' ? process.env.LEMON_SQUEEZY_TRIAL_VARIANT_ID || null : null),
   };
 }
 let cached:
@@ -36,8 +36,8 @@ export async function getPlatform(fresh = false) {
       settings: DEFAULT_SETTINGS,
       catalog: {
         ...DEFAULT_CATALOG,
-        monthlyPriceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID || null,
-        trialPriceId: process.env.STRIPE_PRO_TRIAL_PRICE_ID || null,
+        monthlyPriceId: process.env.LEMON_SQUEEZY_MONTHLY_VARIANT_ID || null,
+        trialPriceId: process.env.LEMON_SQUEEZY_TRIAL_VARIANT_ID || null,
       },
     };
   if (!fresh && cached && cached.expires > Date.now()) return cached.value;
@@ -87,7 +87,7 @@ export function databaseError(error: { message?: string } | null) {
   if (message.includes('deletion_checkout_busy'))
     throw new ApiError(
       409,
-      'Checkout is currently in progress for this user. Wait a minute and retry deletion.',
+      'A checkout is still open or awaiting confirmation. Retry deletion after the payment link and its delivery grace period expire (up to 45 minutes).',
     );
   if (message.includes('deletion_in_progress'))
     throw new ApiError(

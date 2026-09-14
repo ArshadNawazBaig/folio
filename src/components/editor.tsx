@@ -48,6 +48,8 @@ import { useAccount } from './account-provider';
 import { InlinePdfText } from './inline-pdf-text';
 import { PdfTextSizeInput } from './pdf-text-size-input';
 import { DownloadGate } from './download-gate';
+import { SignatureDialog } from './signature-dialog';
+import type { SignatureResult, SignatureTab } from '@/lib/signature';
 import { defaultTextChange, hasTextChanges, unchangedText } from '@/lib/editor-text';
 import { exportWorkspacePdf, requestTextPdf } from '@/lib/editor-text-client';
 import { readProDraft } from '@/lib/pro-draft';
@@ -156,7 +158,7 @@ export function Editor() {
   const [search, setSearch] = useState('');
   const [searchMatches, setSearchMatches] = useState<number[]>([]);
   const [searching, setSearching] = useState(false);
-  const [signatureText, setSignatureText] = useState('Your signature');
+  const [signatureTab, setSignatureTab] = useState<SignatureTab | null>(null);
   const scrollArea = useRef<HTMLDivElement>(null);
   const pageArea = useRef<HTMLDivElement>(null);
   const imageInput = useRef<HTMLInputElement>(null);
@@ -188,6 +190,12 @@ export function Editor() {
   const [dragAnnotation, setDragAnnotation] = useState<Annotation | null>(null);
   const initialLoad = useRef(false);
   const loadVersion = useRef(0);
+  useEffect(() => {
+    if (bytes && !busy && mode === 'signature') {
+      setSignatureTab('draw');
+      setMode('select');
+    }
+  }, [bytes, busy, mode]);
   const selected = state.annotations.find((a) => a.id === selectedId);
   const pageModel = state.pages[pageIndex];
   const sideways = !!pageModel && pageModel.rotation % 180 !== 0;
@@ -631,7 +639,7 @@ export function Editor() {
   });
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if (e.defaultPrevented) return;
+      if (e.defaultPrevented || (e.target as HTMLElement)?.closest('dialog[open]')) return;
       const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName);
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
@@ -721,7 +729,7 @@ export function Editor() {
       height,
       text:
         kind === 'signature'
-          ? signatureText
+          ? 'Your signature'
           : kind === 'field' || kind === 'checkbox'
             ? `${kind}_${state.annotations.filter((a) => a.kind === kind).length + 1}_${crypto.randomUUID().slice(0, 5)}`
             : kind === 'comment'
@@ -781,6 +789,10 @@ export function Editor() {
       setStroke([point]);
       return;
     }
+    if (mode === 'signature') {
+      setSignatureTab('draw');
+      return;
+    }
     if (mode === 'image') {
       imageInput.current?.click();
       return;
@@ -815,6 +827,27 @@ export function Editor() {
       if (!g.moved) return;
       const dx = (e.clientX - g.clientX) / scale;
       const dy = (e.clientY - g.clientY) / scale;
+      if (g.resize && (g.a.signatureSource || g.a.kind === 'signature')) {
+        const horizontal = dx / g.a.width,
+          vertical = dy / g.a.height;
+        const delta = Math.abs(horizontal) > Math.abs(vertical) ? horizontal : vertical;
+        const maximum = Math.min(
+          (pageWidth - g.a.x) / g.a.width,
+          (pageHeight - g.a.y) / g.a.height,
+        );
+        const minimum = Math.min(
+          maximum,
+          Math.max(24 / g.a.width, 12 / g.a.height, g.a.kind === 'signature' ? 6 / g.a.size : 0),
+        );
+        const factor = Math.max(minimum, Math.min(maximum, 1 + delta));
+        setDragAnnotation({
+          ...g.a,
+          width: g.a.width * factor,
+          height: g.a.height * factor,
+          ...(g.a.kind === 'signature' ? { size: g.a.size * factor } : {}),
+        });
+        return;
+      }
       setDragAnnotation(
         g.resize
           ? {
@@ -920,6 +953,54 @@ export function Editor() {
     setOriginalSelection(null);
     gesture.current = { id: a.id, clientX: e.clientX, clientY: e.clientY, a, resize, moved: false };
     setPropertiesTab('style');
+  }
+  function addSignature(signature: SignatureResult) {
+    if (!pageModel || busy) return;
+    const factor = Math.min(
+      1,
+      260 / signature.width,
+      110 / signature.height,
+      (pageWidth * 0.8) / signature.width,
+      (pageHeight * 0.5) / signature.height,
+    );
+    const width = signature.width * factor,
+      height = signature.height * factor;
+    const rect = pageArea.current?.getBoundingClientRect(),
+      viewport = scrollArea.current?.getBoundingClientRect();
+    const centerY =
+      rect && viewport
+        ? ((Math.max(rect.top, viewport.top) + Math.min(rect.bottom, viewport.bottom)) / 2 -
+            rect.top) /
+          scale
+        : pageHeight / 2;
+    const annotation: Annotation = {
+      id: crypto.randomUUID(),
+      pageId: pageModel.id,
+      kind: signature.source === 'type' ? 'signature' : 'image',
+      signatureSource: signature.source,
+      x: Math.max(0, (pageWidth - width) / 2),
+      y: Math.max(0, Math.min(pageHeight - height, centerY - height / 2)),
+      width,
+      height,
+      opacity: 1,
+      text:
+        signature.source === 'type'
+          ? signature.text
+          : signature.source === 'draw'
+            ? 'Drawn signature'
+            : 'Uploaded signature',
+      color: signature.source === 'type' ? signature.color : '#202522',
+      size: signature.source === 'type' ? signature.size * factor : 2,
+      ...(signature.source === 'type' ? { font: signature.font } : { dataUrl: signature.dataUrl }),
+    };
+    const current = stateRef.current;
+    commit({ ...current, annotations: [...current.annotations, annotation] });
+    setSelectedId(annotation.id);
+    setOriginalSelection(null);
+    setInlineAnnotation('');
+    setMode('select');
+    setPropertiesTab('style');
+    if (window.innerWidth >= 1000) setProperties(true);
   }
   async function addImage(file?: File) {
     if (!file) return;
@@ -1109,23 +1190,24 @@ export function Editor() {
         </div>
       </header>
       <dialog ref={signInDialog} className="confirm-dialog" aria-labelledby="cloud-signin-heading">
-        <button
-          className="dialog-close icon-button"
-          aria-label="Close save dialog"
-          onClick={() => signInDialog.current?.close()}
-        >
-          <X size={18} />
-        </button>
-        <span className="account-symbol">
-          <CloudUpload size={24} />
-        </span>
-        <h2 id="cloud-signin-heading">Keep this document in your account.</h2>
-        <p>
-          {user
-            ? 'You’re signed in. Your document is saved to your account automatically.'
-            : 'Your guest workspace expires after 24 hours. Sign in to keep it in My files and open it on any device. Sign-in opens in a new tab.'}
-        </p>
-        <div>
+        <header className="dialog-header">
+          <h2 id="cloud-signin-heading">Keep this document in your account.</h2>
+          <button
+            className="icon-button"
+            aria-label="Close save dialog"
+            onClick={() => signInDialog.current?.close()}
+          >
+            <X size={18} />
+          </button>
+        </header>
+        <div className="dialog-body">
+          <p>
+            {user
+              ? 'You’re signed in. Your document is saved to your account automatically.'
+              : 'Your guest workspace expires after 24 hours. Sign in to keep it in My files and open it on any device. Sign-in opens in a new tab.'}
+          </p>
+        </div>
+        <footer className="dialog-footer">
           <button className="button secondary" onClick={() => signInDialog.current?.close()}>
             Keep editing
           </button>
@@ -1143,7 +1225,7 @@ export function Editor() {
               Sign in to keep <ArrowRight size={16} />
             </Link>
           )}
-        </div>
+        </footer>
       </dialog>
 
       {(!bytes || !doc || !pageModel) && busy ? (
@@ -1198,8 +1280,20 @@ export function Editor() {
         </div>
       ) : (
         <>
+          {signatureTab && (
+            <SignatureDialog
+              initialTab={signatureTab}
+              onClose={() => setSignatureTab(null)}
+              onAdd={addSignature}
+            />
+          )}
           <EditorToolbar
-            mode={mode}
+            mode={signatureTab ? 'signature' : mode}
+            signature={(tab) => {
+              setInlineAnnotation('');
+              setOriginalSelection(null);
+              setSignatureTab(tab);
+            }}
             choose={(next) => {
               setMode(next);
               setOriginalSelection(null);
@@ -1503,7 +1597,7 @@ export function Editor() {
                           }}
                           tabIndex={inlineAnnotation === a.id ? undefined : 0}
                           role={inlineAnnotation === a.id ? undefined : 'button'}
-                          aria-label={`${a.kind}: ${a.kind === 'link' ? a.url || 'Set link address' : a.kind === 'comment' ? a.text || 'Write a comment' : a.kind === 'text' || a.kind === 'signature' || a.kind === 'field' || a.kind === 'checkbox' ? a.text : 'annotation'}`}
+                          aria-label={`${a.signatureSource ? 'signature' : a.kind}: ${a.signatureSource ? a.text : a.kind === 'link' ? a.url || 'Set link address' : a.kind === 'comment' ? a.text || 'Write a comment' : a.kind === 'text' || a.kind === 'signature' || a.kind === 'field' || a.kind === 'checkbox' ? a.text : 'annotation'}`}
                           onKeyDown={(e) => {
                             if (e.target !== e.currentTarget) return;
                             if (e.key === 'Enter') {
@@ -1651,7 +1745,11 @@ export function Editor() {
                             </span>
                           )}
                           {a.kind === 'image' && (
-                            <img src={a.dataUrl} alt="Document annotation" draggable={false} />
+                            <img
+                              src={a.dataUrl}
+                              alt={a.signatureSource ? 'Your signature' : 'Document annotation'}
+                              draggable={false}
+                            />
                           )}
                           {a.kind === 'draw' && (
                             <svg
@@ -1686,7 +1784,11 @@ export function Editor() {
                           {selectedId === a.id && (
                             <>
                               <span className="annotation-tag">
-                                {a.kind === 'field' ? 'Form field' : a.kind}
+                                {a.signatureSource
+                                  ? 'signature'
+                                  : a.kind === 'field'
+                                    ? 'Form field'
+                                    : a.kind}
                               </span>
                               {a.kind !== 'draw' && (
                                 <span
@@ -1976,9 +2078,11 @@ export function Editor() {
                   <>
                     <div className="selected-heading">
                       <h2>
-                        {selected.kind === 'field'
-                          ? 'Text field'
-                          : selected.kind.charAt(0).toUpperCase() + selected.kind.slice(1)}
+                        {selected.signatureSource
+                          ? 'Signature'
+                          : selected.kind === 'field'
+                            ? 'Text field'
+                            : selected.kind.charAt(0).toUpperCase() + selected.kind.slice(1)}
                       </h2>
                       <span className="status-label">SELECTED</span>
                     </div>
@@ -2201,20 +2305,12 @@ export function Editor() {
                           : 'Click or drag to add a cover. Resize it to fit the area and choose a color that matches the page. This does not permanently remove underlying text or images.'}
                       </p>
                     ) : mode === 'signature' ? (
-                      <>
-                        <label>
-                          Your signature
-                          <input
-                            value={signatureText}
-                            onChange={(e) => setSignatureText(e.target.value)}
-                          />
-                        </label>
-                        <div className="signature-preview">{signatureText}</div>
-                        <p className="panel-description">
-                          A visual signature, without a digital certificate. Choose Pencil to write
-                          it by hand.
-                        </p>
-                      </>
+                      <button
+                        className="button secondary full"
+                        onClick={() => setSignatureTab('draw')}
+                      >
+                        Create your signature
+                      </button>
                     ) : (
                       <>
                         <label>

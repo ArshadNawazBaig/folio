@@ -1,6 +1,5 @@
 import { test, expect } from './fixtures/editor-storage';
-import type { Page } from '@playwright/test';
-import { createHash } from 'node:crypto';
+import { mockGoogle } from './fixtures/auth';
 import AxeBuilder from '@axe-core/playwright';
 import { createSample } from '../src/lib/sample';
 import { DEFAULT_CATALOG, DEFAULT_SETTINGS } from '../src/lib/platform';
@@ -13,129 +12,6 @@ const emptyStorage = {
   full: false,
   recovery: [],
 };
-async function mockGoogle(page: Page, admin = false, fail = false) {
-  let challenge = '';
-  const id = '00000000-0000-4000-8000-000000000001',
-    now = Math.floor(Date.now() / 1000);
-  const jwt = [
-    { alg: 'HS256', typ: 'JWT' },
-    { sub: id, exp: now + 3600, iat: now, aud: 'authenticated', role: 'authenticated' },
-    'fixture',
-  ]
-    .map((v) => Buffer.from(JSON.stringify(v)).toString('base64url'))
-    .join('.');
-  let fixtureUser = {
-    id,
-    email: 'customer@example.test',
-    aud: 'authenticated',
-    role: 'authenticated',
-    created_at: new Date().toISOString(),
-    app_metadata: { provider: 'google', providers: ['google'] },
-    user_metadata: { role: 'super_admin', name: 'Fixture User' },
-    identities: [],
-  };
-  await page.route('https://folio-auth-tests.example.test/**', async (route) => {
-    const url = new URL(route.request().url());
-    if (url.pathname.startsWith('/storage/v1/object/info/folio-recovery/')) {
-      await route.fulfill({ status: 404, json: { error: 'not_found' } });
-      return;
-    }
-    if (url.pathname === '/auth/v1/authorize') {
-      expect(url.searchParams.get('provider')).toBe('google');
-      expect(url.searchParams.get('code_challenge_method')?.toLowerCase()).toBe('s256');
-      expect(url.searchParams.get('prompt')).toBe('select_account');
-      challenge = url.searchParams.get('code_challenge')!;
-      expect(challenge).toBeTruthy();
-      const callback = new URL(url.searchParams.get('redirect_to')!);
-      expect(callback.origin).toBe('http://127.0.0.1:3001');
-      expect(callback.pathname).toBe('/auth/callback');
-      callback.searchParams.set('code', 'fixture-code');
-      await route.fulfill({ status: 302, headers: { location: callback.href } });
-      return;
-    }
-    if (url.pathname === '/auth/v1/token') {
-      expect(url.searchParams.get('grant_type')).toBe('pkce');
-      const body = route.request().postDataJSON();
-      expect(body.auth_code).toBe('fixture-code');
-      expect(createHash('sha256').update(body.code_verifier).digest('base64url')).toBe(challenge);
-      if (fail) {
-        await route.fulfill({
-          status: 400,
-          json: { error: 'invalid_grant', error_description: 'Expired authorization code' },
-        });
-        return;
-      }
-      await route.fulfill({
-        json: {
-          access_token: jwt,
-          refresh_token: 'fixture-refresh',
-          token_type: 'bearer',
-          expires_in: 3600,
-          user: fixtureUser,
-        },
-      });
-      return;
-    }
-    if (url.pathname === '/auth/v1/user') {
-      if (route.request().method() === 'PUT')
-        fixtureUser = {
-          ...fixtureUser,
-          user_metadata: { ...fixtureUser.user_metadata, ...route.request().postDataJSON().data },
-        };
-      await route.fulfill({ json: fixtureUser });
-      return;
-    }
-    if (url.pathname === '/auth/v1/logout') {
-      await route.fulfill({ status: 204 });
-      return;
-    }
-    throw new Error(`Unexpected auth request: ${url.pathname}`);
-  });
-  await page.route('**/api/account/access', async (route) => {
-    expect(route.request().headers().authorization).toBe(`Bearer ${jwt}`);
-    await route.fulfill({
-      json: {
-        pro: false,
-        admin,
-        trial: false,
-        expiresAt: null,
-        cancelAtPeriodEnd: false,
-        billingReady: false,
-      },
-    });
-  });
-  await page.route('**/api/account/files', (route) =>
-    route.fulfill({ json: { files: [], storage: emptyStorage } }),
-  );
-  await page.route('**/api/account/billing', (route) =>
-    route.fulfill({ json: { hasCustomer: false, subscription: null } }),
-  );
-  await page.route('**/api/support', (route) =>
-    route.fulfill({ json: { tickets: [], messages: [] } }),
-  );
-  await page.route('**/api/admin?**', (route) =>
-    route.fulfill(
-      admin
-        ? {
-            json: {
-              catalog: DEFAULT_CATALOG,
-              settings: DEFAULT_SETTINGS,
-              stripeReady: false,
-              overview: {
-                users: 3,
-                paid: 0,
-                trials: 0,
-                operations: 0,
-                suspended: 0,
-                openTickets: 0,
-              },
-              users: { rows: [], total: 0 },
-            },
-          }
-        : { status: 403, json: { error: 'Super admin access is required.' } },
-    ),
-  );
-}
 test('Google creates a PKCE session, uses the customer account, and signs out', async ({
   page,
 }) => {
@@ -435,7 +311,7 @@ test('admin skeletons replace unknown metrics and directory records while reques
       json: {
         catalog: DEFAULT_CATALOG,
         settings: DEFAULT_SETTINGS,
-        stripeReady: true,
+        billingReady: true,
         userDeletionReady: true,
         overview: { users: 1, paid: 0, trials: 0, operations: 0, suspended: 0, openTickets: 0 },
         users: {
@@ -849,7 +725,7 @@ test('super admin activates users and confirms deletion with retry after cleanup
       json: {
         catalog: DEFAULT_CATALOG,
         settings: DEFAULT_SETTINGS,
-        stripeReady: true,
+        billingReady: true,
         userDeletionReady: true,
         overview: { users: 2, paid: 0, trials: 0, operations: 0, suspended: 1, openTickets: 0 },
         users: { rows, total: rows.length },
@@ -1439,6 +1315,215 @@ test('inline text workspace saves privately, restores annotations and only expor
   expect(text).not.toContain('A place to');
 });
 
+test('download dialog signs in through a separate tab and preserves unsaved original and added text', async ({
+  page,
+  context,
+  workspaceStorage,
+}, testInfo) => {
+  await mockGoogle(context);
+  await page.goto('/workspace?sample=proposal');
+  await expect(page.locator('.editor-file-title')).toContainText('All changes saved');
+  const url = page.url();
+  const file = [...workspaceStorage.records.values()][0];
+  expect(file.expiresAt).toBeTruthy();
+  workspaceStorage.failSaves = true;
+  await page.getByRole('button', { name: 'Add text', exact: true }).click();
+  await page.locator('.editable-page').click({ position: { x: 90, y: 130 } });
+  await page
+    .getByRole('textbox', { name: 'Edit added text', exact: true })
+    .fill('Keep my added text');
+  await page.getByRole('button', { name: 'Edit original text', exact: true }).click();
+  await page.getByRole('button', { name: 'Edit text: A place to', exact: true }).click();
+  const input = page.getByRole('textbox', { name: 'Edit original text: A place to', exact: true });
+  await input.fill('Keep my original edit');
+  await input.press('Enter');
+  const navigations: string[] = [];
+  page.on('framenavigated', (frame) => {
+    if (frame === page.mainFrame()) navigations.push(frame.url());
+  });
+  await page.getByRole('button', { name: 'Download PDF', exact: true }).click();
+  const gate = page.locator('.download-gate');
+  const signIn = gate.getByRole('button', { name: 'Continue with Google', exact: true });
+  await expect(signIn).toBeEnabled();
+  await expect(gate.getByRole('button', { name: 'I’ve paid — download my PDF' })).toBeHidden();
+  await expect(gate.getByRole('button', { name: 'Checkout not available yet' })).toBeHidden();
+  await gate.getByRole('button', { name: 'Monthly', exact: true }).click();
+  for (const width of [1280, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect(signIn).toBeInViewport();
+    expect(await gate.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+    const footer = gate.locator('.download-gate-footer');
+    const before = await footer.boundingBox();
+    await gate.locator('.download-gate-body').evaluate((el) => el.scrollTo(0, el.scrollHeight));
+    expect((await footer.boundingBox())?.y).toBe(before?.y);
+    await page.screenshot({ path: testInfo.outputPath(`google-download-${width}.png`) });
+  }
+  expect(
+    (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
+      .violations,
+  ).toEqual([]);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const popupEvent = context.waitForEvent('page');
+  await signIn.click();
+  const popup = await popupEvent;
+  await expect(gate.getByRole('button', { name: 'I’ve paid — download my PDF' })).toBeEnabled();
+  await expect.poll(() => popup.isClosed()).toBe(true);
+  expect(page.url()).toBe(url);
+  expect(navigations).toEqual([]);
+  await expect(signIn).toBeHidden();
+  await expect(gate.getByRole('button', { name: 'Monthly', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(gate.getByRole('alert')).toBeHidden();
+  await gate.getByRole('button', { name: 'I’ve paid — download my PDF' }).click();
+  await expect(gate.getByRole('status')).toContainText('Premium access is not active yet');
+  await expect(gate.getByRole('alert')).toBeHidden();
+  await gate
+    .locator('.gate-actions')
+    .getByRole('button', { name: 'Keep editing', exact: true })
+    .click();
+  await expect(page.locator('.annotation-text')).toContainText('Keep my added text');
+  await page.getByRole('button', { name: 'Edit text: A place to', exact: true }).click();
+  await expect(input).toHaveValue('Keep my original edit');
+  workspaceStorage.failSaves = false;
+  await input.press('ControlOrMeta+s');
+  await expect(page.locator('.editor-file-title')).toContainText('All changes saved');
+  expect(file.expiresAt).toBeNull();
+  expect(file.snapshot?.state.annotations[0].text).toBe('Keep my added text');
+  expect(JSON.stringify(file.snapshot?.state.textChanges)).toContain('Keep my original edit');
+  expect(workspaceStorage.uploads).toBe(1);
+  await page.reload();
+  await expect(page.locator('.annotation-text')).toContainText('Keep my added text');
+  await page.getByRole('button', { name: 'Edit text: A place to', exact: true }).click();
+  await expect(input).toHaveValue('Keep my original edit');
+});
+
+test('download sign-in can retry blocked and cancelled tabs without losing prepared settings', async ({
+  page,
+  context,
+}) => {
+  await mockGoogle(context);
+  let cancel = true;
+  await context.route(
+    'https://folio-auth-tests.example.test/auth/v1/authorize?**',
+    async (route) => {
+      if (!cancel) return route.fallback();
+      const target = new URL(new URL(route.request().url()).searchParams.get('redirect_to')!);
+      expect(target.searchParams.get('return_to')).toBe('editor');
+      target.searchParams.set('error', 'access_denied');
+      await route.fulfill({ status: 302, headers: { location: target.href } });
+    },
+  );
+  await page.goto('/protect-pdf');
+  await page.locator('input[type=file]').setInputFiles({
+    name: 'Private proposal.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from(await createSample()),
+  });
+  await page.getByLabel('Opening password', { exact: true }).fill('keep-this-password');
+  await page.getByLabel('Confirm password', { exact: true }).fill('keep-this-password');
+  await page.getByRole('button', { name: 'Protect & download', exact: true }).click();
+  const gate = page.locator('.download-gate');
+  const google = gate.getByRole('button', { name: 'Continue with Google' });
+  await expect(google).toBeEnabled();
+  await page.evaluate(() => {
+    Object.assign(window, { originalWindowOpen: window.open });
+    window.open = () => null;
+  });
+  await google.click();
+  await expect(gate.getByRole('alert')).toContainText('Allow a new tab for Google sign-in');
+  await expect(page).toHaveURL(/\/protect-pdf$/);
+  await page.evaluate(() => {
+    window.open = (
+      window as unknown as { originalWindowOpen: typeof window.open }
+    ).originalWindowOpen;
+  });
+  const popupEvent = context.waitForEvent('page');
+  await google.click();
+  const popup = await popupEvent;
+  await expect(popup.locator('.account-card').getByRole('alert')).toContainText(
+    'Sign-in was cancelled',
+  );
+  await expect(popup).toHaveURL(/\/auth\/callback$/);
+  await popup.getByRole('button', { name: 'Close this tab' }).click();
+  await expect.poll(() => popup.isClosed()).toBe(true);
+  await expect(google).toBeEnabled();
+  await expect(gate.getByRole('alert')).toBeHidden();
+  cancel = false;
+  // Existing subscribers get download access only from the verified account response.
+  let checks = 0;
+  await context.route('**/api/account/access', async (route) => {
+    expect(route.request().headers().authorization).toContain('Bearer ');
+    checks++;
+    await route.fulfill({
+      json: {
+        pro: true,
+        admin: false,
+        trial: false,
+        expiresAt: null,
+        cancelAtPeriodEnd: false,
+        billingReady: false,
+      },
+    });
+  });
+  const retryEvent = context.waitForEvent('page');
+  await google.click();
+  const retry = await retryEvent;
+  await expect(gate.getByRole('button', { name: 'Download my PDF', exact: true })).toBeEnabled();
+  await expect.poll(() => retry.isClosed()).toBe(true);
+  await expect(gate.getByRole('status')).toBeHidden();
+  await expect(gate.getByRole('link', { name: 'Manage your Pro plan' })).toHaveAttribute(
+    'target',
+    '_blank',
+  );
+  await gate
+    .locator('.gate-actions')
+    .getByRole('button', { name: 'Keep editing', exact: true })
+    .click();
+  await expect(page.getByLabel('Opening password', { exact: true })).toHaveValue(
+    'keep-this-password',
+  );
+  await expect(page.getByLabel('Confirm password', { exact: true })).toHaveValue(
+    'keep-this-password',
+  );
+  expect(checks).toBeGreaterThan(0);
+});
+
+test('expired download sign-in leaves the editor open and permits retry', async ({
+  page,
+  context,
+}) => {
+  await mockGoogle(context, false, true);
+  await page.goto('/workspace?sample=proposal');
+  await expect(page.locator('.editor-file-title')).toContainText('All changes saved');
+  const url = page.url();
+  await page.getByRole('button', { name: 'Edit original text', exact: true }).click();
+  await page.getByRole('button', { name: 'Edit text: A place to', exact: true }).click();
+  const input = page.getByRole('textbox', { name: 'Edit original text: A place to', exact: true });
+  await input.fill('Retain after expired sign-in');
+  await input.press('Enter');
+  await page.getByRole('button', { name: 'Download PDF', exact: true }).click();
+  const gate = page.locator('.download-gate');
+  const popupEvent = context.waitForEvent('page');
+  await gate.getByRole('button', { name: 'Continue with Google' }).click();
+  const popup = await popupEvent;
+  await expect(popup.locator('.account-card').getByRole('alert')).toContainText(
+    'This sign-in could not be verified',
+  );
+  await popup.getByRole('button', { name: 'Close this tab' }).click();
+  await expect.poll(() => popup.isClosed()).toBe(true);
+  expect(page.url()).toBe(url);
+  await expect(gate.getByRole('button', { name: 'Continue with Google' })).toBeEnabled();
+  await expect(gate.getByRole('button', { name: 'I’ve paid — download my PDF' })).toBeHidden();
+  await gate
+    .locator('.gate-actions')
+    .getByRole('button', { name: 'Keep editing', exact: true })
+    .click();
+  await page.getByRole('button', { name: 'Edit text: A place to', exact: true }).click();
+  await expect(input).toHaveValue('Retain after expired sign-in');
+});
+
 test('a guest workspace moves into the signed-in account and retains its document URL', async ({
   page,
   workspaceStorage,
@@ -1456,4 +1541,91 @@ test('a guest workspace moves into the signed-in account and retains its documen
   await expect(page.locator('.editor-file-title')).toContainText('All changes saved');
   await expect.poll(() => file.expiresAt).toBeNull();
   expect(workspaceStorage.uploads).toBe(1);
+});
+
+test('Lemon Squeezy checkout opens the verified hosted plan and billing portal', async ({
+  page,
+}) => {
+  await mockGoogle(page);
+  await page.route('**/api/billing/plans', (route) =>
+    route.fulfill({
+      json: {
+        catalog: DEFAULT_CATALOG,
+        plans: [
+          { id: 'trial', amount: 100, currency: 'usd', label: '$1' },
+          { id: 'month', amount: 2500, currency: 'usd', label: '$25' },
+        ],
+      },
+    }),
+  );
+  await page.route('**/api/billing/checkout', (route) => {
+    expect(route.request().postDataJSON()).toEqual({ plan: 'trial', pricingVersion: 'initial' });
+    return route.fulfill({ json: { url: 'https://folio.lemonsqueezy.com/checkout/custom/test' } });
+  });
+  await page.route('https://folio.lemonsqueezy.com/**', (route) =>
+    route.fulfill({ contentType: 'text/html', body: '<h1>Hosted payment fixture</h1>' }),
+  );
+  await page.goto('/account?next=%2Fpricing');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page).toHaveURL(/\/pricing$/);
+  await page.locator('.price-card.featured button.button.primary').click();
+  await expect(page).toHaveURL('https://folio.lemonsqueezy.com/checkout/custom/test');
+  await page.route('**/api/account/billing', (route) =>
+    route.fulfill({
+      json: {
+        hasCustomer: true,
+        subscription: {
+          status: 'trialing',
+          current_period_end: new Date(Date.now() + 86400000).toISOString(),
+          cancel_at_period_end: false,
+        },
+      },
+    }),
+  );
+  await page.route('**/api/billing/portal', (route) =>
+    route.fulfill({ json: { url: 'https://folio.lemonsqueezy.com/billing?signature=test' } }),
+  );
+  await page.goto('/dashboard?view=billing');
+  await page.getByRole('button', { name: 'Manage billing', exact: true }).click();
+  await expect(page).toHaveURL('https://folio.lemonsqueezy.com/billing?signature=test');
+});
+
+test('admin pricing requires Lemon Squeezy variant IDs and preserves the pricing review', async ({
+  page,
+}) => {
+  await mockGoogle(page, true);
+  await page.route('**/api/admin?**', (route) =>
+    route.fulfill({
+      json: {
+        catalog: { ...DEFAULT_CATALOG, monthlyPriceId: '123', trialPriceId: '124' },
+        settings: DEFAULT_SETTINGS,
+        billingReady: true,
+        overview: { users: 1, paid: 0, trials: 0, operations: 0, suspended: 0, openTickets: 0 },
+        priceHistory: [],
+      },
+    }),
+  );
+  let published = false;
+  await page.route('**/api/admin', (route) => {
+    const body = route.request().postDataJSON();
+    expect(body.action).toBe('pricing');
+    expect(body.monthlyVariantId).toBe('201');
+    expect(body.trialVariantId).toBe('202');
+    expect(body.pricing.monthlyAmount).toBe(2500);
+    expect(body.pricing.trialAmount).toBe(100);
+    published = true;
+    return route.fulfill({ json: { saved: true } });
+  });
+  await page.goto('/admin');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await page.getByRole('button', { name: 'Pricing plans', exact: true }).click();
+  await page.getByLabel('Lemon Squeezy monthly variant ID').fill('201');
+  await page.getByLabel('Lemon Squeezy introductory variant ID').fill('202');
+  await page.getByRole('button', { name: 'Review & publish pricing' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toContainText('$25/month');
+  await dialog.getByLabel('Reason for this change').fill('Connect the new store variants');
+  await dialog.getByRole('button', { name: 'Confirm change' }).click();
+  await expect(dialog).toBeHidden();
+  expect(published).toBe(true);
 });

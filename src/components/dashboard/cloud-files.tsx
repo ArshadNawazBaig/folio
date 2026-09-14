@@ -403,21 +403,27 @@ export function CloudFiles({ files, storage, loading, error, refresh, compact = 
       )}
       <dialog
         className={`confirm-dialog ${s.dialog}`}
+        aria-labelledby="file-dialog-title"
         ref={dialog}
         onCancel={(e) => {
           if (busy) e.preventDefault();
         }}
       >
-        <button
-          className="dialog-close icon-button"
-          disabled={!!busy}
-          aria-label="Close file dialog"
-          onClick={() => dialog.current?.close()}
-        >
-          <X size={18} />
-        </button>
-        <h2>{action === 'rename' ? 'A new name for this PDF.' : 'Delete this cloud file?'}</h2>
+        <header className="dialog-header">
+          <h2 id="file-dialog-title">
+            {action === 'rename' ? 'A new name for this PDF.' : 'Delete this cloud file?'}
+          </h2>
+          <button
+            className="icon-button"
+            disabled={!!busy}
+            aria-label="Close file dialog"
+            onClick={() => dialog.current?.close()}
+          >
+            <X size={18} />
+          </button>
+        </header>
         <form
+          className="dialog-form"
           onSubmit={(e) => {
             e.preventDefault();
             if (!selected || busy) return;
@@ -443,30 +449,32 @@ export function CloudFiles({ files, storage, loading, error, refresh, compact = 
             );
           }}
         >
-          {action === 'rename' ? (
-            <label className={s.field}>
-              File name
-              <input
-                autoFocus
-                required
-                maxLength={160}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </label>
-          ) : (
-            <p>
-              {selected?.recoverySlot
-                ? `“${selected.name}” will be permanently deleted. You will no longer be able to restore this saved draft.`
-                : `“${selected?.name}” will be permanently removed from your cloud library. Download a copy first if you need to keep it.`}
-            </p>
-          )}
-          {actionError && (
-            <p role="alert" className="error-message">
-              {actionError}
-            </p>
-          )}
-          <div className={s.inlineActions}>
+          <div className="dialog-body">
+            {action === 'rename' ? (
+              <label className={s.field}>
+                File name
+                <input
+                  autoFocus
+                  required
+                  maxLength={160}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </label>
+            ) : (
+              <p>
+                {selected?.recoverySlot
+                  ? `“${selected.name}” will be permanently deleted. You will no longer be able to restore this saved draft.`
+                  : `“${selected?.name}” will be permanently removed from your cloud library. Download a copy first if you need to keep it.`}
+              </p>
+            )}
+            {actionError && (
+              <p role="alert" className="error-message">
+                {actionError}
+              </p>
+            )}
+          </div>
+          <footer className="dialog-footer">
             <button
               type="button"
               className="button secondary"
@@ -481,7 +489,7 @@ export function CloudFiles({ files, storage, loading, error, refresh, compact = 
             >
               {busy ? 'Saving…' : action === 'rename' ? 'Save name' : 'Delete file'}
             </button>
-          </div>
+          </footer>
         </form>
       </dialog>
     </section>

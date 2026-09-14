@@ -14,13 +14,18 @@ check(
 );
 check('Supabase server service key', present('SUPABASE_SERVICE_ROLE_KEY'));
 check(
-  'Stripe secret key, webhook, monthly and introductory price IDs',
+  'Lemon Squeezy API key, store, webhook and variant IDs',
   present(
-    'STRIPE_SECRET_KEY',
-    'STRIPE_WEBHOOK_SECRET',
-    'STRIPE_PRO_MONTHLY_PRICE_ID',
-    'STRIPE_PRO_TRIAL_PRICE_ID',
+    'LEMON_SQUEEZY_API_KEY',
+    'LEMON_SQUEEZY_STORE_ID',
+    'LEMON_SQUEEZY_WEBHOOK_SECRET',
+    'LEMON_SQUEEZY_MONTHLY_VARIANT_ID',
+    'LEMON_SQUEEZY_TRIAL_VARIANT_ID',
   ),
+);
+check(
+  'Lemon Squeezy explicit test/live mode',
+  ['true', 'false'].includes(env.LEMON_SQUEEZY_TEST_MODE || ''),
 );
 check('Document result encryption key', /^[a-f0-9]{64}$/i.test(env.DOCUMENT_RESULT_KEY || ''));
 check(

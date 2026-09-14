@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { isLemonUrl } from '@/lib/lemon-squeezy';
 import { useEffect, useState } from 'react';
 import { ArrowRight, Check, Gem, Loader2, ShieldCheck } from 'lucide-react';
 import { useAccount } from './account-provider';
@@ -13,10 +14,12 @@ export function Pricing({
   initialCatalog = DEFAULT_CATALOG,
   compact = false,
   checkoutInNewTab = false,
+  signInInFooter = false,
 }: {
   initialCatalog?: PricingCatalog;
   compact?: boolean;
   checkoutInNewTab?: boolean;
+  signInInFooter?: boolean;
 }) {
   const { user, access } = useAccount();
   const [plans, setPlans] = useState<ProPlan[]>([]),
@@ -68,7 +71,7 @@ export function Pricing({
       });
       const { url } = await response.json();
       const target = new URL(url);
-      if (target.protocol !== 'https:' || target.hostname !== 'checkout.stripe.com')
+      if (!isLemonUrl(target.href, 'checkout'))
         throw new Error('The checkout link could not be verified.');
       if (checkoutInNewTab) {
         if (!tab)
@@ -142,8 +145,13 @@ export function Pricing({
               ? `Then ${money(catalog.monthlyAmount)}/month. All prices in USD.`
               : 'Billed monthly in USD.'}
           </p>
-          {access.pro ? (
-            <Link className="button primary full" href="/account">
+          {!user && signInInFooter ? null : access.pro ? (
+            <Link
+              className="button primary full"
+              href="/account"
+              target={checkoutInNewTab ? '_blank' : undefined}
+              rel={checkoutInNewTab ? 'noopener noreferrer' : undefined}
+            >
               Manage your Pro plan <ArrowRight size={16} />
             </Link>
           ) : loading ? (

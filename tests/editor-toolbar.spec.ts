@@ -148,8 +148,12 @@ test('Move, Pencil, Sign, Image and shape menus operate on the document', async 
   await dragOnPage(page, [100, 130], [140, 165]);
   await expect(page.locator('.annotation-draw')).toHaveCount(2);
   await toolbar.getByRole('button', { name: 'Sign', exact: true }).click();
+  await page.getByRole('dialog').getByRole('tab', { name: 'Type', exact: true }).click();
   await page.getByRole('textbox', { name: 'Your signature', exact: true }).fill('Alex Morgan');
-  await page.locator('.editable-page').click({ position: { x: 250, y: 275 } });
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Add signature', exact: true })
+    .click();
   const picker = page.waitForEvent('filechooser');
   await toolbar.getByRole('button', { name: 'Image', exact: true }).click();
   await (

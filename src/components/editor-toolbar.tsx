@@ -132,6 +132,7 @@ export function EditorToolbar({
   redo,
   editText,
   image,
+  signature,
   more,
   layout,
   manage,
@@ -145,6 +146,7 @@ export function EditorToolbar({
   redo: () => void;
   editText: () => void;
   image: () => void;
+  signature: (tab: 'draw' | 'image' | 'type') => void;
   more: Action[];
   layout: Action[];
   manage: Action[];
@@ -268,11 +270,11 @@ export function EditorToolbar({
           icon={Signature}
           active={mode === 'signature'}
           disabled={busy}
-          onClick={select('signature')}
+          onClick={() => signature('draw')}
           actions={[
-            { label: 'Type a signature', onClick: select('signature') },
-            { label: 'Draw a signature', onClick: select('draw') },
-            { label: 'Upload a signature image', onClick: image },
+            { label: 'Type a signature', onClick: () => signature('type') },
+            { label: 'Draw a signature', onClick: () => signature('draw') },
+            { label: 'Upload a signature image', onClick: () => signature('image') },
           ]}
         />
         <ToolButton

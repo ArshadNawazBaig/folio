@@ -365,9 +365,14 @@
   align-items: center;
   gap: 10px;
   border: 1px solid #dbe0d2;
-  border-radius: 7px;
+  border-radius: 999px;
   padding: 0 12px;
   color: #718064;
+  background: white;
+}
+.search:focus-within {
+  outline: 2px solid #82986a;
+  outline-offset: 2px;
 }
 .search input {
   padding: 11px 0;
@@ -376,7 +381,7 @@
   background: transparent;
   border: 0;
   font-size: 12px;
-  outline-offset: 3px;
+  outline: none;
 }
 .fileControls :global(.dropdown-trigger) {
   min-height: 40px;
@@ -477,10 +482,12 @@
   background: #edf0e4;
   color: #44543a;
   padding: 14px 16px;
-  border-radius: 7px;
+  border: 1px solid #d5dec9;
+  border-radius: var(--radius);
   font-size: 12px;
   line-height: 1.7;
   margin-bottom: 18px;
+  overflow-wrap: anywhere;
 }
 .deviceNote {
   display: flex;
@@ -629,9 +636,6 @@
 }
 .dialog {
   max-width: min(460px, calc(100vw - 32px));
-}
-.dialog .inlineActions {
-  margin-top: 20px;
 }
 .signedOut {
   min-height: 100dvh;

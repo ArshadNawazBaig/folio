@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { isLemonUrl } from '@/lib/lemon-squeezy';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
@@ -49,7 +50,7 @@ export function DashboardBilling({ checkoutSuccess }: { checkoutSuccess: boolean
     try {
       const { url } = await (await accountFetch('/api/billing/portal', { method: 'POST' })).json();
       const target = new URL(url);
-      if (target.protocol !== 'https:' || target.hostname !== 'billing.stripe.com')
+      if (!isLemonUrl(target.href, 'portal'))
         throw new Error('The billing link could not be verified.');
       window.location.assign(target.href);
     } catch (e) {
@@ -307,10 +308,12 @@ export function DashboardSettings() {
             Your sign-in email is managed by your login provider. Contact support if you need help
             changing accounts.
           </p>
-          <button className="button primary" disabled={busy || !name.trim()}>
-            {busy ? 'Saving…' : 'Save profile'}
-            <ArrowRight size={16} />
-          </button>
+          <div className="form-actions">
+            <button className="button primary" disabled={busy || !name.trim()}>
+              {busy ? 'Saving…' : 'Save profile'}
+              <ArrowRight size={16} />
+            </button>
+          </div>
         </form>
       </section>
       <section className={s.card}>
@@ -370,22 +373,27 @@ export function DashboardSettings() {
       </section>
       <dialog
         className={`confirm-dialog ${s.dialog}`}
+        aria-labelledby="sessions-dialog-title"
         ref={dialog}
         onCancel={(e) => {
           if (busy) e.preventDefault();
         }}
       >
-        <h2>Sign out other sessions?</h2>
-        <p>
-          Other browsers and devices will need to sign in again after their current access tokens
-          expire. This browser stays signed in.
-        </p>
-        {error && (
-          <p role="alert" className="error-message">
-            {error}
+        <header className="dialog-header">
+          <h2 id="sessions-dialog-title">Sign out other sessions?</h2>
+        </header>
+        <div className="dialog-body">
+          <p>
+            Other browsers and devices will need to sign in again after their current access tokens
+            expire. This browser stays signed in.
           </p>
-        )}
-        <div className={s.inlineActions}>
+          {error && (
+            <p role="alert" className="error-message">
+              {error}
+            </p>
+          )}
+        </div>
+        <footer className="dialog-footer">
           <button
             className="button secondary"
             disabled={busy}
@@ -400,7 +408,7 @@ export function DashboardSettings() {
           >
             {busy ? 'Signing out…' : 'Confirm sign-out'}
           </button>
-        </div>
+        </footer>
       </dialog>
     </div>
   );

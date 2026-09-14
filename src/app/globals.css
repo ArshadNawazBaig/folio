@@ -11,6 +11,10 @@
   --rose: #f1e1dc;
   --sand: #efe8d8;
   --radius: 9px;
+  --surface: #fffdf9;
+  --notice-background: #f7f4e9;
+  --notice-border: #e8e3d0;
+  --dialog-radius: 18px;
   --sans: var(--font-manrope), Arial, sans-serif;
   --serif: var(--font-dm-serif), Georgia, serif;
 }
@@ -152,7 +156,7 @@ img {
   border: 1px solid transparent;
   min-height: 44px;
   padding: 11px 19px;
-  border-radius: 6px;
+  border-radius: var(--radius);
   font-size: 12px;
   font-weight: 600;
   line-height: 1.5;
@@ -160,7 +164,9 @@ img {
     background 0.18s,
     transform 0.18s,
     box-shadow 0.18s;
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 .button:hover:not(:disabled) {
   transform: translateY(-1px);
@@ -433,14 +439,25 @@ img {
   width: 600px;
   max-width: calc(100% - 32px);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--dialog-radius);
   color: var(--ink);
   box-shadow: 0 24px 80px #20252230;
   background: var(--paper);
+  max-height: 80dvh;
+  overflow: hidden;
+}
+.search-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.search-dialog-top,
+.search-dialog-footer,
+.search-hint {
+  flex-shrink: 0;
 }
 dialog::backdrop {
-  background: #20252260;
-  backdrop-filter: blur(3px);
+  background: #20252280;
+  backdrop-filter: blur(5px);
 }
 .search-dialog-top {
   display: flex;
@@ -486,6 +503,7 @@ dialog::backdrop {
 }
 .search-results {
   max-height: 440px;
+  min-height: 0;
   overflow: auto;
   padding: 0 10px 12px;
 }
@@ -1886,7 +1904,7 @@ dialog::backdrop {
 .preview-loading > p {
   font-size: 11px;
 }
-.processor-message {
+.processor-message.error-message {
   margin: 16px;
 }
 .error-message {
@@ -1894,8 +1912,10 @@ dialog::backdrop {
   color: #933e2e;
   border: 1px solid #e7bdad;
   padding: 13px 17px;
-  border-radius: 7px;
-  font-size: 11px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  margin: 16px 0;
+  overflow-wrap: anywhere;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1903,6 +1923,7 @@ dialog::backdrop {
 }
 .error-message > span {
   flex: 1;
+  min-width: 0;
 }
 .processing-status {
   display: flex;
@@ -2697,12 +2718,38 @@ dialog::backdrop {
   color: var(--muted);
 }
 .service-note {
+  margin: 16px 0;
+  padding: 14px 16px;
+  font-size: 12px;
+  background: var(--notice-background);
+  border: 1px solid var(--notice-border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.service-note:last-child {
+  margin-bottom: 0;
+}
+.service-note--footer {
   margin: 0;
-  padding: 15px 25px;
-  font-size: 10px;
-  background: #f7f4e9;
-  border-top: 1px solid #e8e3d0;
-  line-height: 1.8;
+  border-width: 1px 0 0;
+  border-radius: 0;
+  padding: 16px 24px;
+}
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.form-actions > :is(p, .button) {
+  margin: 0;
+}
+.form-actions > p {
+  width: 100%;
 }
 .mobile-preview-tabs {
   display: none;
@@ -3026,36 +3073,74 @@ dialog::backdrop {
   color: var(--muted);
   font-size: 10px;
 }
-.confirm-dialog {
-  max-width: 440px;
-  width: calc(100% - 32px);
-  padding: 33px;
+.confirm-dialog,
+.admin-confirm {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(460px, calc(100% - 32px));
+  max-height: 80dvh;
+  padding: 0;
   border: 1px solid var(--border);
-  border-radius: 11px;
-  background: var(--paper);
+  border-radius: var(--dialog-radius);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 28px 100px #20252230;
+  overflow: hidden;
 }
-.dialog-close {
-  position: absolute;
-  right: 12px;
-  top: 12px;
+.confirm-dialog[open],
+.admin-confirm[open],
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
-.confirm-dialog > h2 {
-  font-size: 26px;
-  margin: 23px 0 15px;
+.dialog-form {
+  overflow: hidden;
 }
-.confirm-dialog > p {
-  font-size: 12px;
-  line-height: 1.9;
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.dialog-header > h2 {
+  font: 400 26px/1.2 var(--serif);
+  margin: 0;
   overflow-wrap: anywhere;
 }
-.confirm-dialog > div {
+.dialog-header > .icon-button {
+  flex-shrink: 0;
+}
+.dialog-body {
+  min-height: 0;
+  padding: 20px 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.dialog-body p {
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.dialog-body > :last-child {
+  margin-bottom: 0;
+}
+.dialog-footer {
+  flex-shrink: 0;
   display: flex;
   justify-content: flex-end;
-  gap: 9px;
-  margin-top: 25px;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
 }
-.confirm-dialog .button {
-  font-size: 11px;
+.dialog-footer .button {
+  font-size: 12px;
 }
 /* The working editor */
 .editor-app {
@@ -5456,10 +5541,8 @@ dialog::backdrop {
   .translation-bottom > span {
     font-size: 8px;
   }
-  .service-note {
-    font-size: 9px;
-    padding: 15px;
-    line-height: 1.9;
+  .service-note--footer {
+    padding: 14px 16px;
   }
   .guides-grid {
     grid-template-columns: 1fr;
@@ -6014,6 +6097,11 @@ dialog::backdrop {
   background: #f1f5ea;
   border-color: #aabb97;
 }
+.price-card > :is(.eyebrow, .pro-badge) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 23px;
+}
 .price-card h2 {
   margin: 24px 0 10px;
   font-size: 30px;
@@ -6535,10 +6623,12 @@ dialog::backdrop {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 16px;
-  padding: 12px 16px;
-  border-radius: 7px;
-  font-size: 11px;
+  margin: 16px 0;
+  padding: 14px 16px;
+  border: 1px solid #d5dec9;
+  border-radius: var(--radius);
+  font-size: 12px;
+  overflow-wrap: anywhere;
   line-height: 1.7;
 }
 .pro-processing {
@@ -6548,6 +6638,14 @@ dialog::backdrop {
 .pro-notice {
   background: #eaf1e1;
   color: #405b2c;
+}
+.pro-notice > span {
+  min-width: 0;
+}
+.pro-notice a,
+.service-note a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .pro-protect-grid {
   display: grid;
@@ -6782,8 +6880,7 @@ dialog::backdrop {
   width: 100%;
   height: auto;
 }
-.download-gate,
-.admin-confirm {
+.download-gate {
   position: fixed;
   inset: 0;
   margin: auto;
@@ -6791,8 +6888,8 @@ dialog::backdrop {
   max-height: calc(100dvh - 32px);
   padding: 34px;
   border: 1px solid #d7dbd0;
-  border-radius: 18px;
-  background: #fffdf9;
+  border-radius: var(--dialog-radius);
+  background: var(--surface);
   color: var(--ink);
   box-shadow: 0 28px 100px #20252230;
   overflow-y: auto;
@@ -6856,8 +6953,7 @@ dialog::backdrop {
   flex-shrink: 0;
   align-self: flex-start;
 }
-.download-gate-header h2,
-.admin-confirm h2 {
+.download-gate-header h2 {
   font-family: var(--serif);
   font-weight: 400;
   font-size: 30px;
@@ -6871,8 +6967,7 @@ dialog::backdrop {
   font-size: 26px;
 }
 .download-gate-body > p,
-.download-gate-footer > p,
-.admin-confirm p {
+.download-gate-footer > p {
   font-size: 13px;
   line-height: 1.8;
   color: var(--muted);
@@ -6917,6 +7012,11 @@ dialog::backdrop {
   font-size: 11px;
   padding: 12px 15px;
 }
+.gate-actions .google-sign-in {
+  width: auto;
+  padding-inline: 18px;
+  border-radius: var(--radius);
+}
 .admin-shell {
   min-height: 100dvh;
   display: grid;
@@ -6932,6 +7032,7 @@ dialog::backdrop {
   padding: 32px 20px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 .admin-sidebar > .logo {
   margin: 0 12px;
@@ -7089,12 +7190,15 @@ dialog::backdrop {
   font-weight: 600;
   letter-spacing: -0.4px;
 }
+.admin-card > .eyebrow {
+  margin-bottom: 10px;
+}
 .admin-card h3 {
   font-size: 15px;
   margin: 24px 0 16px;
   overflow-wrap: anywhere;
 }
-.admin-card > p,
+.admin-card > p:not(.service-note, .error-message, .pro-notice),
 .admin-table-top p {
   font-size: 12px;
   color: var(--muted);
@@ -7179,7 +7283,8 @@ dialog::backdrop {
   align-items: center;
   padding: 0 12px;
   border: 1px solid #d5dbcd;
-  border-radius: 8px;
+  border-radius: 999px;
+  background: white;
   margin: 0 !important;
 }
 .admin-search input {
@@ -7187,6 +7292,7 @@ dialog::backdrop {
   box-shadow: none !important;
   padding: 12px 0 !important;
   min-width: 0;
+  outline: none;
 }
 .admin-search:focus-within {
   outline: 2px solid #8a9b76;
@@ -7267,9 +7373,14 @@ dialog::backdrop {
   margin-bottom: 0;
   font-size: 10px;
 }
-.admin-card form,
-.admin-confirm form {
+.admin-card form {
   margin-top: 24px;
+}
+.admin-confirm {
+  width: min(620px, calc(100% - 32px));
+}
+.admin-confirm form {
+  margin: 0;
 }
 .admin-card fieldset {
   border: 0;
@@ -7300,6 +7411,10 @@ dialog::backdrop {
   background: #fff;
   color: var(--ink);
   line-height: 1.6;
+}
+.admin-card :is(input, textarea):focus-visible,
+.admin-confirm :is(input, textarea):focus-visible {
+  border-color: #83966f;
 }
 .admin-card textarea,
 .admin-confirm textarea {
@@ -7506,7 +7621,7 @@ dialog::backdrop {
 }
 .support-grid .service-note {
   padding: 0;
-  margin: 16px 0 0;
+  margin: 0;
   border: 0;
   background: transparent;
   font-size: 11px;
@@ -7545,10 +7660,6 @@ dialog::backdrop {
   }
   .support-grid > .admin-card {
     padding: 24px 20px;
-  }
-  .support-grid .admin-two-fields {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
   }
   .support-grid input:not([type='checkbox']),
   .support-grid textarea {
@@ -7645,8 +7756,31 @@ dialog::backdrop {
   .admin-card .button {
     white-space: normal;
   }
-  .admin-confirm {
-    padding: 24px 20px;
+  .dialog-header,
+  .dialog-body {
+    padding: 18px;
+  }
+  .dialog-header > h2 {
+    font-size: 23px;
+  }
+  .dialog-footer {
+    padding: 14px 18px;
+  }
+  .dialog-footer .button {
+    flex: 1 1 140px;
+  }
+  .admin-card input:not([type='checkbox']),
+  .admin-card textarea,
+  .admin-confirm input,
+  .admin-confirm textarea {
+    font-size: 16px;
+  }
+  .admin-two-fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .form-actions > .button {
+    width: 100%;
   }
   .download-gate-header,
   .download-gate-body {

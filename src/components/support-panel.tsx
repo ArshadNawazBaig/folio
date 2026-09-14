@@ -176,24 +176,29 @@ export function SupportPanel() {
                   onChange={(e) => setWebsite(e.target.value)}
                 />
               </label>
-              <button className="button primary">
-                {busy ? 'Sending…' : 'Send inquiry'}
-                <ArrowRight size={16} />
-              </button>
+              <div className="form-actions">
+                <p className="service-note">
+                  Do not include passwords, card numbers, or sensitive document contents. Replies
+                  appear here after sign-in with the email used for your inquiry.
+                </p>
+                <button className="button primary">
+                  {busy ? 'Sending…' : 'Send inquiry'}
+                  <ArrowRight size={16} />
+                </button>
+              </div>
             </fieldset>
           </form>
-          <p className="service-note">
-            Do not include passwords, card numbers, or sensitive document contents. Replies appear
-            here after sign-in with the email used for your inquiry.
-          </p>
           {receipt && (
             <div className="pro-notice" role="status">
-              Your inquiry was received. Reference: {receipt.slice(0, 8)}.
-              {!user && (
-                <p>
-                  <Link href="/account">Sign in with {email}</Link> to follow the conversation.
-                </p>
-              )}
+              <span>
+                Your inquiry was received. Reference: {receipt.slice(0, 8)}.
+                {!user && (
+                  <>
+                    {' '}
+                    <Link href="/account">Sign in with {email}</Link> to follow the conversation.
+                  </>
+                )}
+              </span>
             </div>
           )}
         </section>

@@ -70,6 +70,7 @@ export const workspaceSchema = z
               .max(100000)
               .optional(),
             dataUrl: z.string().startsWith('data:image/').max(WORKSPACE_LIMIT).optional(),
+            signatureSource: z.enum(['draw', 'image', 'type']).optional(),
             required: z.boolean().optional(),
             url: z.string().max(2048).optional(),
           }),

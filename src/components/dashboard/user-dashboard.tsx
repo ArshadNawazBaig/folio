@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -76,6 +76,17 @@ export function UserDashboard(props: Props) {
 }
 function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
   const { user, access, loading: accountLoading, error: accountError } = useAccount();
+  const navigationRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const nav = navigationRef.current;
+    const active = nav?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (nav && active && nav.scrollWidth > nav.clientWidth) {
+      nav.scrollLeft +=
+        active.getBoundingClientRect().left -
+        nav.getBoundingClientRect().left -
+        (nav.clientWidth - active.offsetWidth) / 2;
+    }
+  }, [view]);
   const router = useRouter();
   const [files, setFiles] = useState<CloudDocument[]>([]);
   const [storage, setStorage] = useState<StorageUsage | null>(null);
@@ -144,7 +155,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
       <aside className={s.sidebar}>
         <Logo />
         <p className={s.navLabel}>YOUR WORKSPACE</p>
-        <nav aria-label="Dashboard navigation" className={s.navigation}>
+        <nav ref={navigationRef} aria-label="Dashboard navigation" className={s.navigation}>
           {navigation.map(({ id, label, icon: Icon }) => (
             <Link
               key={id}

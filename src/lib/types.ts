@@ -31,6 +31,7 @@ export type Annotation = {
   opacity: number;
   points?: { x: number; y: number }[];
   dataUrl?: string;
+  signatureSource?: 'draw' | 'image' | 'type';
   required?: boolean;
   url?: string;
 };

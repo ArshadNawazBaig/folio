@@ -3,58 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 import { hasPaidAccess } from '../src/lib/billing-policy';
-import { subscriptionSnapshot } from '../src/lib/subscription-snapshot';
 const user = '00000000-0000-4000-8000-000000000001';
-test('paid coverage comes from the purchased invoice line and fails closed for unpaid or unrelated invoices', () => {
-  const end = Math.floor(Date.now() / 1000) + 86400;
-  const subscription = {
-    id: 'sub_folio',
-    status: 'active',
-    cancel_at_period_end: false,
-    items: { data: [{ id: 'si_pro', price: { id: 'price_pro' }, current_period_end: end }] },
-    latest_invoice: {
-      status: 'paid',
-      amount_paid: 1200,
-      // First invoices can have a top-level period ending at creation.
-      period_end: end - 86400,
-      lines: {
-        data: [
-          {
-            amount: 1200,
-            period: { end },
-            parent: { subscription_item_details: { subscription_item: 'si_pro' } },
-          },
-          {
-            amount: 2000,
-            period: { end: end + 100000 },
-            parent: { subscription_item_details: { subscription_item: 'si_other' } },
-          },
-        ],
-      },
-    },
-  };
-  const get = () => subscriptionSnapshot(subscription, ['price_pro']);
-  assert.equal(get().paid_until_value, new Date(end * 1000).toISOString());
-  subscription.cancel_at_period_end = true;
-  assert.equal(get().cancel_value, true);
-  assert.equal(get().paid_until_value, new Date(end * 1000).toISOString());
-  subscription.latest_invoice.lines.data[0].period.end = end + 1000;
-  assert.equal(get().paid_until_value, new Date(end * 1000).toISOString());
-  assert.equal(subscriptionSnapshot(subscription, ['price_other']).paid_until_value, null);
-  subscription.latest_invoice.status = 'open';
-  assert.equal(get().paid_until_value, null);
-  subscription.latest_invoice.status = 'paid';
-  subscription.latest_invoice.amount_paid = 0;
-  assert.equal(get().paid_until_value, null);
-  subscription.latest_invoice.amount_paid = 1200;
-  subscription.latest_invoice.lines.data[0].amount = -1200;
-  assert.equal(get().paid_until_value, null);
-  assert.equal(
-    subscriptionSnapshot({ ...subscription, latest_invoice: 'in_unexpanded' }, ['price_pro'])
-      .paid_until_value,
-    null,
-  );
-});
 test('subscription access requires paid active or trial status and both unexpired paid boundaries', () => {
   const now = Date.now(),
     future = new Date(now + 86400000).toISOString(),

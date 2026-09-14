@@ -5,7 +5,7 @@ The application code runs locally now. Google sign-in, live administration, purc
 ## 1. Supabase and Google sign-in
 
 1. Fill in the project's `.env` file (or copy `.env.example` to `.env` if it is missing). Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and server-only `SUPABASE_SERVICE_ROLE_KEY` from your Supabase project. If you use `.env.local`, its values take precedence over `.env`.
-2. Apply migrations 001, 002, 003, 004, 005, 006, [007](../supabase/migrations/007_admin_user_deletion.sql), [008](../supabase/migrations/008_plan_storage_limits.sql), and [009](../supabase/migrations/009_blog.sql) in order in Supabase's SQL editor. Apply only missing migrations. Migration 007 enables permanent user deletion; 008 enforces 100 MB Free / 1 GB Pro private storage; 009 enables the blog, post revisions, likes, and editorial image storage. Applying these migrations does not delete existing accounts or files.
+2. Apply migrations 001, 002, 003, 004, 005, 006, [007](../supabase/migrations/007_admin_user_deletion.sql), [008](../supabase/migrations/008_plan_storage_limits.sql), [009](../supabase/migrations/009_blog.sql), and [010](../supabase/migrations/010_lemon_squeezy.sql) in order in Supabase's SQL editor. Apply only missing migrations. Migration 007 enables permanent user deletion; 008 enforces 100 MB Free / 1 GB Pro private storage; 009 enables the blog, post revisions, likes, and editorial image storage; 010 connects Lemon Squeezy billing. Applying these migrations does not delete existing accounts or files.
 3. In Google Cloud Console, configure the OAuth consent screen and create an OAuth client of type **Web application**. Add your site origin as an authorized JavaScript origin. Use the exact callback shown by Supabase's Google provider settings as Google's **Authorized redirect URI**, normally `https://PROJECT_REF.supabase.co/auth/v1/callback`.
 4. In Supabase Authentication → Sign In / Providers → Google, enable Google and save that Google client ID and secret. `.env` includes `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` as optional configuration reference fields, so you can keep the names alongside the other credentials. The application does not read these two fields: copy their values into Supabase's Google provider settings to enable sign-in. Never prefix the secret with `NEXT_PUBLIC_`. Use only the default basic identity scopes. Configure test users while the Google consent screen is in testing; publish/verify your consent configuration as Google requires before wider release.
 5. Set Supabase's Site URL to your application's real origin. In its redirect allowlist, add `/auth/callback` and the exact callback URLs generated for each allowed destination below. Include both development and production origins as needed. The OAuth callback registered with Google and this application's callback are different endpoints.
@@ -21,6 +21,10 @@ for (const next of ['/account', '/admin', '/pricing', '/pricing?plan=trial', '/p
   url.searchParams.set('next', next);
   console.log(url.href);
 }
+const editor = new URL('/auth/callback', origin);
+editor.searchParams.set('next', '/account');
+editor.searchParams.set('return_to', 'editor');
+console.log(editor.href);
 JS
 ```
 
@@ -29,13 +33,15 @@ JS
 
 Google sign-in uses Supabase's PKCE flow. The application permits only known internal return destinations, strips callback secrets from browser history, and handles cancellation and expired codes. Google profile metadata never grants an administrative role. Official setup references: [Supabase Google provider](https://supabase.com/docs/guides/auth/social-login/auth-google), [Supabase redirect URLs](https://supabase.com/docs/guides/auth/redirect-urls). The button uses Google's official G image from its [branding assets](https://developers.google.com/identity/branding-guidelines).
 
+The download dialog opens Google sign-in in a separate tab and keeps the editor mounted, including unsaved edits. Include the generated `return_to=editor` callback in Supabase's redirect allowlist. After the code exchange, Supabase shares the session with the editor, which claims its guest workspace for the account and verifies download access. The sign-in tab closes after success; browsers that prevent automatic closing show a return-to-document message. Blocked tabs, cancelled sign-in, and expired codes leave the editor open for retry. Signing in does not purchase a plan or grant premium access.
+
 ## 2. Assign the super admin
 
 Sign in with the intended Google account first. Follow [ADMIN.md](ADMIN.md) to assign its actual Supabase user ID in `public.super_admins`. Provisioning is a trusted database operation. There is no default password, public admin signup, or browser role setting. Afterwards, sign in at `/admin` or refresh your account and open the dashboard. A Google login started from `/account` also sends verified admins to `/admin`.
 
 Test a second ordinary Google account: it must not gain access to `/api/admin`. A regular account that starts Google login from `/admin` returns to its account with a clear access notice. Super admin status does not automatically grant paid PDF downloads; billing and courtesy grants are separate.
 
-## 3. Stripe
+## 3. Lemon Squeezy
 
 Follow [BILLING.md](BILLING.md) to configure test keys, matching prices, signed webhooks, and the customer billing portal. Initial offers are **$1 for 7 days, then $25/month**, or **$25/month immediately**. Editing and preparation happen before purchase; only Pro downloads require verified access. Existing free tools remain free.
 

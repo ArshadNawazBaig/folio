@@ -1,7 +1,9 @@
 // Isolated server-route harness: real PostgreSQL policies and route handlers, mocked Supabase transport.
 import assert from 'node:assert/strict';
-import Stripe from 'stripe';
-import { mock } from 'node:test';
+import { createHmac } from 'node:crypto';
+import { lemon } from './lemon-provider';
+import * as webhookApi from '../../src/app/api/billing/webhook/route';
+import { syncSubscription } from '../../src/lib/server/billing';
 import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 import { NextRequest } from 'next/server';
@@ -28,8 +30,8 @@ const admin = '00000000-0000-4000-8000-000000000001',
 process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://folio-tests.example.test';
 process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = 'test-public';
 process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service';
-delete process.env.STRIPE_SECRET_KEY;
-delete process.env.STRIPE_WEBHOOK_SECRET;
+delete process.env.LEMON_SQUEEZY_API_KEY;
+delete process.env.LEMON_SQUEEZY_WEBHOOK_SECRET;
 const db = new PGlite();
 await db.exec(
   'create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key,email text,created_at timestamptz default now(),last_sign_in_at timestamptz);',
@@ -44,6 +46,7 @@ for (const name of [
   '005_cloud_recovery.sql',
   '007_admin_user_deletion.sql',
   '008_plan_storage_limits.sql',
+  '010_lemon_squeezy.sql',
 ])
   await db.exec(
     await readFile(new URL(`../../supabase/migrations/${name}`, import.meta.url), 'utf8'),
@@ -67,6 +70,7 @@ const ident = (s: string) => {
 globalThis.fetch = async (input, init) => {
   const req = new Request(input, init),
     url = new URL(req.url);
+  if (url.hostname === 'api.lemonsqueezy.com') return lemon.fetch(req);
   assert.equal(
     url.hostname,
     'folio-tests.example.test',
@@ -175,6 +179,7 @@ globalThis.fetch = async (input, init) => {
         'super_admins',
         'access_grants',
         'billing_customers',
+        'lemon_checkouts',
         'billing_subscriptions',
         'platform_settings',
         'pricing_versions',
@@ -192,7 +197,12 @@ globalThis.fetch = async (input, init) => {
       const pos = value.indexOf('.');
       const op = value.slice(0, pos),
         v = value.slice(pos + 1);
-      assert.ok(['eq', 'is', 'gt', 'neq'].includes(op));
+      assert.ok(['eq', 'is', 'gt', 'neq', 'not'].includes(op));
+      if (op === 'not') {
+        assert.equal(v, 'is.null');
+        conditions.push(`${ident(key)} is not null`);
+        continue;
+      }
       conditions.push(
         op === 'is' && v === 'null'
           ? `${ident(key)} is null`
@@ -738,29 +748,142 @@ try {
   );
   clearPlatformCache();
   assert.equal((await proxy(new NextRequest('http://localhost/'))).status, 200);
-  // Mock only the Stripe SDK transport boundary; publishing and synchronization use real handlers/SQL.
-  process.env.STRIPE_SECRET_KEY = 'sk_test_fixture';
-  process.env.STRIPE_WEBHOOK_SECRET = 'whsec_fixture';
-  process.env.STRIPE_PRO_MONTHLY_PRICE_ID = 'price_initial';
-  process.env.STRIPE_PRO_TRIAL_PRICE_ID = 'price_intro_initial';
-  const resources = (
-    Stripe as unknown as {
-      resources: Record<string, { prototype: Record<string, (...args: unknown[]) => unknown> }>;
-    }
-  ).resources;
-  const stripeCalls: { kind: string; key: string; body: Record<string, unknown> }[] = [];
-  for (const [resource, kind] of [
-    ['Products', 'product'],
-    ['Prices', 'price'],
-  ])
-    mock.method(
-      resources[resource].prototype,
-      'create',
-      async (body: Record<string, unknown>, options: { idempotencyKey: string }) => {
-        stripeCalls.push({ kind, key: options.idempotencyKey, body });
-        return { id: `${kind}_${stripeCalls.length}` };
+  // Real Lemon Squeezy checkout, signed webhooks, and admin actions over simulated transport.
+  process.env.LEMON_SQUEEZY_API_KEY = 'lemon_test_fixture';
+  process.env.LEMON_SQUEEZY_WEBHOOK_SECRET = 'lemon_webhook_fixture';
+  process.env.LEMON_SQUEEZY_STORE_ID = '1';
+  process.env.LEMON_SQUEEZY_TEST_MODE = 'true';
+  process.env.LEMON_SQUEEZY_MONTHLY_VARIANT_ID = '1';
+  process.env.LEMON_SQUEEZY_TRIAL_VARIANT_ID = '2';
+  clearPlatformCache();
+  await db.query('update account_controls set suspended=false where user_id=$1', [customer]);
+  await db.query("update access_grants set until_at=now()-interval '1 second' where user_id=$1", [
+    customer,
+  ]);
+  const initialCheckout = await checkoutApi.POST(
+    request('/api/billing/checkout', customer, { plan: 'trial', pricingVersion: 'initial' }),
+  );
+  assert.equal(initialCheckout.status, 200, await initialCheckout.clone().text());
+  assert.equal(lemon.checkoutCount, 1);
+  const attributes = lemon.checkoutBody.data.attributes;
+  assert.equal(attributes.custom_price, undefined);
+  assert.deepEqual(attributes.product_options.enabled_variants, [2]);
+  assert.equal(attributes.checkout_options.discount, false);
+  assert.equal(attributes.checkout_data.variant_quantities[0].quantity, 1);
+  assert.equal(
+    (
+      await checkoutApi.POST(
+        request('/api/billing/checkout', customer, { plan: 'trial', pricingVersion: 'initial' }),
+      )
+    ).status,
+    200,
+  );
+  assert.equal(lemon.checkoutCount, 1, 'A second tab must reuse the same payable link');
+  assert.equal(
+    (
+      await checkoutApi.POST(
+        request('/api/billing/checkout', customer, { plan: 'month', pricingVersion: 'initial' }),
+      )
+    ).status,
+    409,
+  );
+  const token = attributes.checkout_data.custom.folio_checkout;
+  await assert.rejects(
+    db.query("select begin_user_deletion($1,$2,'Pending checkout')", [admin, customer]),
+    /deletion_checkout_busy/,
+  );
+  const start = new Date().toISOString(),
+    end = new Date(Date.now() + 7 * 86400000).toISOString();
+  const subscription = {
+    store_id: 1,
+    customer_id: 50,
+    order_id: 60,
+    variant_id: 2,
+    status: 'on_trial',
+    cancelled: false,
+    pause: null,
+    trial_ends_at: end,
+    renews_at: end,
+    ends_at: null as string | null,
+    created_at: start,
+    updated_at: start,
+    test_mode: true,
+    first_subscription_item: null,
+    urls: { customer_portal: 'https://folio.lemonsqueezy.com/billing?signature=test' },
+  };
+  lemon.subscriptions.set('501', subscription);
+  const payment = {
+    store_id: 1,
+    customer_id: 50,
+    status: 'paid',
+    refunded: false,
+    refunded_amount: 0,
+    subtotal_usd: 100,
+    setup_fee_usd: 100,
+    total_usd: 100,
+    discount_total_usd: 0,
+    first_order_item: { variant_id: 2 },
+    created_at: start,
+    updated_at: start,
+    test_mode: true,
+  };
+  lemon.orders.set('60', payment);
+  function signedEvent(event: unknown, valid = true) {
+    const body = JSON.stringify(event);
+    return new Request('http://localhost/api/billing/webhook', {
+      method: 'POST',
+      body,
+      headers: {
+        'x-signature': createHmac('sha256', valid ? 'lemon_webhook_fixture' : 'wrong')
+          .update(body)
+          .digest('hex'),
       },
-    );
+    });
+  }
+  const event = {
+    meta: { event_name: 'subscription_created', custom_data: { folio_checkout: token } },
+    data: { type: 'subscriptions', id: '501' },
+  };
+  assert.equal((await webhookApi.POST(signedEvent(event, false))).status, 400);
+  assert.equal((await db.query('select * from billing_subscriptions')).rows.length, 0);
+  const delivered = await webhookApi.POST(signedEvent(event));
+  assert.equal(delivered.status, 200, await delivered.clone().text());
+  assert.equal((await webhookApi.POST(signedEvent(event))).status, 200);
+  assert.equal((await db.query('select * from billing_subscriptions')).rows.length, 1);
+  assert.equal(
+    (await db.query<{ value: string }>('select consume_pro_request($1) as value', [customer]))
+      .rows[0].value,
+    'allowed',
+  );
+  assert.equal(
+    (
+      await checkoutApi.POST(
+        request('/api/billing/checkout', customer, { plan: 'trial', pricingVersion: 'initial' }),
+      )
+    ).status,
+    409,
+  );
+  assert.equal((await portalApi.POST(request('/api/billing/portal', customer, {}))).status, 200);
+  assert.equal((await portalApi.POST(request('/api/billing/portal', other, {}))).status, 404);
+  assert.equal(
+    (await accountBillingApi.GET(request('/api/account/billing', customer))).status,
+    200,
+  );
+  lemon.subscriptions.set('502', { ...subscription, variant_id: 99 });
+  const mismatched = { ...event, data: { type: 'subscriptions', id: '502' } };
+  assert.equal((await webhookApi.POST(signedEvent(mismatched))).status, 400);
+  assert.equal((await db.query('select * from billing_subscriptions')).rows.length, 1);
+  // A signed refund is checked against the canonical order and removes paid access.
+  payment.refunded = true;
+  const refund = { meta: { event_name: 'order_refunded' }, data: { type: 'orders', id: '60' } };
+  assert.equal((await webhookApi.POST(signedEvent(refund))).status, 200);
+  assert.equal(
+    (await db.query<{ value: string }>('select consume_pro_request($1) as value', [customer]))
+      .rows[0].value,
+    'not_subscribed',
+  );
+  payment.refunded = false;
+  await syncSubscription('501', 'fixture_payment_recovered');
   const version = '00000000-0000-4000-8000-000000000010';
   const pricing = {
     name: 'Folio Pro Plus',
@@ -775,24 +898,14 @@ try {
     requestId: version,
     expectedVersion: 'initial',
     pricing,
+    monthlyVariantId: '3',
+    trialVariantId: '4',
     reason: 'New customer pricing',
   };
   const published = await adminApi.POST(request('/api/admin', admin, publication));
   assert.equal(published.status, 200, await published.clone().text());
-  assert.equal(stripeCalls.length, 4);
-  assert.equal(stripeCalls[1].body.unit_amount, 3000);
-  assert.equal(stripeCalls[3].body.unit_amount, 200);
   assert.equal((await getPlatform(true)).catalog.version, version);
-  assert.equal(
-    (
-      await db.query<{ monthly_price_id: string }>(
-        "select monthly_price_id from pricing_versions where id='initial'",
-      )
-    ).rows[0].monthly_price_id,
-    'price_initial',
-  );
   assert.equal((await adminApi.POST(request('/api/admin', admin, publication))).status, 200);
-  assert.equal(stripeCalls.length, 4);
   assert.equal(
     (
       await adminApi.POST(
@@ -804,13 +917,11 @@ try {
     ).status,
     409,
   );
-  // Simulate a committed publication whose final audit acknowledgment failed: retry must recover.
   await db.query(
     "update admin_audit set detail=jsonb_set(detail,'{completed}','false') where id=$1",
     [version],
   );
   assert.equal((await adminApi.POST(request('/api/admin', admin, publication))).status, 200);
-  assert.equal(stripeCalls.length, 4);
   assert.equal(
     (
       await adminApi.POST(
@@ -830,57 +941,16 @@ try {
     ).status,
     409,
   );
-  const until = Math.floor(Date.now() / 1000) + 86400;
-  const subscription = {
-    id: 'sub_customer',
-    customer: 'cus_customer',
-    status: 'active',
-    cancel_at_period_end: false,
-    items: {
-      data: [{ id: 'si_customer', price: { id: 'price_initial' }, current_period_end: until }],
-    },
-    latest_invoice: {
-      status: 'paid',
-      amount_paid: 2500,
-      lines: {
-        data: [
-          {
-            amount: 2500,
-            period: { end: until },
-            parent: { subscription_item_details: { subscription_item: 'si_customer' } },
-          },
-        ],
-      },
-    },
-  };
   await db.query(
-    "insert into billing_customers(user_id,stripe_customer_id) values ($1,'cus_customer')",
+    "insert into billing_customers(user_id,stripe_customer_id) values ($1,'lemon_account_customer')",
     [customer],
   );
-  await db.query(
-    "insert into billing_subscriptions(user_id,stripe_subscription_id,price_id,status) values ($1,'sub_customer','price_initial','active')",
-    [customer],
-  );
-  mock.method(resources.Subscriptions.prototype, 'retrieve', async () => subscription);
-  mock.method(
-    resources.Subscriptions.prototype,
-    'update',
-    async (id: string, values: { cancel_at_period_end: boolean }) => {
-      assert.equal(id, 'sub_customer');
-      subscription.cancel_at_period_end = values.cancel_at_period_end;
-      return subscription;
-    },
-  );
-  mock.method(resources.Subscriptions.prototype, 'cancel', async () => {
-    subscription.status = 'canceled';
-    return subscription;
-  });
   for (const [i, operation] of ['cancel_end', 'resume', 'cancel_now'].entries()) {
     const response = await adminApi.POST(
       request('/api/admin', admin, {
         action: 'subscription',
         requestId: `00000000-0000-4000-8000-00000000002${i}`,
-        subscriptionId: 'sub_customer',
+        subscriptionId: 'lemon_501',
         operation,
         reason: 'Customer request',
       }),
@@ -888,18 +958,35 @@ try {
     assert.equal(response.status, 200, await response.clone().text());
     const record = (
       await db.query<{ status: string; cancel_at_period_end: boolean }>(
-        "select status,cancel_at_period_end from billing_subscriptions where stripe_subscription_id='sub_customer'",
+        "select status,cancel_at_period_end from billing_subscriptions where stripe_subscription_id='lemon_501'",
       )
     ).rows[0];
     if (operation === 'cancel_now') assert.equal(record.status, 'canceled');
     else assert.equal(record.cancel_at_period_end, operation === 'cancel_end');
   }
+  // Later provider updates cannot undo an administrator's immediate revocation.
+  await syncSubscription('501', 'fixture_after_revocation');
+  assert.equal(
+    (await db.query<{ value: string }>('select consume_pro_request($1) as value', [customer]))
+      .rows[0].value,
+    'not_subscribed',
+  );
   assert.equal(
     (
-      await db.query<{ monthly_amount: number }>(
-        "select monthly_amount from pricing_versions where id='initial'",
+      await checkoutApi.POST(
+        request('/api/billing/checkout', customer, { plan: 'trial', pricingVersion: version }),
       )
-    ).rows[0].monthly_amount,
+    ).status,
+    409,
+  );
+  // Keep the original pricing and ownership snapshot even after a new version is published.
+  assert.equal(
+    (
+      await db.query<{ terms: { monthlyAmount: number } }>(
+        'select terms from lemon_checkouts where id=$1',
+        [token],
+      )
+    ).rows[0].terms.monthlyAmount,
     DEFAULT_CATALOG.monthlyAmount,
   );
   // Activation restores access; deletion is a separate, confirmed operation.
@@ -1005,10 +1092,10 @@ try {
     [customer],
   );
 
-  delete process.env.STRIPE_SECRET_KEY;
+  delete process.env.LEMON_SQUEEZY_API_KEY;
   let response = await adminApi.POST(request('/api/admin', admin, deletion));
   assert.equal(response.status, 503);
-  assert.match(await response.text(), /Connect Stripe/);
+  assert.match(await response.text(), /Connect Lemon Squeezy/);
   assert.equal(cloudObjects.has(ownedPath), true);
   assert.equal((await filesApi.GET(request('/api/account/files', customer))).status, 403);
   assert.equal((await adminApi.POST(request('/api/admin', admin, activate))).status, 409);
@@ -1024,31 +1111,21 @@ try {
   ])
     await assert.rejects(db.query(query, [customer]), /deletion_in_progress/);
 
-  process.env.STRIPE_SECRET_KEY = 'sk_test_fixture';
-  let failBillingDelete = true,
-    stripeDeleted = false,
-    stripeDeleteCount = 0;
-  mock.method(resources.Customers.prototype, 'retrieve', async (id: string) => {
-    assert.equal(id, 'cus_customer');
-    return { id, deleted: stripeDeleted };
-  });
-  mock.method(resources.Customers.prototype, 'del', async (id: string) => {
-    assert.equal(id, 'cus_customer');
-    if (failBillingDelete) throw new Error('Stripe unavailable');
-    stripeDeleteCount++;
-    stripeDeleted = true;
-    return { id, deleted: true };
-  });
+  process.env.LEMON_SQUEEZY_API_KEY = 'lemon_test_fixture';
+  lemon.fail = true;
+  lemon.cancelCount = 0;
+  subscription.cancelled = false;
+  subscription.status = 'active';
   response = await adminApi.POST(request('/api/admin', admin, deletion));
   assert.equal(response.status, 503);
   assert.match(await response.text(), /Billing cleanup/);
   assert.equal(cloudObjects.has(ownedPath), true);
-  failBillingDelete = false;
+  lemon.fail = false;
   failCloudDelete = true;
   response = await adminApi.POST(request('/api/admin', admin, deletion));
   assert.equal(response.status, 503);
   assert.match(await response.text(), /files could not be deleted/);
-  assert.equal(stripeDeleteCount, 1);
+  assert.equal(lemon.cancelCount, 1);
   assert.equal(cloudObjects.has(ownedPath), true);
   assert.equal(
     (await db.query('select id from auth.users where id=$1', [customer])).rows.length,
@@ -1079,7 +1156,7 @@ try {
     200,
     'Completed deletion is safe to retry',
   );
-  assert.equal(stripeDeleteCount, 1);
+  assert.equal(lemon.cancelCount, 1);
   assert.equal(
     (await db.query('select id from auth.users where id=$1', [customer])).rows.length,
     0,
@@ -1121,8 +1198,8 @@ try {
     ['user.delete'],
   );
   assert.equal(
-    (await db.query("select id from admin_audit where target=$1 or target='sub_customer'", [id]))
-      .rows.length,
+    (await db.query("select id from admin_audit where target=$1 or target='lemon_501'", [id])).rows
+      .length,
     0,
   );
   assert.equal(
@@ -1167,8 +1244,18 @@ try {
   ])
     await assert.rejects(db.query(query, [admin, other]), /permission denied/);
   await db.exec('reset role; set role service_role');
-  // A user without any Stripe customer can also be deleted without Stripe configured.
-  delete process.env.STRIPE_SECRET_KEY;
+  await db.exec('reset role; set role authenticated');
+  await assert.rejects(db.query('select * from lemon_checkouts'), /permission denied/);
+  await assert.rejects(
+    db.query(
+      "select reserve_lemon_checkout($1,gen_random_uuid(),'initial','month','1','1',true,'{}')",
+      [other],
+    ),
+    /permission denied/,
+  );
+  await db.exec('reset role; set role service_role');
+  // A user without a billing subscription can be deleted without Lemon Squeezy configured.
+  delete process.env.LEMON_SQUEEZY_API_KEY;
   response = await adminApi.POST(request('/api/admin', admin, { ...deletion, userId: other }));
   assert.equal(response.status, 200, await response.clone().text());
   assert.equal(cloudObjects.has(otherPath), false);
@@ -1178,7 +1265,6 @@ try {
     'Server routes verified: admin authorization, activation, complete user deletion, failure recovery, storage isolation, billing cleanup, support and maintenance.',
   );
 } finally {
-  mock.restoreAll();
   globalThis.fetch = fetchOriginal;
   await db.close();
 }

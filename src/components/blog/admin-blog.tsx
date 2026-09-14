@@ -4,11 +4,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   BookOpen,
-  LayoutDashboard,
   Plus,
   Search,
   RefreshCw,
-  ArrowUpRight,
   FileText,
   Pencil,
   Copy,
@@ -18,11 +16,10 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  ShieldCheck,
 } from 'lucide-react';
 import { accountFetch, authClient } from '@/lib/auth-client';
 import { postStatus, type BlogSummary } from '@/lib/blog';
-import { Logo } from '../logo';
+import { AdminNavigation } from '../admin-navigation';
 import { Dropdown } from '../dropdown';
 import { Skeleton, LoadingLabel } from '../skeleton';
 import { BlogAccess, BlogDialog, BlogToast } from './admin-shared';
@@ -125,31 +122,7 @@ function PostManager() {
   }
   return (
     <div className="admin-shell">
-      <aside className="admin-sidebar">
-        <Logo />
-        <span className="admin-label">
-          <ShieldCheck size={13} />
-          SUPER ADMIN
-        </span>
-        <nav aria-label="Admin navigation">
-          <Link href="/admin">
-            <LayoutDashboard size={18} />
-            Overview
-          </Link>
-          <Link href="/admin/blog" aria-current="page">
-            <BookOpen size={18} />
-            Blog posts
-          </Link>
-        </nav>
-        <Link className="admin-back" href="/blog">
-          Open the journal
-          <ArrowUpRight size={16} />
-        </Link>
-        <Link className="admin-back" href="/admin">
-          All admin tools
-          <ArrowUpRight size={16} />
-        </Link>
-      </aside>
+      <AdminNavigation section="blog" />
       <main id="main" className="admin-main">
         <header className="admin-topbar">
           <div>

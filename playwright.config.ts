@@ -3,7 +3,11 @@ const port = Number(process.env.PLAYWRIGHT_PORT || 3000);
 export default defineConfig({
   testDir: './tests',
   testMatch: '**/*.spec.ts',
-  testIgnore: ['**/auth-connected.spec.ts', '**/blog-public.spec.ts'],
+  testIgnore: [
+    '**/auth-connected.spec.ts',
+    '**/blog-public.spec.ts',
+    '**/design-consistency.spec.ts',
+  ],
   fullyParallel: false,
   workers: 2,
   timeout: 60_000,

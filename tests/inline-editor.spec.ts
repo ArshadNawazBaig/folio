@@ -69,9 +69,7 @@ test('original text edits inline with automatic previews, shared undo and paymen
     expect((await footer.boundingBox())!.y).toBeCloseTo(footerBefore.y, 0);
     expect(footerBefore.y + footerBefore.height).toBeLessThanOrEqual(bounds.y + bounds.height);
     await expect(header.getByRole('button', { name: 'Keep editing' })).toBeInViewport();
-    await expect(
-      footer.getByRole('button', { name: 'I’ve paid — download my PDF' }),
-    ).toBeInViewport();
+    await expect(footer.getByRole('button', { name: 'Continue with Google' })).toBeInViewport();
     await page.screenshot({ path: `/tmp/folio-download-dialog-${size.width}.png` });
   }
   await page.setViewportSize(viewport);

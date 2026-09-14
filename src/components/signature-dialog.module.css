@@ -1,0 +1,451 @@
+.dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(760px, calc(100% - 32px));
+  height: min(720px, 80vh);
+  max-height: 80dvh;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #fffdf9;
+  color: var(--ink);
+  box-shadow: 0 28px 100px #20252230;
+  overflow: hidden;
+}
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.dialog::backdrop {
+  background: #20252280;
+  backdrop-filter: blur(5px);
+}
+.header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 16px;
+  padding: 25px 28px 22px;
+}
+.header > div {
+  flex: 1;
+  min-width: 0;
+}
+.header h2 {
+  font: 400 30px/1.2 var(--serif);
+  letter-spacing: -0.035em;
+  margin: 0 0 6px;
+}
+.header p {
+  font-size: 12px;
+  margin: 0;
+}
+.header > button {
+  align-self: flex-start;
+}
+.symbol {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 13px;
+  background: #eaf0e1;
+  color: #587346;
+}
+.tabs {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--border);
+}
+.tabs > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 105px;
+  padding: 13px 20px;
+  color: var(--muted);
+  border-bottom: 3px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+}
+.tabs > button[aria-selected='true'] {
+  color: #47613a;
+  background: linear-gradient(transparent, #eaf0e170);
+  border-bottom-color: #809567;
+}
+.tabs > button:hover {
+  color: var(--ink);
+}
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 25px 28px;
+  scrollbar-gutter: stable;
+}
+.panel {
+  min-width: 0;
+}
+.options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.options h3 {
+  margin: 0 0 5px;
+  font-size: 16px;
+  letter-spacing: -0.03em;
+}
+.options p {
+  margin: 0;
+  font-size: 11px;
+}
+.colors {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 4px;
+}
+.colors > button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 3px solid #fffdf9;
+  border-radius: 50%;
+  outline: 1px solid var(--border);
+  background: var(--signature-color);
+  color: white;
+}
+.colors > button[aria-pressed='true'] {
+  outline: 2px solid #839767;
+}
+.colors > button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+.pad {
+  position: relative;
+  width: 100%;
+  border: 1px dashed #bfc7b4;
+  border-radius: 12px;
+  background: white;
+  overflow: hidden;
+}
+.drawPad {
+  height: clamp(210px, 30vh, 300px);
+}
+.drawPad canvas {
+  display: block;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+.drawPad canvas:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -5px;
+}
+.empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  pointer-events: none;
+  color: #758268;
+}
+.empty span {
+  font-size: 13px;
+}
+.baseline {
+  position: absolute;
+  left: 9%;
+  right: 9%;
+  bottom: 24%;
+  border-bottom: 1px solid #e7e9e2;
+  pointer-events: none;
+}
+.padActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 13px 0 8px;
+}
+.textButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 0;
+  color: #47613a;
+  font-size: 12px;
+  font-weight: 600;
+  min-height: 36px;
+}
+.textButton:hover:not(:disabled) {
+  color: var(--accent);
+}
+.hint {
+  font-size: 10px;
+  margin: 0;
+}
+.uploadPad {
+  min-height: 245px;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.uploadPad:has(img) {
+  background-image:
+    linear-gradient(45deg, #f1f2ed 25%, transparent 25%),
+    linear-gradient(-45deg, #f1f2ed 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #f1f2ed 75%),
+    linear-gradient(-45deg, transparent 75%, #f1f2ed 75%);
+  background-size: 16px 16px;
+  background-position:
+    0 0,
+    0 8px,
+    8px -8px,
+    -8px 0;
+}
+.uploadPad img {
+  max-width: 100%;
+  max-height: 210px;
+  object-fit: contain;
+}
+.dragging {
+  border-color: #809567;
+  background-color: #f2f6eb;
+}
+.uploadEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+.uploadIcon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #edf1e7;
+  color: #587346;
+  margin-bottom: 6px;
+}
+.uploadEmpty strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+.uploadEmpty > span:not(.uploadIcon) {
+  font-size: 11px;
+  color: var(--muted);
+}
+.uploadEmpty > button {
+  margin-top: 8px;
+}
+.imageActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+}
+.imageActions label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.imageActions input {
+  width: 16px;
+  height: 16px;
+  accent-color: #587346;
+}
+.fileName {
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 5px 0 0;
+}
+.nameInput {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.nameInput input {
+  width: 100%;
+  border: 1px solid #d7ddcd;
+  background: white;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink);
+}
+.nameInput input::placeholder {
+  color: #858b7e;
+}
+.styles {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 14px 0;
+}
+.styles > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 14px;
+  font-size: 12px;
+  min-height: 38px;
+}
+.styles > button[aria-pressed='true'] {
+  border-color: #a5b58f;
+  background: #edf2e6;
+  color: #47613a;
+}
+.typePad {
+  display: grid;
+  place-items: center;
+  min-height: 170px;
+  padding: 24px;
+}
+.typePad > span {
+  text-align: center;
+  max-width: 100%;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.error {
+  background: #fff0eb;
+  color: #a23f2d;
+  border: 1px solid #efc6b9;
+  padding: 11px 13px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin: 16px 0 0;
+}
+.footer {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 28px;
+  border-top: 1px solid var(--border);
+}
+.footer p {
+  font-size: 11px;
+  margin: 0;
+}
+.footer > div {
+  display: flex;
+  gap: 10px;
+}
+.dialog :global(.button) {
+  min-height: 43px;
+  padding: 10px 18px;
+  font-size: 12px;
+}
+@media (max-width: 600px) {
+  .dialog {
+    width: calc(100% - 20px);
+    height: 80vh;
+    border-radius: 15px;
+  }
+  .header {
+    gap: 11px;
+    padding: 18px 17px;
+  }
+  .header h2 {
+    font-size: 24px;
+  }
+  .header p {
+    font-size: 10px;
+  }
+  .symbol {
+    width: 39px;
+    height: 39px;
+    border-radius: 10px;
+  }
+  .tabs {
+    padding: 0 12px;
+    gap: 0;
+  }
+  .tabs > button {
+    flex: 1;
+    min-width: 0;
+    padding: 12px;
+  }
+  .body {
+    padding: 19px 17px;
+  }
+  .options {
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .options p {
+    font-size: 11px;
+  }
+  .drawPad {
+    height: 220px;
+  }
+  .uploadPad {
+    min-height: 220px;
+    padding: 18px;
+  }
+  .imageActions {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .styles {
+    gap: 6px;
+  }
+  .styles > button {
+    flex: 1;
+    padding: 8px;
+    font-size: 11px;
+  }
+  .typePad {
+    min-height: 150px;
+    padding: 16px;
+  }
+  .footer {
+    padding: 14px 17px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .footer p {
+    display: none;
+  }
+  .footer > div {
+    width: 100%;
+  }
+  .footer :global(.button) {
+    flex: 1;
+    min-height: 44px;
+    padding: 10px 13px;
+  }
+}

@@ -30,7 +30,7 @@ Account APIs verify the bearer token and scope metadata operations to that user.
 
 ## Billing and profile
 
-**Billing & plan** shows verified access, paid coverage, introductory/cancellation information, and payment issues. **Manage billing** opens the existing customer's Stripe portal for invoices, payment methods, and subscription changes. Checkout success and portal return now land on the billing tab. Enable the intended payment-method, invoice, and cancellation features in your Stripe customer portal settings; existing Stripe setup and webhooks are still required. See [BILLING.md](BILLING.md).
+**Billing & plan** shows verified access, paid coverage, introductory/cancellation information, and payment issues. **Manage billing** opens the existing customer's Lemon Squeezy portal for invoices, payment methods, and subscription changes. Checkout success and portal return now land on the billing tab. Enable the intended payment-method, invoice, and cancellation features in your Lemon Squeezy customer portal settings; existing Lemon Squeezy setup and webhooks are still required. See [BILLING.md](BILLING.md).
 
 **Account settings** saves the full name and optional company to Supabase user metadata. These values never grant permissions. Email is read-only. Users can end other refresh sessions while retaining this browser; existing access tokens on those devices remain valid until expiry. Account deletion requests go through support.
 
@@ -38,7 +38,7 @@ Account APIs verify the bearer token and scope metadata operations to that user.
 
 ## Verification
 
-`npm test` covers the SQL ownership policies, quotas, API ownership, upload-size verification, and retryable deletion against isolated PostgreSQL fixtures. `npm run test:auth` runs Google PKCE, dashboard navigation, file operations with real sample PDF bytes, profile persistence, session controls, responsive layouts, and accessibility using simulated service responses on port 3001. It never uses real customer credentials or payment providers. A live Supabase upload and Stripe portal session still need the connected setup above.
+`npm test` covers the SQL ownership policies, quotas, API ownership, upload-size verification, and retryable deletion against isolated PostgreSQL fixtures. `npm run test:auth` runs Google PKCE, dashboard navigation, file operations with real sample PDF bytes, profile persistence, session controls, responsive layouts, and accessibility using simulated service responses on port 3001. It never uses real customer credentials or payment providers. A live Supabase upload and Lemon Squeezy portal session still need the connected setup above.
 
 ## Cloud checkout recovery
 
@@ -48,7 +48,7 @@ Quota enforcement also validates the final, server-generated Storage metadata: S
 
 PDF text recovery stores source bytes plus edit instructions, and main-editor workspaces also include annotations, page order, and form values; translated/converted recovery stores the existing encrypted artifact and preview. Recovery storage never grants Pro download rights. Pro drafts expire logically after seven days, prepared output after 24 hours; reopening the matching tool restores valid cloud work. Standalone tools attempt to clear their matching recovery slot after a successful download or choosing another file. Existing main-editor recovery drafts can be opened and imported into the new per-document autosave flow. Slots are overwritten by subsequent drafts; configure periodic operator cleanup for expired objects and failed deletions. There is no automatic server cleanup job.
 
-Guest editing remains available. Until sign-in, work stays in the open tab and cannot recover after a reload. At an open checkout prompt, returning from sign-in starts cloud recovery saving. The prompt reports success only after the upload succeeds and otherwise asks users to keep the tab open. Passwords are kept only in memory.
+Guest editing remains available. The main editor saves guest workspaces to private cloud storage with a 24-hour expiry; standalone tools keep guest work in the open tab until sign-in. The download dialog's **Continue with Google** button opens a separate tab, preserving all current edits and settings even if saving is unavailable. After sign-in, the main editor claims the guest workspace for the account; standalone tools start cloud recovery saving. The prompt reports a saved recovery draft only after its upload succeeds. Passwords are kept only in memory, and download access is still verified separately from sign-in.
 
 ## Guest cleanup and deployment
 

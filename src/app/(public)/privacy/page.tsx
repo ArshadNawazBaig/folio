@@ -32,16 +32,16 @@ export default function Privacy() {
         discarded after completion or timeout. Downloaded results are returned to your browser.
         Hosting infrastructure may buffer requests while processing them.
       </p>
-      <h2>Accounts and billing use Supabase and Stripe.</h2>
+      <h2>Accounts and billing use Supabase and Lemon Squeezy.</h2>
       <p>
         When connected, Supabase handles Google and email sign-in and stores account, subscription,
         and processing-count records. The browser stores authentication tokens so you can remain
-        signed in. Stripe hosts checkout and the billing portal and handles payment information;
-        Folio does not collect card numbers. These services receive the information needed to
-        provide sign-in and payments. Google supplies your basic profile and email when you choose
-        Google sign-in; Folio does not request access to Google Drive or Gmail. Your PDF is never
-        sent to Stripe. Signed-in checkout recovery saves the source PDF and edits to private
-        Supabase Storage.
+        signed in. Lemon Squeezy hosts checkout and the billing portal and handles payment
+        information; Folio does not collect card numbers. These services receive the information
+        needed to provide sign-in and payments. Google supplies your basic profile and email when
+        you choose Google sign-in; Folio does not request access to Google Drive or Gmail. Your PDF
+        is never sent to Lemon Squeezy. Signed-in checkout recovery saves the source PDF and edits
+        to private Supabase Storage.
       </p>
       <h2>The main editor saves your workspace automatically.</h2>
       <p>

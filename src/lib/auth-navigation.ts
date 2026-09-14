@@ -41,9 +41,10 @@ export function safeAuthDestination(value: unknown) {
     return '/account';
   }
 }
-export function authCallbackUrl(origin: string, destination: string) {
+export function authCallbackUrl(origin: string, destination: string, returnToEditor = false) {
   const url = new URL('/auth/callback', origin);
   url.searchParams.set('next', safeAuthDestination(destination));
+  if (returnToEditor) url.searchParams.set('return_to', 'editor');
   return url.href;
 }
 export function afterSignIn(destination: string, isAdmin: boolean) {

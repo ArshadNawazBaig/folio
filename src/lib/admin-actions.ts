@@ -26,6 +26,11 @@ export const adminAction = z.discriminatedUnion('action', [
       requestId: z.uuid(),
       expectedVersion: z.string().min(1).max(80),
       pricing: pricingSchema,
+      monthlyVariantId: z.string().regex(/^[1-9]\d*$/),
+      trialVariantId: z
+        .string()
+        .regex(/^[1-9]\d*$/)
+        .nullable(),
       reason,
     })
     .strict(),
@@ -33,7 +38,7 @@ export const adminAction = z.discriminatedUnion('action', [
     .object({
       action: z.literal('subscription'),
       requestId: z.uuid(),
-      subscriptionId: z.string().regex(/^sub_[A-Za-z0-9]+$/),
+      subscriptionId: z.string().regex(/^lemon_[1-9]\d*$/),
       operation: z.enum(['cancel_end', 'resume', 'cancel_now']),
       reason,
     })

@@ -1,8 +1,8 @@
 # Folio
 
-A document application built with Next.js 16 App Router, React 19, and TypeScript. Public pages have server-rendered HTML and metadata. Local tool pages are prerendered; service-dependent pages and pricing use current server configuration. Free document tools run locally in the browser; Folio Pro adds server processing with Stripe subscriptions and Supabase accounts.
+A document application built with Next.js 16 App Router, React 19, and TypeScript. Public pages have server-rendered HTML and metadata. Local tool pages are prerendered; service-dependent pages and pricing use current server configuration. Free document tools run locally in the browser; Folio Pro adds server processing with Lemon Squeezy subscriptions and Supabase accounts.
 
-See [docs/SETUP.md](docs/SETUP.md) to connect Google login, assign the super admin, enable Stripe, and configure translation/conversion providers. Run `npm run check:setup` to see which credentials are still missing.
+See [docs/SETUP.md](docs/SETUP.md) to connect Google login, assign the super admin, enable Lemon Squeezy, and configure translation/conversion providers. Run `npm run check:setup` to see which credentials are still missing.
 
 ## Run locally
 
@@ -49,12 +49,12 @@ The editor toolbar exposes Move, Undo/Redo, Add Text, Edit Text, Eraser, Highlig
 - Find and replace text across pages, undo/redo changes, preview the resulting PDF, and download it.
 - Add an AES-256 opening password to a PDF.
 - Translate PDFs with Google Cloud Translation and convert to Word, Excel, and PowerPoint with ConvertAPI when configured. Prepare without sign-in; download with Pro.
-- Sign in with Google or email links, subscribe through Stripe Checkout, and manage billing through Stripe's portal.
+- Sign in with Google or email links, subscribe through Lemon Squeezy Checkout, and manage billing through Lemon Squeezy's portal.
 - Enforce paid access and processing quotas on the server using verified accounts and signed subscription webhooks.
 
 Try the real text engine without configuration at [localhost:3000/edit-pdf-text?demo=1](http://localhost:3000/edit-pdf-text?demo=1). The sample can be exported for free. Anyone can also inspect and preview their own PDF text edits without signing in. Payment is requested only when downloading a PDF with Pro changes or password protection. Existing free tools and their downloads remain free. Pro uploads are explicitly initiated and processed in memory, without automatically saving a cloud copy.
 
-**Initial pricing: $1 USD for the first 7 days, then $25 USD/month automatically, or $25 USD/month starting immediately.** The introductory offer is available once per account. Cancel before the introductory week ends to avoid the monthly charge. Pro access requires the introductory payment to be confirmed; a free/unpaid Stripe trial does not unlock it.
+**Initial pricing: $1 USD for the first 7 days, then $25 USD/month automatically, or $25 USD/month starting immediately.** The introductory offer is available once per account. Cancel before the introductory week ends to avoid the monthly charge. Pro access requires the introductory payment to be confirmed; a free/unpaid Lemon Squeezy trial does not unlock it.
 
 The main editor’s **Edit Text** button edits supported original text directly on the page, with automatic previews and shared undo/redo. Added text can also be typed on the page. Use **Ctrl/⌘ + mouse wheel** or a trackpad pinch to zoom from 50% to 300%; ordinary scrolling still moves through the page. Original-text changes are combined with page operations, annotations, and forms on export. Payment is requested only when downloading a document containing premium changes.
 
@@ -62,7 +62,7 @@ The main editor uploads each opened PDF once and automatically saves its edit in
 
 ## Super admin and support
 
-Open [localhost:3000/admin](http://localhost:3000/admin). Without credentials it is an explicitly labeled preview with disabled mutations. After Supabase setup and server-side role assignment, it manages real users, courtesy Pro access, subscriptions, pricing, maintenance, announcements, support conversations, and an audit log. Publishing prices creates immutable Stripe prices; existing subscriptions keep their purchased prices.
+Open [localhost:3000/admin](http://localhost:3000/admin). Without credentials it is an explicitly labeled preview with disabled mutations. After Supabase setup and server-side role assignment, it manages real users, courtesy Pro access, subscriptions, pricing, maintenance, announcements, support conversations, and an audit log. Publishing pricing verifies existing Lemon Squeezy variants and saves an immutable application pricing version; existing subscriptions keep their purchased terms.
 
 Signed-in customers land at [localhost:3000/dashboard](http://localhost:3000/dashboard) with private cloud PDFs, billing, profile settings, and support. Apply [migration 004](supabase/migrations/004_cloud_documents.sql) , [migration 005](supabase/migrations/005_cloud_recovery.sql), and [migration 006](supabase/migrations/006_editor_autosave.sql) in Supabase to enable the private file library and checkout recovery. The editor automatically saves private workspaces, and existing browser drafts can be imported. See [docs/DASHBOARD.md](docs/DASHBOARD.md) for setup, limits, and verification.
 
@@ -72,7 +72,7 @@ Follow [docs/ADMIN.md](docs/ADMIN.md) to apply migration 003 and provision your 
 
 The super admin **Blog posts** workspace at `/admin/blog` includes a rich post editor, cloud autosave, previews, revisions, publishing/scheduling, and Trash. Readers can find published articles at `/blog` and sign in to like them. Apply [migration 009](supabase/migrations/009_blog.sql) after the earlier migrations; see [docs/BLOG.md](docs/BLOG.md) for setup and editorial workflows.
 
-**Purchases are disabled until your accounts, keys, webhook, database migrations, and matching Stripe prices are configured.** No live payment has been tested. See [docs/BILLING.md](docs/BILLING.md) for the complete setup and verification workflow.
+**Purchases are disabled until your accounts, keys, webhook, database migrations, and matching Lemon Squeezy prices are configured.** No live payment has been tested. See [docs/BILLING.md](docs/BILLING.md) for the complete setup and verification workflow.
 
 ## Current boundaries
 
@@ -106,7 +106,10 @@ npx playwright install chromium
 npm run build
 npm run test:e2e
 npm run test:auth
+npm run test:design
 ```
+
+See [docs/DESIGN.md](docs/DESIGN.md) for shared interface patterns and the desktop/mobile design checks.
 
 Engine tests validate exported content, forms, page order, crop boundaries, rotations, ranges, ZIP files, actual text replacement/deletion, and password encryption. Billing tests run the SQL migration in PostgreSQL via PGlite and check paid coverage, role restrictions, quotas, and webhook event ordering. Browser tests cover free workflows, user-file preview and download gating, draft recovery, admin preview, support errors, responsive layouts, accessibility, and server-rendered SEO. Server-route tests use real PostgreSQL with mocked Supabase transport to verify role checks, support ownership, account controls, and maintenance recovery. E2E tests run against a production build at port 3000; the unconfigured-billing tests expect no payment/account environment variables. The isolated Google browser suite exercises the real Supabase client with simulated OAuth responses, including PKCE, admin routing, cancellation, expiry, and sign-out. Connected services still require the verification in the setup guide.
 
@@ -123,7 +126,7 @@ The lint configuration permits App Router metadata exports. React's blanket sync
 - `src/lib/storage.ts`: read-only legacy draft access and migration cleanup; temporary tool handoff stays in memory.
 - `src/lib/tools.ts`: tool capabilities, page content, and availability.
 - `src/lib/seo.ts`: central metadata, canonical origin, and indexing configuration.
-- `src/app/api`: account access, Stripe billing/webhooks, and protected Pro processing routes.
+- `src/app/api`: account access, Lemon Squeezy billing/webhooks, and protected Pro processing routes.
 - `scripts/pdf-text-engine.mjs`: PDFium text-object editing and password encryption.
 - `src/lib/server`: verified identity, billing, bounded requests, and child-process execution.
 - `supabase/migrations`: billing, admin roles, account controls, pricing versions, support, settings, audit records, and atomic quotas. Apply migrations in number order.
