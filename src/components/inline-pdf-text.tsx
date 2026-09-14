@@ -191,11 +191,19 @@ export function InlinePdfText({
     offset: { x: number; y: number };
     pointer: number;
   } | null>(null);
-  const [preview, setPreview] = useState<{
+  type Preview = {
     image: TextPreview;
     changes: Record<string, TextChange>;
     key: string;
     rotation: number;
+  };
+  const [preview, setPreview] = useState<Preview | null>(null);
+  // Keep a few decoded backgrounds in this document's memory. Returning to a
+  // previously selected text box must not require another server round trip.
+  const previewCache = useRef<{
+    bytes: Uint8Array;
+    page: number | null;
+    entries: Map<string, Preview>;
   } | null>(null);
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
@@ -340,7 +348,19 @@ export function InlinePdfText({
   }, [document, inspection, page.sourceIndex, page.rotation]);
 
   useEffect(() => {
+    if (previewCache.current?.bytes !== bytes || previewCache.current.page !== page.sourceIndex)
+      previewCache.current = { bytes, page: page.sourceIndex, entries: new Map() };
+    const cache = previewCache.current.entries;
     if (!needsImage || page.sourceIndex === null || requestKey === renderedKey) return;
+    const previous = cache.get(requestKey);
+    if (previous) {
+      cache.delete(requestKey);
+      cache.set(requestKey, previous);
+      setPreview(previous);
+      setStatus('Page preview updated.');
+      setError('');
+      return;
+    }
     const controller = new AbortController();
     const timer = setTimeout(
       () => {
@@ -375,12 +395,25 @@ export function InlinePdfText({
               }),
             );
             if (!controller.signal.aborted) {
-              setPreview({
+              const next = {
                 image,
                 changes: desired.changes,
                 key: requestKey,
                 rotation: desired.rotation,
-              });
+              };
+              cache.set(requestKey, next);
+              const imageSize = (entry: Preview) =>
+                (entry.image.tiles || [entry.image]).reduce(
+                  (size, tile) => size + tile.preview.length,
+                  0,
+                );
+              let total = [...cache.values()].reduce((size, entry) => size + imageSize(entry), 0);
+              while (cache.size > 4 || total > 8 * 1024 * 1024) {
+                const oldest = cache.keys().next().value!;
+                total -= imageSize(cache.get(oldest)!);
+                cache.delete(oldest);
+              }
+              setPreview(next);
               setStatus('Page preview updated.');
             }
           })
@@ -408,6 +441,7 @@ export function InlinePdfText({
     renderedKey,
     clearingSelectedInk,
     previewRetry,
+    previewCache,
   ]);
 
   function start(block: TextBlock) {

@@ -1,8 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { randomBytes } from 'node:crypto';
 import { init } from '@embedpdf/pdfium';
-import { PNG } from 'pngjs';
-import fontkit from '@pdf-lib/fontkit';
 import {
   findDocumentFont,
   isDocumentFont,
@@ -79,7 +77,7 @@ export async function processTextPdf(bytes, job) {
     new Error(
       'The original font does not contain some of these characters. Choose another font in Text appearance to use them.',
     );
-  function fontProgram(handle) {
+  async function fontProgram(handle) {
     if (fontPrograms.has(handle)) return fontPrograms.get(handle);
     let parsed = null;
     const sizePtr = alloc(4);
@@ -93,6 +91,7 @@ export async function processTextPdf(bytes, job) {
         if (size > 0 && size <= 4 * 1024 * 1024) {
           dataPtr = alloc(size);
           if (api.FPDFFont_GetFontData(handle, dataPtr, size, sizePtr)) {
+            const { default: fontkit } = await import('@pdf-lib/fontkit');
             parsed = fontkit.create(heap.HEAPU8.slice(dataPtr, dataPtr + size));
             // Fontkit reads cmap lazily. Some PDF subsets intentionally omit this table.
             parsed.hasGlyphForCodePoint(32);
@@ -153,6 +152,7 @@ export async function processTextPdf(bytes, job) {
       const data = face.google
         ? await loadDocumentFont(face.name)
         : await readFile(new URL(`../public${face.url}`, import.meta.url));
+      const { default: fontkit } = await import('@pdf-lib/fontkit');
       const parsed = fontkit.create(data);
       const ptr = alloc(data.length);
       try {
@@ -230,8 +230,17 @@ export async function processTextPdf(bytes, job) {
         changes.set(change.id, change);
       }
     } else if (job.operation !== 'inspect') throw new Error('Unknown PDF operation.');
+    // Inspection needs every text object. An edit/preview only needs objects on
+    // changed pages; the original bytes already contain all untouched content.
+    // Keep validating changes on other pages too, including stale object IDs.
+    const pages =
+      job.operation === 'inspect'
+        ? Array.from({ length: pageCount }, (_, index) => index)
+        : [...new Set([...changes.keys()].map((id) => Number(String(id).split(':')[0])))];
+    if (pages.some((p) => !Number.isInteger(p) || p < 0 || p >= pageCount))
+      throw new Error('Some selected text could not be edited. Reopen the original PDF.');
     let applied = 0;
-    for (let p = 0; p < pageCount; p++) {
+    for (const p of pages) {
       const page = api.FPDF_LoadPage(doc, p);
       if (!page) throw new Error(`Page ${p + 1} could not be opened.`);
       let textPage = api.FPDFText_LoadPage(page);
@@ -240,6 +249,7 @@ export async function processTextPdf(bytes, job) {
         if (count > 30000) throw new Error('This page is too complex to edit. Try a simpler PDF.');
         const pending = [];
         for (let i = 0; i < count; i++) {
+          if (job.operation !== 'inspect' && !changes.has(`${p}:${i}`)) continue;
           const object = api.FPDFPage_GetObject(page, i),
             type = api.FPDFPageObj_GetType(object);
           if (type === 5) {
@@ -265,6 +275,18 @@ export async function processTextPdf(bytes, job) {
           const text = heap.UTF16ToString(textPtr);
           free(textPtr);
           if (!text.trim()) continue;
+          const id = `${p}:${i}`;
+          const change = changes.get(id);
+          if (change && text !== change.original)
+            throw new Error(
+              'The PDF changed since it was opened. Reopen the original and try again.',
+            );
+          if (change?.text === '') {
+            // Selecting text only removes its original ink from the background.
+            // There is no replacement font to inspect, load or validate here.
+            pending.push({ object, index: i, change, runs: [], complete: 0 });
+            continue;
+          }
           const scratch = alloc(64);
           try {
             if (
@@ -298,7 +320,7 @@ export async function processTextPdf(bytes, job) {
             api.FPDFFont_GetBaseFontName(fontHandle, fontPtr, fontLen);
             const font = fontLen ? heap.UTF8ToString(fontPtr) : 'Helvetica';
             free(fontPtr);
-            const program = fontProgram(fontHandle);
+            const program = await fontProgram(fontHandle);
             const fontWeight = Math.max(
               1,
               Math.min(1000, program?.['OS/2']?.usWeightClass || originalFontWeight(font)),
@@ -307,7 +329,6 @@ export async function processTextPdf(bytes, job) {
               !!(api.FPDFFont_GetFlags(fontHandle) & 64) || /italic|oblique/i.test(font);
             const fontCategory = originalFontCategory(font, api.FPDFFont_GetFlags(fontHandle));
             const fontCharacters = availableCharacters(fontHandle, program);
-            const id = `${p}:${i}`;
             if (blocks.length >= 5000)
               throw new Error(
                 'This PDF has too many text blocks. Split it into smaller documents.',
@@ -331,12 +352,7 @@ export async function processTextPdf(bytes, job) {
               bounds,
               matrix,
             });
-            const change = changes.get(id);
             if (change) {
-              if (text !== change.original)
-                throw new Error(
-                  'The PDF changed since it was opened. Reopen the original and try again.',
-                );
               const missing = new Set(
                 change.font === 'original'
                   ? [...change.text].filter(
@@ -596,11 +612,12 @@ export async function processTextPdf(bytes, job) {
     if (job.operation === 'inspect') return { pageCount, blocks, skipped };
     if (applied !== changes.size)
       throw new Error('Some selected text could not be edited. Reopen the original PDF.');
-    if (job.operation === 'preview') return renderPreview();
+    if (job.operation === 'preview') return await renderPreview();
     return save();
-    function renderPreview() {
+    async function renderPreview() {
       if (!Number.isInteger(job.page) || job.page < 0 || job.page >= pageCount)
         throw new Error('Choose a valid preview page.');
+      const { default: sharp } = await import('sharp');
       const page = api.FPDF_LoadPage(doc, job.page);
       if (!page) throw new Error('This page could not be previewed.');
       if ([0, 90, 180, 270].includes(job.rotation))
@@ -634,9 +651,13 @@ export async function processTextPdf(bytes, job) {
                 rgba[to + 2] = heap.HEAPU8[from];
                 rgba[to + 3] = heap.HEAPU8[from + 3];
               }
-            const preview = PNG.sync
-              .write({ width, height: region.height, data: rgba })
-              .toString('base64');
+            // Native lossless compression keeps the exact pixels and avoids
+            // spending hundreds of milliseconds filtering rows in JavaScript.
+            const preview = (
+              await sharp(rgba, { raw: { width, height: region.height, channels: 4 } })
+                .png({ compressionLevel: 3, adaptiveFiltering: false })
+                .toBuffer()
+            ).toString('base64');
             outputSize += preview.length;
             if (outputSize > 32 * 1024 * 1024)
               throw new Error('The page preview is too large. Reduce the zoom and retry.');

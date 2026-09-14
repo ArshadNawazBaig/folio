@@ -153,6 +153,63 @@ test('manual verification accepts JSONB key ordering but rejects missing text', 
   await assert.rejects(sync.flush(true), /saved edits could not be verified/i);
 });
 
+test('saving with shared source inspection keeps current edits and verifies recovered source blocks', async (t) => {
+  const inspection: NonNullable<WorkspaceSnapshot['inspection']> = {
+    pageCount: 1,
+    skipped: 0,
+    blocks: [
+      {
+        id: '0:0',
+        page: 0,
+        objectIndex: 0,
+        text: 'Original text',
+        font: 'Helvetica',
+        replacementFont: 'Helvetica',
+        size: 12,
+        color: '#000000',
+        bounds: [20, 20, 120, 32],
+      },
+    ],
+  };
+  const initial = { ...original, inspection };
+  const next = { ...edited, inspection };
+  let stored: WorkspaceSnapshot = initial;
+  let revision = restored.revision;
+  let loseInspection = false;
+  t.mock.method(globalThis, 'fetch', async (_url: unknown, init?: RequestInit) => {
+    if (init?.method === 'PATCH') {
+      const body = JSON.parse(init.body as string);
+      stored = body.snapshot;
+      revision++;
+      return Response.json({ revision, updatedAt: restored.updatedAt, expiresAt: null });
+    }
+    // Fresh server objects cannot reuse the cache for the browser's source data.
+    const recovered = JSON.parse(
+      JSON.stringify(stored, (_key, value) =>
+        value && typeof value === 'object' && !Array.isArray(value)
+          ? Object.fromEntries(Object.entries(value).reverse())
+          : value,
+      ),
+    );
+    if (loseInspection) recovered.inspection.blocks = [];
+    return Response.json({ ...restored, revision, snapshot: recovered });
+  });
+  const sync = new WorkspaceSync('workspace', new Uint8Array(), () => {}, {
+    ...restored,
+    snapshot: initial,
+  });
+  t.after(() => sync.dispose());
+  sync.update(restored.name, initial);
+  sync.update(restored.name, next);
+  await sync.flush(true);
+  assert.deepEqual(stored, next);
+  sync.update(restored.name, initial);
+  await sync.flush(true);
+  assert.deepEqual(stored, initial, 'Undo must persist even with the same source inspection');
+  loseInspection = true;
+  await assert.rejects(sync.flush(true), /saved edits could not be verified/i);
+});
+
 test('an invalid storage acknowledgement does not mark new text saved', async (t) => {
   t.mock.method(globalThis, 'fetch', async () => Response.json({ success: true }));
   const statuses: SyncStatus[] = [];

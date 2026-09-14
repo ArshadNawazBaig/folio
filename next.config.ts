@@ -19,7 +19,11 @@ const config: NextConfig = {
       './public/fonts/pdf/*',
       './node_modules/@pdf-lib/fontkit/**/*',
       './node_modules/@embedpdf/pdfium/**/*',
-      './node_modules/pngjs/**/*',
+      './node_modules/sharp/**/*',
+      './node_modules/@img/sharp-*/**/*',
+      './node_modules/@img/colour/**/*',
+      './node_modules/detect-libc/**/*',
+      './node_modules/semver/**/*',
     ],
   },
   async redirects() {

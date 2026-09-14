@@ -5,11 +5,12 @@ import {
   readWorkspaceRecord,
 } from './workspace-client';
 import { pdfName } from './cloud-types';
+import type { TextInspection } from './pro-types';
 import type { WorkspaceSnapshot } from './workspace-types';
 // JSONB can return object properties in a different order. Compare the actual
 // content, including both text layers, independently of that ordering.
-function workspaceKey(name: string, snapshot: WorkspaceSnapshot) {
-  return JSON.stringify([pdfName(name), snapshot], (_key, value) =>
+function canonicalJson(input: unknown) {
+  return JSON.stringify(input, (_key, value) =>
     value && typeof value === 'object' && !Array.isArray(value)
       ? Object.fromEntries(
           Object.keys(value)
@@ -18,6 +19,23 @@ function workspaceKey(name: string, snapshot: WorkspaceSnapshot) {
         )
       : value,
   );
+}
+function workspaceKey(
+  name: string,
+  snapshot: WorkspaceSnapshot,
+  inspectionKeys: WeakMap<TextInspection, string>,
+) {
+  const { inspection, ...editable } = snapshot;
+  // Source inspection is immutable; text edits live in state.textChanges. Sorting
+  // thousands of unchanged blocks on every keystroke stalls the input. Cache only
+  // that source data; always compare the complete current editable state.
+  let sourceKey = 'null';
+  if (inspection) {
+    const previous = inspectionKeys.get(inspection);
+    sourceKey = previous ?? canonicalJson(inspection);
+    if (previous === undefined) inspectionKeys.set(inspection, sourceKey);
+  }
+  return `${canonicalJson([pdfName(name), editable])}\n${sourceKey}`;
 }
 export type SyncStatus = {
   phase: 'pending' | 'uploading' | 'saving' | 'saved' | 'error';
@@ -28,6 +46,7 @@ export type SyncStatus = {
 };
 // One queue per opened PDF. Writes never race, and edits made during an upload are saved next.
 export class WorkspaceSync {
+  private inspectionKeys = new WeakMap<TextInspection, string>();
   private latest: { name: string; snapshot: WorkspaceSnapshot; key: string } | null = null;
   private acknowledged = '';
   private uploaded: boolean;
@@ -55,7 +74,9 @@ export class WorkspaceSync {
   ) {
     this.uploaded = !!restored;
     this.revision = restored?.revision || 0;
-    this.acknowledged = restored?.snapshot ? workspaceKey(restored.name, restored.snapshot) : '';
+    this.acknowledged = restored?.snapshot
+      ? workspaceKey(restored.name, restored.snapshot, this.inspectionKeys)
+      : '';
     this.status = {
       phase: this.acknowledged ? 'saved' : 'pending',
       revision: this.revision,
@@ -68,7 +89,7 @@ export class WorkspaceSync {
     if (this.active) this.notify(this.status);
   }
   update(name: string, snapshot: WorkspaceSnapshot) {
-    const key = workspaceKey(name, snapshot);
+    const key = workspaceKey(name, snapshot, this.inspectionKeys);
     if (key === this.latest?.key) return;
     this.latest = { name, snapshot, key };
     if (key === this.acknowledged && !this.job) {
@@ -117,7 +138,7 @@ export class WorkspaceSync {
           if (
             stored.revision !== revision ||
             !stored.snapshot ||
-            workspaceKey(stored.name, stored.snapshot) !== key
+            workspaceKey(stored.name, stored.snapshot, this.inspectionKeys) !== key
           ) {
             // Do not trust an earlier acknowledgement when a fresh read cannot
             // recover the same edits. A retry must send the snapshot again.

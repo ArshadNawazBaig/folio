@@ -27,8 +27,11 @@ export function catalogFromRow(row: Record<string, unknown>): PricingCatalog {
 }
 let cached:
   { expires: number; value: { settings: SiteSettings; catalog: PricingCatalog } } | undefined;
+let serviceSettings:
+  { expires: number; maintenance: boolean; maintenanceMessage: string } | undefined;
 export function clearPlatformCache() {
   cached = undefined;
+  serviceSettings = undefined;
 }
 export async function getPlatform(fresh = false) {
   if (!authReady())
@@ -78,7 +81,29 @@ export async function requireAdmin(request: Request) {
   return user;
 }
 export async function assertServiceAvailable() {
-  const { settings } = await getPlatform();
+  if (!authReady()) return;
+  const now = Date.now();
+  const settings = cached && cached.expires > now ? cached.value.settings : undefined;
+  if (!settings) {
+    if (!serviceSettings || serviceSettings.expires <= now) {
+      // Preview requests need the maintenance switch, not the pricing catalog.
+      // Keep the same short cache lifetime so an admin's pause takes effect promptly.
+      const { data, error } = await adminDb()
+        .from('platform_settings')
+        .select('maintenance,maintenance_message')
+        .eq('id', true)
+        .single();
+      if (error)
+        throw new ApiError(503, 'Site settings are unavailable. Please try again shortly.');
+      serviceSettings = {
+        expires: Date.now() + 3000,
+        maintenance: data.maintenance,
+        maintenanceMessage: data.maintenance_message,
+      };
+    }
+    if (serviceSettings.maintenance) throw new ApiError(503, serviceSettings.maintenanceMessage);
+    return;
+  }
   if (settings.maintenance) throw new ApiError(503, settings.maintenanceMessage);
 }
 export function databaseError(error: { message?: string } | null) {

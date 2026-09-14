@@ -9,7 +9,6 @@ import { readFile, writeFile, mkdir, rename, readdir, stat, unlink } from 'node:
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
-import fontkit from '@pdf-lib/fontkit';
 
 const directory = path.join(tmpdir(), 'folio-document-fonts-v1');
 const memory = new Map(),
@@ -22,9 +21,10 @@ let memorySize = 0,
   pruning = null;
 const unavailable = () =>
   new Error('This font could not be loaded. Try again or choose another font.');
-function validate(bytes) {
+async function validate(bytes) {
   if (bytes.length > MAX_FILE || bytes.length < 12 || bytes.readUInt32BE(0) !== 0x00010000)
     throw unavailable();
+  const { default: fontkit } = await import('@pdf-lib/fontkit');
   const font = fontkit.create(bytes);
   if (
     !font.hasGlyphForCodePoint(65) ||
@@ -84,7 +84,7 @@ async function load(value) {
   if (info && info.size <= MAX_FILE && Date.now() - info.mtimeMs < TTL) {
     try {
       const bytes = await readFile(file);
-      validate(bytes);
+      await validate(bytes);
       return bytes;
     } catch {
       /* Fetch a fresh copy if a cache entry is damaged. */
@@ -105,7 +105,7 @@ async function load(value) {
   ];
   if (urls.length !== 1) throw unavailable();
   const bytes = await boundedFetch(urls[0][1], MAX_FILE);
-  validate(bytes);
+  await validate(bytes);
   await mkdir(directory, { recursive: true });
   const temporary = `${file}.${randomUUID()}.tmp`;
   try {

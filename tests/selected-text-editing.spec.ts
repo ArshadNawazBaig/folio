@@ -134,6 +134,52 @@ test('a failed background preparation cannot duplicate text and can be retried',
   await expect(page.locator('.inline-text-status [role=alert]')).toHaveCount(0);
 });
 
+test('returning to a text box reuses its clean background without another preview request', async ({
+  page,
+}) => {
+  let previews = 0;
+  page.on('request', (request) => {
+    if (
+      request.url().endsWith('/api/pro/preview') &&
+      request.postDataBuffer()?.toString().includes('"operation":"preview"')
+    )
+      previews++;
+  });
+  await page.goto('/workspace');
+  await page.locator('.editor-empty input[type=file]').setInputFiles({
+    name: 'Cached text.pdf',
+    mimeType: 'application/pdf',
+    buffer: await coloredDocument(),
+  });
+  await page.getByRole('button', { name: 'Edit original text', exact: true }).click();
+  const target = page.getByRole('button', {
+    name: 'Edit text: Original words must disappear',
+    exact: true,
+  });
+  await target.click();
+  const input = page.getByRole('textbox', {
+    name: 'Edit original text: Original words must disappear',
+    exact: true,
+  });
+  await input.fill('Updated words');
+  await input.press('Enter');
+  await page.locator('.editable-page').click({ position: { x: 500, y: 350 } });
+  await expect(page.locator('.inline-text-status')).toHaveText('Page preview updated.');
+  await expect(page.locator('.inline-text-pending')).toHaveCount(0);
+  const prepared = previews;
+  expect(prepared).toBe(2);
+  // Returning must still work with the network unavailable for further previews.
+  await page.route('**/api/pro/preview', (route) => route.abort());
+  await target.click();
+  await expect(input).toBeVisible();
+  await expect(input).toHaveValue('Updated words');
+  await expect(input).toBeFocused();
+  await input.fill('Instantly editable');
+  await input.press('Enter');
+  await expect(page.locator('.inline-text-value')).toHaveText('Instantly editable');
+  expect(previews).toBe(prepared);
+});
+
 for (const failFirstPreview of [false, true])
   test(`saved encoded text recovers after refresh${failFirstPreview ? ' and a failed preview' : ''}`, async ({
     page,
