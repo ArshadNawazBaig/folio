@@ -26,7 +26,9 @@ const edit = z
   })
   .strict();
 export const proJob = z.discriminatedUnion('operation', [
-  z.object({ operation: z.literal('inspect') }).strict(),
+  z
+    .object({ operation: z.literal('inspect'), page: z.number().int().min(0).max(99).optional() })
+    .strict(),
   z.object({ operation: z.literal('info') }).strict(),
   z.object({ operation: z.literal('edit'), changes: z.array(edit).min(1).max(5000) }).strict(),
   z

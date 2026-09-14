@@ -5,6 +5,10 @@ import { processTextPdf } from '../scripts/pdf-text-engine.mjs';
 import type { TextInspection } from '../src/lib/pro-types';
 import { createEncodedReceiptPdf } from './fixtures/encoded-receipt-pdf';
 import { defaultTextChange } from '../src/lib/editor-text';
+import {
+  disableBrowserTextPreview,
+  observeBrowserTextPreview,
+} from './fixtures/text-preview-worker';
 
 async function coloredDocument() {
   const pdf = await PDFDocument.create();
@@ -101,6 +105,7 @@ test('only selected text moves and editing removes old ink without covering the 
 test('a failed background preparation cannot duplicate text and can be retried', async ({
   page,
 }) => {
+  await disableBrowserTextPreview(page);
   let failPreview = true;
   await page.route('**/api/pro/preview', async (route) => {
     const body = route.request().postDataBuffer()?.toString() || '';
@@ -137,6 +142,7 @@ test('a failed background preparation cannot duplicate text and can be retried',
 test('returning to a text box reuses its clean background without another preview request', async ({
   page,
 }) => {
+  await disableBrowserTextPreview(page);
   let previews = 0;
   page.on('request', (request) => {
     if (
@@ -185,6 +191,7 @@ for (const failFirstPreview of [false, true])
     page,
     workspaceStorage,
   }) => {
+    if (failFirstPreview) await disableBrowserTextPreview(page);
     const source = await createEncodedReceiptPdf();
     const inspection = (await processTextPdf(source, { operation: 'inspect' })) as TextInspection;
     const encoded = inspection.blocks.find((block) => block.text.includes('\u0002'))!;
@@ -251,3 +258,55 @@ for (const failFirstPreview of [false, true])
     });
     expect(record.snapshot!.state.textChanges![pageId][other.id].text).toBe('Restored total');
   });
+
+test('clicking new text blocks stays editable when server previews are unavailable', async ({
+  page,
+}) => {
+  await observeBrowserTextPreview(page);
+  await page.route('**/api/pro/preview', async (route) => {
+    if (route.request().postDataBuffer()?.toString().includes('"operation":"preview"'))
+      await route.abort();
+    else await route.continue();
+  });
+  await page.goto('/workspace');
+  await page.locator('.editor-empty input[type=file]').setInputFiles({
+    name: 'Browser preview.pdf',
+    mimeType: 'application/pdf',
+    buffer: await coloredDocument(),
+  });
+  await page.getByRole('button', { name: 'Edit original text', exact: true }).click();
+  const first = page.getByRole('button', {
+    name: 'Edit text: Original words must disappear',
+    exact: true,
+  });
+  await expect(first).toBeVisible();
+  await page.waitForFunction(
+    () => (window as Window & { textPreviewReady?: boolean }).textPreviewReady,
+  );
+  const originalBox = (await first.boundingBox())!;
+  const started = Date.now();
+  await first.click();
+  const input = page.getByRole('textbox', {
+    name: 'Edit original text: Original words must disappear',
+    exact: true,
+  });
+  await expect(input).toBeFocused();
+  expect(Date.now() - started).toBeLessThan(1500);
+  await input.fill('I');
+  await input.press('Enter');
+  const tail = { ...originalBox, x: originalBox.x + 50, width: originalBox.width - 50 };
+  expect(pixels(await page.screenshot({ clip: tail })).dark).toBe(0);
+  await page.getByRole('button', { name: 'Edit text: Second editable line', exact: true }).click();
+  const second = page.getByRole('textbox', {
+    name: 'Edit original text: Second editable line',
+    exact: true,
+  });
+  await expect(second).toBeFocused();
+  await second.fill('Updated in the browser');
+  await second.press('Enter');
+  await page.locator('.editable-page').click({ position: { x: 500, y: 350 } });
+  await expect(page.locator('.inline-text-status')).toHaveText('Page preview updated.');
+  await first.click();
+  await expect(input).toHaveValue('I');
+  await expect(input).toBeFocused();
+});

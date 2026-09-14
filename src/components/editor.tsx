@@ -51,12 +51,14 @@ import { DownloadGate } from './download-gate';
 import { SignatureDialog } from './signature-dialog';
 import type { SignatureResult, SignatureTab } from '@/lib/signature';
 import { defaultTextChange, hasTextChanges, unchangedText } from '@/lib/editor-text';
-import { exportWorkspacePdf, requestTextPdf } from '@/lib/editor-text-client';
+import { exportWorkspacePdf } from '@/lib/editor-text-client';
 import { readProDraft } from '@/lib/pro-draft';
 import { AccountRequestError } from '@/lib/auth-client';
 import { type TextBlock, type TextChange, type TextInspection } from '@/lib/pro-types';
 import { readWorkspace } from '@/lib/workspace-client';
 import { useWorkspaceSync } from './use-workspace-sync';
+import { usePreparedText } from './use-prepared-text';
+import { useInteractiveTextPreview } from './use-interactive-text-preview';
 import { useEditorExit } from './use-editor-exit';
 import type { WorkspaceRecord } from '@/lib/workspace-types';
 import { runPdf } from '@/lib/pdf-client';
@@ -98,7 +100,6 @@ export function Editor() {
   const [inlineAnnotation, setInlineAnnotation] = useState('');
   const annotationEditGroup = useRef('');
   const historyGroup = useRef<string | undefined>(undefined);
-  const originalRequest = useRef<AbortController | null>(null);
   const [mode, setMode] = useState<EditorMode>('select');
   const [zoom, setZoom] = useState(100);
   const [availableWidth, setAvailableWidth] = useState(650);
@@ -120,7 +121,6 @@ export function Editor() {
     saveMounted.current = true;
     return () => {
       saveMounted.current = false;
-      originalRequest.current?.abort();
     };
   }, []);
   const [sidebar, setSidebar] = useState(true);
@@ -145,6 +145,19 @@ export function Editor() {
   const [color, setColor] = useState('#202522');
   const [textSize, setTextSize] = useState(18);
   const [flatten, setFlatten] = useState(false);
+  const interactivePreview = useInteractiveTextPreview(bytes, doc?.numPages);
+  const preparedText = usePreparedText(
+    bytes,
+    name,
+    doc?.numPages,
+    state.pages[pageIndex]?.sourceIndex ?? null,
+    textInspection,
+  );
+  useEffect(() => {
+    // Prefetch stays out of the saved workspace until text editing is used.
+    if ((mode === 'original-text' || textInspection) && preparedText.inspection)
+      setTextInspection(preparedText.inspection);
+  }, [mode, textInspection, preparedText.inspection]);
   const snapshot = useMemo(
     () => ({ state, inspection: textInspection, page: pageIndex, mode, flatten }),
     [state, textInspection, pageIndex, mode, flatten],
@@ -276,7 +289,6 @@ export function Editor() {
       saved?: { state: EditorState; id: string; updatedAt: number; workspace?: WorkspaceRecord },
     ) => {
       const version = ++loadVersion.current;
-      originalRequest.current?.abort();
       setTextInspection(null);
       setOriginalSelection(null);
       setInlineAnnotation('');
@@ -499,43 +511,20 @@ export function Editor() {
     setOriginalSelection(null);
     setInlineAnnotation('');
   }, [pageModel?.id]);
-  async function enableOriginalText() {
+  function enableOriginalText() {
     if (!bytes || !doc || busy) return;
     setInlineAnnotation('');
     setSelectedId('');
-    if (textInspection) {
-      setMode('original-text');
-      return;
-    }
     if (bytes.length > 10 * 1024 * 1024 || doc.numPages > 100) {
       setError(
         'Original text editing supports PDFs up to 10 MB and 100 pages. Split a larger file first.',
       );
       return;
     }
-    const version = loadVersion.current;
-    const controller = new AbortController();
-    originalRequest.current?.abort();
-    originalRequest.current = controller;
-    setBusy('Finding editable text…');
     setError('');
-    try {
-      const inspection: TextInspection = await (
-        await requestTextPdf(bytes, name, { operation: 'inspect' }, false, controller.signal)
-      ).json();
-      if (version !== loadVersion.current || !saveMounted.current) return;
-      setTextInspection(inspection);
-      setMode('original-text');
-      setNotice(
-        inspection.blocks.length
-          ? 'Click the words on the page and type. Changes update automatically.'
-          : 'No editable text was found. Scanned pages need OCR; you can still use Add Text.',
-      );
-    } catch (reason) {
-      if (!controller.signal.aborted) setError(friendlyError(reason));
-    } finally {
-      if (version === loadVersion.current) setBusy('');
-    }
+    setMode('original-text');
+    if (preparedText.inspection) setTextInspection(preparedText.inspection);
+    if (preparedText.error) preparedText.retry();
   }
   function updateOriginalText(block: TextBlock, patch: Partial<TextChange>, group?: string) {
     if (!pageModel) return;
@@ -1403,6 +1392,7 @@ export function Editor() {
                           aspectRatio={p.rotation % 180 ? p.height / p.width : p.width / p.height}
                           rotation={p.rotation}
                           decorative
+                          lazy
                         />
                       ) : (
                         <div className="blank-thumbnail" />
@@ -1484,19 +1474,38 @@ export function Editor() {
               }}
             >
               <div className="canvas-instruction" id="canvas-instruction">
-                {mode === 'select'
-                  ? 'Drag the page to move around. Select an added item to move or edit it.'
-                  : mode === 'original-text'
-                    ? 'Click text and type directly on the page. Ctrl/⌘ + mouse wheel or pinch to zoom.'
-                    : mode === 'erase'
-                      ? 'Click an added item to remove it. Undo restores removed items.'
-                      : mode === 'whiteout'
-                        ? 'Drag over an area to cover it. Covered content remains in the PDF; this is not secure redaction.'
-                        : mode === 'draw'
-                          ? 'Draw directly on the page. Use a stylus, mouse, or your finger.'
-                          : mode === 'form-fill'
-                            ? 'Complete your fields in the Form panel, then export.'
-                            : 'Click on the page, or focus the canvas and press Enter, to add your selected tool.'}
+                {mode === 'select' ? (
+                  'Drag the page to move around. Select an added item to move or edit it.'
+                ) : mode === 'original-text' ? (
+                  pageModel.sourceIndex === null ? (
+                    'This is a blank page. Choose Add Text to write on it.'
+                  ) : preparedText.error ? (
+                    <span role="alert">
+                      {preparedText.error}{' '}
+                      <button className="text-link" onClick={preparedText.retry}>
+                        Retry preparing text
+                      </button>
+                    </span>
+                  ) : !preparedText.ready ? (
+                    <span role="status">Preparing editable text on this page…</span>
+                  ) : !textInspection?.blocks.some(
+                      (block) => block.page === pageModel.sourceIndex,
+                    ) ? (
+                    'No editable text was found on this page. You can still use Add Text.'
+                  ) : (
+                    'Click text and type directly on the page. Ctrl/⌘ + mouse wheel or pinch to zoom.'
+                  )
+                ) : mode === 'erase' ? (
+                  'Click an added item to remove it. Undo restores removed items.'
+                ) : mode === 'whiteout' ? (
+                  'Drag over an area to cover it. Covered content remains in the PDF; this is not secure redaction.'
+                ) : mode === 'draw' ? (
+                  'Draw directly on the page. Use a stylus, mouse, or your finger.'
+                ) : mode === 'form-fill' ? (
+                  'Complete your fields in the Form panel, then export.'
+                ) : (
+                  'Click on the page, or focus the canvas and press Enter, to add your selected tool.'
+                )}
               </div>
               <div
                 className="editor-page-wrap"
@@ -1529,18 +1538,19 @@ export function Editor() {
                       onPreviewError={setPreviewError}
                     />
                   )}
-                  {textInspection && pageModel.sourceIndex !== null && (
+                  {preparedText.inspection && pageModel.sourceIndex !== null && (
                     <InlinePdfText
                       key={pageModel.id}
                       document={doc}
                       bytes={bytes}
                       name={name}
+                      previewClient={interactivePreview}
                       page={pageModel}
                       width={canvasWidth}
-                      inspection={textInspection}
+                      inspection={preparedText.inspection}
                       selected={originalSelection?.id || ''}
                       changes={state.textChanges?.[pageModel.id] || {}}
-                      enabled={mode === 'original-text' || mode === 'select'}
+                      enabled={mode === 'original-text' || (!!textInspection && mode === 'select')}
                       disabled={!!busy}
                       update={updateOriginalText}
                       select={(block) => {

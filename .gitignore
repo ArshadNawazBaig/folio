@@ -16,6 +16,7 @@ out
 playwright-report
 test-results
 public/pdfjs
+public/pdfium
 dist
 dist-ssr
 *.local

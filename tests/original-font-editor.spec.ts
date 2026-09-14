@@ -1,11 +1,13 @@
 import { test, expect } from './fixtures/editor-storage';
 import { createEmbeddedFontPdf } from './fixtures/embedded-font-pdf';
 import { workspaceSchema } from '../src/lib/workspace-types';
+import { useBrowserTextPreviewOnly } from './fixtures/text-preview-worker';
 
 test('original embedded font is used while typing and survives save and refresh', async ({
   page,
   workspaceStorage,
 }) => {
+  await useBrowserTextPreviewOnly(page);
   await page.goto('/workspace');
   await page.locator('.editor-empty input[type=file]').setInputFiles({
     name: 'Embedded fonts.pdf',
@@ -30,6 +32,7 @@ test('original embedded font is used while typing and survives save and refresh'
   );
   await input.fill('Updated BoldItalic receipt');
   await input.press('Enter');
+  await page.locator('.editable-page').click({ position: { x: 20, y: 20 } });
   await expect(page.locator('.inline-text-status')).toHaveText('Page preview updated.');
   await page.getByRole('button', { name: 'Save to cloud', exact: true }).click();
   await expect(page.locator('.editor-notifications [role=status]')).toHaveText(

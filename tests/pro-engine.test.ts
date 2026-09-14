@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PDFDocument, StandardFonts, degrees, rgb } from 'pdf-lib';
 import { processTextPdf } from '../scripts/pdf-text-engine.mjs';
+import { processTextPdf as processPreview } from '../src/lib/pdf-text-engine.mjs';
 import { createSample } from '../src/lib/sample';
 import type { TextInspection, TextBlock } from '../src/lib/pro-types';
 import { createScaledTextPdf } from './fixtures/scaled-text-pdf';
@@ -27,6 +28,13 @@ async function text(bytes: Uint8Array, password?: string) {
     await task.destroy();
   }
 }
+test('preview-only platforms reject PDF export before loading a document', async () => {
+  for (const operation of ['edit', 'protect'])
+    await assert.rejects(
+      processPreview(new Uint8Array(), { operation }, { allowExport: false }),
+      /Use the download action/,
+    );
+});
 function change(block: TextBlock, replacement: string) {
   return {
     id: block.id,
@@ -37,6 +45,42 @@ function change(block: TextBlock, replacement: string) {
     color: block.color,
   };
 }
+test('page inspection retains source object IDs and marks empty pages without scanning unrelated pages', async () => {
+  const source = await createSample();
+  const full = (await processTextPdf(source, { operation: 'inspect' })) as TextInspection;
+  for (let page = 0; page < full.pageCount; page++) {
+    const partial = (await processTextPdf(source, {
+      operation: 'inspect',
+      page,
+    })) as TextInspection;
+    assert.equal(partial.pageCount, full.pageCount);
+    assert.deepEqual(partial.pages, [page]);
+    assert.deepEqual(
+      partial.blocks,
+      full.blocks.filter((block) => block.page === page),
+    );
+    const block = partial.blocks[0];
+    if (block) {
+      const output = (await processTextPdf(source, {
+        operation: 'edit',
+        changes: [change(block, 'Page edit')],
+      })) as Uint8Array;
+      assert.ok((await text(output))[page].includes('Page edit'));
+    }
+  }
+  await assert.rejects(
+    processTextPdf(source, { operation: 'inspect', page: full.pageCount }),
+    /could not be edited/,
+  );
+  const blank = await PDFDocument.create();
+  blank.addPage();
+  const empty = (await processTextPdf(await blank.save(), {
+    operation: 'inspect',
+    page: 0,
+  })) as TextInspection;
+  assert.deepEqual(empty.pages, [0]);
+  assert.deepEqual(empty.blocks, []);
+});
 test('editing embedded fonts retains their family, weight, italic style and rendering', async () => {
   const source = await createEmbeddedFontPdf();
   const before = (await processTextPdf(source, { operation: 'inspect' })) as TextInspection;

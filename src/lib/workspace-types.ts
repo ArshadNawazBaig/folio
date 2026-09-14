@@ -82,6 +82,7 @@ export const workspaceSchema = z
     inspection: z
       .object({
         pageCount: z.number().int().min(1).max(100),
+        pages: z.array(z.number().int().min(0).max(99)).max(100).optional(),
         skipped: number.nonnegative(),
         blocks: z
           .array(

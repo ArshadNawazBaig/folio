@@ -21,6 +21,21 @@ header separates settings lookup, upload parsing, and PDF processing durations.
 Autosave reuses the canonical form of immutable source inspection data, instead
 of sorting every extracted text block on each keystroke. Editable state and
 freshly recovered snapshots are still compared in full when confirming a save.
+The editor prepares text on the visible source page as the PDF opens. Inspected
+page IDs are saved with the workspace, including pages without editable text;
+older snapshots without that field remain full-document inspections. Visiting a
+new page prepares that page only. Off-screen thumbnails render when scrolled into
+view, and preparing text never disables the rest of the toolbar.
+
+Clicking a text block prepares its clean background in a dedicated browser worker
+using the same PDFium implementation as server previews. The engine starts loading
+when a supported PDF opens; its source bytes are transferred once, and selections
+send only their preview settings. The worker returns lossless PNG pixels and rejects
+PDF export operations. It is terminated when the document closes or changes, with
+no persistent browser file storage. Server previews take over if browser rendering
+is unavailable, fails, or has not completed after 350 ms. Authenticated downloads
+continue through the existing server export flow. `npm run assets` also prepares
+the publicly served PDFium WASM file required by the browser worker.
 
 From this linked workspace, deploy the current files with:
 

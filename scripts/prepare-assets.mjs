@@ -7,3 +7,5 @@ await copyFile(
 
 for (const folder of ['cmaps', 'standard_fonts', 'wasm'])
   await cp(`node_modules/pdfjs-dist/${folder}`, `public/pdfjs/${folder}`, { recursive: true });
+await mkdir('public/pdfium', { recursive: true });
+await copyFile('node_modules/@embedpdf/pdfium/dist/pdfium.wasm', 'public/pdfium/pdfium.wasm');

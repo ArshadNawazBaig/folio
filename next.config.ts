@@ -8,6 +8,7 @@ const config: NextConfig = {
     '/api/{pro,documents}/*': [
       './scripts/pro-pdf-worker.mjs',
       './scripts/pdf-text-engine.mjs',
+      './src/lib/pdf-text-engine.mjs',
       './src/lib/pdf-text-size.mjs',
       './src/lib/pdf-text-position.mjs',
       './src/lib/pdf-preview.mjs',

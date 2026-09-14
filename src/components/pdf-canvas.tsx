@@ -9,6 +9,7 @@ export function PdfCanvas({
   width = 560,
   rotation,
   decorative = false,
+  lazy = false,
   onPreviewError,
   aspectRatio,
 }: {
@@ -17,10 +18,12 @@ export function PdfCanvas({
   width?: number;
   rotation?: number;
   decorative?: boolean;
+  lazy?: boolean;
   onPreviewError?: (message: string) => void;
   aspectRatio?: number;
 }) {
   const container = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(!lazy);
   const [error, setError] = useState('');
   const [text, setText] = useState('Loading page text…');
   const [retry, setRetry] = useState(0);
@@ -33,12 +36,25 @@ export function PdfCanvas({
   const hasPreview =
     rendered?.document === document && rendered.page === page && rendered.rotation === rotation;
   useEffect(() => {
+    if (!lazy || visible || !container.current) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        setVisible(true);
+        observer.disconnect();
+      }
+    });
+    // The wrapper reserves the page's aspect ratio before a canvas exists.
+    observer.observe(container.current.parentElement!);
+    return () => observer.disconnect();
+  }, [lazy, visible]);
+  useEffect(() => {
     // A failed page change must not leave the previous page's image underneath
     // the current page's annotations. Zooming can keep the previous resolution.
     container.current?.replaceChildren();
     setRendered(null);
   }, [document, page, rotation]);
   useEffect(() => {
+    if (lazy && !visible) return;
     let cancelled = false;
     let task: RenderTask | undefined;
     (async () => {
@@ -76,9 +92,9 @@ export function PdfCanvas({
       task?.cancel();
       onPreviewError?.('');
     };
-  }, [document, page, width, rotation, retry, onPreviewError]);
+  }, [document, page, width, rotation, retry, onPreviewError, lazy, visible]);
   useEffect(() => {
-    if (decorative) return;
+    if (decorative || (lazy && !visible)) return;
     let cancelled = false;
     setText('Loading page text…');
     // Accessibility text is independent of the rendered image and does not
@@ -99,7 +115,7 @@ export function PdfCanvas({
     return () => {
       cancelled = true;
     };
-  }, [document, page, decorative, retry]);
+  }, [document, page, decorative, retry, lazy, visible]);
   return (
     <div
       className="pdf-canvas"

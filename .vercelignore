@@ -2,6 +2,7 @@
 .next
 .next-auth-tests
 node_modules
+public/pdfium
 .env*
 *.local
 *.log

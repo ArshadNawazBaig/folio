@@ -12,7 +12,10 @@ import type { PDFDocumentProxy } from 'pdfjs-dist';
 import type { PageModel } from '@/lib/types';
 import type { TextBlock, TextChange, TextInspection, TextPreview } from '@/lib/pro-types';
 import { defaultTextChange } from '@/lib/editor-text';
-import { requestTextPdf } from '@/lib/editor-text-client';
+import {
+  interactiveTextPreview,
+  type InteractiveTextPreview,
+} from '@/lib/interactive-text-preview';
 import {
   completeOriginalFont,
   matchingOriginalFont,
@@ -145,6 +148,7 @@ export function InlinePdfText({
   document,
   bytes,
   name,
+  previewClient = null,
   page,
   width,
   inspection,
@@ -161,6 +165,7 @@ export function InlinePdfText({
   document: PDFDocumentProxy;
   bytes: Uint8Array;
   name: string;
+  previewClient?: InteractiveTextPreview | null;
   page: PageModel;
   width: number;
   inspection: TextInspection;
@@ -371,7 +376,8 @@ export function InlinePdfText({
           rotation: number;
           pixelWidth: number;
         };
-        void requestTextPdf(
+        void interactiveTextPreview(
+          previewClient,
           bytes,
           name,
           {
@@ -381,10 +387,8 @@ export function InlinePdfText({
             rotation: desired.rotation,
             pixelWidth: desired.pixelWidth,
           },
-          false,
           controller.signal,
         )
-          .then((response) => response.json())
           .then(async (image: TextPreview) => {
             // Decode first so removing the live overlay and swapping the background are atomic.
             await Promise.all(
@@ -434,6 +438,7 @@ export function InlinePdfText({
     };
   }, [
     bytes,
+    previewClient,
     name,
     page.sourceIndex,
     needsImage,

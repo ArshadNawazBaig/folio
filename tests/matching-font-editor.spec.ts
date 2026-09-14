@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/editor-storage';
+import { useBrowserTextPreviewOnly } from './fixtures/text-preview-worker';
 import { createSubsetFontPdf } from './fixtures/subset-font-pdf';
 
 for (const [category, style] of [
@@ -9,6 +10,7 @@ for (const [category, style] of [
   test(`new characters keep the original ${category} ${style} glyphs and use matching fallbacks`, async ({
     page,
   }) => {
+    await useBrowserTextPreviewOnly(page);
     await page.goto('/workspace');
     await page.locator('.editor-empty input[type=file]').setInputFiles({
       name: 'Custom font.pdf',
@@ -41,6 +43,7 @@ for (const [category, style] of [
     ).toBe(true);
     await input.screenshot({ path: `/tmp/folio-matching-${category}-${style}.png` });
     await input.press('Enter');
+    await page.locator('.editable-page').click({ position: { x: 20, y: 20 } });
     await expect(page.locator('.inline-text-status')).toHaveText('Page preview updated.');
     await page.getByRole('button', { name: 'Save to cloud', exact: true }).click();
     await expect(page.locator('.editor-notifications [role=status]')).toHaveText(

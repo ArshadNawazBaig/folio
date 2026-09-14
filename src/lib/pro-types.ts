@@ -28,7 +28,13 @@ export type TextBlock = {
   bounds: [number, number, number, number];
   matrix?: number[];
 };
-export type TextInspection = { pageCount: number; blocks: TextBlock[]; skipped: number };
+export type TextInspection = {
+  pageCount: number;
+  blocks: TextBlock[];
+  skipped: number;
+  // Missing on older snapshots and full-document inspections.
+  pages?: number[];
+};
 export type TextPreview = {
   preview: string;
   width: number;
