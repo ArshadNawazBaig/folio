@@ -11,11 +11,11 @@ import {
 import { workspaceSchema, WORKSPACE_LIMIT } from '@/lib/workspace-types';
 import { CLOUD_BUCKET, pdfName } from '@/lib/cloud-types';
 type Context = { params: Promise<{ id: string }> };
-async function owner(request: Request, context: Context) {
+async function owner(request: Request, context: Context, allowDeleting = false) {
   const identity = await workspaceIdentity(request);
   const parsed = z.uuid().safeParse((await context.params).id);
   if (!parsed.success) throw new ApiError(404, 'This document is unavailable.');
-  return { identity, file: await ownedWorkspace(identity, parsed.data) };
+  return { identity, file: await ownedWorkspace(identity, parsed.data, allowDeleting) };
 }
 export async function GET(request: Request, context: Context) {
   try {
@@ -45,6 +45,23 @@ export async function PATCH(request: Request, context: Context) {
   try {
     const { identity, file } = await owner(request, context);
     const action = JSON.parse((await boundedBody(request, WORKSPACE_LIMIT + 4096)).toString());
+    if (action.action === 'rename') {
+      const parsed = z
+        .object({ action: z.literal('rename'), name: z.string().trim().min(1).max(160) })
+        .strict()
+        .safeParse(action);
+      if (!parsed.success) throw new ApiError(400, 'Choose a valid file name.');
+      const { error } = await adminDb().rpc('manage_editor_workspace', {
+        actor: identity.actor,
+        guest: identity.guest,
+        document_id: file.id,
+        operation: 'rename',
+        file_name: pdfName(parsed.data.name),
+        expected_revision: file.workspace_revision,
+      });
+      workspaceError(error);
+      return workspaceResponse(request, { renamed: true });
+    }
     if (action.action === 'finish') {
       await finishWorkspace(file);
       return workspaceResponse(request, { ready: true });
@@ -86,6 +103,34 @@ export async function PATCH(request: Request, context: Context) {
     });
     workspaceError(error);
     return workspaceResponse(request, data);
+  } catch (error) {
+    return apiError(error);
+  }
+}
+export async function DELETE(request: Request, context: Context) {
+  try {
+    const { identity, file } = await owner(request, context, true);
+    const db = adminDb();
+    // Lock and mark the authorized row first, so saving or claiming cannot race removal.
+    const marked = await db.rpc('manage_editor_workspace', {
+      actor: identity.actor,
+      guest: identity.guest,
+      document_id: file.id,
+      operation: 'delete',
+      file_name: null,
+      expected_revision: null,
+    });
+    workspaceError(marked.error);
+    const removed = await db.storage.from(CLOUD_BUCKET).remove([file.object_path]);
+    if (removed.error)
+      throw new ApiError(503, 'This file could not be fully removed. Please retry removing it.');
+    const deleted = await db
+      .from('cloud_documents')
+      .delete()
+      .eq('id', file.id)
+      .eq('status', 'deleting');
+    workspaceError(deleted.error);
+    return workspaceResponse(request, { removed: true });
   } catch (error) {
     return apiError(error);
   }

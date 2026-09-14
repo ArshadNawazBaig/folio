@@ -5,6 +5,7 @@ export default defineConfig({
   testMatch: '**/*.spec.ts',
   testIgnore: [
     '**/auth-connected.spec.ts',
+    '**/guest-dashboard.spec.ts',
     '**/blog-public.spec.ts',
     '**/design-consistency.spec.ts',
   ],

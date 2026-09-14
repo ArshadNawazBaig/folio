@@ -26,6 +26,12 @@ test('Google creates a PKCE session, uses the customer account, and signs out', 
   await expect(page.getByRole('heading', { name: 'Welcome back, Fixture.' })).toBeVisible();
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByRole('link', { name: 'Open super admin dashboard' })).toBeHidden();
+  await page.goto('/');
+  const header = page.locator('.header-actions');
+  await expect(header.getByRole('link', { name: 'Dashboard', exact: true })).toBeVisible();
+  await expect(header.locator('a')).toHaveCount(1);
+  await expect(header.getByRole('link', { name: 'Sign in', exact: true })).toHaveCount(0);
+  await header.getByRole('link', { name: 'Dashboard', exact: true }).click();
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeEnabled();
   await page.setViewportSize({ width: 320, height: 740 });

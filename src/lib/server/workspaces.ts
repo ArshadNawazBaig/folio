@@ -81,6 +81,7 @@ export function workspaceError(error: { message: string } | null) {
 export async function ownedWorkspace(
   identity: Awaited<ReturnType<typeof workspaceIdentity>>,
   id: string,
+  allowDeleting = false,
 ) {
   const { data, error } = await adminDb()
     .from('cloud_documents')
@@ -99,7 +100,8 @@ export async function ownedWorkspace(
     )
   )
     throw new ApiError(404, 'This document is unavailable or its guest session has expired.');
-  if (data.status === 'deleting') throw new ApiError(409, 'This document is being removed.');
+  if (data.status === 'deleting' && !allowDeleting)
+    throw new ApiError(409, 'This document is being removed.');
   return data;
 }
 export async function finishWorkspace(file: {

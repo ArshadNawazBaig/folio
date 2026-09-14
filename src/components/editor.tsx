@@ -1204,7 +1204,7 @@ export function Editor() {
           <p>
             {user
               ? 'You’re signed in. Your document is saved to your account automatically.'
-              : 'Your guest workspace expires after 24 hours. Sign in to keep it in My files and open it on any device. Sign-in opens in a new tab.'}
+              : 'Your guest workspace expires after 24 hours. Sign in to keep it beyond 24 hours and open it on any device. Sign-in opens in a new tab.'}
           </p>
         </div>
         <footer className="dialog-footer">

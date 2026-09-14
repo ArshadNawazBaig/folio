@@ -3,7 +3,54 @@ import { adminDb } from '@/lib/server/auth';
 import { apiError, boundedBody, ApiError } from '@/lib/server/http';
 import { publicLimit } from '@/lib/server/public-limit';
 import { workspaceIdentity, workspaceResponse, workspaceError } from '@/lib/server/workspaces';
-import { CLOUD_BUCKET, CLOUD_FILE_LIMIT, pdfName } from '@/lib/cloud-types';
+import {
+  CLOUD_BUCKET,
+  CLOUD_FILE_LIMIT,
+  CLOUD_FILE_COUNT,
+  FREE_STORAGE_LIMIT,
+  type CloudDocument,
+  pdfName,
+} from '@/lib/cloud-types';
+import { cloudFields } from '@/lib/server/cloud-storage';
+export async function GET(request: Request) {
+  let cookie: string | null = null;
+  try {
+    const identity = await workspaceIdentity(request, true);
+    cookie = identity.cookie;
+    // List only this browser's unclaimed files. Account files use the account API.
+    let files: CloudDocument[] = [];
+    if (identity.guest) {
+      const { data, error } = await adminDb()
+        .from('cloud_documents')
+        .select(`${cloudFields},expires_at`)
+        .is('user_id', null)
+        .eq('guest_hash', identity.guest)
+        .gt('expires_at', new Date().toISOString())
+        .order('updated_at', { ascending: false })
+        .limit(CLOUD_FILE_COUNT);
+      workspaceError(error);
+      files = (data || []).map((file) => ({ ...file, guest: true }));
+    }
+    const used = files.reduce((total, file) => total + file.size + (file.workspace_size || 0), 0);
+    return workspaceResponse(
+      request,
+      {
+        files,
+        storage: {
+          used,
+          limit: FREE_STORAGE_LIMIT,
+          available: Math.max(0, FREE_STORAGE_LIMIT - used),
+          full: used >= FREE_STORAGE_LIMIT || files.length >= CLOUD_FILE_COUNT,
+          recovery: [],
+        },
+      },
+      cookie,
+    );
+  } catch (error) {
+    const response = apiError(error);
+    return workspaceResponse(request, await response.json(), cookie, response.status);
+  }
+}
 export async function POST(request: Request) {
   let cookie: string | null = null;
   try {

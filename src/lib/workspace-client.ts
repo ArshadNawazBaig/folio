@@ -1,27 +1,8 @@
 'use client';
-import { authClient, AccountRequestError } from './auth-client';
+import { workspaceRequest } from './workspace-request';
 import { WORKSPACE_LIMIT, type WorkspaceRecord, type WorkspaceSnapshot } from './workspace-types';
-export async function workspaceRequest(path: string, init: RequestInit = {}) {
-  const headers = new Headers(init.headers);
-  headers.set('x-folio-workspace', '1');
-  const session = await authClient()?.auth.getSession();
-  if (session?.data.session)
-    headers.set('authorization', `Bearer ${session.data.session.access_token}`);
-  const response = await fetch(`/api/workspaces${path}`, {
-    ...init,
-    headers,
-    credentials: 'same-origin',
-    cache: 'no-store',
-  });
-  if (!response.ok) {
-    const value = await response.json().catch(() => ({}));
-    throw new AccountRequestError(
-      response.status,
-      value.error || 'Your document could not be saved. Please retry.',
-    );
-  }
-  return response;
-}
+import { CLOUD_FILE_LIMIT } from './cloud-types';
+export { workspaceRequest } from './workspace-request';
 export async function uploadWorkspace(id: string, bytes: Uint8Array, name: string) {
   const result = await (
     await workspaceRequest('', {
@@ -96,4 +77,19 @@ export async function claimWorkspace(id: string) {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ action: 'claim' }),
   });
+}
+export async function claimGuestWorkspaces(signal?: AbortSignal) {
+  return (await workspaceRequest('/claim', { method: 'POST', signal })).json() as Promise<{
+    claimed: number;
+    remaining: number;
+  }>;
+}
+export async function uploadGuestPdf(file: File) {
+  if (!file.size || file.size > CLOUD_FILE_LIMIT || !/\.pdf$/i.test(file.name))
+    throw new Error('Choose a PDF of up to 50 MB.');
+  if (!(await file.slice(0, 1024).text()).includes('%PDF-'))
+    throw new Error('This file is not a PDF.');
+  const id = crypto.randomUUID();
+  await uploadWorkspace(id, new Uint8Array(await file.arrayBuffer()), file.name);
+  return id;
 }

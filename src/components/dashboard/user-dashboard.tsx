@@ -21,6 +21,7 @@ import { Logo } from '../logo';
 import { SignInForm } from '../sign-in-form';
 import { SupportPanel } from '../support-panel';
 import { accountFetch, authClient } from '@/lib/auth-client';
+import { claimGuestWorkspaces, workspaceRequest } from '@/lib/workspace-client';
 import { displayName, type DashboardView } from '@/lib/dashboard';
 import {
   FREE_STORAGE_LIMIT,
@@ -30,9 +31,9 @@ import {
   type CloudDocument,
 } from '@/lib/cloud-types';
 import { formatBytes } from '@/lib/utils';
-import { CloudFiles } from './cloud-files';
+import { CloudFiles, CloudFileSkeleton } from './cloud-files';
 import { DashboardBilling, DashboardSettings } from './account-settings';
-import { Skeleton, SignInSkeleton, LoadingLabel } from '../skeleton';
+import { Skeleton, LoadingLabel } from '../skeleton';
 import s from './dashboard.module.css';
 const navigation = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -44,38 +45,70 @@ const navigation = [
 type Props = { view: DashboardView; adminRequired: boolean; checkoutSuccess: boolean };
 export function UserDashboard(props: Props) {
   const { user, loading } = useAccount();
-  if (!user)
-    return (
-      <main id="main" className={s.signedOut}>
-        <Logo />
-        <div className="account-card">
-          <span className="account-symbol">
-            <FolderOpen size={25} />
-          </span>
-          <h1>Your personal workspace.</h1>
-          {loading ? (
-            <SignInSkeleton />
-          ) : (
-            <>
-              <p>Sign in to find your files, manage billing, and make yourself at home.</p>
-              <SignInForm
-                destination={
-                  props.view === 'overview' ? '/dashboard' : `/dashboard?view=${props.view}`
-                }
-              />
-            </>
-          )}
-          <Link className="text-link" href="/">
-            Back to Folio <ArrowRight size={16} />
-          </Link>
-        </div>
-      </main>
-    );
+  if (loading && !user) return <DashboardLoading view={props.view} />;
   // Reset every private view and in-flight result when the account changes.
-  return <DashboardContent key={user.id} {...props} />;
+  return <DashboardContent key={user?.id || 'guest'} {...props} />;
+}
+function DashboardLoading({ view }: { view: DashboardView }) {
+  return (
+    <div className={s.dashboard} aria-busy="true">
+      <aside className={s.sidebar}>
+        <Logo />
+        <p className={s.navLabel}>YOUR WORKSPACE</p>
+        <div className={s.navigation} aria-hidden="true">
+          {navigation.map(({ id, icon: Icon }) => (
+            <div className={s.navSkeleton} key={id}>
+              <Icon size={18} />
+              <Skeleton width={100} height={12} />
+            </div>
+          ))}
+        </div>
+        <div className={s.sidebarBottom}>
+          <div className={s.storage}>
+            <Cloud size={19} />
+            <Skeleton width={135} height={12} />
+            <Skeleton width={110} height={10} />
+            <Skeleton height={5} />
+          </div>
+        </div>
+      </aside>
+      <div className={s.mainColumn}>
+        <div className={s.topbar}>
+          <Skeleton width={170} height={12} />
+          <Skeleton width={90} height={12} />
+        </div>
+        <main id="main" className={s.content}>
+          <LoadingLabel>Loading your workspace…</LoadingLabel>
+          <div className={s.heading}>
+            <div>
+              <Skeleton width={110} height={10} />
+              <h1>
+                <Skeleton width="min(430px, 70vw)" height="1em" />
+              </h1>
+              <Skeleton width="min(290px, 65vw)" height={14} />
+            </div>
+          </div>
+          <section className={s.fileSection}>
+            <div className={s.sectionHeading}>
+              <div>
+                <h2>
+                  <Skeleton width={120} height="1em" />
+                </h2>
+                <Skeleton width={160} height={12} />
+              </div>
+              <Skeleton width={116} height={42} radius={9} />
+            </div>
+            <CloudFileSkeleton compact={view === 'overview'} />
+          </section>
+        </main>
+      </div>
+    </div>
+  );
 }
 function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
-  const { user, access, loading: accountLoading, error: accountError } = useAccount();
+  const { user, access, loading: accountLoading, error: accountError, signOutGuest } = useAccount();
+  const guest = !user;
+  const sessionReady = !!user || !accountLoading;
   const navigationRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const nav = navigationRef.current;
@@ -93,24 +126,48 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
   const [loading, setLoading] = useState(true);
   const [fileError, setFileError] = useState('');
   const [sessionError, setSessionError] = useState('');
+  const [transferNotice, setTransferNotice] = useState('');
   const [signingOut, setSigningOut] = useState(false);
-  const loadFiles = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true);
-    setFileError('');
-    try {
-      const data = await (await accountFetch('/api/account/files', { signal })).json();
-      if (!signal?.aborted) {
-        setFiles(data.files);
-        setStorage(data.storage || null);
+  const loadFiles = useCallback(
+    async (signal?: AbortSignal) => {
+      setLoading(true);
+      setFileError('');
+      try {
+        let transfer = '';
+        if (!guest) {
+          try {
+            const result = await claimGuestWorkspaces(signal);
+            if (result.remaining)
+              transfer =
+                'Some guest files could not fit in your account. They remain available below until their listed expiry. Delete older account files, then refresh to move them into your account.';
+          } catch {
+            transfer =
+              'Guest files could not be moved to your account yet. Refresh to retry; browser files remain available until their listed expiry.';
+          }
+        }
+        const data = await (
+          await (guest
+            ? workspaceRequest('', { signal })
+            : accountFetch('/api/account/files', { signal }))
+        ).json();
+        const remaining =
+          !guest && transfer ? await (await workspaceRequest('', { signal })).json() : null;
+        if (!signal?.aborted) {
+          setFiles([...data.files, ...(remaining?.files || [])]);
+          setStorage(data.storage || null);
+          setTransferNotice(transfer);
+        }
+      } catch (error) {
+        if (!signal?.aborted)
+          setFileError(error instanceof Error ? error.message : 'Your files could not be loaded.');
+      } finally {
+        if (!signal?.aborted) setLoading(false);
       }
-    } catch (error) {
-      if (!signal?.aborted)
-        setFileError(error instanceof Error ? error.message : 'Your files could not be loaded.');
-    } finally {
-      if (!signal?.aborted) setLoading(false);
-    }
-  }, []);
+    },
+    [guest],
+  );
   useEffect(() => {
+    if (!sessionReady) return;
     const controller = new AbortController();
     void loadFiles(controller.signal);
     const onFocus = () => void loadFiles(controller.signal);
@@ -119,11 +176,15 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
       controller.abort();
       window.removeEventListener('focus', onFocus);
     };
-  }, [loadFiles]);
+  }, [loadFiles, sessionReady]);
   async function signOut() {
     setSigningOut(true);
     setSessionError('');
     try {
+      if (guest) {
+        await signOutGuest();
+        return;
+      }
       const result = await authClient()!.auth.signOut({ scope: 'local' });
       if (result.error) throw result.error;
       router.replace('/account');
@@ -132,12 +193,14 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
       setSigningOut(false);
     }
   }
-  const name = displayName(user?.user_metadata);
+  const name = guest ? 'Guest account' : displayName(user?.user_metadata);
   const ready = files.filter((f) => f.status === 'ready');
   const bytes = storage?.used ?? files.reduce((n, f) => n + f.size + (f.workspace_size || 0), 0);
   const capacity = storage?.limit ?? (access.pro ? PRO_STORAGE_LIMIT : FREE_STORAGE_LIMIT);
   const titles = {
-    overview: `Welcome back${name === 'Your account' ? '' : `, ${name.split(' ')[0]}`}.`,
+    overview: guest
+      ? 'Your guest workspace.'
+      : `Welcome back${name === 'Your account' ? '' : `, ${name.split(' ')[0]}`}.`,
     files: 'A home for your documents.',
     billing: 'Your plan, your choice.',
     settings: 'Make yourself at home.',
@@ -208,7 +271,17 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
               <small>{access.pro ? 'Folio Pro' : 'Folio Free'}</small>
             </div>
           </div>
-          <button className={s.signOut} disabled={signingOut} onClick={() => void signOut()}>
+          {guest && (
+            <Link className={`${s.signOut} ${s.guestSignIn}`} href="/account?next=%2Fdashboard">
+              <ArrowUpRight size={16} /> Sign in to keep your files
+            </Link>
+          )}
+          <button
+            className={s.signOut}
+            disabled={signingOut}
+            aria-describedby={guest ? 'guest-session-details' : undefined}
+            onClick={() => void signOut()}
+          >
             <LogOut size={16} />
             {signingOut ? 'Signing out…' : 'Sign out'}
           </button>
@@ -239,7 +312,27 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
               </Link>
             )}
           </div>
-          {adminRequired && !access.admin && (
+          {guest && (
+            <div className={s.guestNotice}>
+              <div>
+                <strong>100 MB, ready to use.</strong>
+                <p id="guest-session-details">
+                  Your files are private to this browser and expire 24 hours after upload. Sign in
+                  before they expire to keep them in your account. Signing out or clearing your
+                  browser cookies removes access to guest files.
+                </p>
+              </div>
+              <Link className="button secondary" href="/account?next=%2Fdashboard">
+                Sign in <ArrowUpRight size={16} />
+              </Link>
+            </div>
+          )}
+          {transferNotice && (
+            <p className="service-note" role="status">
+              {transferNotice}
+            </p>
+          )}
+          {adminRequired && user && !access.admin && (
             <p role="status" className={s.notice}>
               You’re signed in, but this account does not have super admin access. Your PDF tools
               are still available.
@@ -305,8 +398,10 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                   </span>
                   <div>
                     <span>Account</span>
-                    <strong>All yours.</strong>
-                    <small>Profile & sign-in settings</small>
+                    <strong>{guest ? 'This browser.' : 'All yours.'}</strong>
+                    <small>
+                      {guest ? 'Guest access · 24 hours' : 'Profile & sign-in settings'}
+                    </small>
                   </div>
                   <ArrowUpRight size={16} />
                 </Link>
@@ -348,10 +443,17 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
               error={fileError}
               refresh={loadFiles}
               compact={view === 'overview'}
+              guest={guest}
             />
           )}
-          {view === 'billing' && <DashboardBilling checkoutSuccess={checkoutSuccess} />}
-          {view === 'settings' && <DashboardSettings />}
+          {view === 'billing' &&
+            (guest ? (
+              <GuestAccount view="billing" />
+            ) : (
+              <DashboardBilling checkoutSuccess={checkoutSuccess} />
+            ))}
+          {view === 'settings' &&
+            (guest ? <GuestAccount view="settings" /> : <DashboardSettings />)}
           {view === 'support' && (
             <div className={s.support}>
               <SupportPanel />
@@ -366,5 +468,24 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
         </main>
       </div>
     </div>
+  );
+}
+function GuestAccount({ view }: { view: 'billing' | 'settings' }) {
+  return (
+    <section className={`${s.card} ${s.guestAccount}`}>
+      <span className="account-symbol">
+        {view === 'billing' ? <CreditCard size={25} /> : <ShieldCheck size={25} />}
+      </span>
+      <h2>{view === 'billing' ? 'Your free guest account.' : 'Make this workspace yours.'}</h2>
+      <p>
+        {view === 'billing'
+          ? 'You have 100 MB of private storage and access to free PDF tools. Sign in to choose a paid plan or manage an existing subscription.'
+          : 'Guest files belong to this browser session. Sign in to keep them beyond 24 hours, access them on other devices, and manage your profile.'}
+      </p>
+      <SignInForm
+        allowGuest={false}
+        destination={view === 'billing' ? '/dashboard?view=billing' : '/dashboard?view=settings'}
+      />
+    </section>
   );
 }

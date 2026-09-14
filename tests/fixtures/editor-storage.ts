@@ -1,5 +1,6 @@
 import { test as base, expect, type BrowserContext } from '@playwright/test';
 import type { WorkspaceSnapshot } from '../../src/lib/workspace-types';
+import { FREE_STORAGE_LIMIT } from '../../src/lib/cloud-types';
 type FileRecord = {
   id: string;
   name: string;
@@ -9,6 +10,8 @@ type FileRecord = {
   expiresAt: string | null;
   updatedAt: string;
   writeId?: string;
+  size?: number;
+  deleting?: boolean;
 };
 export async function mockWorkspaceStorage(context: BrowserContext) {
   const records = new Map<string, FileRecord>();
@@ -18,6 +21,8 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
     saves: 0,
     failUploads: false,
     failSaves: false,
+    failDeletes: false,
+    accountFull: false,
     dropEdits: false,
     holdSave: null as Promise<void> | null,
   };
@@ -49,12 +54,71 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
     const request = route.request();
     expect(request.headers()['x-folio-workspace']).toBe('1');
     const id = new URL(request.url()).pathname.split('/')[3];
+    if (id === 'session') {
+      // Exercise the real guest cookie endpoint; account tokens belong to the auth fixture.
+      if (request.headers().authorization) await route.fulfill({ json: { guest: false } });
+      else await route.continue();
+      return;
+    }
+    const sessionHeaders: Record<string, string> =
+      !request.headers().authorization &&
+      !request.headers().cookie?.includes('folio-workspace-session=')
+        ? {
+            'set-cookie': `folio-workspace-session=${'a'.repeat(64)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400`,
+          }
+        : {};
+    const guests = () =>
+      [...records.values()].filter(
+        (file) => file.expiresAt && Date.parse(file.expiresAt) > Date.now(),
+      );
+    if (id === 'claim' && request.method() === 'POST') {
+      expect(request.headers().authorization).toContain('Bearer ');
+      let claimed = 0;
+      for (const file of guests()) {
+        if (!service.accountFull && !file.deleting) {
+          file.expiresAt = null;
+          claimed++;
+        }
+      }
+      await route.fulfill({ json: { claimed, remaining: guests().length } });
+      return;
+    }
+    if (!id && request.method() === 'GET') {
+      const files = guests().map((file) => ({
+        id: file.id,
+        name: file.name,
+        size: file.size || file.bytes?.length || 0,
+        workspace_size: file.snapshot ? Buffer.byteLength(JSON.stringify(file.snapshot)) : 0,
+        workspace_revision: file.revision,
+        status: file.deleting ? 'deleting' : file.bytes ? 'ready' : 'pending',
+        created_at: file.updatedAt,
+        updated_at: file.updatedAt,
+        expires_at: file.expiresAt,
+        guest: true,
+      }));
+      const used = files.reduce((total, file) => total + file.size + file.workspace_size, 0);
+      await route.fulfill({
+        headers: sessionHeaders,
+        json: {
+          files,
+          storage: {
+            used,
+            limit: FREE_STORAGE_LIMIT,
+            available: Math.max(0, FREE_STORAGE_LIMIT - used),
+            full: used >= FREE_STORAGE_LIMIT,
+            recovery: [],
+          },
+        },
+      });
+      return;
+    }
     if (request.method() === 'POST') {
       const body = request.postDataJSON();
       if (!records.has(body.id))
         records.set(body.id, {
           id: body.id,
           name: body.name,
+          size: body.size,
           revision: 0,
           snapshot: null,
           bytes: null,
@@ -64,6 +128,7 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
           updatedAt: new Date().toISOString(),
         });
       await route.fulfill({
+        headers: sessionHeaders,
         json: {
           id: body.id,
           ready: !!records.get(body.id)?.bytes,
@@ -95,7 +160,26 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
       });
       return;
     }
+    if (request.method() === 'DELETE') {
+      file.deleting = true;
+      if (service.failDeletes) {
+        await route.fulfill({
+          status: 503,
+          json: { error: 'This file could not be fully removed. Please retry removing it.' },
+        });
+      } else {
+        records.delete(id);
+        await route.fulfill({ json: { removed: true } });
+      }
+      return;
+    }
     const body = request.postDataJSON();
+    if (body.action === 'rename') {
+      file.name = body.name.replace(/\.pdf$/i, '') + '.pdf';
+      file.revision++;
+      await route.fulfill({ json: { renamed: true } });
+      return;
+    }
     if (body.action === 'claim') {
       file.expiresAt = null;
       await route.fulfill({ json: { claimed: true } });

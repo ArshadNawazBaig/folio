@@ -19,7 +19,9 @@ const nav = [
   ['Blog', '/blog'],
 ];
 export function Header() {
-  const { user, loading } = useAccount();
+  const { user, guest, loading, guestLoading } = useAccount();
+  const hasAccount = !!user || guest;
+  const checkingAccount = !user && (loading || guestLoading);
   const path = usePathname();
   const [tools, setTools] = useState(defaultTools);
   useEffect(() => {
@@ -80,7 +82,7 @@ export function Header() {
               <span>Search tools</span>
               <kbd aria-hidden="true">⌘ K</kbd>
             </button>
-            {loading && !user ? (
+            {checkingAccount ? (
               <span className="header-account" aria-busy="true">
                 <LoadingLabel>Checking your account…</LoadingLabel>
                 <Skeleton width={49} height={12} />
@@ -88,11 +90,11 @@ export function Header() {
               </span>
             ) : (
               <Link
-                href={user ? '/dashboard' : '/account'}
+                href={hasAccount ? '/dashboard' : '/account'}
                 className="header-account"
                 onClick={() => setMenu(false)}
               >
-                {user ? 'Dashboard' : 'Sign in'}
+                {hasAccount ? 'Dashboard' : 'Sign in'}
                 <ArrowUpRight size={15} aria-hidden="true" />
               </Link>
             )}
@@ -114,10 +116,11 @@ export function Header() {
                 <ChevronRight size={17} />
               </Link>
             ))}
-            <Link href={user ? '/dashboard' : '/account'} onClick={() => setMenu(false)}>
-              {user ? 'Dashboard' : 'Sign in'}
-              <ChevronRight size={17} />
-            </Link>
+            {!checkingAccount && (
+              <Link href={hasAccount ? '/dashboard' : '/account'} onClick={() => setMenu(false)}>
+                {hasAccount ? 'Dashboard' : 'Sign in'} <ChevronRight size={17} />
+              </Link>
+            )}
           </nav>
         )}
       </header>

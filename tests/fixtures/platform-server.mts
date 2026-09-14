@@ -17,6 +17,8 @@ import * as checkoutApi from '../../src/app/api/billing/checkout/route';
 import * as portalApi from '../../src/app/api/billing/portal/route';
 import * as workspacesApi from '../../src/app/api/workspaces/route';
 import * as workspaceApi from '../../src/app/api/workspaces/[id]/route';
+import * as guestClaimApi from '../../src/app/api/workspaces/claim/route';
+import * as guestSessionApi from '../../src/app/api/workspaces/session/route';
 import * as filesApi from '../../src/app/api/account/files/route';
 import * as fileApi from '../../src/app/api/account/files/[id]/route';
 import * as accountBillingApi from '../../src/app/api/account/billing/route';
@@ -47,6 +49,7 @@ for (const name of [
   '007_admin_user_deletion.sql',
   '008_plan_storage_limits.sql',
   '010_lemon_squeezy.sql',
+  '011_guest_dashboard.sql',
 ])
   await db.exec(
     await readFile(new URL(`../../supabase/migrations/${name}`, import.meta.url), 'utf8'),
@@ -310,6 +313,70 @@ try {
       },
       ...(body ? { body: JSON.stringify(body) } : {}),
     });
+  const visitorSession = await guestSessionApi.GET(workspaceRequest());
+  assert.deepEqual(await visitorSession.json(), { guest: false });
+  assert.equal(
+    visitorSession.headers.get('set-cookie'),
+    null,
+    'Public browsing does not create a guest',
+  );
+  const startGuest = await guestSessionApi.POST(workspaceRequest(undefined, undefined, '', 'POST'));
+  assert.equal(startGuest.status, 200);
+  assert.deepEqual(await startGuest.json(), { guest: true });
+  const sessionCookie = startGuest.headers.get('set-cookie')!;
+  assert.match(sessionCookie, /HttpOnly/i);
+  assert.match(sessionCookie, /SameSite=lax/i);
+  assert.match(sessionCookie, /Max-Age=86400/i);
+  assert.match(sessionCookie, /folio-workspace-session=[a-f0-9]{64}/);
+  const signedGuest = sessionCookie.split(';')[0];
+  const resumeGuest = await guestSessionApi.GET(
+    workspaceRequest(undefined, undefined, signedGuest),
+  );
+  assert.deepEqual(await resumeGuest.json(), { guest: true });
+  assert.equal(resumeGuest.headers.get('cache-control'), 'private, no-store');
+  assert.equal(resumeGuest.headers.get('set-cookie'), null, 'Header reads do not extend expiry');
+  const repeatGuest = await guestSessionApi.POST(
+    workspaceRequest(undefined, undefined, signedGuest, 'POST'),
+  );
+  assert.equal(
+    repeatGuest.headers.get('set-cookie')!.split(';')[0],
+    signedGuest,
+    'Guest sign-in preserves existing file ownership',
+  );
+  const loggedInSession = await guestSessionApi.POST(
+    workspaceRequest(undefined, customer, '', 'POST'),
+  );
+  assert.deepEqual(await loggedInSession.json(), { guest: false });
+  assert.equal(loggedInSession.headers.get('set-cookie'), null);
+  const noGuestMarker = workspaceRequest(undefined, undefined, '', 'POST');
+  noGuestMarker.headers.delete('x-folio-workspace');
+  assert.equal((await guestSessionApi.POST(noGuestMarker)).status, 403);
+  const hostileSession = workspaceRequest(undefined, undefined, '', 'POST');
+  hostileSession.headers.set('sec-fetch-site', 'cross-site');
+  assert.equal((await guestSessionApi.POST(hostileSession)).status, 403);
+  const invalidSession = await guestSessionApi.GET(
+    workspaceRequest(undefined, undefined, 'folio-workspace-session=invalid'),
+  );
+  assert.deepEqual(await invalidSession.json(), { guest: false });
+  assert.equal(invalidSession.headers.get('set-cookie'), null);
+  const endGuest = await guestSessionApi.DELETE(
+    workspaceRequest(undefined, undefined, signedGuest, 'DELETE'),
+  );
+  assert.deepEqual(await endGuest.json(), { signedOut: true });
+  assert.equal(endGuest.headers.get('cache-control'), 'private, no-store');
+  assert.match(endGuest.headers.get('set-cookie')!, /folio-workspace-session=;/);
+  assert.match(endGuest.headers.get('set-cookie')!, /Max-Age=0/i);
+  assert.match(endGuest.headers.get('set-cookie')!, /Path=\//i);
+  assert.match(endGuest.headers.get('set-cookie')!, /HttpOnly/i);
+  assert.deepEqual(await (await guestSessionApi.GET(workspaceRequest())).json(), { guest: false });
+  assert.equal(
+    (await guestSessionApi.DELETE(workspaceRequest(undefined, undefined, '', 'DELETE'))).status,
+    200,
+  );
+  const rejectedSignOut = await guestSessionApi.DELETE(hostileSession);
+  assert.equal(rejectedSignOut.status, 403);
+  assert.equal(rejectedSignOut.headers.get('set-cookie'), null);
+  assert.equal((await guestSessionApi.DELETE(noGuestMarker)).status, 403);
   const creation = await workspacesApi.POST(
     workspaceRequest({ id: workspaceId, name: 'Guest.pdf', size: 123 }, undefined, '', 'POST'),
   );
@@ -470,6 +537,123 @@ try {
   );
   await db.query('delete from cloud_documents where id=$1', [workspaceId]);
   assert.equal((await filesApi.GET(request('/api/account/files'))).status, 401);
+  // A guest library exposes only safe metadata for the current HttpOnly cookie.
+  const fresh = await workspacesApi.GET(workspaceRequest(undefined, undefined, ''));
+  assert.equal(fresh.status, 200);
+  assert.match(fresh.headers.get('cache-control')!, /private, no-store/);
+  const strangerCookie = fresh.headers.get('set-cookie')!.split(';')[0];
+  assert.deepEqual((await fresh.json()).files, []);
+  const guestCreation = await workspacesApi.POST(
+    workspaceRequest(
+      { id: workspaceId, name: 'Library.pdf', size: 123 },
+      undefined,
+      cookie,
+      'POST',
+    ),
+  );
+  assert.equal(guestCreation.status, 201);
+  cloudObjects.set(path, { size: 123, content_type: 'application/pdf' });
+  assert.equal(
+    (await workspaceApi.PATCH(workspaceRequest({ action: 'finish' }), workspaceContext)).status,
+    200,
+  );
+  const listed = await (await workspacesApi.GET(workspaceRequest())).json();
+  assert.equal(listed.files.length, 1);
+  assert.equal(listed.files[0].name, 'Library.pdf');
+  assert.equal(listed.files[0].guest, true);
+  assert.equal(listed.storage.limit, 100 * 1024 * 1024);
+  assert.equal(listed.storage.used, 123);
+  assert.equal(listed.files[0].guest_hash, undefined);
+  assert.equal(listed.files[0].object_path, undefined);
+  assert.equal(listed.files[0].workspace, undefined);
+  assert.deepEqual(
+    (await (await workspacesApi.GET(workspaceRequest(undefined, undefined, strangerCookie))).json())
+      .files,
+    [],
+  );
+  assert.equal(
+    (
+      await workspaceApi.DELETE(
+        workspaceRequest(undefined, undefined, strangerCookie, 'DELETE'),
+        workspaceContext,
+      )
+    ).status,
+    404,
+  );
+  assert.equal(
+    (
+      await workspaceApi.PATCH(
+        workspaceRequest({ action: 'rename', name: 'Stolen.pdf' }, undefined, strangerCookie),
+        workspaceContext,
+      )
+    ).status,
+    404,
+  );
+  assert.equal(
+    (
+      await workspaceApi.PATCH(
+        workspaceRequest({ action: 'rename', name: '../Library renamed' }),
+        workspaceContext,
+      )
+    ).status,
+    200,
+  );
+  const renamed = await (await workspacesApi.GET(workspaceRequest())).json();
+  assert.equal(renamed.files[0].name, '..-Library renamed.pdf');
+  assert.equal(renamed.files[0].workspace_revision, 1);
+  const hostileLibrary = workspaceRequest();
+  hostileLibrary.headers.set('sec-fetch-site', 'cross-site');
+  assert.equal((await workspacesApi.GET(hostileLibrary)).status, 403);
+  failCloudDelete = true;
+  assert.equal(
+    (
+      await workspaceApi.DELETE(
+        workspaceRequest(undefined, undefined, cookie, 'DELETE'),
+        workspaceContext,
+      )
+    ).status,
+    503,
+  );
+  const failedRemoval = await (await workspacesApi.GET(workspaceRequest())).json();
+  assert.equal(failedRemoval.files[0].status, 'deleting');
+  assert.equal(failedRemoval.storage.used, 123, 'Failed removal must not free quota');
+  failCloudDelete = false;
+  assert.equal(
+    (
+      await workspaceApi.DELETE(
+        workspaceRequest(undefined, undefined, cookie, 'DELETE'),
+        workspaceContext,
+      )
+    ).status,
+    200,
+  );
+  assert.equal((await (await workspacesApi.GET(workspaceRequest())).json()).storage.used, 0);
+  assert.equal(
+    (await guestClaimApi.POST(workspaceRequest(undefined, undefined, cookie, 'POST'))).status,
+    401,
+  );
+  const guestIds = [workspaceId, '00000000-0000-4000-8000-000000000091'];
+  for (const id of guestIds) {
+    const createdGuest = await workspacesApi.POST(
+      workspaceRequest({ id, name: 'Keep.pdf', size: 123 }, undefined, cookie, 'POST'),
+    );
+    assert.equal(createdGuest.status, 201);
+  }
+  const allClaimed = await guestClaimApi.POST(
+    workspaceRequest(undefined, customer, cookie, 'POST'),
+  );
+  assert.equal(allClaimed.status, 200, await allClaimed.clone().text());
+  assert.deepEqual(await allClaimed.json(), { claimed: 2, remaining: 0 });
+  assert.equal((await (await workspacesApi.GET(workspaceRequest())).json()).files.length, 0);
+  assert.equal(
+    (await (await filesApi.GET(request('/api/account/files', customer))).json()).files.length,
+    2,
+  );
+  assert.deepEqual(
+    await (await guestClaimApi.POST(workspaceRequest(undefined, customer, cookie, 'POST'))).json(),
+    { claimed: 0, remaining: 0 },
+  );
+  for (const id of guestIds) await db.query('delete from cloud_documents where id=$1', [id]);
   assert.equal((await accountBillingApi.GET(request('/api/account/billing'))).status, 401);
   const reserve = await filesApi.POST(
     request('/api/account/files', customer, { name: 'Private.pdf', size: 80 }),

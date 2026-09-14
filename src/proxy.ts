@@ -5,7 +5,7 @@ export async function proxy(request: NextRequest) {
   // Admin recovery, support, sign-in, cancellation, and signed payment events stay reachable.
   if (
     /^\/(admin|account|dashboard|auth|maintenance|support)(\/|$)/.test(pathname) ||
-    /^\/api\/(admin|support|account)(\/|$)/.test(pathname) ||
+    /^\/api\/(admin|support|account|workspaces)(\/|$)/.test(pathname) ||
     ['/api/billing/webhook', '/api/billing/portal'].includes(pathname)
   )
     return NextResponse.next();

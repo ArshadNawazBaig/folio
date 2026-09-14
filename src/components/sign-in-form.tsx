@@ -1,17 +1,37 @@
 'use client';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { ArrowRight, Loader2, Mail } from 'lucide-react';
+import { ArrowRight, Loader2, Mail, UserRound } from 'lucide-react';
 import { authClient, googleSignInUrl } from '@/lib/auth-client';
 import { authCallbackUrl, safeAuthDestination } from '@/lib/auth-navigation';
 import { useAccount } from './account-provider';
-export function SignInForm({ destination = '/account' }: { destination?: string }) {
-  const { configured } = useAccount();
+export function SignInForm({
+  destination = '/account',
+  allowGuest = true,
+}: {
+  destination?: string;
+  allowGuest?: boolean;
+}) {
+  const { configured, continueAsGuest } = useAccount();
+  const router = useRouter();
   const [email, setEmail] = useState(''),
     [sent, setSent] = useState(false),
-    [busy, setBusy] = useState<'google' | 'email' | null>(null),
+    [busy, setBusy] = useState<'google' | 'email' | 'guest' | null>(null),
     [error, setError] = useState('');
   const target = safeAuthDestination(destination);
+  async function guestSignIn() {
+    if (busy) return;
+    setBusy('guest');
+    setError('');
+    try {
+      await continueAsGuest();
+      router.push(target.startsWith('/dashboard') ? target : '/dashboard');
+    } catch {
+      setError('Your guest session could not start. Please try again.');
+      setBusy(null);
+    }
+  }
   async function google() {
     const client = authClient();
     if (!client || busy) return;
@@ -90,6 +110,21 @@ export function SignInForm({ destination = '/account' }: { destination?: string 
       )}
       {!configured && (
         <p className="service-note">Sign-in will be available once accounts are connected.</p>
+      )}
+      {allowGuest && !target.startsWith('/admin') && (
+        <div className="guest-sign-in-option">
+          <button
+            type="button"
+            className="button secondary full"
+            disabled={!!busy}
+            onClick={() => void guestSignIn()}
+          >
+            {busy === 'guest' ? <Loader2 size={17} className="spin" /> : <UserRound size={17} />}
+            {busy === 'guest' ? 'Opening your dashboard…' : 'Continue as guest'}
+            <ArrowRight size={16} />
+          </button>
+          <p>100 MB of private storage in this browser. Guest files expire after 24 hours.</p>
+        </div>
       )}
       {error && (
         <p className="error-message" role="alert">

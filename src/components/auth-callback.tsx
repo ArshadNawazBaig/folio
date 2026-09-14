@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { accountFetch, authClient } from '@/lib/auth-client';
 import { afterSignIn, safeAuthDestination, signInHref } from '@/lib/auth-navigation';
+import { claimGuestWorkspaces } from '@/lib/workspace-client';
 export function AuthCallback() {
   const started = useRef(false),
     [error, setError] = useState(''),
@@ -47,6 +48,9 @@ export function AuthCallback() {
         );
         return;
       }
+      // Carry over every browser file, not only the PDF currently open in the editor.
+      // A full account must not block sign-in; remaining guest files stay manageable in My files.
+      await claimGuestWorkspaces(AbortSignal.timeout(10000)).catch(() => {});
       if (editorReturn) {
         // Supabase persists and broadcasts the verified session to the editor tab.
         // Never navigate that tab or reload its in-memory document state.

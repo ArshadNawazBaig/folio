@@ -24,6 +24,8 @@ export type CloudDocument = {
   workspace_size?: number;
   created_at: string;
   updated_at: string;
+  guest?: boolean;
+  expires_at?: string | null;
 };
 export function pdfName(value: string) {
   // oxlint-disable-next-line no-control-regex -- Strip control characters from file names.

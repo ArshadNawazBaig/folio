@@ -20,6 +20,7 @@ import { Dropdown } from '../dropdown';
 import { accountFetch, authClient } from '@/lib/auth-client';
 import { useAccount } from '../account-provider';
 import { finishCloudUpload, readCloudPdf, uploadCloudPdf } from '@/lib/cloud-client';
+import { readWorkspace, uploadGuestPdf, workspaceRequest } from '@/lib/workspace-client';
 import { storageLabel, type StorageUsage, type CloudDocument } from '@/lib/cloud-types';
 import { clearCloudRecovery, type RecoverySlot } from '@/lib/cloud-recovery';
 import { download, formatBytes } from '@/lib/utils';
@@ -33,6 +34,7 @@ type Props = {
   error: string;
   refresh: () => Promise<void>;
   compact?: boolean;
+  guest?: boolean;
 };
 const recoveryNames: Record<RecoverySlot, string> = {
   'pro-text': 'PDF text editing draft',
@@ -41,7 +43,15 @@ const recoveryNames: Record<RecoverySlot, string> = {
   'pdf-to-excel': 'Excel conversion draft',
   'pdf-to-powerpoint': 'PowerPoint conversion draft',
 };
-export function CloudFiles({ files, storage, loading, error, refresh, compact = false }: Props) {
+export function CloudFiles({
+  files,
+  storage,
+  loading,
+  error,
+  refresh,
+  compact = false,
+  guest = false,
+}: Props) {
   const { user, access } = useAccount();
   const router = useRouter();
   const userId = user?.id;
@@ -97,12 +107,13 @@ export function CloudFiles({ files, storage, loading, error, refresh, compact = 
       'Uploading PDF…',
       async () => {
         try {
-          await uploadCloudPdf(file, file.name);
+          if (guest) await uploadGuestPdf(file);
+          else await uploadCloudPdf(file, file.name);
         } finally {
           await refresh();
         }
       },
-      'PDF saved to your account.',
+      guest ? 'PDF saved to your guest workspace for 24 hours.' : 'PDF saved to your account.',
     );
   }
   const ordered = files
@@ -159,6 +170,28 @@ export function CloudFiles({ files, storage, loading, error, refresh, compact = 
           />
         </div>
       </div>
+      {!compact && (
+        <div className={s.fileUsage} aria-busy={loading}>
+          {error ? (
+            'Storage unavailable'
+          ) : loading ? (
+            <Skeleton width="65%" height={12} />
+          ) : (
+            <span>
+              {formatBytes(storage.used)} of {storageLabel(storage.limit)} used
+            </span>
+          )}
+          {loading && !error ? (
+            <Skeleton width="100%" height={6} />
+          ) : !error ? (
+            <progress
+              aria-label="File storage used"
+              value={Math.min(storage.used, storage.limit)}
+              max={storage.limit}
+            />
+          ) : null}
+        </div>
+      )}
       {storage.full && !loading && !error && (
         <p className="service-note" role="status">
           Your private storage is full. Delete older files or recovery drafts to upload more.
@@ -231,7 +264,9 @@ export function CloudFiles({ files, storage, loading, error, refresh, compact = 
             <p>
               {query
                 ? 'Try another file name.'
-                : 'PDFs you open in the editor are saved here automatically. Your files are private to your account.'}
+                : guest
+                  ? 'PDFs you open in the editor are saved here automatically. Your files are private to this browser for 24 hours.'
+                  : 'PDFs you open in the editor are saved here automatically. Your files are private to your account.'}
             </p>
             {!query && (
               <button
@@ -264,6 +299,19 @@ export function CloudFiles({ files, storage, loading, error, refresh, compact = 
                           ? 'Removal incomplete · retry below'
                           : 'Upload incomplete · finish or remove'}
                     </small>
+                    {file.guest && file.expires_at && (
+                      <small>
+                        Guest file · expires{' '}
+                        <time dateTime={file.expires_at}>
+                          {new Date(file.expires_at).toLocaleString(undefined, {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit',
+                          })}
+                        </time>
+                      </small>
+                    )}
                   </div>
                   <time className={s.fileDate} dateTime={file.updated_at}>
                     {new Date(file.updated_at).toLocaleDateString(undefined, {
@@ -288,7 +336,11 @@ export function CloudFiles({ files, storage, loading, error, refresh, compact = 
                           aria-label={`Download ${file.name}`}
                           onClick={() =>
                             void perform('Downloading PDF…', async () => {
-                              const pdf = await readCloudPdf(file.id);
+                              const record =
+                                file.guest || guest ? await readWorkspace(file.id) : null;
+                              const pdf = record
+                                ? { ...record, workspace: record.snapshot }
+                                : await readCloudPdf(file.id);
                               if (pdf.workspace) {
                                 if (hasTextChanges(pdf.workspace.state) && !access.pro) {
                                   router.push(`/workspace?cloud=${file.id}&download=1`);
@@ -328,7 +380,13 @@ export function CloudFiles({ files, storage, loading, error, refresh, compact = 
                           disabled={!!busy}
                           onClick={() =>
                             void perform('Checking upload…', async () => {
-                              await finishCloudUpload(file.id);
+                              if (file.guest || guest)
+                                await workspaceRequest(`/${file.id}`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ action: 'finish' }),
+                                });
+                              else await finishCloudUpload(file.id);
                               await refresh();
                             })
                           }
@@ -356,7 +414,7 @@ export function CloudFiles({ files, storage, loading, error, refresh, compact = 
           )
         )}
       </>
-      {!compact && <LegacyDraftImport refresh={refresh} />}
+      {!compact && !guest && <LegacyDraftImport refresh={refresh} />}
       {!compact && !!storage.recovery.length && (
         <div className={s.recoveryDrafts}>
           <h3>Recovery drafts</h3>
@@ -432,8 +490,10 @@ export function CloudFiles({ files, storage, loading, error, refresh, compact = 
               async () => {
                 if (selected.recoverySlot) await clearCloudRecovery(selected.recoverySlot);
                 else
-                  await accountFetch(
-                    `/api/account/files/${selected.id}`,
+                  await (selected.guest || guest ? workspaceRequest : accountFetch)(
+                    selected.guest || guest
+                      ? `/${selected.id}`
+                      : `/api/account/files/${selected.id}`,
                     action === 'rename'
                       ? {
                           method: 'PATCH',
