@@ -10,6 +10,7 @@ import {
 } from '../src/lib/server/document-fonts.mjs';
 import { isPdfTextSize } from '../src/lib/pdf-text-size.mjs';
 import { isPdfTextOffset, moveTextMatrix } from '../src/lib/pdf-text-position.mjs';
+import { pdfPreviewLayout } from '../src/lib/pdf-preview.mjs';
 import {
   completeOriginalFont,
   matchingOriginalFont,
@@ -604,39 +605,54 @@ export async function processTextPdf(bytes, job) {
       if (!page) throw new Error('This page could not be previewed.');
       if ([0, 90, 180, 270].includes(job.rotation))
         api.FPDFPage_SetRotation(page, job.rotation / 90);
-      let bitmap = 0;
       try {
         const pageWidth = api.FPDF_GetPageWidthF(page),
           pageHeight = api.FPDF_GetPageHeightF(page);
-        const scale = Math.min(1000 / pageWidth, 1400 / pageHeight);
-        const width = Math.max(1, Math.round(pageWidth * scale)),
-          height = Math.max(1, Math.round(pageHeight * scale));
-        if (!Number.isFinite(scale) || width * height > 1400000)
-          throw new Error('This page is too large to preview.');
-        bitmap = api.FPDFBitmap_Create(width, height, 1);
-        if (!bitmap) throw new Error('The preview could not be rendered.');
-        api.FPDFBitmap_FillRect(bitmap, 0, 0, width, height, 0xffffffff);
-        api.FPDF_RenderPageBitmap(bitmap, page, 0, 0, width, height, 0, 1);
-        const source = api.FPDFBitmap_GetBuffer(bitmap),
-          stride = api.FPDFBitmap_GetStride(bitmap);
-        const rgba = Buffer.alloc(width * height * 4);
-        for (let y = 0; y < height; y++)
-          for (let x = 0; x < width; x++) {
-            const from = source + y * stride + x * 4,
-              to = (y * width + x) * 4;
-            rgba[to] = heap.HEAPU8[from + 2];
-            rgba[to + 1] = heap.HEAPU8[from + 1];
-            rgba[to + 2] = heap.HEAPU8[from];
-            rgba[to + 3] = heap.HEAPU8[from + 3];
+        const {
+          width,
+          height,
+          tiles: regions,
+        } = pdfPreviewLayout(pageWidth, pageHeight, job.pixelWidth);
+        const tiles = [];
+        let outputSize = 0;
+        for (const region of regions) {
+          const bitmap = api.FPDFBitmap_Create(width, region.height, 1);
+          if (!bitmap) throw new Error('The preview could not be rendered.');
+          try {
+            api.FPDFBitmap_FillRect(bitmap, 0, 0, width, region.height, 0xffffffff);
+            // Render the same full-page transform into each section; no resampling or seams.
+            api.FPDF_RenderPageBitmap(bitmap, page, 0, -region.top, width, height, 0, 1);
+            const source = api.FPDFBitmap_GetBuffer(bitmap),
+              stride = api.FPDFBitmap_GetStride(bitmap);
+            const rgba = Buffer.alloc(width * region.height * 4);
+            for (let y = 0; y < region.height; y++)
+              for (let x = 0; x < width; x++) {
+                const from = source + y * stride + x * 4,
+                  to = (y * width + x) * 4;
+                rgba[to] = heap.HEAPU8[from + 2];
+                rgba[to + 1] = heap.HEAPU8[from + 1];
+                rgba[to + 2] = heap.HEAPU8[from];
+                rgba[to + 3] = heap.HEAPU8[from + 3];
+              }
+            const preview = PNG.sync
+              .write({ width, height: region.height, data: rgba })
+              .toString('base64');
+            outputSize += preview.length;
+            if (outputSize > 32 * 1024 * 1024)
+              throw new Error('The page preview is too large. Reduce the zoom and retry.');
+            tiles.push({ ...region, preview });
+          } finally {
+            api.FPDFBitmap_Destroy(bitmap);
           }
+        }
         return {
-          preview: PNG.sync.write({ width, height, data: rgba }).toString('base64'),
+          preview: tiles[0].preview,
           width,
           height,
           page: job.page,
+          ...(tiles.length > 1 ? { tiles } : {}),
         };
       } finally {
-        if (bitmap) api.FPDFBitmap_Destroy(bitmap);
         api.FPDF_ClosePage(page);
       }
     }

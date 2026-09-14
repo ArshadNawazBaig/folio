@@ -23,6 +23,8 @@ import { screenTextOffset, viewportTextOffset } from '@/lib/pdf-text-position.mj
 import { PdfPageSkeleton } from './editor-skeleton';
 import { documentFontStyle } from '@/lib/document-fonts.mjs';
 import { useDocumentFonts } from '@/lib/document-font-client';
+import { usePdfPreviewWidth } from '@/lib/use-pdf-preview-width';
+import { TextPreviewImage } from './text-preview-image';
 
 type Geometry = {
   left: number;
@@ -214,11 +216,17 @@ export function InlinePdfText({
       ...defaultTextChange(hiddenBlock),
       text: '',
     };
-  const requestKey = JSON.stringify({ changes: desiredChanges, rotation: page.rotation });
+  const pixelWidth = usePdfPreviewWidth(width);
+  const requestKey = JSON.stringify({
+    changes: desiredChanges,
+    rotation: page.rotation,
+    pixelWidth,
+  });
   const visiblePreview = preview?.rotation === page.rotation ? preview : null;
   const renderedKey = visiblePreview?.key;
   const needsImage = !!hiddenBlock || Object.keys(changes).length > 0 || !!preview;
   const readyToEdit = !!activeBlock && visiblePreview?.changes[activeBlock.id]?.text === '';
+  const clearingSelectedInk = !!hiddenBlock && visiblePreview?.changes[hiddenBlock.id]?.text !== '';
 
   useEffect(() => {
     if (readyToEdit)
@@ -341,6 +349,7 @@ export function InlinePdfText({
         const desired = JSON.parse(requestKey) as {
           changes: Record<string, TextChange>;
           rotation: number;
+          pixelWidth: number;
         };
         void requestTextPdf(
           bytes,
@@ -350,6 +359,7 @@ export function InlinePdfText({
             page: page.sourceIndex,
             changes: Object.values(desired.changes),
             rotation: desired.rotation,
+            pixelWidth: desired.pixelWidth,
           },
           false,
           controller.signal,
@@ -357,9 +367,13 @@ export function InlinePdfText({
           .then((response) => response.json())
           .then(async (image: TextPreview) => {
             // Decode first so removing the live overlay and swapping the background are atomic.
-            const decoded = new Image();
-            decoded.src = `data:image/png;base64,${image.preview}`;
-            await decoded.decode();
+            await Promise.all(
+              (image.tiles || [image]).map(async (tile) => {
+                const decoded = new Image();
+                decoded.src = `data:image/png;base64,${tile.preview}`;
+                await decoded.decode();
+              }),
+            );
             if (!controller.signal.aborted) {
               setPreview({
                 image,
@@ -379,7 +393,7 @@ export function InlinePdfText({
             }
           });
       },
-      hiddenBlock ? 0 : 100,
+      clearingSelectedInk ? 0 : 150,
     );
     return () => {
       clearTimeout(timer);
@@ -392,7 +406,7 @@ export function InlinePdfText({
     needsImage,
     requestKey,
     renderedKey,
-    hiddenBlock,
+    clearingSelectedInk,
     previewRetry,
   ]);
 
@@ -456,11 +470,10 @@ export function InlinePdfText({
   return (
     <>
       {visiblePreview && (
-        <img
+        <TextPreviewImage
           className="inline-pdf-preview"
-          src={`data:image/png;base64,${visiblePreview.image.preview}`}
+          image={visiblePreview.image}
           alt="PDF page with your text changes"
-          draggable={false}
         />
       )}
       {needsImage && !visiblePreview && Object.keys(changes).length > 0 && !error && (

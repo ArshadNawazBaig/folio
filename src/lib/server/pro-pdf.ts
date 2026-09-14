@@ -7,6 +7,7 @@ import { type TextFont, type TextInspection, type TextPreview } from '../pro-typ
 import { isDocumentFont } from '../document-font-registry.mjs';
 import { isPdfTextSize } from '../pdf-text-size.mjs';
 import { ApiError } from './http';
+import { MAX_PREVIEW_WIDTH } from '../pdf-preview.mjs';
 const edit = z
   .object({
     id: z.string().regex(/^\d+:\d+$/),
@@ -31,6 +32,7 @@ export const proJob = z.discriminatedUnion('operation', [
   z
     .object({
       operation: z.literal('preview'),
+      pixelWidth: z.number().int().min(1).max(MAX_PREVIEW_WIDTH).optional(),
       changes: z.array(edit).max(5000),
       page: z.number().int().min(0).max(99),
       rotation: z.union([z.literal(0), z.literal(90), z.literal(180), z.literal(270)]).optional(),

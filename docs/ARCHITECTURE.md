@@ -10,6 +10,8 @@ Folio Pro adds Supabase Google and email-link accounts, PostgreSQL billing state
 
 The paid UI previews a selected PDF locally before the user explicitly sends it for text inspection or password protection. PDF bytes and passwords are processed in memory in a short-lived child process and returned to the browser. They are not persisted in PostgreSQL or object storage. A separate public demo accepts only the server's fixed sample. The web application still needs host-level process isolation and ingress limits for public deployment.
 
+Original-text previews use the displayed page width and up to 2× screen density. The main editor refreshes their resolution after zooming; tall pages are split into PNG sections using the same full-page transform, so page height does not force a thumbnail-size preview. Each bitmap is bounded to 4 megapixels and 4,096 pixels tall, with a 64-megapixel total budget and a 4,096-pixel maximum requested width. Sections decode before swapping the displayed preview. PNG sections remain previews; paid PDF export and editable cloud state are unchanged.
+
 No account/payment credentials have been connected in this workspace, so checkout and live administration are disabled; anonymous user-file editing and previews work. Google Cloud PDF translation and ConvertAPI Office conversion are implemented but require service credentials. Anonymous preparation returns results encrypted with authenticated encryption and image previews; paid export decrypts only after server entitlement checks. Encrypted recovery copies expire after 24 hours. Tool pages describe these limits rather than implying that all advertised workflows already have a backend.
 
 ## Administration and operations

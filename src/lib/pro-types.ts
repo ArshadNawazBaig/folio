@@ -29,7 +29,13 @@ export type TextBlock = {
   matrix?: number[];
 };
 export type TextInspection = { pageCount: number; blocks: TextBlock[]; skipped: number };
-export type TextPreview = { preview: string; width: number; height: number; page: number };
+export type TextPreview = {
+  preview: string;
+  width: number;
+  height: number;
+  page: number;
+  tiles?: { preview: string; top: number; height: number }[];
+};
 export type TextChange = {
   id: string;
   original: string;

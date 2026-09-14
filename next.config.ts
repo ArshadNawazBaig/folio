@@ -10,6 +10,7 @@ const config: NextConfig = {
       './scripts/pdf-text-engine.mjs',
       './src/lib/pdf-text-size.mjs',
       './src/lib/pdf-text-position.mjs',
+      './src/lib/pdf-preview.mjs',
       './src/lib/pdf-original-fonts.mjs',
       './src/lib/document-fonts.mjs',
       './src/lib/document-font-registry.mjs',

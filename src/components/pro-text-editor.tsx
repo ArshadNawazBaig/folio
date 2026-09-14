@@ -21,6 +21,8 @@ import { useAccount } from './account-provider';
 import { DownloadGate } from './download-gate';
 import { FontPicker } from './font-picker';
 import { PdfCanvas } from './pdf-canvas';
+import { TextPreviewImage } from './text-preview-image';
+import { usePdfPreviewWidth } from '@/lib/use-pdf-preview-width';
 import { PdfTextSizeInput } from './pdf-text-size-input';
 import { defaultTextChange as defaultChange, unchangedText } from '@/lib/editor-text';
 import { accountFetch, AccountRequestError } from '@/lib/auth-client';
@@ -74,6 +76,7 @@ export function ProTextEditor() {
     needsPreview = revision !== (previewImages[page]?.key || '{}');
   const dirty = revision !== downloadedRevision;
   const canEdit = true;
+  const pixelWidth = usePdfPreviewWidth(canvasWidth);
   useEffect(() => {
     mounted.current = true;
     return () => {
@@ -389,6 +392,7 @@ export function ProTextEditor() {
       const result: TextPreview = await (
         await request(file, demo, {
           operation: 'preview',
+          pixelWidth,
           changes: Object.values(changeSet),
           page: previewPage,
         })
@@ -595,9 +599,9 @@ export function ProTextEditor() {
                 <div className="pro-editable-page" style={{ width: canvasWidth }}>
                   {previewImages[page] ? (
                     <>
-                      <img
+                      <TextPreviewImage
                         className="pro-rendered-preview"
-                        src={`data:image/png;base64,${previewImages[page].image.preview}`}
+                        image={previewImages[page].image}
                         alt={`Edited preview of page ${page + 1}`}
                         width={canvasWidth}
                         height={
