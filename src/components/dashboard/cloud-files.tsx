@@ -24,6 +24,7 @@ import { storageLabel, type StorageUsage, type CloudDocument } from '@/lib/cloud
 import { clearCloudRecovery, type RecoverySlot } from '@/lib/cloud-recovery';
 import { download, formatBytes } from '@/lib/utils';
 import { LegacyDraftImport } from './legacy-draft-import';
+import { Skeleton, LoadingLabel } from '../skeleton';
 import s from './dashboard.module.css';
 type Props = {
   files: CloudDocument[];
@@ -220,9 +221,7 @@ export function CloudFiles({ files, storage, loading, error, refresh, compact = 
       )}
       <>
         {loading && !files.length ? (
-          <p className={s.empty} role="status">
-            Finding your files…
-          </p>
+          <CloudFileSkeleton compact={compact} />
         ) : !error && !visible.length ? (
           <div className={s.empty}>
             <span className={s.emptyIcon}>
@@ -486,5 +485,36 @@ export function CloudFiles({ files, storage, loading, error, refresh, compact = 
         </form>
       </dialog>
     </section>
+  );
+}
+
+export function CloudFileSkeleton({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className={s.fileList} aria-busy="true" data-loading-files="">
+      <LoadingLabel>Loading your files…</LoadingLabel>
+      {Array.from({ length: compact ? 3 : 5 }, (_, i) => (
+        <div className={s.fileRow} key={i} aria-hidden="true">
+          <Skeleton width={36} height={43} radius={6} />
+          <div className={s.fileName}>
+            <strong>
+              <Skeleton width={i % 2 ? '52%' : '68%'} height={12} />
+            </strong>
+            <small>
+              <Skeleton width={85} height={10} />
+            </small>
+          </div>
+          <span className={s.fileDate}>
+            <Skeleton width={75} height={10} />
+          </span>
+          <div className={s.fileActions}>
+            {[0, 1, 2, 3].map((action) => (
+              <span className="icon-button" key={action}>
+                <Skeleton width={17} height={17} radius={4} />
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

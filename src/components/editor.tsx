@@ -30,6 +30,7 @@ import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { Logo } from './logo';
 import { UploadArea } from './upload';
 import { PdfCanvas } from './pdf-canvas';
+import { EditorContentSkeleton } from './editor-skeleton';
 import { Dropdown } from './dropdown';
 import { EditorToolbar, type EditorMode } from './editor-toolbar';
 import { useAccount } from './account-provider';
@@ -91,7 +92,11 @@ export function Editor() {
   const [error, setError] = useState('');
   const [previewError, setPreviewError] = useState('');
   const [retryingPreview, setRetryingPreview] = useState(false);
-  const [busy, setBusy] = useState('');
+  const [busy, setBusy] = useState(() =>
+    ['cloud', 'draft', 'id', 'sample'].some((key) => params.has(key))
+      ? 'Opening your workspace…'
+      : '',
+  );
   const [notice, setNotice] = useState('');
   const [savingNow, setSavingNow] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -394,6 +399,7 @@ export function Editor() {
         }
       } catch (e) {
         setError(friendlyError(e));
+      } finally {
         setBusy('');
       }
     })();
@@ -1130,7 +1136,9 @@ export function Editor() {
         </div>
       </dialog>
 
-      {!bytes || !doc || !pageModel ? (
+      {(!bytes || !doc || !pageModel) && busy ? (
+        <EditorContentSkeleton sidebar={sidebar} properties={properties} />
+      ) : !bytes || !doc || !pageModel ? (
         <div className="editor-empty">
           <span className="eyebrow">A LITTLE SPACE TO MAKE IT YOURS</span>
           <h1>
@@ -1302,6 +1310,7 @@ export function Editor() {
                           document={doc}
                           page={p.sourceIndex + 1}
                           width={86}
+                          aspectRatio={p.rotation % 180 ? p.height / p.width : p.width / p.height}
                           rotation={p.rotation}
                           decorative
                         />
@@ -1426,6 +1435,7 @@ export function Editor() {
                       page={pageModel.sourceIndex + 1}
                       rotation={pageModel.rotation}
                       width={canvasWidth}
+                      aspectRatio={pageWidth / pageHeight}
                       onPreviewError={setPreviewError}
                     />
                   )}

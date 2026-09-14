@@ -32,6 +32,7 @@ import {
 import { formatBytes } from '@/lib/utils';
 import { CloudFiles } from './cloud-files';
 import { DashboardBilling, DashboardSettings } from './account-settings';
+import { Skeleton, SignInSkeleton, LoadingLabel } from '../skeleton';
 import s from './dashboard.module.css';
 const navigation = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -53,7 +54,7 @@ export function UserDashboard(props: Props) {
           </span>
           <h1>Your personal workspace.</h1>
           {loading ? (
-            <p role="status">Checking your account…</p>
+            <SignInSkeleton />
           ) : (
             <>
               <p>Sign in to find your files, manage billing, and make yourself at home.</p>
@@ -74,7 +75,7 @@ export function UserDashboard(props: Props) {
   return <DashboardContent key={user.id} {...props} />;
 }
 function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
-  const { user, access, error: accountError } = useAccount();
+  const { user, access, loading: accountLoading, error: accountError } = useAccount();
   const router = useRouter();
   const [files, setFiles] = useState<CloudDocument[]>([]);
   const [storage, setStorage] = useState<StorageUsage | null>(null);
@@ -161,11 +162,16 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
             <Cloud size={19} />
             <strong>Private cloud storage</strong>
             <span>
-              {fileError
-                ? 'Storage unavailable'
-                : loading
-                  ? 'Loading storage…'
-                  : `${bytes ? formatBytes(bytes) : '0 KB'} of ${storageLabel(capacity)}`}
+              {fileError ? (
+                'Storage unavailable'
+              ) : loading && !storage ? (
+                <>
+                  <Skeleton width="86%" height={10} />
+                  <LoadingLabel>Loading storage usage…</LoadingLabel>
+                </>
+              ) : (
+                `${bytes ? formatBytes(bytes) : '0 KB'} of ${storageLabel(capacity)}`
+              )}
             </span>
             <progress
               aria-label="Cloud storage used"
@@ -242,7 +248,15 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                   </span>
                   <div>
                     <span>Saved PDFs</span>
-                    <strong>{loading || fileError ? '—' : ready.length}</strong>
+                    <strong>
+                      {loading && !storage ? (
+                        <Skeleton width={35} height="1em" />
+                      ) : fileError ? (
+                        '—'
+                      ) : (
+                        ready.length
+                      )}
+                    </strong>
                     <small>In your private cloud</small>
                   </div>
                   <ArrowUpRight size={16} />
@@ -254,7 +268,15 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                   <div>
                     <span>Your plan</span>
                     <strong>
-                      {accountError ? 'Unavailable' : access.pro ? 'Folio Pro' : 'Folio Free'}
+                      {accountLoading ? (
+                        <Skeleton width={110} height="1em" />
+                      ) : accountError ? (
+                        'Unavailable'
+                      ) : access.pro ? (
+                        'Folio Pro'
+                      ) : (
+                        'Folio Free'
+                      )}
                     </strong>
                     <small>
                       {access.trial

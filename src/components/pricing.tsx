@@ -8,6 +8,7 @@ import { accountFetch } from '@/lib/auth-client';
 import type { ProPlan } from '@/lib/pro-types';
 import type { PlanChoice } from '@/lib/plans';
 import { DEFAULT_CATALOG, money, offerTerms, type PricingCatalog } from '@/lib/platform';
+import { Skeleton, LoadingLabel } from './skeleton';
 export function Pricing({
   initialCatalog = DEFAULT_CATALOG,
   compact = false,
@@ -145,9 +146,14 @@ export function Pricing({
             <Link className="button primary full" href="/account">
               Manage your Pro plan <ArrowRight size={16} />
             </Link>
-          ) : !available || loading ? (
+          ) : loading ? (
+            <div className="pricing-availability-skeleton" aria-busy="true">
+              <LoadingLabel>Checking plan availability…</LoadingLabel>
+              <Skeleton height={44} radius={7} />
+            </div>
+          ) : !available ? (
             <button className="button primary full" disabled>
-              {loading ? 'Checking availability…' : 'Checkout not available yet'}
+              Checkout not available yet
             </button>
           ) : !user ? (
             <Link

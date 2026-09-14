@@ -5,8 +5,11 @@ import { ArrowRight, Inbox, MessageSquare, RefreshCw } from 'lucide-react';
 import { useAccount } from './account-provider';
 import { accountFetch } from '@/lib/auth-client';
 import type { SupportTicket, SupportMessage } from '@/lib/platform';
+import { TicketListSkeleton, ThreadSkeleton } from './skeleton';
 export function SupportPanel() {
-  const { user } = useAccount();
+  const { user, loading: accountLoading } = useAccount();
+  const [loading, setLoading] = useState(true);
+  const [messagesFor, setMessagesFor] = useState('');
   const generation = useRef(0);
   const [name, setName] = useState(''),
     [email, setEmail] = useState(''),
@@ -25,8 +28,10 @@ export function SupportPanel() {
     if (!user) {
       setTickets([]);
       setMessages([]);
+      setLoading(false);
       return;
     }
+    setLoading(true);
     try {
       const data = await (
         await accountFetch(`/api/support${selected ? `?ticket=${selected}` : ''}`)
@@ -34,9 +39,12 @@ export function SupportPanel() {
       if (current !== generation.current) return;
       setTickets(data.tickets);
       setMessages(data.messages);
+      setMessagesFor(selected);
     } catch (e) {
       if (current === generation.current)
         setError(e instanceof Error ? e.message : 'Your inquiries could not be loaded.');
+    } finally {
+      if (current === generation.current) setLoading(false);
     }
   }, [user, selected]);
   useEffect(() => {
@@ -55,6 +63,7 @@ export function SupportPanel() {
     setTickets([]);
     setMessages([]);
     setSelected('');
+    setMessagesFor('');
   }, [user?.id]);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -194,13 +203,15 @@ export function SupportPanel() {
             <button
               className="icon-button"
               aria-label="Refresh support conversations"
-              disabled={!user || busy}
+              disabled={!user || busy || loading}
               onClick={() => void load()}
             >
               <RefreshCw size={17} />
             </button>
           </div>
-          {!user ? (
+          {(accountLoading && !user) || (loading && !tickets.length) ? (
+            <TicketListSkeleton />
+          ) : !user ? (
             <div className="admin-empty">
               <Inbox size={27} />
               <p>Sign in to see replies and follow up on your inquiries.</p>
@@ -220,7 +231,9 @@ export function SupportPanel() {
                   key={t.id}
                   className={selected === t.id ? 'selected' : ''}
                   onClick={() => {
+                    if (selected === t.id) return;
                     setSelected(t.id);
+                    setLoading(true);
                     setMessages([]);
                     setReply('');
                   }}
@@ -236,19 +249,23 @@ export function SupportPanel() {
           {ticket && (
             <>
               <h3>{ticket.subject}</h3>
-              <div className="support-thread">
-                <article>
-                  <strong>You</strong>
-                  <p>{ticket.message}</p>
-                </article>
-                {messages.map((m) => (
-                  <article key={m.id} className={m.staff ? 'staff' : ''}>
-                    <strong>{m.staff ? 'Folio support' : 'You'}</strong>
-                    <p>{m.message}</p>
-                    <small>{new Date(m.created_at).toLocaleString()}</small>
+              {loading && messagesFor !== selected ? (
+                <ThreadSkeleton />
+              ) : (
+                <div className="support-thread">
+                  <article>
+                    <strong>You</strong>
+                    <p>{ticket.message}</p>
                   </article>
-                ))}
-              </div>
+                  {messages.map((m) => (
+                    <article key={m.id} className={m.staff ? 'staff' : ''}>
+                      <strong>{m.staff ? 'Folio support' : 'You'}</strong>
+                      <p>{m.message}</p>
+                      <small>{new Date(m.created_at).toLocaleString()}</small>
+                    </article>
+                  ))}
+                </div>
+              )}
               <form onSubmit={postReply}>
                 <label>
                   Add a reply

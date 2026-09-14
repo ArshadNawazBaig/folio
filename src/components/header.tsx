@@ -8,6 +8,7 @@ import { tools as defaultTools } from '@/lib/tools';
 import { ToolIcon } from './icon';
 import { SiteAnnouncement } from './site-announcement';
 import { useAccount } from './account-provider';
+import { Skeleton, LoadingLabel } from './skeleton';
 const nav = [
   ['Edit PDF', '/edit-pdf'],
   ['Convert', '/convert'],
@@ -17,7 +18,7 @@ const nav = [
   ['Pricing', '/pricing'],
 ];
 export function Header() {
-  const { user } = useAccount();
+  const { user, loading } = useAccount();
   const path = usePathname();
   const [tools, setTools] = useState(defaultTools);
   useEffect(() => {
@@ -78,14 +79,22 @@ export function Header() {
               <span>Search tools</span>
               <kbd aria-hidden="true">⌘ K</kbd>
             </button>
-            <Link
-              href={user ? '/dashboard' : '/account'}
-              className="header-account"
-              onClick={() => setMenu(false)}
-            >
-              {user ? 'Dashboard' : 'Sign in'}
-              <ArrowUpRight size={15} aria-hidden="true" />
-            </Link>
+            {loading && !user ? (
+              <span className="header-account" aria-busy="true">
+                <LoadingLabel>Checking your account…</LoadingLabel>
+                <Skeleton width={49} height={12} />
+                <Skeleton width={15} height={15} className="header-account-icon-skeleton" />
+              </span>
+            ) : (
+              <Link
+                href={user ? '/dashboard' : '/account'}
+                className="header-account"
+                onClick={() => setMenu(false)}
+              >
+                {user ? 'Dashboard' : 'Sign in'}
+                <ArrowUpRight size={15} aria-hidden="true" />
+              </Link>
+            )}
             <button
               className="icon-button mobile-menu"
               aria-label={menu ? 'Close navigation' : 'Open navigation'}

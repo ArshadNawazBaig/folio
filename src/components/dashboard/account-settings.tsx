@@ -13,6 +13,7 @@ import {
 import { useAccount } from '../account-provider';
 import { accountFetch, authClient } from '@/lib/auth-client';
 import { displayName } from '@/lib/dashboard';
+import { Skeleton, LoadingLabel } from '../skeleton';
 import s from './dashboard.module.css';
 type BillingDetails = {
   hasCustomer: boolean;
@@ -81,12 +82,22 @@ export function DashboardBilling({ checkoutSuccess }: { checkoutSuccess: boolean
           <span className={s.eyebrow}>YOUR CURRENT PLAN</span>
           <h2>
             <Gem size={27} />
-            {access.pro ? 'Folio Pro' : 'Folio Free'}
+            {accessLoading ? (
+              <Skeleton width={140} height="1em" />
+            ) : access.pro ? (
+              'Folio Pro'
+            ) : (
+              'Folio Free'
+            )}
           </h2>
           <p>
-            {access.pro
-              ? 'All available Pro tools and Pro downloads are included.'
-              : 'Free tools and downloads, plus a private home for your PDFs.'}
+            {accessLoading ? (
+              <Skeleton width="85%" height={12} />
+            ) : access.pro ? (
+              'All available Pro tools and Pro downloads are included.'
+            ) : (
+              'Free tools and downloads, plus a private home for your PDFs.'
+            )}
           </p>
           {expiry && (
             <p className={s.planDate}>
@@ -151,22 +162,27 @@ export function DashboardBilling({ checkoutSuccess }: { checkoutSuccess: boolean
           <span>Payment methods</span>
           <span>Subscription & cancellation</span>
         </div>
-        <button
-          className="button primary"
-          disabled={busy || !details?.hasCustomer}
-          onClick={() => void portal()}
-        >
-          {busy ? 'Opening billing…' : 'Manage billing'}
-          <ArrowUpRight size={16} />
-        </button>
+        {!details && !error ? (
+          <div className={s.billingLoading} aria-busy="true">
+            <LoadingLabel>Loading billing details…</LoadingLabel>
+            <Skeleton width={172} height={44} radius={7} />
+            <p className={s.muted}>
+              <Skeleton width="72%" height={11} />
+            </p>
+          </div>
+        ) : (
+          <button
+            className="button primary"
+            disabled={busy || !details?.hasCustomer}
+            onClick={() => void portal()}
+          >
+            {busy ? 'Opening billing…' : 'Manage billing'}
+            <ArrowUpRight size={16} />
+          </button>
+        )}
         {details && !details.hasCustomer && (
           <p className={s.muted}>
             You don’t have a billing account yet. It’s created when you begin checkout.
-          </p>
-        )}
-        {!details && !error && (
-          <p role="status" className={s.muted}>
-            Loading billing details…
           </p>
         )}
         {error && (

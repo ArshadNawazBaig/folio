@@ -557,6 +557,9 @@
   margin: 24px 0;
   font-size: 11px;
 }
+.billingLoading {
+  min-height: 80px;
+}
 .billingFeatures span::before {
   content: '✓';
   color: #5f734d;

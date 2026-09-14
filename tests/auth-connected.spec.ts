@@ -247,6 +247,282 @@ test('private storage shows plan capacity, blocks full uploads and frees space a
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
+function loadingGate() {
+  let release!: () => void;
+  const pending = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { pending, release };
+}
+
+test('file skeletons match rows, respect reduced motion and settle on success or error', async ({
+  page,
+}) => {
+  await mockGoogle(page);
+  await page.goto('/account');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  let gate = loadingGate(),
+    fail = false;
+  const files = Array.from({ length: 5 }, (_, i) => ({
+    id: `00000000-0000-4000-8000-00000000002${i}`,
+    name: `Project proposal ${i + 1}.pdf`,
+    size: 20480,
+    status: 'ready',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }));
+  await page.route('**/api/account/files', async (route) => {
+    await gate.pending;
+    await route.fulfill(
+      fail
+        ? { status: 503, json: { error: 'Files temporarily unavailable.' } }
+        : { json: { files, storage: emptyStorage } },
+    );
+  });
+  try {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto('/dashboard?view=files');
+    const placeholders = page.locator('[data-loading-files]');
+    await expect(placeholders).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Your next document belongs here.' }),
+    ).toHaveCount(0);
+    await expect(placeholders.getByRole('button')).toHaveCount(0);
+    const before = await placeholders.locator(':scope > div').first().boundingBox();
+    await page.screenshot({
+      path: '/tmp/folio-skeleton-files-desktop.png',
+      animations: 'disabled',
+    });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    expect(
+      await placeholders
+        .locator('[data-skeleton]')
+        .first()
+        .evaluate((el) => getComputedStyle(el).animationName),
+    ).toBe('none');
+    for (const width of [390, 320]) {
+      await page.setViewportSize({ width, height: 900 });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+        true,
+      );
+    }
+    await page.screenshot({
+      path: '/tmp/folio-skeleton-files-mobile.png',
+      animations: 'disabled',
+      fullPage: true,
+    });
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    gate.release();
+    await expect(placeholders).toHaveCount(0);
+    const first = page.getByRole('link', { name: files[0].name, exact: true });
+    await expect(first).toBeVisible();
+    const after = await first.locator('..').locator('..').boundingBox();
+    expect(Math.abs(before!.width - after!.width)).toBeLessThanOrEqual(1);
+    expect(Math.abs(before!.height - after!.height)).toBeLessThanOrEqual(1);
+    gate = loadingGate();
+    await page.getByRole('button', { name: 'Refresh files' }).click();
+    await expect(first).toBeVisible();
+    await expect(placeholders).toHaveCount(0);
+    gate.release();
+    gate = loadingGate();
+    fail = true;
+    await page.reload();
+    await expect(placeholders).toBeVisible();
+    gate.release();
+    await expect(placeholders).toHaveCount(0);
+    await expect(page.locator('main [role=alert]')).toContainText('Files temporarily unavailable');
+  } finally {
+    gate.release();
+  }
+});
+
+test('billing and support skeletons resolve into the matching cards and conversations', async ({
+  page,
+}) => {
+  await mockGoogle(page);
+  await page.goto('/account');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  const billing = loadingGate();
+  let support = loadingGate();
+  const ticket = {
+    id: '00000000-0000-4000-8000-000000000090',
+    subject: 'Document question',
+    message: 'Please help with my document.',
+    status: 'open',
+    updated_at: new Date().toISOString(),
+  };
+  await page.route('**/api/account/billing', async (route) => {
+    await billing.pending;
+    await route.fulfill({ json: { hasCustomer: true, subscription: null } });
+  });
+  await page.route('**/api/support*', async (route) => {
+    await support.pending;
+    await route.fulfill({
+      json: {
+        tickets: [ticket],
+        messages: [
+          {
+            id: 'reply',
+            staff: true,
+            message: 'We can help with that.',
+            created_at: new Date().toISOString(),
+          },
+        ],
+      },
+    });
+  });
+  try {
+    await page.goto('/dashboard?view=billing');
+    await expect(
+      page.getByRole('status').filter({ hasText: 'Loading billing details' }),
+    ).toBeAttached();
+    await page.screenshot({
+      path: '/tmp/folio-skeleton-billing.png',
+      animations: 'disabled',
+      fullPage: true,
+    });
+    billing.release();
+    await expect(page.getByRole('button', { name: 'Manage billing', exact: true })).toBeEnabled();
+    await expect(
+      page.getByRole('status').filter({ hasText: 'Loading billing details' }),
+    ).toHaveCount(0);
+    await page.goto('/support');
+    await expect(
+      page.getByRole('status').filter({ hasText: 'Loading conversations' }),
+    ).toBeAttached();
+    await expect(page.getByText('Your inquiries will appear here.')).toHaveCount(0);
+    await expect(page.getByRole('textbox', { name: 'Email address' })).toHaveValue(
+      'customer@example.test',
+    );
+    await page.screenshot({
+      path: '/tmp/folio-skeleton-support.png',
+      animations: 'disabled',
+      fullPage: true,
+    });
+    support.release();
+    await expect(page.getByRole('button', { name: /Document question/ })).toBeVisible();
+    support = loadingGate();
+    await page.getByRole('button', { name: /Document question/ }).click();
+    await expect(
+      page.getByRole('status').filter({ hasText: 'Loading conversation…' }),
+    ).toBeAttached();
+    support.release();
+    await expect(page.getByText('We can help with that.')).toBeVisible();
+    await expect(page.locator('.support-thread [data-skeleton]')).toHaveCount(0);
+    await page.getByRole('button', { name: /Document question/ }).click();
+    await expect(page.getByText('We can help with that.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Refresh support conversations' })).toBeEnabled();
+  } finally {
+    billing.release();
+    support.release();
+  }
+});
+
+test('admin skeletons replace unknown metrics and directory records while requests load', async ({
+  page,
+}) => {
+  await mockGoogle(page, true);
+  await page.goto('/admin');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
+  const gate = loadingGate();
+  await page.route('**/api/admin?**', async (route) => {
+    await gate.pending;
+    await route.fulfill({
+      json: {
+        catalog: DEFAULT_CATALOG,
+        settings: DEFAULT_SETTINGS,
+        stripeReady: true,
+        userDeletionReady: true,
+        overview: { users: 1, paid: 0, trials: 0, operations: 0, suspended: 0, openTickets: 0 },
+        users: {
+          rows: [
+            {
+              id: '00000000-0000-4000-8000-000000000002',
+              email: 'member@example.test',
+              created_at: new Date().toISOString(),
+              suspended: false,
+              is_admin: false,
+              grant_until: null,
+            },
+          ],
+          total: 1,
+        },
+      },
+    });
+  });
+  try {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.reload();
+    await expect(page.locator('.admin-metrics [data-skeleton]')).toHaveCount(6);
+    await page.screenshot({
+      path: '/tmp/folio-skeleton-admin-overview.png',
+      animations: 'disabled',
+      fullPage: true,
+    });
+    await page.getByRole('button', { name: 'Users', exact: true }).click();
+    await expect(page.locator('.admin-table-scroll tbody tr')).toHaveCount(5);
+    await expect(page.getByText('No users to display.')).toHaveCount(0);
+    await page.screenshot({
+      path: '/tmp/folio-skeleton-admin-users.png',
+      animations: 'disabled',
+      fullPage: true,
+    });
+    await page.setViewportSize({ width: 390, height: 844 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    gate.release();
+    await expect(page.getByRole('cell', { name: /member@example.test/ })).toBeVisible();
+    await expect(page.locator('.admin-table-scroll [data-skeleton]')).toHaveCount(0);
+  } finally {
+    gate.release();
+  }
+});
+
+test('editor skeleton preserves the workspace layout during refresh recovery', async ({ page }) => {
+  await mockGoogle(page);
+  await page.goto('/workspace?sample=proposal');
+  await expect(page.locator('.editor-page-wrap canvas').first()).toBeVisible();
+  await expect(page).toHaveURL(/cloud=/);
+  const id = new URL(page.url()).searchParams.get('cloud');
+  const gate = loadingGate();
+  await page.route(`**/api/workspaces/${id}`, async (route) => {
+    await gate.pending;
+    await route.fallback();
+  });
+  try {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.reload();
+    await expect(page.locator('.editor-skeleton-body')).toBeVisible();
+    await expect(page.locator('.editor-empty')).toHaveCount(0);
+    await page.screenshot({ path: '/tmp/folio-skeleton-editor.png', animations: 'disabled' });
+    await page.setViewportSize({ width: 390, height: 844 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    // Reload at this width so the editor's normal mobile panel preferences apply.
+    await page.reload();
+    await expect(page.locator('.editor-skeleton-paper')).toBeVisible();
+    expect((await page.locator('.editor-skeleton-paper').boundingBox())!.width).toBeGreaterThan(
+      250,
+    );
+    await page.screenshot({
+      path: '/tmp/folio-skeleton-editor-mobile.png',
+      animations: 'disabled',
+    });
+    gate.release();
+    await expect(page.locator('.editor-skeleton-body')).toHaveCount(0);
+    await expect(page.locator('.editor-page-wrap canvas').first()).toBeVisible();
+    await page.getByRole('button', { name: 'Zoom in', exact: true }).click();
+    await expect(page.locator('.editor-page-wrap .pdf-page-skeleton')).toHaveCount(0);
+  } finally {
+    gate.release();
+  }
+});
+
 test('assigned super admin can sign in and sign out from the dashboard', async ({ page }) => {
   await mockGoogle(page, true);
   await page.goto('/admin');

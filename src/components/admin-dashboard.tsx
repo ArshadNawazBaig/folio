@@ -43,6 +43,14 @@ import {
   type SupportMessage,
 } from '@/lib/platform';
 import type { AdminAction } from '@/lib/admin-actions';
+import {
+  Skeleton,
+  LoadingLabel,
+  AdminTableSkeleton,
+  AuditSkeleton,
+  TicketListSkeleton,
+  ThreadSkeleton,
+} from './skeleton';
 
 const navigation = [
   ['overview', 'Overview', LayoutDashboard],
@@ -102,6 +110,8 @@ export function AdminDashboard() {
     [pending, setPending] = useState<AdminAction | null>(null),
     [reason, setReason] = useState('');
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [loadedKey, setLoadedKey] = useState('');
+  const queryKey = [user?.id, section, search, page, ticketFilter, ticket?.id].join('|');
   const modal = useRef<HTMLDialogElement>(null),
     generation = useRef(0);
   const load = useCallback(async () => {
@@ -124,6 +134,7 @@ export function AdminDashboard() {
       const result = await (await accountFetch(`/api/admin?${params}`)).json();
       if (current !== generation.current) return;
       setData(result);
+      setLoadedKey(queryKey);
       setAuthorized(true);
       setSettings(result.settings);
       const c = result.catalog;
@@ -143,7 +154,7 @@ export function AdminDashboard() {
     } finally {
       if (current === generation.current) setLoading(false);
     }
-  }, [user, section, search, page, ticket, ticketFilter]);
+  }, [user, section, search, page, ticket, ticketFilter, queryKey]);
   useEffect(() => {
     const timer = setTimeout(() => void load(), 200);
     return () => {
@@ -224,7 +235,8 @@ export function AdminDashboard() {
       setSigningOut(false);
     }
   }
-  const enabled = authorized && !busy && !loading && !signingOut;
+  const dataPending = (accountLoading && !user) || (!!user && loadedKey !== queryKey && !error);
+  const enabled = authorized && !busy && !loading && !signingOut && !dataPending;
   const total =
     section === 'users'
       ? data.users?.total || 0
@@ -270,7 +282,12 @@ export function AdminDashboard() {
           Your account <ArrowUpRight size={16} />
         </Link>
       </aside>
-      <main id="main" className="admin-main">
+      <main id="main" className="admin-main" data-skeleton-loading={dataPending || undefined}>
+        {dataPending && (
+          <LoadingLabel>
+            Loading {section === 'overview' ? 'dashboard' : title.toLowerCase()}…
+          </LoadingLabel>
+        )}
         <header className="admin-topbar">
           <div>
             <span className="eyebrow">FOLIO CONTROL ROOM</span>
@@ -366,7 +383,15 @@ export function AdminDashboard() {
                       <MetricIcon size={18} />
                       {String(label)}
                     </span>
-                    <strong>{typeof value === 'number' ? value.toLocaleString() : '—'}</strong>
+                    <strong>
+                      {dataPending ? (
+                        <Skeleton width={72} height={34} />
+                      ) : typeof value === 'number' ? (
+                        value.toLocaleString()
+                      ) : (
+                        '—'
+                      )}
+                    </strong>
                   </article>
                 );
               })}
@@ -391,25 +416,58 @@ export function AdminDashboard() {
                 <h2>Service status</h2>
                 <ul className="admin-status-list">
                   <li>
-                    Accounts & database <span>{authorized ? 'Connected' : 'Awaiting setup'}</span>
+                    Accounts & database{' '}
+                    <span>
+                      {dataPending ? (
+                        <Skeleton width={94} height={11} />
+                      ) : authorized ? (
+                        'Connected'
+                      ) : (
+                        'Awaiting setup'
+                      )}
+                    </span>
                   </li>
                   <li>
-                    Stripe billing <span>{data.stripeReady ? 'Configured' : 'Awaiting setup'}</span>
+                    Stripe billing{' '}
+                    <span>
+                      {dataPending ? (
+                        <Skeleton width={94} height={11} />
+                      ) : data.stripeReady ? (
+                        'Configured'
+                      ) : (
+                        'Awaiting setup'
+                      )}
+                    </span>
                   </li>
                   <li>
-                    Website <span>{data.settings.maintenance ? 'Maintenance' : 'Open'}</span>
+                    Website{' '}
+                    <span>
+                      {dataPending ? (
+                        <Skeleton width={60} height={11} />
+                      ) : data.settings.maintenance ? (
+                        'Maintenance'
+                      ) : (
+                        'Open'
+                      )}
+                    </span>
                   </li>
                   <li>
                     New purchases{' '}
                     <span>
-                      {data.settings.purchasesEnabled ? 'Enabled when billing is ready' : 'Paused'}
+                      {dataPending ? (
+                        <Skeleton width={130} height={11} />
+                      ) : data.settings.purchasesEnabled ? (
+                        'Enabled when billing is ready'
+                      ) : (
+                        'Paused'
+                      )}
                     </span>
                   </li>
                 </ul>
                 <small>Integration configuration does not confirm a completed live payment.</small>
               </section>
             </div>
-            <AuditList rows={data.audit || []} />
+            <AuditList rows={data.audit || []} loading={dataPending} />
           </>
         )}
         {(section === 'users' || section === 'subscriptions') && (
@@ -418,9 +476,13 @@ export function AdminDashboard() {
               <div>
                 <h2>{section === 'users' ? 'People using Folio' : 'Subscription directory'}</h2>
                 <p>
-                  {authorized
-                    ? `${total.toLocaleString()} records`
-                    : 'Live records appear after admin sign-in.'}
+                  {dataPending ? (
+                    <Skeleton width={95} height={12} />
+                  ) : authorized ? (
+                    `${total.toLocaleString()} records`
+                  ) : (
+                    'Live records appear after admin sign-in.'
+                  )}
                 </p>
               </div>
               <label className="admin-search">
@@ -436,7 +498,7 @@ export function AdminDashboard() {
                 />
               </label>
             </div>
-            {section === 'users' && authorized && !data.userDeletionReady && (
+            {section === 'users' && authorized && !dataPending && !data.userDeletionReady && (
               <p className="service-note">
                 To enable permanent user deletion, apply migration 007_admin_user_deletion.sql in
                 your Supabase SQL Editor, then refresh this list.
@@ -455,148 +517,150 @@ export function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {section === 'users'
-                    ? (data.users?.rows || []).map((row) => (
-                        <tr key={row.id}>
-                          <td>
-                            <strong>{row.email}</strong>
-                            <small>{row.id}</small>
-                          </td>
-                          <td>{date(row.created_at)}</td>
-                          <td>
-                            <span className="admin-status">
-                              {row.is_admin
-                                ? 'Super admin'
-                                : row.deletion_pending
-                                  ? 'Deletion pending'
-                                  : row.suspended
-                                    ? 'Suspended'
-                                    : 'Active'}
-                            </span>
-                          </td>
-                          <td>{date(row.grant_until)}</td>
-                          <td>
-                            <div className="admin-row-actions">
-                              <button
-                                disabled={!enabled || row.is_admin || row.deletion_pending}
-                                onClick={() =>
-                                  setPending({
-                                    action: 'user',
-                                    userId: row.id,
-                                    operation: row.suspended ? 'restore' : 'suspend',
-                                    reason: '',
-                                    days: 30,
-                                  })
-                                }
-                              >
-                                {row.suspended ? 'Activate' : 'Suspend'}
-                              </button>
+                  {dataPending ? (
+                    <AdminTableSkeleton />
+                  ) : section === 'users' ? (
+                    (data.users?.rows || []).map((row) => (
+                      <tr key={row.id}>
+                        <td>
+                          <strong>{row.email}</strong>
+                          <small>{row.id}</small>
+                        </td>
+                        <td>{date(row.created_at)}</td>
+                        <td>
+                          <span className="admin-status">
+                            {row.is_admin
+                              ? 'Super admin'
+                              : row.deletion_pending
+                                ? 'Deletion pending'
+                                : row.suspended
+                                  ? 'Suspended'
+                                  : 'Active'}
+                          </span>
+                        </td>
+                        <td>{date(row.grant_until)}</td>
+                        <td>
+                          <div className="admin-row-actions">
+                            <button
+                              disabled={!enabled || row.is_admin || row.deletion_pending}
+                              onClick={() =>
+                                setPending({
+                                  action: 'user',
+                                  userId: row.id,
+                                  operation: row.suspended ? 'restore' : 'suspend',
+                                  reason: '',
+                                  days: 30,
+                                })
+                              }
+                            >
+                              {row.suspended ? 'Activate' : 'Suspend'}
+                            </button>
+                            <button
+                              disabled={!enabled || row.deletion_pending}
+                              onClick={() =>
+                                setPending({
+                                  action: 'user',
+                                  userId: row.id,
+                                  operation: 'grant',
+                                  reason: '',
+                                  days: 30,
+                                })
+                              }
+                            >
+                              Grant Pro
+                            </button>
+                            {row.grant_until && (
                               <button
                                 disabled={!enabled || row.deletion_pending}
                                 onClick={() =>
                                   setPending({
                                     action: 'user',
                                     userId: row.id,
-                                    operation: 'grant',
+                                    operation: 'revoke_grant',
                                     reason: '',
                                     days: 30,
                                   })
                                 }
                               >
-                                Grant Pro
+                                Revoke grant
                               </button>
-                              {row.grant_until && (
-                                <button
-                                  disabled={!enabled || row.deletion_pending}
-                                  onClick={() =>
-                                    setPending({
-                                      action: 'user',
-                                      userId: row.id,
-                                      operation: 'revoke_grant',
-                                      reason: '',
-                                      days: 30,
-                                    })
-                                  }
-                                >
-                                  Revoke grant
-                                </button>
-                              )}
-                              <button
-                                className="admin-delete-user"
-                                disabled={!enabled || row.is_admin || !data.userDeletionReady}
-                                onClick={() =>
-                                  setPending({
-                                    action: 'delete_user',
-                                    userId: row.id,
-                                    confirmation: 'DELETE',
-                                    reason: '',
-                                  })
-                                }
-                              >
-                                {row.deletion_pending ? 'Retry deletion' : 'Delete user'}
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    : (data.subscriptions?.rows || []).map((row) => (
-                        <tr key={row.stripe_subscription_id}>
-                          <td>{row.email}</td>
-                          <td>
-                            <small>{row.stripe_subscription_id}</small>
-                          </td>
-                          <td>
-                            <span className="admin-status">{row.status}</span>
-                            {row.cancel_at_period_end && <small>Ends at period close</small>}
-                          </td>
-                          <td>{date(row.paid_until)}</td>
-                          <td>
-                            <div className="admin-row-actions">
-                              <button
-                                disabled={
-                                  !enabled ||
-                                  !data.stripeReady ||
-                                  ['canceled', 'incomplete_expired'].includes(row.status)
-                                }
-                                onClick={() =>
-                                  setPending({
-                                    action: 'subscription',
-                                    requestId: crypto.randomUUID(),
-                                    subscriptionId: row.stripe_subscription_id,
-                                    operation: row.cancel_at_period_end ? 'resume' : 'cancel_end',
-                                    reason: '',
-                                  })
-                                }
-                              >
-                                {row.cancel_at_period_end
-                                  ? 'Keep renewing'
-                                  : 'Cancel at period end'}
-                              </button>
-                              <button
-                                disabled={
-                                  !enabled ||
-                                  !data.stripeReady ||
-                                  ['canceled', 'incomplete_expired'].includes(row.status)
-                                }
-                                onClick={() =>
-                                  setPending({
-                                    action: 'subscription',
-                                    requestId: crypto.randomUUID(),
-                                    subscriptionId: row.stripe_subscription_id,
-                                    operation: 'cancel_now',
-                                    reason: '',
-                                  })
-                                }
-                              >
-                                End now
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
+                            )}
+                            <button
+                              className="admin-delete-user"
+                              disabled={!enabled || row.is_admin || !data.userDeletionReady}
+                              onClick={() =>
+                                setPending({
+                                  action: 'delete_user',
+                                  userId: row.id,
+                                  confirmation: 'DELETE',
+                                  reason: '',
+                                })
+                              }
+                            >
+                              {row.deletion_pending ? 'Retry deletion' : 'Delete user'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    (data.subscriptions?.rows || []).map((row) => (
+                      <tr key={row.stripe_subscription_id}>
+                        <td>{row.email}</td>
+                        <td>
+                          <small>{row.stripe_subscription_id}</small>
+                        </td>
+                        <td>
+                          <span className="admin-status">{row.status}</span>
+                          {row.cancel_at_period_end && <small>Ends at period close</small>}
+                        </td>
+                        <td>{date(row.paid_until)}</td>
+                        <td>
+                          <div className="admin-row-actions">
+                            <button
+                              disabled={
+                                !enabled ||
+                                !data.stripeReady ||
+                                ['canceled', 'incomplete_expired'].includes(row.status)
+                              }
+                              onClick={() =>
+                                setPending({
+                                  action: 'subscription',
+                                  requestId: crypto.randomUUID(),
+                                  subscriptionId: row.stripe_subscription_id,
+                                  operation: row.cancel_at_period_end ? 'resume' : 'cancel_end',
+                                  reason: '',
+                                })
+                              }
+                            >
+                              {row.cancel_at_period_end ? 'Keep renewing' : 'Cancel at period end'}
+                            </button>
+                            <button
+                              disabled={
+                                !enabled ||
+                                !data.stripeReady ||
+                                ['canceled', 'incomplete_expired'].includes(row.status)
+                              }
+                              onClick={() =>
+                                setPending({
+                                  action: 'subscription',
+                                  requestId: crypto.randomUUID(),
+                                  subscriptionId: row.stripe_subscription_id,
+                                  operation: 'cancel_now',
+                                  reason: '',
+                                })
+                              }
+                            >
+                              End now
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
-              {!total && (
+              {!total && !dataPending && (
                 <EmptyState
                   text={
                     section === 'users' ? 'No users to display.' : 'No subscriptions to display.'
@@ -638,7 +702,10 @@ export function AdminDashboard() {
                   });
                 }}
               >
-                <fieldset disabled={!enabled || !data.stripeReady}>
+                <fieldset
+                  disabled={!enabled || !data.stripeReady}
+                  aria-hidden={dataPending || undefined}
+                >
                   <label>
                     Plan name
                     <input
@@ -723,24 +790,51 @@ export function AdminDashboard() {
             <div>
               <section className="admin-card admin-price-preview">
                 <span className="pro-badge">PLAN PREVIEW</span>
-                <h2>{pricing.name}</h2>
+                <h2>{dataPending ? <Skeleton width="65%" height={19} /> : pricing.name}</h2>
                 <strong>
-                  {money(pricing.trialEnabled ? pricing.trialAmount : pricing.monthlyAmount)}
+                  {dataPending ? (
+                    <Skeleton width={90} height="1em" />
+                  ) : (
+                    money(pricing.trialEnabled ? pricing.trialAmount : pricing.monthlyAmount)
+                  )}
                   <small>
-                    {pricing.trialEnabled ? ` for ${pricing.trialDays} days` : ' / month'}
+                    {dataPending ? (
+                      <Skeleton width={75} height={11} />
+                    ) : pricing.trialEnabled ? (
+                      ` for ${pricing.trialDays} days`
+                    ) : (
+                      ' / month'
+                    )}
                   </small>
                 </strong>
                 <p>
-                  {pricing.trialEnabled
-                    ? `Then ${money(pricing.monthlyAmount)} USD/month automatically.`
-                    : 'Renews monthly in USD.'}
+                  {dataPending ? (
+                    <Skeleton width="80%" height={12} />
+                  ) : pricing.trialEnabled ? (
+                    `Then ${money(pricing.monthlyAmount)} USD/month automatically.`
+                  ) : (
+                    'Renews monthly in USD.'
+                  )}
                 </p>
                 <p>All Pro features. Payment at download.</p>
                 <small>Customers see the full renewal terms before checkout.</small>
               </section>
               <section className="admin-card">
                 <h2>Published versions</h2>
-                {data.priceHistory?.length ? (
+                {dataPending ? (
+                  <ul className="admin-history" aria-hidden="true">
+                    {[0, 1, 2].map((i) => (
+                      <li key={i}>
+                        <strong>
+                          <Skeleton width="70%" height={12} />
+                        </strong>
+                        <small>
+                          <Skeleton width="50%" height={10} />
+                        </small>
+                      </li>
+                    ))}
+                  </ul>
+                ) : data.priceHistory?.length ? (
                   <ul className="admin-history">
                     {data.priceHistory.map((row) => (
                       <li key={row.id}>
@@ -774,7 +868,7 @@ export function AdminDashboard() {
                 setPending({ action: 'settings', settings });
               }}
             >
-              <fieldset disabled={!enabled}>
+              <fieldset disabled={!enabled} aria-hidden={dataPending || undefined}>
                 <label className="admin-check">
                   <input
                     type="checkbox"
@@ -841,30 +935,36 @@ export function AdminDashboard() {
                   }))}
                 />
               </div>
-              <div className="admin-ticket-list">
-                {(data.tickets?.rows || []).map((row) => (
-                  <button
-                    key={row.id}
-                    className={ticket?.id === row.id ? 'selected' : ''}
-                    onClick={() => {
-                      setTicket(row);
-                      setReply('');
-                      setStatus(row.status);
-                      setPriority(row.priority);
-                    }}
-                  >
-                    <span>
-                      <strong>{row.subject}</strong>
-                      <span className="admin-status">{row.status}</span>
-                    </span>
-                    <small>{row.email}</small>
-                    <small>
-                      {date(row.updated_at)} · {row.priority} priority
-                    </small>
-                  </button>
-                ))}
-              </div>
-              {!data.tickets?.rows.length && <EmptyState text="No inquiries in this view." />}
+              {dataPending && !ticket ? (
+                <TicketListSkeleton />
+              ) : (
+                <div className="admin-ticket-list">
+                  {(data.tickets?.rows || []).map((row) => (
+                    <button
+                      key={row.id}
+                      className={ticket?.id === row.id ? 'selected' : ''}
+                      onClick={() => {
+                        setTicket(row);
+                        setReply('');
+                        setStatus(row.status);
+                        setPriority(row.priority);
+                      }}
+                    >
+                      <span>
+                        <strong>{row.subject}</strong>
+                        <span className="admin-status">{row.status}</span>
+                      </span>
+                      <small>{row.email}</small>
+                      <small>
+                        {date(row.updated_at)} · {row.priority} priority
+                      </small>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {!dataPending && !data.tickets?.rows.length && (
+                <EmptyState text="No inquiries in this view." />
+              )}
               <Pagination page={page} total={data.tickets?.total || 0} onChange={setPage} />
             </section>
             <section className="admin-card">
@@ -875,20 +975,24 @@ export function AdminDashboard() {
                   <p>
                     {ticket.name} · {ticket.email}
                   </p>
-                  <div className="support-thread">
-                    <article>
-                      <strong>Customer</strong>
-                      <p>{ticket.message}</p>
-                      <small>{date(ticket.created_at)}</small>
-                    </article>
-                    {(data.messages || []).map((message) => (
-                      <article key={message.id} className={message.staff ? 'staff' : ''}>
-                        <strong>{message.staff ? 'Folio support' : 'Customer'}</strong>
-                        <p>{message.message}</p>
-                        <small>{date(message.created_at)}</small>
+                  {dataPending ? (
+                    <ThreadSkeleton />
+                  ) : (
+                    <div className="support-thread">
+                      <article>
+                        <strong>Customer</strong>
+                        <p>{ticket.message}</p>
+                        <small>{date(ticket.created_at)}</small>
                       </article>
-                    ))}
-                  </div>
+                      {(data.messages || []).map((message) => (
+                        <article key={message.id} className={message.staff ? 'staff' : ''}>
+                          <strong>{message.staff ? 'Folio support' : 'Customer'}</strong>
+                          <p>{message.message}</p>
+                          <small>{date(message.created_at)}</small>
+                        </article>
+                      ))}
+                    </div>
+                  )}
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
@@ -951,7 +1055,7 @@ export function AdminDashboard() {
         )}
         {section === 'audit' && (
           <>
-            <AuditList rows={data.audit || []} />
+            <AuditList rows={data.audit || []} loading={dataPending} />
             <div className="admin-pagination">
               <button
                 className="icon-button"
@@ -1140,12 +1244,14 @@ function Pagination({
     </div>
   );
 }
-function AuditList({ rows }: { rows: AuditEntry[] }) {
+function AuditList({ rows, loading = false }: { rows: AuditEntry[]; loading?: boolean }) {
   return (
     <section className="admin-card">
       <h2>Recorded activity</h2>
       <p>Pricing, account access, subscription changes, and support updates leave a record.</p>
-      {rows.length ? (
+      {loading ? (
+        <AuditSkeleton />
+      ) : rows.length ? (
         <ul className="admin-audit-list">
           {rows.map((row) => (
             <li key={row.id}>

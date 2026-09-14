@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
+import { PdfPageSkeleton } from './editor-skeleton';
+import { LoadingLabel } from './skeleton';
 export function PdfCanvas({
   document,
   page = 1,
@@ -8,6 +10,7 @@ export function PdfCanvas({
   rotation,
   decorative = false,
   onPreviewError,
+  aspectRatio,
 }: {
   document: PDFDocumentProxy;
   page?: number;
@@ -15,15 +18,25 @@ export function PdfCanvas({
   rotation?: number;
   decorative?: boolean;
   onPreviewError?: (message: string) => void;
+  aspectRatio?: number;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const [error, setError] = useState('');
   const [text, setText] = useState('Loading page text…');
   const [retry, setRetry] = useState(0);
+  const [rendered, setRendered] = useState<{
+    document: PDFDocumentProxy;
+    page: number;
+    rotation?: number;
+  } | null>(null);
+  const [pageRatio, setPageRatio] = useState(595 / 842);
+  const hasPreview =
+    rendered?.document === document && rendered.page === page && rendered.rotation === rotation;
   useEffect(() => {
     // A failed page change must not leave the previous page's image underneath
     // the current page's annotations. Zooming can keep the previous resolution.
     container.current?.replaceChildren();
+    setRendered(null);
   }, [document, page, rotation]);
   useEffect(() => {
     let cancelled = false;
@@ -35,6 +48,7 @@ export function PdfCanvas({
         const pdfPage = await document.getPage(page);
         if (cancelled) return;
         const base = pdfPage.getViewport({ scale: 1, rotation });
+        setPageRatio(base.width / base.height);
         const density = Math.min(window.devicePixelRatio || 1, 2);
         const viewport = pdfPage.getViewport({ scale: (width / base.width) * density, rotation });
         const canvas = window.document.createElement('canvas');
@@ -45,7 +59,10 @@ export function PdfCanvas({
         canvas.setAttribute('aria-hidden', 'true');
         task = pdfPage.render({ canvas, viewport, background: '#ffffff' });
         await task.promise;
-        if (!cancelled && container.current) container.current.replaceChildren(canvas);
+        if (!cancelled && container.current) {
+          container.current.replaceChildren(canvas);
+          setRendered({ document, page, rotation });
+        }
       } catch (e) {
         if (!cancelled && !(e instanceof Error && e.name === 'RenderingCancelledException')) {
           const message = 'This page could not be previewed. Your edits are still here.';
@@ -84,8 +101,18 @@ export function PdfCanvas({
     };
   }, [document, page, decorative, retry]);
   return (
-    <div className="pdf-canvas" style={{ width }}>
+    <div
+      className="pdf-canvas"
+      style={{ width, ...(!hasPreview ? { aspectRatio: aspectRatio ?? pageRatio } : {}) }}
+      aria-busy={!hasPreview && !error}
+    >
       <div ref={container} />
+      {!hasPreview && !error && (
+        <>
+          <PdfPageSkeleton />
+          {!decorative && <LoadingLabel>Rendering page {String(page)}…</LoadingLabel>}
+        </>
+      )}
       {error && !onPreviewError && !decorative && (
         <div className="pdf-preview-error error-message" role="alert">
           <span>{error}</span>

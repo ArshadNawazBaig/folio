@@ -6,6 +6,7 @@ import { ArrowRight, Mail } from 'lucide-react';
 import { useAccount } from './account-provider';
 import { SignInForm } from './sign-in-form';
 import { afterSignIn } from '@/lib/auth-navigation';
+import { SignInSkeleton } from './skeleton';
 export function AccountPanel({
   destination = '/account',
   adminRequired = false,
@@ -30,7 +31,7 @@ export function AccountPanel({
       </span>
       <h1>{destination === '/admin' ? 'Your control room awaits.' : 'Welcome to Folio.'}</h1>
       {loading || user ? (
-        <p role="status">{user ? 'Opening your dashboard…' : 'Checking your account…'}</p>
+        <SignInSkeleton description />
       ) : (
         <>
           <p>

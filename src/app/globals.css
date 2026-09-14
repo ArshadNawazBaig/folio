@@ -1774,6 +1774,90 @@ dialog::backdrop {
 .pdf-canvas canvas {
   display: block;
 }
+.pdf-page-skeleton {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5%;
+  padding: 8%;
+  background: #fff;
+  pointer-events: none;
+  overflow: hidden;
+  font-size: clamp(5px, 1.2vw, 16px);
+}
+.pdf-page-skeleton > :last-child {
+  margin-top: auto;
+}
+.thumbnail-page .pdf-page-skeleton {
+  font-size: 3px;
+}
+.thumbnail-page .pdf-page-skeleton > :nth-child(2) {
+  display: none;
+}
+.editor-skeleton-toolbar > div {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 9px;
+  min-width: 70px;
+  min-height: 62px;
+}
+.editor-skeleton-paper {
+  width: min(100%, 595px);
+  aspect-ratio: 595 / 842;
+  position: relative;
+  margin: 38px auto;
+  box-shadow: 0 2px 12px #26391f0d;
+}
+.editor-skeleton-properties {
+  display: grid;
+  align-content: start;
+  gap: 24px;
+}
+.editor-skeleton-tabs > span {
+  align-self: center;
+  margin: 0 7px;
+}
+.editor-skeleton-tabs > :last-child {
+  margin-left: auto;
+}
+.editor-skeleton-colors {
+  display: flex;
+  gap: 9px;
+}
+.pricing-availability-skeleton {
+  height: 44px;
+  line-height: 0;
+}
+.admin-main[data-skeleton-loading]
+  fieldset
+  :is(input:not([type='checkbox']), textarea, .dropdown-trigger) {
+  color: transparent;
+  background: linear-gradient(100deg, #e6e9df 20%, #f5f6f0 48%, #e6e9df 76%);
+  background-size: 240% 100%;
+  animation: skeleton-field-shimmer 1.8s ease-in-out infinite;
+}
+.admin-main[data-skeleton-loading] fieldset :is(input, textarea)::placeholder {
+  color: transparent;
+}
+.admin-main[data-skeleton-loading] fieldset svg {
+  visibility: hidden;
+}
+@keyframes skeleton-field-shimmer {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-main[data-skeleton-loading] fieldset :is(input, textarea, .dropdown-trigger) {
+    animation: none;
+  }
+}
 .processor-page > .pdf-canvas {
   box-shadow: 0 3px 15px #24381d12;
 }
@@ -3970,7 +4054,8 @@ dialog::backdrop {
   }
   .search-trigger > span,
   .search-trigger kbd,
-  .header-account > svg {
+  .header-account > svg,
+  .header-account-icon-skeleton {
     display: none;
   }
   .header-inner {
@@ -5420,6 +5505,9 @@ dialog::backdrop {
   .editor-body.hide-pages.hide-properties {
     display: block;
     position: relative;
+  }
+  .editor-route-skeleton :is(.page-sidebar, .properties-sidebar) {
+    display: none;
   }
   .editor-canvas-area {
     width: 100%;
