@@ -57,6 +57,7 @@ import { AccountRequestError } from '@/lib/auth-client';
 import { type TextBlock, type TextChange, type TextInspection } from '@/lib/pro-types';
 import { readWorkspace } from '@/lib/workspace-client';
 import { useWorkspaceSync } from './use-workspace-sync';
+import { useEditorExit } from './use-editor-exit';
 import type { WorkspaceRecord } from '@/lib/workspace-types';
 import { runPdf } from '@/lib/pdf-client';
 import { loadViewer } from '@/lib/pdf-viewer';
@@ -149,6 +150,12 @@ export function Editor() {
     [state, textInspection, pageIndex, mode, flatten],
   );
   const autosave = useWorkspaceSync(bytes, name, snapshot, restoredWorkspace, userId);
+  const editorExit = useEditorExit({
+    enabled: !!bytes,
+    unsaved: dirty,
+    guest: !user,
+    save: () => autosave.flush({ name, snapshot: { ...snapshot, state: stateRef.current } }),
+  });
   useEffect(() => {
     if (!bytes) return;
     setDirty(autosave.phase !== 'saved');
@@ -492,33 +499,6 @@ export function Editor() {
     setOriginalSelection(null);
     setInlineAnnotation('');
   }, [pageModel?.id]);
-  useEffect(() => {
-    const beforeUnload = (e: BeforeUnloadEvent) => {
-      if (dirty) e.preventDefault();
-    };
-    const linkClick = (e: MouseEvent) => {
-      const anchor = (e.target as HTMLElement).closest('a');
-      if (
-        dirty &&
-        anchor &&
-        anchor.href &&
-        !anchor.hasAttribute('download') &&
-        anchor.target !== '_blank' &&
-        anchor.protocol !== 'blob:' &&
-        !anchor.href.includes('#') &&
-        !window.confirm('You have unsaved changes. Leave this document?')
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    };
-    window.addEventListener('beforeunload', beforeUnload);
-    document.addEventListener('click', linkClick, true);
-    return () => {
-      window.removeEventListener('beforeunload', beforeUnload);
-      document.removeEventListener('click', linkClick, true);
-    };
-  }, [dirty]);
   async function enableOriginalText() {
     if (!bytes || !doc || busy) return;
     setInlineAnnotation('');
@@ -569,8 +549,8 @@ export function Editor() {
       group,
     );
   }
-  async function exportFile(nextTool?: string, verified = false) {
-    if (!bytes) return;
+  async function exportFile(nextTool?: string, verified = false, leaveConfirmed = false) {
+    if (!bytes) return false;
     if (nextTool === 'edit-pdf-text') {
       await enableOriginalText();
       return;
@@ -583,6 +563,10 @@ export function Editor() {
         return;
       }
       setGateOpen(true);
+      return;
+    }
+    if (nextTool && !leaveConfirmed) {
+      editorExit.requestLeave(() => exportFile(nextTool, verified, true));
       return;
     }
     setBusy('Preparing your PDF…');
@@ -604,9 +588,10 @@ export function Editor() {
         hasTextChanges(stateRef.current)
       ) {
         setGateOpen(true);
-        return;
+        return false;
       }
       setError(friendlyError(e));
+      return false;
     } finally {
       setBusy('');
     }
@@ -1189,6 +1174,7 @@ export function Editor() {
           </button>
         </div>
       </header>
+      {editorExit.dialog}
       <dialog ref={signInDialog} className="confirm-dialog" aria-labelledby="cloud-signin-heading">
         <header className="dialog-header">
           <h2 id="cloud-signin-heading">Keep this document in your account.</h2>
