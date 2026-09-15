@@ -18,6 +18,8 @@ import {
   FileText,
   LockKeyhole,
   SquareDashedText,
+  QrCode,
+  SlidersHorizontal,
 } from 'lucide-react';
 const icons = {
   edit: FilePenLine,
@@ -38,6 +40,8 @@ const icons = {
   convert: ArrowLeftRight,
   protect: LockKeyhole,
   'text-edit': SquareDashedText,
+  qr: QrCode,
+  enhance: SlidersHorizontal,
 };
 export function ToolIcon({
   name,

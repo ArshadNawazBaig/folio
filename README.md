@@ -32,15 +32,21 @@ npm start
 - Merge PDFs; extract selected pages; split into individual PDFs in a ZIP.
 - Optimize PDF object streams without downsampling. Report when the original is already smaller.
 - Add text watermarks, page numbers, and visible page crops.
-- Export pages to JPG/PNG in a ZIP and extract selectable text into a TXT file.
-- Combine JPG/PNG images into fitted or A4 PDF pages.
+- Preview actual processed PDFs and images. Export one page directly as JPG/PNG or multiple pages in a ZIP, at up to 300 DPI, and extract selectable text into TXT.
+- Combine JPG/PNG/WEBP images into fitted or A4 PDF pages, with photo orientation, file ordering and pagination.
+- Convert JPG/WEBP images, compress batches, and adjust brightness, contrast, saturation and sharpness with original/result previews.
+- Create static website, text and Wi-Fi QR codes with PNG/SVG exports and contrast validation.
 - Fill supported existing form fields. Create text fields and checkboxes, mark them required, and export fillable or flattened copies.
 - Start from three original fillable form templates.
 - Save edited PDF copies to private Supabase Storage, reopen them across devices, and manage them in the dashboard. Older browser drafts can be moved to cloud storage.
 
 The source file on the user's device stays unchanged. Free document processing runs in the browser; opening a PDF in the editor automatically uploads it to private storage for refresh recovery. Files can be handed from the editor to another tool in memory.
 
-The editor toolbar exposes Move, Undo/Redo, Add Text, Edit Text, Eraser, Highlight, Pencil, Image, Ellipse, Cross, Check, Sign, Annotations, Links, More tools, Page layout, and Manage pages. Custom menus provide shape/signature choices, form fields, annotation review, and page operations. Move pans the page; added items remain draggable. Arrow keys navigate toolbar buttons and menus. The toolbar scrolls horizontally on narrow screens. Edit Text hands the current PDF and its annotations to the existing original-text workspace; premium downloads retain their server payment checks.
+The editor toolbar exposes Move, Undo/Redo, Add Text, Edit Text, Eraser, Highlight, Pencil, Image, Ellipse, Cross, Check, Sign, Annotations, Links, More tools, Page layout, and Manage pages. Custom menus provide shape/signature choices, form fields, annotation review, and page operations. Move pans the page; added items remain draggable. Arrow keys navigate toolbar buttons and menus. The toolbar scrolls horizontally on narrow screens. Edit Text edits supported original text directly in the same workspace; premium downloads retain their server payment checks.
+
+For provider-backed tools, see the [processing service setup guide](docs/PROCESSING-SERVICES.md). CloudConvert supports the existing PDF-to-Word, Excel and PowerPoint routes; Google Cloud handles document translation. Full competitor tool coverage and large-file background processing remain work in progress, as recorded in the [tool review](docs/reviews/TOOL-COVERAGE.md).
+
+The [tool access policy](docs/TOOL-ACCESS.md) defines free and premium downloads. Editing and previews stay available before purchase; the pricing page lists enabled features separately from tools that still need a service connection.
 
 ## Folio Pro
 

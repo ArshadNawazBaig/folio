@@ -10,12 +10,14 @@ export function UploadArea({
   multiple = false,
   compact = false,
   busy = false,
+  formatsLabel,
 }: {
   onFiles: (files: File[]) => void;
   accept?: string;
   multiple?: boolean;
   compact?: boolean;
   busy?: boolean;
+  formatsLabel?: string;
 }) {
   const input = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
@@ -49,7 +51,7 @@ export function UploadArea({
       </button>
       <p>or drop {multiple ? 'your files' : 'your file'} here</p>
       <small>
-        {accept.includes('image') ? 'JPG and PNG' : 'PDF files'} · Up to 50 MB
+        {formatsLabel || (accept.includes('image') ? 'JPG and PNG' : 'PDF files')} · Up to 50 MB
         {multiple ? ' per file' : ''}
       </small>
       <input

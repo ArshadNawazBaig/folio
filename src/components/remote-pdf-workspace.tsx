@@ -34,9 +34,11 @@ const sourceOptions = [{ value: 'auto', label: 'Auto-detect' }, ...languageOptio
 export function RemotePdfWorkspace({
   tool,
   initialReady = false,
+  provider = 'ConvertAPI',
 }: {
   tool: RemoteTool;
   initialReady?: boolean;
+  provider?: 'CloudConvert' | 'ConvertAPI';
 }) {
   const translation = tool === 'translate-pdf',
     format = outputFormats[tool];
@@ -494,7 +496,7 @@ export function RemotePdfWorkspace({
       </div>
       <p className="service-note service-note--footer">
         {ready
-          ? `${translation ? 'Translation sends this PDF to Google Cloud Translation.' : 'Conversion sends this PDF to ConvertAPI.'} Processing starts when you choose ${translation ? 'Translate PDF' : 'Convert'}. Prepared files remain available for 24 hours; layout and recognition quality depend on your source document.`
+          ? `${translation ? 'Translation sends this PDF to Google Cloud Translation.' : `Conversion sends this PDF to ${provider}.`} Processing starts when you choose ${translation ? 'Translate PDF' : 'Convert'}. Prepared files remain available for 24 hours; layout and recognition quality depend on your source document.`
           : 'This processing service is not connected yet. Local previews work, and your file is not uploaded.'}{' '}
         Maximum 10 MB and {translation ? 20 : 100} pages.
       </p>
@@ -516,6 +518,7 @@ export function RemotePdfWorkspace({
         </p>
       )}
       <DownloadGate
+        tool={tool}
         open={gate}
         onClose={() => setGate(false)}
         onReady={() => void exportResult(true)}

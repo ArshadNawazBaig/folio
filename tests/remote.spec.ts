@@ -57,6 +57,11 @@ test('anonymous translation previews precede the paywall and stay in the current
   expect(processed).toBe(1);
   await page.getByRole('button', { name: 'Download PDF', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(
+    page.getByText('Downloading your translated document requires a premium plan.', {
+      exact: false,
+    }),
+  ).toBeVisible();
   await expect(page.getByText('Keep this tab open', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'Keep editing', exact: true }).last().click();
   expect(

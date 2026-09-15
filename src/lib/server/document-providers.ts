@@ -44,8 +44,13 @@ async function translationToken() {
 export function remoteReady(tool: RemoteTool) {
   return (
     artifactReady() &&
-    (tool === 'translate-pdf' ? !!translationConfig() : !!process.env.CONVERTAPI_TOKEN)
+    (tool === 'translate-pdf'
+      ? !!translationConfig()
+      : !!(process.env.CLOUDCONVERT_API_KEY?.trim() || process.env.CONVERTAPI_TOKEN))
   );
+}
+export function conversionProvider() {
+  return process.env.CLOUDCONVERT_API_KEY?.trim() ? 'CloudConvert' : 'ConvertAPI';
 }
 export async function boundedProviderResponse(response: Response, limit = REMOTE_MAX_OUTPUT) {
   if (Number(response.headers.get('content-length') || 0) > limit) {
@@ -72,12 +77,131 @@ export async function boundedProviderResponse(response: Response, limit = REMOTE
   }
   return Buffer.concat(chunks, size);
 }
+async function cloudConvert(file: File, options: RemoteOptions, signal?: AbortSignal) {
+  const key = process.env.CLOUDCONVERT_API_KEY!.trim();
+  const timeout = AbortSignal.timeout(90_000);
+  const combined = signal ? AbortSignal.any([signal, timeout]) : timeout;
+  let jobId = '';
+  async function jobRequest(url: string, body?: unknown) {
+    const response = await fetch(url, {
+      method: body ? 'POST' : 'GET',
+      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      ...(body ? { body: JSON.stringify(body) } : {}),
+      signal: combined,
+      redirect: 'error',
+      cache: 'no-store',
+    });
+    if (!response.ok) {
+      await response.body?.cancel();
+      if (response.status === 429)
+        throw new ApiError(429, 'The document service is busy. Please try again shortly.');
+      if ([401, 402, 403].includes(response.status))
+        throw new ApiError(503, 'The document service is not available. Contact support.');
+      throw new ApiError(
+        422,
+        'The conversion service could not process this PDF. Try a smaller, unsigned document.',
+      );
+    }
+    return JSON.parse((await boundedProviderResponse(response, 1024 * 1024)).toString()).data;
+  }
+  try {
+    if (file.size > 10 * 1024 * 1024) throw new ApiError(413, 'Choose a PDF smaller than 10 MB.');
+    const job = await jobRequest('https://api.cloudconvert.com/v2/jobs', {
+      tasks: {
+        'import-file': {
+          operation: 'import/base64',
+          file: Buffer.from(await file.arrayBuffer()).toString('base64'),
+          filename: 'document.pdf',
+        },
+        'convert-file': {
+          operation: 'convert',
+          input: 'import-file',
+          input_format: 'pdf',
+          output_format: outputFormats[options.tool].extension,
+        },
+        'export-file': {
+          operation: 'export/url',
+          input: 'convert-file',
+          inline: false,
+          archive_multiple_files: false,
+        },
+      },
+    });
+    if (typeof job?.id !== 'string' || !/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(job.id))
+      throw new ApiError(502, 'The conversion service returned an unexpected job.');
+    jobId = job.id;
+    // Keep the job ID before waiting so failed/cancelled requests can clean up provider files.
+    const completed = ['finished', 'error'].includes(job.status)
+      ? job
+      : await jobRequest(`https://sync.api.cloudconvert.com/v2/jobs/${jobId}`);
+    if (completed?.status !== 'finished')
+      throw new ApiError(422, 'This PDF could not be converted. Try a smaller, unsigned document.');
+    const task = Array.isArray(completed.tasks)
+      ? completed.tasks.find(
+          (t: { name?: string; operation?: string }) =>
+            t.name === 'export-file' && t.operation === 'export/url',
+        )
+      : undefined;
+    const outputs = task?.result?.files;
+    if (
+      task?.status !== 'finished' ||
+      !Array.isArray(outputs) ||
+      outputs.length !== 1 ||
+      typeof outputs[0]?.url !== 'string'
+    )
+      throw new ApiError(502, 'The conversion service did not return a single finished file.');
+    const url = new URL(outputs[0].url);
+    if (
+      url.protocol !== 'https:' ||
+      url.hostname !== 'storage.cloudconvert.com' ||
+      url.port ||
+      url.username ||
+      url.password
+    )
+      throw new ApiError(502, 'The conversion service returned an unexpected download address.');
+    const response = await fetch(url, {
+      // Never forward API credentials to a download URL.
+      signal: combined,
+      redirect: 'error',
+      cache: 'no-store',
+    });
+    if (!response.ok) {
+      await response.body?.cancel();
+      throw new ApiError(502, 'The converted file could not be retrieved. Please try again.');
+    }
+    const bytes = await boundedProviderResponse(response);
+    if (!bytes.subarray(0, 4).equals(Buffer.from([0x50, 0x4b, 0x03, 0x04])))
+      throw new ApiError(502, 'The conversion service returned an unexpected file.');
+    return bytes;
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (signal?.aborted) throw new ApiError(499, 'Processing cancelled.');
+    throw new ApiError(504, 'The conversion service did not finish in time. Try a smaller PDF.');
+  } finally {
+    if (jobId) {
+      try {
+        const response = await fetch(`https://api.cloudconvert.com/v2/jobs/${jobId}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${key}` },
+          signal: AbortSignal.timeout(3000),
+          redirect: 'error',
+          cache: 'no-store',
+        });
+        await response.body?.cancel();
+      } catch {
+        // Best-effort cleanup. CloudConvert also expires completed jobs after 24 hours.
+      }
+    }
+  }
+}
 export async function processRemotePdf(file: File, options: RemoteOptions, signal?: AbortSignal) {
   if (!remoteReady(options.tool))
     throw new ApiError(
       503,
       'This document service is not connected yet. Your original PDF is unchanged.',
     );
+  if (options.tool !== 'translate-pdf' && process.env.CLOUDCONVERT_API_KEY?.trim())
+    return cloudConvert(file, options, signal);
   let body: BodyInit, url: URL;
   const headers = new Headers();
   if (options.tool === 'translate-pdf') {

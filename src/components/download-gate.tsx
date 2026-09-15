@@ -4,16 +4,19 @@ import { Download, X, RefreshCw, Loader2 } from 'lucide-react';
 import { googleSignInUrl } from '@/lib/auth-client';
 import { Pricing } from './pricing';
 import { useAccount } from './account-provider';
+import { premiumDownloads, type PremiumDownloadTool } from '@/lib/tool-access';
 export function DownloadGate({
   open,
   onClose,
   onReady,
   saved = false,
+  tool,
 }: {
   open: boolean;
   onClose: () => void;
   onReady: () => void;
   saved?: boolean;
+  tool: PremiumDownloadTool;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const signInTab = useRef<Window | null>(null);
@@ -84,6 +87,7 @@ export function DownloadGate({
     }
   }
   const message = user ? error : signInError;
+  const download = premiumDownloads[tool];
   return (
     <dialog
       ref={dialog}
@@ -102,10 +106,7 @@ export function DownloadGate({
         </button>
       </header>
       <div className="download-gate-body" role="region" aria-label="Download options" tabIndex={0}>
-        <p>
-          A premium plan is required to download your finished document. You can keep editing for
-          free.
-        </p>
+        <p>{download.reason} You can keep editing and previewing for free.</p>
         <p className="gate-preserve">
           {saved
             ? 'Your recovery draft is saved in cloud storage. '
@@ -153,8 +154,8 @@ export function DownloadGate({
               {checking || loading
                 ? 'Checking access…'
                 : access.pro
-                  ? 'Download my PDF'
-                  : 'I’ve paid — download my PDF'}
+                  ? `Download my ${download.format}`
+                  : `I’ve paid — download my ${download.format}`}
             </button>
           )}
         </div>

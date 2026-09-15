@@ -195,6 +195,7 @@ export function ProtectPdf() {
         <p>Your password stays in this tab until you request the protected download.</p>
       </div>
       <DownloadGate
+        tool="protect-pdf"
         open={gateOpen}
         onClose={() => setGateOpen(false)}
         onReady={() => void protect(undefined, true)}

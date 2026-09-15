@@ -2,7 +2,6 @@ import { test, expect } from './fixtures/editor-storage';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
 import { PDFDocument } from 'pdf-lib';
-import JSZip from 'jszip';
 import { createSample } from '../src/lib/sample';
 import { tools } from '../src/lib/tools';
 import { guides } from '../src/lib/guides';
@@ -151,12 +150,10 @@ test('PDF image conversion returns actual PNG files', async ({ page }) => {
   await page.getByLabel('Pages', { exact: true }).fill('1');
   await page.getByRole('button', { name: 'Convert to PNG', exact: true }).click();
   const event = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Download ZIP', exact: true }).click();
+  await page.getByRole('button', { name: 'Download PNG', exact: true }).click();
   const downloaded = await event;
-  const zip = await JSZip.loadAsync(await readFile((await downloaded.path())!));
-  const files = Object.values(zip.files);
-  expect(files).toHaveLength(1);
-  expect([...(await files[0].async('uint8array')).slice(0, 8)]).toEqual([
+  expect(downloaded.suggestedFilename()).toMatch(/\.png$/);
+  expect([...(await readFile((await downloaded.path())!)).slice(0, 8)]).toEqual([
     137, 80, 78, 71, 13, 10, 26, 10,
   ]);
 });
@@ -231,8 +228,9 @@ test('invalid files and page ranges show a useful error without exporting', asyn
   await page.locator('input[type=file]').first().setInputFiles(upload);
   await expect(page.getByRole('button', { name: 'Split PDF', exact: true })).toBeEnabled();
   await page.getByLabel('Pages', { exact: true }).fill('99');
-  await page.getByRole('button', { name: 'Split PDF', exact: true }).click();
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('between 1 and 3');
+  await expect(page.getByRole('button', { name: 'Split PDF', exact: true })).toBeDisabled();
+  await expect(page.getByLabel('Pages', { exact: true })).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#page-range-help')).toContainText('valid range within this document');
   await expect(page.getByRole('button', { name: 'Download PDF', exact: true })).toHaveCount(0);
 });
 

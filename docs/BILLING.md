@@ -4,6 +4,8 @@ Folio uses Lemon Squeezy hosted checkout, signed webhooks, and the customer port
 
 The initial offers remain **$1 USD for 7 days, then $25/month**, or **$25/month immediately**. Only premium downloads require paid access. Editing and existing free tools remain available before payment. Checkout opens in a separate tab from the editor so the document remains available.
 
+See [the tool access policy](TOOL-ACCESS.md) for the free/premium split, mixed editor behavior, and planned tools. The pricing page separates enabled features from services that are not connected yet.
+
 ## Connect the account
 
 1. Apply any missing Supabase migrations, including [010_lemon_squeezy.sql](../supabase/migrations/010_lemon_squeezy.sql). Do not rerun already applied migrations. The new migration preserves existing users, files, pricing history, and billing rows.

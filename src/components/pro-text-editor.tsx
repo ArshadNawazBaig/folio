@@ -833,6 +833,7 @@ export function ProTextEditor() {
         Text deletion is not secure redaction. Keep an original and review the exported PDF.
       </p>
       <DownloadGate
+        tool="edit-pdf-text"
         open={gateOpen}
         onClose={() => setGateOpen(false)}
         onReady={() => void apply(true, true)}

@@ -1,3 +1,5 @@
+import { nativeTools } from './native-tools';
+import { toolDownloadAccess } from './tool-access';
 export type ToolCategory = 'Edit & organize' | 'Convert' | 'Forms & signing' | 'More possibilities';
 export type Tool = {
   slug: string;
@@ -15,8 +17,9 @@ export type Tool = {
   detail: string;
   faq: [string, string][];
   keywords: string[];
+  processor?: string;
 };
-const tool = (t: Tool) => t;
+const tool = (t: Omit<Tool, 'premium'>) => t;
 export const tools: Tool[] = [
   tool({
     slug: 'edit-pdf',
@@ -35,15 +38,15 @@ export const tools: Tool[] = [
       'Download your edited PDF.',
     ],
     detail:
-      'The annotation editor adds annotations over your original pages and preserves the source file. Use the PDF text editor to replace supported original text blocks. Scanned pages can be annotated, but need OCR for original text editing.',
+      'Use one workspace to edit original text, add annotations and signatures, and organize pages. Select Edit Text to change supported text directly on the page. Scanned pages can be annotated, but need OCR for original text editing.',
     faq: [
       [
         'Can I change the original text?',
-        'The annotation editor adds text annotations. The PDF text editor replaces supported existing text blocks and offers font, size, and color controls. It does not automatically reflow paragraphs or perform OCR.',
+        'Yes. Select Edit Text in the same editor, click a supported text block, and type directly on the page. Font, size and color controls are available. Paragraphs do not automatically reflow.',
       ],
       [
         'Will my file be uploaded?',
-        'Annotation editing and exporting happen in your browser. Choosing Save to cloud uploads a PDF copy to your private account storage so you can access it from My files on another device.',
+        'Yes. Your editor document and changes are saved in private cloud storage for refresh recovery. Guest files expire after 24 hours. Sign in to keep your files and access them across devices.',
       ],
     ],
     keywords: ['annotate', 'write', 'add text', 'highlight'],
@@ -58,7 +61,6 @@ export const tools: Tool[] = [
     category: 'Edit & organize',
     color: 'sage',
     available: true,
-    premium: true,
     action: 'Edit original text',
     steps: [
       'Choose a PDF and open it for text editing.',
@@ -66,7 +68,7 @@ export const tools: Tool[] = [
       'Review your changes and download your edited PDF.',
     ],
     detail:
-      'The text editor replaces supported page text objects. PDFs often divide sentences into separate blocks. Edit each block in place; replacement fonts can change spacing, and paragraphs do not automatically reflow. Text processing uploads the file to Folio and works in memory. Signed-in users’ checkout recovery drafts are saved separately in private cloud storage.',
+      'Edit supported text blocks directly on the PDF. Preserve the original appearance where the embedded font permits, or choose a replacement font. Copy, paste and move selected blocks, undo changes, and save the workspace to private cloud storage. Paragraphs do not automatically reflow.',
     faq: [
       [
         'Can I edit a scanned PDF?',
@@ -74,7 +76,7 @@ export const tools: Tool[] = [
       ],
       [
         'Are the original fonts preserved?',
-        'The editor uses a matching standard font when available, and lets you choose a replacement font, size, and color. Embedded or subset fonts may look different. Review your preview and export.',
+        'The editor preserves supported embedded fonts, weight and color. If an embedded font omits a character you add, a matching fallback is used. You can also choose another font. Review the result because substitutions can change spacing.',
       ],
       [
         'Does deleting text securely redact it?',
@@ -105,7 +107,6 @@ export const tools: Tool[] = [
     category: 'More possibilities',
     color: 'sand',
     available: true,
-    premium: true,
     action: 'Protect & download',
     steps: [
       'Choose an unencrypted PDF.',
@@ -366,7 +367,7 @@ export const tools: Tool[] = [
     name: 'PDF to JPG',
     short: 'Give your pages a new format.',
     description:
-      'Turn PDF pages into JPG images. Choose the page range and resolution, then download your images in a ZIP.',
+      'Turn PDF pages into JPG images. Choose pages, quality and resolution up to 300 DPI. Preview the actual result before downloading.',
     icon: 'image',
     category: 'Convert',
     color: 'sand',
@@ -378,11 +379,11 @@ export const tools: Tool[] = [
     faq: [
       [
         'Will each page become its own image?',
-        'Yes. Each selected page becomes a separate JPG inside a ZIP archive.',
+        'Yes. One selected page downloads as a JPG. Multiple pages download as separate JPGs in a ZIP archive.',
       ],
       [
         'Can I increase image quality?',
-        'Choose the higher-resolution option. Larger pages and higher resolution need more memory.',
+        'Choose a higher resolution, up to 300 DPI, and adjust the JPG quality. Larger pages and higher resolution need more memory.',
       ],
     ],
     keywords: ['jpeg', 'picture', 'photo', 'convert'],
@@ -398,7 +399,11 @@ export const tools: Tool[] = [
     color: 'sage',
     available: true,
     action: 'Convert to PNG',
-    steps: ['Choose your PDF.', 'Select pages and resolution.', 'Download a ZIP of PNG images.'],
+    steps: [
+      'Choose your PDF.',
+      'Select pages and resolution.',
+      'Preview and download your PNG images.',
+    ],
     detail:
       'PNG is a useful choice for diagrams, text-heavy pages, and screenshots. Each page is rendered to an image at your chosen resolution. Original interactive fields and links become part of the image.',
     faq: [
@@ -418,15 +423,15 @@ export const tools: Tool[] = [
     name: 'Image to PDF',
     short: 'Your images, all on the same page.',
     description:
-      'Combine JPG and PNG images into a PDF. Arrange your images and choose fitted pages or A4 paper.',
+      'Combine JPG, PNG and WEBP images into a PDF. Arrange your images, choose fitted pages or A4 paper, and review the result.',
     icon: 'image-plus',
     category: 'Convert',
     color: 'orange',
     available: true,
     action: 'Create PDF',
-    accept: 'image/jpeg,image/png',
+    accept: 'image/jpeg,image/png,image/webp',
     steps: [
-      'Add JPG or PNG images.',
+      'Add JPG, PNG or WEBP images.',
       'Arrange them and choose your page size.',
       'Create and download your PDF.',
     ],
@@ -435,7 +440,7 @@ export const tools: Tool[] = [
     faq: [
       [
         'Which images are supported?',
-        'JPG and PNG files are supported. Convert HEIC or other formats before adding them.',
+        'JPG, PNG and WEBP files are supported. JPEG rotation metadata is respected. Convert HEIC or other formats before adding them.',
       ],
       [
         'Can I combine multiple images?',
@@ -534,6 +539,7 @@ export const tools: Tool[] = [
     ],
     keywords: ['fillable', 'form builder', 'checkbox', 'input'],
   }),
+  ...nativeTools,
   tool({
     slug: 'translate-pdf',
     name: 'Translate PDF',
@@ -544,7 +550,6 @@ export const tools: Tool[] = [
     category: 'More possibilities',
     color: 'blue',
     available: false,
-    premium: true,
     action: 'Translate PDF',
     steps: [
       'Choose a PDF to preview locally.',
@@ -575,7 +580,6 @@ export const tools: Tool[] = [
       category: 'Convert',
       color: 'blue',
       available: false,
-      premium: true,
       action: `Convert to ${format}`,
       steps: [
         'Choose a PDF and review its local preview.',
@@ -596,7 +600,7 @@ export const tools: Tool[] = [
       keywords: [format.toLowerCase(), 'office', 'convert', 'docx', 'xlsx', 'pptx'],
     }),
   ),
-];
+].map((entry) => ({ ...entry, premium: toolDownloadAccess(entry.slug) === 'premium' }));
 export const categories: ToolCategory[] = [
   'Edit & organize',
   'Convert',

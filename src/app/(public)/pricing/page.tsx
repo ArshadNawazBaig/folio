@@ -3,6 +3,8 @@ import { Faq } from '@/components/faq';
 import { pageMetadata } from '@/lib/seo';
 import { getPlatform } from '@/lib/server/platform';
 import { money, offerTerms } from '@/lib/platform';
+import { serverTools, isRemoteTool } from '@/lib/server/tool-catalog';
+import { availablePremiumToolNames } from '@/lib/tool-access';
 export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
   const { catalog } = await getPlatform();
@@ -14,6 +16,14 @@ export async function generateMetadata() {
 }
 export default async function PricingPage() {
   const { catalog } = await getPlatform();
+  const toolCatalog = serverTools();
+  const availableTools = availablePremiumToolNames(toolCatalog);
+  const additionalPremiumTools = availablePremiumToolNames(
+    toolCatalog.filter((tool) => isRemoteTool(tool.slug)),
+  );
+  const unavailableTools = toolCatalog
+    .filter((tool) => tool.premium && !tool.available)
+    .map((tool) => tool.name);
   return (
     <main id="main" className="container pricing-page">
       <div className="pricing-heading">
@@ -25,14 +35,26 @@ export default async function PricingPage() {
         </h1>
         <p>
           Everyday PDF tools are free. Edit and preview with Pro tools at no charge, then choose a
-          plan when you download your finished PDF.
+          plan when you download your finished file.
         </p>
       </div>
-      <Pricing initialCatalog={catalog} />
+      <Pricing initialCatalog={catalog} additionalPremiumTools={additionalPremiumTools} />
       <section className="pricing-faq">
         <h2>A few things, made clear.</h2>
         <Faq
           items={[
+            [
+              'Which downloads are free?',
+              'Added text, annotations, signatures, fillable forms, merging, splitting, compression, cropping, page organization, watermarks, and page numbers are free. PDF-to-image conversion, selectable-text extraction, image-to-PDF conversion, JPG/WEBP conversion, image compression, basic photo adjustments, and static QR codes are also free. Free downloads do not receive a Folio watermark.',
+            ],
+            [
+              'When does my edited PDF need a premium plan?',
+              'Only when the finished document includes a premium change, such as replacing, deleting, moving, or copying original PDF text, or applying password protection. Opening Edit Text or selecting a text block does not make a free document paid. Undo all original-text changes to return to a free annotation download. Editing and previews remain available before purchase.',
+            ],
+            [
+              'Which premium tools can I use today?',
+              `Available now: ${availableTools.join(', ')}.${unavailableTools.length ? ` Currently unavailable: ${unavailableTools.join(', ')}. These are not available to subscribers yet; check their tool pages before buying a plan for them.` : ''} Standalone OCR, RTF/EPUB conversion, reverse Office conversion, transcription, and media conversion are planned and are not currently included as available tools.`,
+            ],
             [
               'How does the introductory offer work?',
               catalog.trialEnabled
@@ -45,7 +67,7 @@ export default async function PricingPage() {
             ],
             [
               'Does Pro really change existing text?',
-              'Yes. Pro replaces supported text objects in the PDF. It works one text block at a time and does not automatically reflow paragraphs. Embedded fonts may be replaced with a standard font. Scanned images, text inside artwork, clipped text, and some complex layouts are not supported.',
+              'Yes. The editor replaces supported text objects in the PDF. It works one text block at a time and does not automatically reflow paragraphs. Supported embedded fonts, weight, and color are preserved; missing characters use a matching fallback. Scans and outlined letters need other processing. Review complex layouts and font substitutions before downloading.',
             ],
             [
               'Which payment methods are available?',
@@ -54,10 +76,6 @@ export default async function PricingPage() {
             [
               'Can I cancel?',
               'Use Manage billing in your account to open Lemon Squeezy’s billing portal. Cancellation at the end of a billing period keeps access until the paid period ends. Failed or unpaid renewals do not grant another paid period.',
-            ],
-            [
-              'Are translation and OCR included?',
-              'Connected translation and Office conversion tools offer Pro downloads. Their current availability is shown in the tool directory and on each tool page; check it before subscribing. Standalone OCR is not included.',
             ],
             [
               'Will you store my PDFs?',

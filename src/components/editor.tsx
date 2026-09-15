@@ -2721,6 +2721,7 @@ export function Editor() {
         }}
       />
       <DownloadGate
+        tool="edit-pdf-text"
         open={gateOpen}
         saved={autosave.phase === 'saved'}
         onClose={() => setGateOpen(false)}

@@ -22,6 +22,10 @@ import { editorTools } from '@/lib/tools';
 import { UploadArea } from './upload';
 import { PdfCanvas } from './pdf-canvas';
 import { Dropdown } from './dropdown';
+import { Pagination } from './pagination';
+import { useRecordPagination } from './use-record-pagination';
+import { defaultImageSettings, jpegOrientation, processImage } from '@/lib/image-tools';
+import { withImageResolution } from '@/lib/image-resolution';
 import { runPdf } from '@/lib/pdf-client';
 import { loadViewer } from '@/lib/pdf-viewer';
 import { getPendingDocument, setPendingDocument } from '@/lib/storage';
@@ -37,6 +41,7 @@ import {
 import type { PdfInput, PdfOperation, PdfOptions, PdfOutput } from '@/lib/types';
 export function ToolProcessor({ tool }: { tool: Tool }) {
   const router = useRouter();
+  const slug = tool.processor || tool.slug;
   const [files, setFiles] = useState<PdfInput[]>([]);
   const [count, setCount] = useState(0);
   const [viewer, setViewer] = useState<PDFDocumentProxy | null>(null);
@@ -46,6 +51,14 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
   const [result, setResult] = useState<PdfOutput | null>(null);
+  const [resultViewer, setResultViewer] = useState<PDFDocumentProxy | null>(null);
+  const [previewTab, setPreviewTab] = useState('original');
+  const [imageOutputs, setImageOutputs] = useState<{ name: string; blob: Blob }[]>([]);
+  const [outputUrls, setOutputUrls] = useState<string[]>([]);
+  const [previewWidth, setPreviewWidth] = useState(360);
+  const previewRoot = useRef<HTMLDivElement>(null);
+  const filePagination = useRecordPagination(files.length);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [rotation, setRotation] = useState(90);
   const [text, setText] = useState('DRAFT');
   const [fontSize, setFontSize] = useState(48);
@@ -55,11 +68,68 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
   const [split, setSplit] = useState('range');
   const [a4, setA4] = useState(true);
   const [resolution, setResolution] = useState(1.5);
+  const [imageQuality, setImageQuality] = useState(0.9);
   const abort = useRef<AbortController | null>(null);
   const version = useRef(0);
-  const images = tool.slug === 'image-to-pdf';
-  const multi = tool.slug === 'merge-pdf' || images;
-  const editor = editorTools.includes(tool.slug);
+  const images = slug === 'image-to-pdf';
+  const hasFiles = files.length > 0;
+  const multi = slug === 'merge-pdf' || images;
+  const editor = editorTools.includes(slug);
+  const displayedViewer = previewTab === 'result' && resultViewer ? resultViewer : viewer;
+  const displayingImages = previewTab === 'result' && imageOutputs.length > 0;
+  const previewCount = displayingImages ? imageOutputs.length : displayedViewer?.numPages || 0;
+  const previewPage = Math.min(page, previewCount || 1);
+  const selectedPages = (() => {
+    try {
+      return images || !count ? [] : parsePages(range, count);
+    } catch {
+      return null;
+    }
+  })();
+  useEffect(() => {
+    const urls = imageOutputs.map((image) => URL.createObjectURL(image.blob));
+    setOutputUrls(urls);
+    return () => urls.forEach(URL.revokeObjectURL);
+  }, [imageOutputs]);
+  useEffect(() => {
+    if (!result) {
+      setImageOutputs([]);
+      setPreviewTab('original');
+    }
+    if (result?.type !== 'application/pdf') {
+      setResultViewer(null);
+      return;
+    }
+    let cancelled = false;
+    let loaded: PDFDocumentProxy | undefined;
+    void loadViewer(result.bytes)
+      .then((doc) => {
+        loaded = doc;
+        if (cancelled) void doc.loadingTask.destroy();
+        else {
+          setResultViewer(doc);
+          setPreviewTab('result');
+          setPage(1);
+        }
+      })
+      .catch((e) => {
+        if (!cancelled) setError(friendlyError(e));
+      });
+    return () => {
+      cancelled = true;
+      void loaded?.loadingTask.destroy();
+      setResultViewer(null);
+    };
+  }, [result]);
+  useEffect(() => {
+    const element = previewRoot.current;
+    if (!element) return;
+    const observer = new ResizeObserver(() =>
+      setPreviewWidth(Math.max(180, element.clientWidth - 42)),
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [hasFiles]);
   useEffect(() => {
     const pending = getPendingDocument();
     if (pending && !images) setFiles([{ ...pending, type: 'application/pdf' }]);
@@ -109,18 +179,34 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
         throw new Error('Keep the combined file size under 150 MB.');
       for (const f of incoming) {
         if (f.size > MAX_FILE_SIZE) throw new Error(`${f.name} is larger than 50 MB.`);
-        if (!(images ? /\.(png|jpe?g)$/i : /\.pdf$/i).test(f.name))
-          throw new Error(`${f.name}: choose ${images ? 'a JPG or PNG image' : 'a PDF file'}.`);
+        if (!(images ? /\.(png|jpe?g|webp)$/i : /\.pdf$/i).test(f.name))
+          throw new Error(
+            `${f.name}: choose ${images ? 'a JPG, PNG or WEBP image' : 'a PDF file'}.`,
+          );
+        if (images && tool.accept && !tool.accept.split(',').includes(f.type))
+          throw new Error(`${f.name}: choose one of the image formats listed above.`);
       }
       setBusy(true);
       setStatus('Reading your files…');
       const next: PdfInput[] = [];
       for (const f of incoming) {
-        const input = {
+        let input = {
           name: f.name,
           bytes: new Uint8Array(await f.arrayBuffer()),
           type: f.type || (f.name.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg'),
         };
+        if (
+          images &&
+          (/\.webp$/i.test(f.name) ||
+            (f.type === 'image/jpeg' && jpegOrientation(input.bytes) !== 1))
+        ) {
+          const converted = await processImage(f, { ...defaultImageSettings, format: 'image/png' });
+          input = {
+            ...input,
+            bytes: new Uint8Array(await converted.blob.arrayBuffer()),
+            type: 'image/png',
+          };
+        }
         if (!images) await runPdf('inspect', [input]);
         next.push(input);
       }
@@ -144,7 +230,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
     if (!bytes) return;
     setPendingDocument({ bytes, name });
     router.push(
-      `/workspace?mode=${tool.slug === 'sign-pdf' ? 'signature' : tool.slug === 'create-pdf-form' ? 'field' : 'select'}`,
+      `/workspace?mode=${slug === 'sign-pdf' ? 'signature' : slug === 'create-pdf-form' ? 'field' : 'select'}`,
     );
   }
   async function process() {
@@ -156,21 +242,25 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
     setResult(null);
     setBusy(true);
     setStatus('Working on your document…');
+    setProgress(null);
     abort.current = new AbortController();
     try {
       const selected = images ? [] : parsePages(range, count);
-      if (tool.slug === 'pdf-to-jpg' || tool.slug === 'pdf-to-png' || tool.slug === 'pdf-to-text') {
+      if (slug === 'pdf-to-jpg' || slug === 'pdf-to-png' || slug === 'pdf-to-text') {
         if (!viewer) throw new Error('Wait for the preview to load, then try again.');
         if (selected.length > 200)
           throw new Error('Export up to 200 pages at a time. Choose a smaller page range.');
         const JSZip = (await import('jszip')).default;
         const zip = new JSZip();
+        const previews: { name: string; blob: Blob }[] = [];
+        let outputBytes = 0;
         let extracted = '';
         for (const [n, index] of selected.entries()) {
           if (abort.current.signal.aborted) throw new Error('Processing cancelled.');
           setStatus(`Processing page ${n + 1} of ${selected.length}…`);
+          setProgress({ done: n, total: selected.length });
           const p = await viewer.getPage(index + 1);
-          if (tool.slug === 'pdf-to-text') {
+          if (slug === 'pdf-to-text') {
             const content = await p.getTextContent();
             extracted +=
               `--- Page ${index + 1} ---\n` +
@@ -195,25 +285,31 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
             } finally {
               abort.current.signal.removeEventListener('abort', cancel);
             }
-            const png = tool.slug === 'pdf-to-png';
-            const blob = await new Promise<Blob>((resolve, reject) =>
+            const png = slug === 'pdf-to-png';
+            const rendered = await new Promise<Blob>((resolve, reject) =>
               canvas.toBlob(
                 (b) => (b ? resolve(b) : reject(new Error('Could not create this image.'))),
                 png ? 'image/png' : 'image/jpeg',
-                0.9,
+                imageQuality,
               ),
             );
-            zip.file(
-              `${baseName(files[0].name)}-${String(index + 1).padStart(3, '0')}.${png ? 'png' : 'jpg'}`,
-              await blob.arrayBuffer(),
-            );
+            const blob = await withImageResolution(rendered, resolution * 72);
+            outputBytes += blob.size;
+            if (outputBytes > MAX_BATCH_SIZE)
+              throw new Error(
+                'The exported images exceed 150 MB. Choose fewer pages or a lower resolution.',
+              );
+            const filename = `${baseName(files[0].name)}-${String(index + 1).padStart(3, '0')}.${png ? 'png' : 'jpg'}`;
+            previews.push({ name: filename, blob });
+            zip.file(filename, await blob.arrayBuffer());
             canvas.width = 0;
             canvas.height = 0;
           }
           await new Promise((resolve) => setTimeout(resolve, 0));
+          setProgress({ done: n + 1, total: selected.length });
         }
         if (abort.current.signal.aborted) throw new Error('Processing cancelled.');
-        if (tool.slug === 'pdf-to-text') {
+        if (slug === 'pdf-to-text') {
           if (!extracted.replace(/--- Page \d+ ---/g, '').trim())
             throw new Error(
               'No selectable text was found. This document may be a scan and needs OCR, which is not connected yet.',
@@ -223,12 +319,24 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
             name: `${baseName(files[0].name)}.txt`,
             type: 'text/plain;charset=utf-8',
           });
-        } else
-          setResult({
-            bytes: await zip.generateAsync({ type: 'uint8array' }),
-            name: `${baseName(files[0].name)}-images.zip`,
-            type: 'application/zip',
-          });
+        } else {
+          setImageOutputs(previews);
+          setPreviewTab('result');
+          setPage(1);
+          setResult(
+            previews.length === 1
+              ? {
+                  bytes: new Uint8Array(await previews[0].blob.arrayBuffer()),
+                  name: previews[0].name,
+                  type: previews[0].blob.type,
+                }
+              : {
+                  bytes: await zip.generateAsync({ type: 'uint8array' }),
+                  name: `${baseName(files[0].name)}-images.zip`,
+                  type: 'application/zip',
+                },
+          );
+        }
       } else {
         const operation: Record<string, PdfOperation> = {
           'merge-pdf': 'merge',
@@ -252,7 +360,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
         };
         if (!Number.isInteger(start) || start < 1)
           throw new Error('Choose a positive whole starting number.');
-        const output = await runPdf(operation[tool.slug], files, options, abort.current.signal);
+        const output = await runPdf(operation[slug], files, options, abort.current.signal);
         setResult(output);
       }
       setStatus('Your document is ready.');
@@ -265,22 +373,59 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
   }
   useEffect(() => {
     setResult(null);
-  }, [range, rotation, text, fontSize, opacity, margin, start, split, a4, resolution]);
+  }, [
+    range,
+    rotation,
+    text,
+    fontSize,
+    opacity,
+    margin,
+    start,
+    split,
+    a4,
+    resolution,
+    imageQuality,
+  ]);
   const canRun =
-    files.length > 0 && (images || count > 0) && (tool.slug !== 'merge-pdf' || files.length >= 2);
+    files.length > 0 &&
+    (images || count > 0) &&
+    selectedPages !== null &&
+    (slug !== 'merge-pdf' || files.length >= 2);
   return (
     <div className={`processor ${files.length ? 'has-files' : ''}`}>
+      <ol className="processor-steps" aria-label="Document workflow">
+        {['Choose files', 'Adjust & preview', 'Download'].map((label, index) => (
+          <li
+            key={label}
+            aria-current={index === (result ? 2 : files.length ? 1 : 0) ? 'step' : undefined}
+          >
+            <span>{index + 1}</span>
+            {label}
+          </li>
+        ))}
+      </ol>
       {!files.length ? (
         <>
           <UploadArea
             onFiles={addFiles}
             multiple={multi}
-            accept={images ? 'image/jpeg,image/png' : 'application/pdf'}
+            accept={images ? tool.accept || 'image/jpeg,image/png,image/webp' : 'application/pdf'}
+            formatsLabel={
+              images
+                ? tool.accept === 'image/png'
+                  ? 'PNG images'
+                  : tool.accept === 'image/jpeg'
+                    ? 'JPG images'
+                    : 'JPG, PNG and WEBP'
+                : undefined
+            }
             busy={busy}
           />
           <div className="local-notice">
             <ShieldCheck size={15} />
-            Processed on your device. Your document stays yours.
+            {editor
+              ? 'Your document will be saved privately when you open the editor.'
+              : 'Processed on your device. Your document stays yours.'}
           </div>
         </>
       ) : (
@@ -291,57 +436,65 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
               <span>{multi ? `${files.length} files` : count ? `${count} pages` : 'Reading…'}</span>
             </div>
             <div className="file-list">
-              {files.map((f, i) => (
-                <div className="file-row" key={`${i}-${f.name}`}>
-                  <span className="file-type-icon">
-                    <FileText size={22} />
-                  </span>
-                  <div>
-                    <strong title={f.name}>{f.name}</strong>
-                    <small>{formatBytes(f.bytes.length)}</small>
+              {files.slice(filePagination.start, filePagination.end).map((f, offset) => {
+                const i = filePagination.start + offset;
+                return (
+                  <div className="file-row" key={`${i}-${f.name}`}>
+                    <span className="file-type-icon">
+                      {images ? <ImageThumbnail input={f} /> : <FileText size={22} />}
+                    </span>
+                    <div>
+                      <strong title={f.name}>{f.name}</strong>
+                      <small>{formatBytes(f.bytes.length)}</small>
+                    </div>
+                    {multi && (
+                      <>
+                        <button
+                          className="icon-button"
+                          aria-label={`Move ${f.name} up`}
+                          disabled={i === 0 || busy}
+                          onClick={() => move(i, -1)}
+                        >
+                          <ArrowUp size={14} />
+                        </button>
+                        <button
+                          className="icon-button"
+                          aria-label={`Move ${f.name} down`}
+                          disabled={i === files.length - 1 || busy}
+                          onClick={() => move(i, 1)}
+                        >
+                          <ArrowDown size={14} />
+                        </button>
+                      </>
+                    )}
+                    <button
+                      className="icon-button"
+                      aria-label={`Remove ${f.name}`}
+                      disabled={busy}
+                      onClick={() => {
+                        setFiles(files.filter((_, n) => n !== i));
+                        setResult(null);
+                        setError('');
+                      }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
-                  {multi && (
-                    <>
-                      <button
-                        className="icon-button"
-                        aria-label={`Move ${f.name} up`}
-                        disabled={i === 0 || busy}
-                        onClick={() => move(i, -1)}
-                      >
-                        <ArrowUp size={14} />
-                      </button>
-                      <button
-                        className="icon-button"
-                        aria-label={`Move ${f.name} down`}
-                        disabled={i === files.length - 1 || busy}
-                        onClick={() => move(i, 1)}
-                      >
-                        <ArrowDown size={14} />
-                      </button>
-                    </>
-                  )}
-                  <button
-                    className="icon-button"
-                    aria-label={`Remove ${f.name}`}
-                    disabled={busy}
-                    onClick={() => {
-                      setFiles(files.filter((_, n) => n !== i));
-                      setResult(null);
-                      setError('');
-                    }}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
+            {multi && files.length > 1 && (
+              <Pagination {...filePagination} disabled={busy} label="Source files pagination" />
+            )}
             {multi && (
               <label className="add-file-button">
                 <Plus size={16} />
                 Add more files
                 <input
                   type="file"
-                  accept={images ? 'image/jpeg,image/png' : 'application/pdf'}
+                  accept={
+                    images ? tool.accept || 'image/jpeg,image/png,image/webp' : 'application/pdf'
+                  }
                   multiple
                   hidden
                   disabled={busy}
@@ -354,7 +507,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
             )}
             <fieldset className="tool-settings" disabled={busy}>
               <legend>Make it your own</legend>
-              {!editor && !['merge-pdf', 'compress-pdf', 'image-to-pdf'].includes(tool.slug) && (
+              {!editor && !['merge-pdf', 'compress-pdf', 'image-to-pdf'].includes(slug) && (
                 <label>
                   Pages
                   <input
@@ -366,13 +519,16 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                       setResult(null);
                     }}
                     placeholder={`All ${count || ''} pages`}
+                    aria-invalid={selectedPages === null}
                   />
                   <small id="page-range-help">
-                    Leave blank for all pages, or use 1-3, 5, 8-10.
+                    {selectedPages === null
+                      ? 'Enter a valid range within this document, such as 1-3, 5.'
+                      : `Leave blank for all pages, or use 1-3, 5, 8-10. ${selectedPages.length} pages selected.`}
                   </small>
                 </label>
               )}
-              {tool.slug === 'split-pdf' && (
+              {slug === 'split-pdf' && (
                 <Dropdown
                   label="Output"
                   value={split}
@@ -384,7 +540,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                   ]}
                 />
               )}
-              {tool.slug === 'rotate-pdf' && (
+              {slug === 'rotate-pdf' && (
                 <Dropdown
                   label="Rotate clockwise"
                   value={String(rotation)}
@@ -397,7 +553,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                   ]}
                 />
               )}
-              {tool.slug === 'watermark-pdf' && (
+              {slug === 'watermark-pdf' && (
                 <>
                   <label>
                     Watermark text
@@ -429,7 +585,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                   </div>
                 </>
               )}
-              {tool.slug === 'page-numbers' && (
+              {slug === 'page-numbers' && (
                 <label>
                   Start numbering at
                   <input
@@ -440,7 +596,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                   />
                 </label>
               )}
-              {tool.slug === 'crop-pdf' && (
+              {slug === 'crop-pdf' && (
                 <label>
                   Trim each edge (points)
                   <input
@@ -465,7 +621,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                   ]}
                 />
               )}
-              {['pdf-to-jpg', 'pdf-to-png'].includes(tool.slug) && (
+              {['pdf-to-jpg', 'pdf-to-png'].includes(slug) && (
                 <Dropdown
                   label="Resolution"
                   value={String(resolution)}
@@ -475,10 +631,24 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                     { value: '1.5', label: 'Standard — 108 DPI' },
                     { value: '2', label: 'High — 144 DPI' },
                     { value: '3', label: 'Extra high — 216 DPI' },
+                    { value: String(300 / 72), label: 'Print — 300 DPI' },
                   ]}
                 />
               )}
-              {tool.slug === 'compress-pdf' && (
+              {slug === 'pdf-to-jpg' && (
+                <Dropdown
+                  label="JPG quality"
+                  value={String(imageQuality)}
+                  onValueChange={(value) => setImageQuality(Number(value))}
+                  disabled={busy}
+                  options={[
+                    { value: '0.75', label: 'Compact — 75%' },
+                    { value: '0.9', label: 'Balanced — 90%' },
+                    { value: '1', label: 'Maximum — 100%' },
+                  ]}
+                />
+              )}
+              {slug === 'compress-pdf' && (
                 <div className="setting-note">
                   <strong>Lossless optimization</strong>
                   <p>
@@ -506,31 +676,55 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
             )}
             <div className="local-notice">
               <ShieldCheck size={14} />
-              No upload. No account. Just your document.
+              {editor
+                ? 'Open the editor to save privately and start editing.'
+                : 'No upload. No account. Just your document.'}
             </div>
           </div>
-          <div className="processor-preview">
-            {viewer ? (
+          <div className="processor-preview" ref={previewRoot}>
+            {(resultViewer || imageOutputs.length > 0) && (
+              <div className="processor-compare" aria-label="Compare document">
+                <button
+                  aria-pressed={previewTab === 'original'}
+                  onClick={() => {
+                    setPreviewTab('original');
+                    setPage(1);
+                  }}
+                >
+                  Original
+                </button>
+                <button
+                  aria-pressed={previewTab === 'result'}
+                  onClick={() => {
+                    setPreviewTab('result');
+                    setPage(1);
+                  }}
+                >
+                  Result
+                </button>
+              </div>
+            )}
+            {displayedViewer || displayingImages ? (
               <>
                 <div className="preview-heading">
-                  <span>Original preview</span>
+                  <span>{previewTab === 'result' ? 'Result preview' : 'Original preview'}</span>
                   <div>
                     <button
                       className="icon-button"
                       aria-label="Previous preview page"
-                      disabled={page === 1}
-                      onClick={() => setPage(page - 1)}
+                      disabled={previewPage === 1}
+                      onClick={() => setPage(previewPage - 1)}
                     >
                       <ChevronLeft size={15} />
                     </button>
                     <span>
-                      {page} / {count}
+                      {previewPage} / {previewCount}
                     </span>
                     <button
                       className="icon-button"
                       aria-label="Next preview page"
-                      disabled={page >= count}
-                      onClick={() => setPage(page + 1)}
+                      disabled={previewPage >= previewCount}
+                      onClick={() => setPage(previewPage + 1)}
                     >
                       <ChevronRight size={15} />
                     </button>
@@ -540,9 +734,23 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                   className="processor-page"
                   tabIndex={0}
                   role="region"
-                  aria-label="Original PDF preview"
+                  aria-label={previewTab === 'result' ? 'Result preview' : 'Original PDF preview'}
                 >
-                  <PdfCanvas document={viewer} page={page} width={360} />
+                  {displayingImages ? (
+                    <img
+                      className="processor-image-output"
+                      src={outputUrls[previewPage - 1]}
+                      alt={imageOutputs[previewPage - 1]?.name}
+                    />
+                  ) : (
+                    displayedViewer && (
+                      <PdfCanvas
+                        document={displayedViewer}
+                        page={previewPage}
+                        width={previewWidth}
+                      />
+                    )
+                  )}
                 </div>
               </>
             ) : images ? (
@@ -579,6 +787,9 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
         <div className="processing-status">
           <Loader2 size={16} className="spin" />
           {status}
+          {progress && (
+            <progress value={progress.done} max={progress.total} aria-label="Pages processed" />
+          )}
         </div>
       )}
       {result && (
@@ -589,7 +800,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
           <div>
             <h3>{result.note ? 'Your original is the best fit.' : 'All done. Nicely handled.'}</h3>
             <p>{result.note || `${result.name} · ${formatBytes(result.bytes.length)}`}</p>
-            {tool.slug === 'compress-pdf' && !result.note && (
+            {slug === 'compress-pdf' && !result.note && (
               <small>
                 {formatBytes(files[0].bytes.length)} → {formatBytes(result.bytes.length)} ·{' '}
                 {Math.round((1 - result.bytes.length / files[0].bytes.length) * 100)}% smaller
@@ -607,7 +818,11 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                 ? 'PDF'
                 : result.type.includes('zip')
                   ? 'ZIP'
-                  : 'text'}
+                  : result.type.startsWith('image/')
+                    ? result.type === 'image/png'
+                      ? 'PNG'
+                      : 'JPG'
+                    : 'text'}
             </button>
             {result.type === 'application/pdf' && (
               <button
@@ -622,4 +837,13 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
       )}
     </div>
   );
+}
+function ImageThumbnail({ input }: { input: PdfInput }) {
+  const [url, setUrl] = useState('');
+  useEffect(() => {
+    const next = URL.createObjectURL(new Blob([input.bytes.slice().buffer], { type: input.type }));
+    setUrl(next);
+    return () => URL.revokeObjectURL(next);
+  }, [input]);
+  return <img className="processor-file-thumbnail" src={url || undefined} alt="" />;
 }

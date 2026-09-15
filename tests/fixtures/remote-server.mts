@@ -14,6 +14,7 @@ import * as capabilitiesApi from '../../src/app/api/capabilities/route';
 delete process.env.SUPABASE_SERVICE_ROLE_KEY;
 delete process.env.GOOGLE_TRANSLATION_PRIVATE_KEY;
 delete process.env.CONVERTAPI_TOKEN;
+delete process.env.CLOUDCONVERT_API_KEY;
 process.env.DOCUMENT_RESULT_KEY = 'a'.repeat(64);
 process.env.DOCUMENT_DAILY_BUDGET = '50';
 assert.ok(
@@ -183,6 +184,116 @@ try {
   );
   process.env.GOOGLE_TRANSLATION_PROJECT_ID = '../evil';
   assert.equal((await (await capabilitiesApi.GET()).json()).tools['translate-pdf'], false);
+
+  delete process.env.CONVERTAPI_TOKEN;
+  process.env.CLOUDCONVERT_API_KEY = 'cloudconvert-fixture-secret';
+  assert.equal((await (await capabilitiesApi.GET()).json()).tools['pdf-to-word'], true);
+  const jobId = '9a160154-58e2-437f-9b6b-19d63b1f59e3';
+  let exportUrl = `https://storage.cloudconvert.com/${jobId}/output.docx`,
+    jobStatus = 'finished',
+    downloadBytes = office,
+    deleted = 0,
+    apiStatus = 200;
+  const calls: string[] = [];
+  globalThis.fetch = async (input, init) => {
+    const request = new Request(input, init);
+    const url = new URL(request.url);
+    calls.push(`${request.method} ${url.hostname}`);
+    assert.equal(init?.redirect, 'error');
+    if (url.hostname === 'storage.cloudconvert.com') {
+      assert.equal(request.headers.get('authorization'), null);
+      return new Response(Uint8Array.from(downloadBytes).buffer);
+    }
+    assert.ok(
+      ['api.cloudconvert.com', 'sync.api.cloudconvert.com'].includes(url.hostname),
+      'No real requests or arbitrary output URLs',
+    );
+    assert.equal(request.headers.get('authorization'), 'Bearer cloudconvert-fixture-secret');
+    if (request.method === 'DELETE') {
+      assert.equal(url.pathname, `/v2/jobs/${jobId}`);
+      deleted++;
+      return new Response(null, { status: 204 });
+    }
+    if (apiStatus !== 200) return new Response('private provider detail', { status: apiStatus });
+    if (request.method === 'POST') {
+      assert.equal(url.hostname, 'api.cloudconvert.com');
+      const body = await request.json();
+      assert.equal(body.tasks['import-file'].operation, 'import/base64');
+      assert.deepEqual(Buffer.from(body.tasks['import-file'].file, 'base64'), Buffer.from(pdf));
+      assert.equal(body.tasks['convert-file'].input, 'import-file');
+      assert.ok(['docx', 'xlsx', 'pptx'].includes(body.tasks['convert-file'].output_format));
+      assert.equal(body.tasks['export-file'].input, 'convert-file');
+      return Response.json({ data: { id: jobId, status: 'processing' } });
+    }
+    assert.equal(url.hostname, 'sync.api.cloudconvert.com');
+    return Response.json({
+      data: {
+        id: jobId,
+        status: jobStatus,
+        tasks: [
+          {
+            name: 'export-file',
+            operation: 'export/url',
+            status: 'finished',
+            result: { files: [{ filename: 'output.docx', url: exportUrl }] },
+          },
+        ],
+      },
+    });
+  };
+  for (const tool of ['pdf-to-word', 'pdf-to-excel', 'pdf-to-powerpoint'] as const)
+    assert.deepEqual(await processRemotePdf(file, remoteOptions.parse({ tool })), office);
+  assert.equal(deleted, 3, 'Provider source and output jobs are cleaned after downloads');
+  for (const badUrl of [
+    'http://storage.cloudconvert.com/file',
+    'https://storage.cloudconvert.com.evil.test/file',
+    'https://127.0.0.1/file',
+    'https://user:password@storage.cloudconvert.com/file',
+  ]) {
+    exportUrl = badUrl;
+    await assert.rejects(
+      processRemotePdf(file, remoteOptions.parse({ tool: 'pdf-to-word' })),
+      /unexpected download address/,
+    );
+  }
+  assert.equal(deleted, 7, 'Rejected output URLs still clean up the job');
+  assert.equal(calls.filter((call) => call.endsWith('storage.cloudconvert.com')).length, 3);
+  exportUrl = `https://storage.cloudconvert.com/${jobId}/output.docx`;
+  jobStatus = 'error';
+  await assert.rejects(
+    processRemotePdf(file, remoteOptions.parse({ tool: 'pdf-to-word' })),
+    /could not be converted/,
+  );
+  jobStatus = 'finished';
+  downloadBytes = Buffer.from('<html>provider error</html>');
+  await assert.rejects(
+    processRemotePdf(file, remoteOptions.parse({ tool: 'pdf-to-word' })),
+    /unexpected file/,
+  );
+  assert.equal(deleted, 9);
+  for (const status of [401, 402, 403, 429, 500]) {
+    apiStatus = status;
+    await assert.rejects(
+      processRemotePdf(file, remoteOptions.parse({ tool: 'pdf-to-word' })),
+      (e: Error) =>
+        !e.message.includes('private') && /not available|busy|could not process/.test(e.message),
+    );
+  }
+  apiStatus = 200;
+  const cloudFetch = globalThis.fetch;
+  const cancelled = new AbortController();
+  globalThis.fetch = async (input, init) => {
+    if (new URL(new Request(input, init).url).hostname === 'sync.api.cloudconvert.com') {
+      cancelled.abort();
+      throw new DOMException('Aborted', 'AbortError');
+    }
+    return cloudFetch(input, init);
+  };
+  await assert.rejects(
+    processRemotePdf(file, remoteOptions.parse({ tool: 'pdf-to-word' }), cancelled.signal),
+    /Processing cancelled/,
+  );
+  assert.equal(deleted, 10, 'Cancellation uses a separate cleanup signal to delete the known job');
 } finally {
   globalThis.fetch = originalFetch;
   mock.restoreAll();

@@ -36,7 +36,10 @@ check(
     'GOOGLE_TRANSLATION_PRIVATE_KEY',
   ),
 );
-check('ConvertAPI Office conversions', present('CONVERTAPI_TOKEN'));
+check(
+  'Office conversions (CloudConvert or ConvertAPI)',
+  present('CLOUDCONVERT_API_KEY') || present('CONVERTAPI_TOKEN'),
+);
 let publicDomain = false;
 try {
   const url = new URL(env.NEXT_PUBLIC_SITE_URL || '');

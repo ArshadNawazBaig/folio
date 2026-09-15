@@ -1,14 +1,17 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowUpRight, ChevronRight, ShieldCheck, ArrowRight } from 'lucide-react';
-import { tools } from '@/lib/tools';
+import { tools, editorTools } from '@/lib/tools';
 import { serverTools, isRemoteTool } from '@/lib/server/tool-catalog';
+import { conversionProvider } from '@/lib/server/document-providers';
 import { connection } from 'next/server';
 import { ToolIcon } from '@/components/icon';
 import { ToolProcessor } from '@/components/tool-processor';
 import { RemotePdfWorkspace } from '@/components/remote-pdf-workspace';
 import { ProTextEditor } from '@/components/pro-text-editor';
 import { ProtectPdf } from '@/components/protect-pdf';
+import { ImageWorkbench } from '@/components/image-workbench';
+import { QrWorkbench } from '@/components/qr-workbench';
 import { Faq } from '@/components/faq';
 import { StructuredData } from '@/components/structured-data';
 import { pageMetadata, breadcrumbSchema, siteUrl } from '@/lib/seo';
@@ -93,7 +96,9 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           <div className="tool-benefits">
             <span>
               <ShieldCheck size={14} />
-              On your device
+              {editorTools.includes(t.slug)
+                ? 'Private cloud saving in the editor'
+                : 'On your device'}
             </span>
             <i />
             No sign-up needed
@@ -104,12 +109,21 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           <span className="status-label">COMING SOON</span>
         )}
       </div>
-      {t.slug === 'edit-pdf-text' ? (
+      {t.processor === 'image' ? (
+        <ImageWorkbench key={t.slug} tool={t} />
+      ) : t.processor === 'qr' ? (
+        <QrWorkbench />
+      ) : t.slug === 'edit-pdf-text' ? (
         <ProTextEditor />
       ) : t.slug === 'protect-pdf' ? (
         <ProtectPdf />
       ) : isRemoteTool(t.slug) ? (
-        <RemotePdfWorkspace key={t.slug} tool={t.slug} initialReady={t.available} />
+        <RemotePdfWorkspace
+          key={t.slug}
+          tool={t.slug}
+          initialReady={t.available}
+          provider={conversionProvider()}
+        />
       ) : t.available ? (
         <ToolProcessor key={t.slug} tool={t} />
       ) : (

@@ -15,11 +15,13 @@ export function Pricing({
   compact = false,
   checkoutInNewTab = false,
   signInInFooter = false,
+  additionalPremiumTools = [],
 }: {
   initialCatalog?: PricingCatalog;
   compact?: boolean;
   checkoutInNewTab?: boolean;
   signInInFooter?: boolean;
+  additionalPremiumTools?: string[];
 }) {
   const { user, access } = useAccount();
   const [plans, setPlans] = useState<ProPlan[]>([]),
@@ -113,11 +115,12 @@ export function Pricing({
             <ul>
               {[
                 'Add text, highlights, images, and signatures',
-                'Merge, split, rotate, and organize pages',
-                'Convert PDFs to images and extract text',
+                'Merge, split, compress, crop, and organize PDFs',
+                'Convert PDF pages to JPG or PNG and extract text',
+                'Convert images to PDF, JPG to WEBP, and WEBP to JPG',
+                'Compress images, adjust photos, and create QR codes',
                 'Fill forms and create fillable fields',
                 '100 MB of private cloud storage',
-                'No account needed for local tools',
               ].map((item) => (
                 <li key={item}>
                   <Check size={17} />
@@ -126,7 +129,7 @@ export function Pricing({
               ))}
             </ul>
             <small>
-              <ShieldCheck size={14} /> Free tools process PDFs on your device.
+              <ShieldCheck size={14} /> Free downloads without a subscription or added watermark.
             </small>
           </article>
         )}
@@ -195,7 +198,8 @@ export function Pricing({
                 'Change replacement fonts, sizes, and colors',
                 'Find and replace across the document',
                 'AES-256 password protection',
-                'Up to 10 MB and 100 pages per Pro file',
+                ...additionalPremiumTools.map((name) => `${name} downloads`),
+                'Text editing and protection: up to 10 MB and 100 pages per file',
               ].map((item) => (
                 <li key={item}>
                   <Check size={17} />
@@ -228,9 +232,10 @@ export function Pricing({
       {!compact && (
         <>
           <p className="pricing-note">
-            Pro PDF operations send your document to Folio for processing. Files and passwords are
-            held in memory and are not saved to a document library. Limits: 500 operations per day
-            and 20 per minute. Scans need OCR, which is not included.
+            Editing and previews are free. A plan is required only when you download a result that
+            uses a premium feature. The editor saves PDFs and changes to private cloud storage;
+            opening passwords are never saved. Premium downloads allow up to 20 requests per minute
+            and 500 per day. Each tool’s file and page limits still apply.
           </p>
           <Link className="text-link pricing-demo-link" href="/edit-pdf-text?demo=1">
             Try original text editing with our sample <ArrowRight size={16} />
