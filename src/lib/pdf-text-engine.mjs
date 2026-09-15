@@ -587,7 +587,7 @@ export async function processTextPdf(bytes, job, platform) {
                 }
                 const replacement = api.FPDFPageObj_CreateTextObj(doc, run.handle, change.size);
                 if (!replacement) throw missingCharacters();
-                replacements.push({ object: replacement, text: run.text, trimWhitespace: true });
+                replacements.push({ object: replacement, text: run.text });
                 const ptr = alloc((run.text.length + 1) * 2);
                 try {
                   heap.stringToUTF16(run.text, ptr, (run.text.length + 1) * 2);
@@ -744,16 +744,18 @@ export async function processTextPdf(bytes, job, platform) {
             }
             return objectCharacters.get(object) || '';
           };
-          for (const { object, text, trimWhitespace } of preserved) {
+          for (const { object, text } of preserved) {
             const len = api.FPDFTextObj_GetText(object, textPage, 0, 0);
             const ptr = alloc(Math.max(2, len));
             try {
               api.FPDFTextObj_GetText(object, textPage, ptr, len);
               const actual = len > 2 ? heap.UTF16ToString(ptr) : '';
-              // PDFium can assign a space inferred between adjacent font runs to either
-              // object. Check their characters while allowing those boundary spaces.
-              const matches = (value) =>
-                trimWhitespace ? value.trim() === text.trim() : value === text;
+              // PDFium infers boundary spaces from neighboring objects and can omit
+              // encoded leading/trailing spaces when those neighbors are removed for
+              // editing. This affects whole text objects as well as fallback font runs.
+              // Ignore only boundary whitespace; letters, symbols and internal spaces
+              // must still match so missing glyphs cannot silently pass verification.
+              const matches = (value) => value.trim() === text.trim();
               // Moving text beside other objects can add layout-generated spaces or
               // line breaks to extracted text. Verify the encoded characters instead.
               if (!matches(actual) && !matches(encodedText(object)))
