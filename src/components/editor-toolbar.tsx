@@ -6,7 +6,7 @@ import {
   Undo2,
   Redo2,
   Type,
-  PencilLine,
+  SquareDashedText,
   Eraser,
   Highlighter,
   Pencil,
@@ -202,7 +202,7 @@ export function EditorToolbar({
         <ToolButton
           label="Edit Text"
           accessibleLabel="Edit original text"
-          icon={PencilLine}
+        icon={SquareDashedText}
           active={mode === 'original-text'}
           disabled={busy}
           onClick={editText}

@@ -17,7 +17,7 @@ import {
   ArrowLeftRight,
   FileText,
   LockKeyhole,
-  PencilLine,
+  SquareDashedText,
 } from 'lucide-react';
 const icons = {
   edit: FilePenLine,
@@ -37,7 +37,7 @@ const icons = {
   translate: Languages,
   convert: ArrowLeftRight,
   protect: LockKeyhole,
-  'text-edit': PencilLine,
+  'text-edit': SquareDashedText,
 };
 export function ToolIcon({
   name,
