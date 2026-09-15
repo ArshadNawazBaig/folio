@@ -82,7 +82,7 @@ export const workspaceSchema = z
     }),
     inspection: z
       .object({
-        version: z.number().int().min(1).max(2).optional(),
+        version: z.number().int().min(1).max(3).optional(),
         pageCount: z.number().int().min(1).max(100),
         pages: z.array(z.number().int().min(0).max(99)).max(100).optional(),
         skipped: number.nonnegative(),

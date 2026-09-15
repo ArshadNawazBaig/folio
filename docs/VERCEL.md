@@ -58,6 +58,16 @@ small rendered appearance with searchable text. Unknown invisible layers are not
 treated as visible text. Inspection metadata is versioned: older saved workspaces
 are re-inspected without dropping their text changes or positions.
 
+Visible text inside convex clipping paths (including rounded cards and table cells)
+is editable. All surrounding clips must contain the text before it is exposed;
+hidden overflow and partially masked text stay excluded. Changed card text retains
+its font and color and is recreated without the original layout clip so moving or
+extending it does not make it disappear. Inspection version 3 refreshes older
+workspace metadata while retaining source object IDs and existing edits.
+Unselected text hit areas follow the actual glyph bounds rather than adding a
+minimum height or surrounding padding, preventing neighboring small lines from
+intercepting clicks at page-fit zoom.
+
 From this linked workspace, deploy the current files with:
 
 ```sh

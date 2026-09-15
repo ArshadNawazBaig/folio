@@ -2,6 +2,7 @@ import { findDocumentFont, isDocumentFont } from './document-font-registry.mjs';
 import { isPdfTextSize } from './pdf-text-size.mjs';
 import { isPdfTextOffset, moveTextMatrix } from './pdf-text-position.mjs';
 import { pdfPreviewLayout } from './pdf-preview.mjs';
+import { visibleClippedText } from './pdf-text-clip.mjs';
 import {
   sourcePaints,
   markedPaint,
@@ -264,9 +265,10 @@ export async function processTextPdf(bytes, job, platform) {
           }
           if (type !== 1) continue;
           const clip = api.FPDFPageObj_GetClipPath(object);
+          const clipped = !!clip && api.FPDFClipPath_CountPaths(clip) > 0;
           if (
             api.FPDFTextObj_GetTextRenderMode(object) !== 0 ||
-            (clip && api.FPDFClipPath_CountPaths(clip) > 0)
+            (clipped && !visibleClippedText(api, heap, clip, objectBounds(object), alloc, free))
           ) {
             skipped++;
             continue;
@@ -460,6 +462,7 @@ export async function processTextPdf(bytes, job, platform) {
                 color: blocks.at(-1).color,
                 alpha: painted ? 255 : rgba[3],
                 painted,
+                clipped,
                 // A Unicode round-trip can succeed for glyph 0 (.notdef). Validate the
                 // font program too, and complete known subsets with the exact named face.
                 complete,
@@ -485,6 +488,7 @@ export async function processTextPdf(bytes, job, platform) {
           complete,
           runs,
           painted,
+          clipped,
         } of pending.reverse()) {
           const index = sourceIndex - (painted ? 1 : 0);
           if (painted) {
@@ -607,7 +611,7 @@ export async function processTextPdf(bytes, job, platform) {
             applied++;
             continue;
           }
-          if (change.font === 'original' && change.text && !complete && !painted) {
+          if (change.font === 'original' && change.text && !complete && !painted && !clipped) {
             // Keep the actual PDF font resource and the object's rendering state. Loading a
             // standard font here loses embedded families, intermediate weights and italics.
             const textPtr = alloc((change.text.length + 1) * 2),
@@ -643,7 +647,7 @@ export async function processTextPdf(bytes, job, platform) {
           let replacement = 0;
           if (change.text) {
             replacement =
-              complete || (painted && change.font === 'original')
+              complete || ((painted || clipped) && change.font === 'original')
                 ? api.FPDFPageObj_CreateTextObj(
                     doc,
                     complete || api.FPDFTextObj_GetFont(object),
@@ -682,7 +686,7 @@ export async function processTextPdf(bytes, job, platform) {
             api.FPDFPageObj_Destroy(replacement);
             throw new Error('The replacement text could not be inserted.');
           }
-          if (complete || (painted && replacement))
+          if (complete || ((painted || clipped) && replacement))
             preserved.push({ object: replacement, text: change.text });
           if (replacement) finishAppearance([replacement]);
           applied++;
@@ -743,7 +747,7 @@ export async function processTextPdf(bytes, job, platform) {
     }
     if (job.operation === 'inspect')
       return {
-        version: 2,
+        version: 3,
         pageCount,
         blocks,
         skipped,

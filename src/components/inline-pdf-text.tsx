@@ -616,8 +616,8 @@ export function InlinePdfText({
               style={{
                 left: (box.left + shift.x) * scale,
                 top: (box.top + shift.y) * scale,
-                width: Math.max(12, box.width * scale),
-                height: Math.max(12, box.height * scale),
+                width: Math.max(1, box.width * scale),
+                height: Math.max(1, box.height * scale),
               }}
             >
               {enabled && selected === block.id && (
@@ -775,7 +775,7 @@ export function InlinePdfText({
                           ? {
                               ...style,
                               width: 'max-content',
-                              minWidth: Math.max(12, localWidth),
+                              minWidth: Math.max(1, localWidth),
                               background: 'transparent',
                             }
                           : undefined
