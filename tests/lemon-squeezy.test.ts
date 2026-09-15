@@ -97,11 +97,17 @@ test('only the configured recurring price with paid setup fee and exact trial is
 });
 test('paid introductory access is capped at seven days, including scheduled cancellation', () => {
   assert.equal(access(snapshot()), true);
+  assert.equal(snapshot().monthly_paid_value, false);
   assert.equal(access(snapshot(), now + 7 * 86400000), false);
   const sub = subscription();
   sub.status = 'cancelled';
   sub.cancelled = true;
   assert.equal(access(snapshot(sub)), true);
+  assert.equal(
+    snapshot(sub).monthly_paid_value,
+    false,
+    'Cancelling a trial does not unlock unlimited storage',
+  );
   sub.trial_ends_at = iso(now + 30 * 86400000);
   sub.renews_at = sub.trial_ends_at;
   assert.equal(snapshot(sub).paid_until_value, iso(now + 7 * 86400000));
@@ -139,6 +145,11 @@ test('renewals require a new paid monthly invoice, not the $1 initial payment', 
   sub.status = 'active';
   sub.renews_at = iso(start + 28 * 86400000);
   assert.equal(access(snapshot(sub), start), false);
+  assert.equal(
+    snapshot(sub).monthly_paid_value,
+    false,
+    'Active status without a monthly payment is still a trial',
+  );
   const invoice = {
     ...order(),
     subscription_id: 9,
@@ -148,14 +159,22 @@ test('renewals require a new paid monthly invoice, not the $1 initial payment', 
     created_at: iso(start),
   };
   assert.equal(access(snapshot(sub, order(), [invoice]), start), true);
+  assert.equal(snapshot(sub, order(), [invoice]).monthly_paid_value, true);
+  assert.equal(
+    snapshot({ ...sub, status: 'cancelled', cancelled: true }, order(), [invoice])
+      .monthly_paid_value,
+    true,
+  );
   for (const mutation of [
     { status: 'pending' },
     { refunded: true },
     { subscription_id: 99 },
     { subtotal_usd: 100 },
     { billing_reason: 'updated' },
-  ])
+  ]) {
     assert.equal(access(snapshot(sub, order(), [{ ...invoice, ...mutation }]), start), false);
+    assert.equal(snapshot(sub, order(), [{ ...invoice, ...mutation }]).monthly_paid_value, false);
+  }
   for (const status of ['past_due', 'unpaid', 'paused', 'expired'])
     assert.equal(access(snapshot({ ...sub, status }, order(), [invoice]), start), false);
   const later = { ...invoice, created_at: iso(start + 28 * 86400000), refunded: true };
@@ -171,6 +190,7 @@ test('monthly initial payments cover a calendar month and cannot extend themselv
   const payment = { ...order(), setup_fee_usd: 0, subtotal_usd: 2500, total_usd: 2500 };
   assert.equal(snapshot(sub, payment, [], 'month').paid_until_value, '2026-02-28T12:00:00.000Z');
   assert.equal(access(snapshot(sub, payment, [], 'month')), true);
+  assert.equal(snapshot(sub, payment, [], 'month').monthly_paid_value, true);
   const initialInvoice = { ...payment, subscription_id: 9, billing_reason: 'initial' };
   assert.equal(
     access(snapshot(sub, { ...payment, refunded: true }, [initialInvoice], 'month')),

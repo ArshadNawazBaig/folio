@@ -29,6 +29,7 @@ test('guest libraries enforce 100 MB, isolate owners, expire after 24 hours and 
       '008_plan_storage_limits',
       '010_lemon_squeezy',
       '011_guest_dashboard',
+      '012_monthly_unlimited_storage',
     ])
       await db.exec(
         await readFile(new URL(`../supabase/migrations/${name}.sql`, import.meta.url), 'utf8'),

@@ -97,7 +97,7 @@ export function CloudFiles({
     }
   }
   async function upload(file: File) {
-    if (storage.full || file.size > storage.available) {
+    if (storage.full || (storage.available !== null && file.size > storage.available)) {
       setActionError(
         'There is not enough private storage for this PDF. Delete older files or recovery drafts below, then try again.',
       );
@@ -134,7 +134,7 @@ export function CloudFiles({
           <p>
             {compact
               ? 'Your latest work, ready to open.'
-              : `Up to 50 MB per PDF · ${storageLabel(storage.limit)} private storage · 200 files`}
+              : `Up to 50 MB per PDF · ${storageLabel(storage.limit)} private storage${storage.limit === null ? '' : ' · 200 files'}`}
           </p>
         </div>
         <div className={s.inlineActions}>
@@ -178,12 +178,14 @@ export function CloudFiles({
             <Skeleton width="65%" height={12} />
           ) : (
             <span>
-              {formatBytes(storage.used)} of {storageLabel(storage.limit)} used
+              {storage.limit === null
+                ? `${formatBytes(storage.used)} used · Unlimited storage`
+                : `${formatBytes(storage.used)} of ${storageLabel(storage.limit)} used`}
             </span>
           )}
           {loading && !error ? (
             <Skeleton width="100%" height={6} />
-          ) : !error ? (
+          ) : !error && storage.limit !== null ? (
             <progress
               aria-label="File storage used"
               value={Math.min(storage.used, storage.limit)}

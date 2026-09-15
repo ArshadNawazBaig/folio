@@ -63,7 +63,7 @@ The automated tests use simulated provider responses and local PostgreSQL. Compl
 
 - Buy the introductory variant. Confirm $1 is paid today, the next charge is $25 after seven days, and access is limited to the paid introductory period until a monthly payment succeeds. Verify the setup fee is not charged again. Check the hosted checkout's displayed taxes and renewal terms before confirming.
 - Buy monthly with a separate account. Confirm $25 today with no setup fee or trial, access after the signed event arrives, and the customer portal's invoices, payment method, cancellation, and return flow.
-- Exercise failed/abandoned checkout, webhook redelivery, failed renewal, recovery, cancellation, expiry, and initial/renewal refunds. Confirm server download access and 1 GB storage follow verified payment state, while free accounts retain 100 MB and free tools.
+- Exercise failed/abandoned checkout, webhook redelivery, failed renewal, recovery, cancellation, expiry, and initial/renewal refunds. Confirm server download access and storage follow verified payment state (1 GB paid trial, unlimited paid monthly), while free accounts retain 100 MB and free tools.
 - Check a second user cannot open the first user's portal. Confirm altered webhook signatures and mismatched store, mode, variant, customer, or checkout token cannot grant access.
 - Test editor recovery across sign-in, checkout in another tab, refreshing the account, and returning to download. A checkout success URL by itself must not unlock a document.
 - Publish a new pair of variants from admin; verify new purchases show the new terms while the earlier subscriber keeps the original terms. Exercise admin cancellation/resumption and deletion with a disposable test account.
@@ -79,3 +79,22 @@ Entitlements use canonical subscription, order, and invoice API data, never a cl
 Keep the webhook endpoint reachable during maintenance and monitor failed deliveries in Lemon Squeezy. Successful payment depends on webhook delivery to associate the subscription. Replay failed events after an outage. Payment disputes and refunds should be reviewed in Lemon Squeezy; do not assume a dispute necessarily emits a refund event. Revoke app access through admin when needed.
 
 Internal `stripe_subscription_id` and `stripe_customer_id` column names remain in the older Supabase schema to preserve existing quota, storage, and audit functions. Active subscriptions use `lemon_` IDs; those names do not invoke Stripe or require its SDK. The new `lemon_checkouts` table and its functions are service-role only. No provider secrets are sent to the browser.
+
+## Storage allowances
+
+Apply [012_monthly_unlimited_storage.sql](../supabase/migrations/012_monthly_unlimited_storage.sql) after migration 011, before deploying the updated billing code. The new optional RPC argument keeps the previous deployment compatible during rollout. Existing files are preserved.
+
+- Free and guests: 100 MB. Guest files still expire after 24 hours.
+- Paid introductory trial and courtesy access: 1 GB.
+- A verified monthly payment: unlimited total storage and file count, including the paid remainder of a cancelled monthly subscription.
+- Expired or revoked access: return to Free limits. Existing files remain readable/deletable; additional uploads require space.
+
+The 50 MB limit per PDF and tool-specific processing limits remain. A provider's active status alone does not lift quotas: cancelled trials may also report active. Canonical monthly payment verification sets a separate service-only entitlement, with duplicate/stale event protection and the existing paid-through/period-end checks. Recovery drafts and saved editor state share the account allowance.
+
+After deploying, re-read canonical billing data for existing subscriptions using the configured `.env` / `.env.local`:
+
+```sh
+node --conditions=react-server --import tsx scripts/sync-storage-entitlements.ts
+```
+
+This script does not create purchases or charge customers. It safely re-syncs existing Lemon Squeezy subscriptions; retries use unique event IDs. Existing accounts retain their previous 1 GB allowance until verified monthly payment data is synced. New webhooks automatically supply the new entitlement.

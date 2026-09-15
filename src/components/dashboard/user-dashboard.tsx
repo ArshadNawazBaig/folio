@@ -150,6 +150,22 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
             ? workspaceRequest('', { signal })
             : accountFetch('/api/account/files', { signal }))
         ).json();
+        // Monthly libraries can exceed one API page. Load metadata in bounded
+        // batches so files remain searchable and manageable after a downgrade too.
+        if (!guest) {
+          while (typeof data.nextOffset === 'number') {
+            const next = await (
+              await accountFetch(`/api/account/files?offset=${data.nextOffset}`, { signal })
+            ).json();
+            data.files.push(...next.files);
+            data.nextOffset = next.nextOffset;
+          }
+          data.files = [
+            ...new Map<string, CloudDocument>(
+              data.files.map((file: CloudDocument) => [file.id, file]),
+            ).values(),
+          ];
+        }
         const remaining =
           !guest && transfer ? await (await workspaceRequest('', { signal })).json() : null;
         if (!signal?.aborted) {
@@ -196,7 +212,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
   const name = guest ? 'Guest account' : displayName(user?.user_metadata);
   const ready = files.filter((f) => f.status === 'ready');
   const bytes = storage?.used ?? files.reduce((n, f) => n + f.size + (f.workspace_size || 0), 0);
-  const capacity = storage?.limit ?? (access.pro ? PRO_STORAGE_LIMIT : FREE_STORAGE_LIMIT);
+  const capacity = storage ? storage.limit : access.pro ? PRO_STORAGE_LIMIT : FREE_STORAGE_LIMIT;
   const titles = {
     overview: guest
       ? 'Your guest workspace.'
@@ -243,16 +259,20 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                   <Skeleton width="86%" height={10} />
                   <LoadingLabel>Loading storage usage…</LoadingLabel>
                 </>
+              ) : capacity === null ? (
+                `${bytes ? formatBytes(bytes) : '0 KB'} used · Unlimited storage`
               ) : (
                 `${bytes ? formatBytes(bytes) : '0 KB'} of ${storageLabel(capacity)}`
               )}
             </span>
-            <progress
-              aria-label="Cloud storage used"
-              value={Math.min(bytes, capacity)}
-              max={capacity}
-            />
-            {!loading && !fileError && bytes >= capacity && (
+            {capacity !== null && (
+              <progress
+                aria-label="Cloud storage used"
+                value={Math.min(bytes, capacity)}
+                max={capacity}
+              />
+            )}
+            {!loading && !fileError && capacity !== null && bytes >= capacity && (
               <span>Storage full. Delete older files to upload more.</span>
             )}
             <Link href="/dashboard?view=files">
@@ -434,8 +454,8 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                 storage ?? {
                   used: bytes,
                   limit: capacity,
-                  available: Math.max(0, capacity - bytes),
-                  full: bytes >= capacity,
+                  available: capacity === null ? null : Math.max(0, capacity - bytes),
+                  full: capacity !== null && bytes >= capacity,
                   recovery: [],
                 }
               }

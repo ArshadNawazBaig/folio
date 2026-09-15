@@ -6,12 +6,16 @@ import { CLOUD_FILE_LIMIT, CLOUD_FILE_COUNT, pdfName } from '@/lib/cloud-types';
 export async function GET(request: Request) {
   try {
     const user = await requireUser(request);
+    const offset = Number(new URL(request.url).searchParams.get('offset') || 0);
+    if (!Number.isSafeInteger(offset) || offset < 0)
+      throw new ApiError(400, 'Choose a valid file page.');
     const { data, error } = await adminDb()
       .from('cloud_documents')
       .select(cloudFields)
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false })
-      .limit(CLOUD_FILE_COUNT);
+      .order('id', { ascending: false })
+      .range(offset, offset + CLOUD_FILE_COUNT - 1);
     cloudError(error);
     const storage = await adminDb().rpc('account_storage_status', { actor: user.id });
     if (storage.error)
@@ -19,7 +23,12 @@ export async function GET(request: Request) {
         503,
         'Storage limits are not ready. Please ask support to complete the storage setup.',
       );
-    return Response.json({ files: data, storageLimit: storage.data.limit, storage: storage.data });
+    return Response.json({
+      files: data,
+      nextOffset: data?.length === CLOUD_FILE_COUNT ? offset + CLOUD_FILE_COUNT : null,
+      storageLimit: storage.data.limit,
+      storage: storage.data,
+    });
   } catch (error) {
     return apiError(error);
   }

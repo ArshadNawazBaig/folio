@@ -132,6 +132,7 @@ export function lemonAccessSnapshot(
     (!sub.first_subscription_item || sub.first_subscription_item.quantity === 1);
   const cycleEnd = time(sub.ends_at) || time(sub.renews_at);
   let paidUntil = 0;
+  let monthlyPaid = false;
   const trialEnd = Math.min(
     time(sub.trial_ends_at),
     time(sub.created_at) + catalog.trialDays * 86400000,
@@ -162,6 +163,7 @@ export function lemonAccessSnapshot(
     (plan === 'month' || time(latest.created_at) >= trialEnd - 300000)
   ) {
     paidUntil = Math.max(paidUntil, nextMonth(time(latest.created_at)));
+    monthlyPaid = true;
   } else if (
     valid &&
     plan === 'month' &&
@@ -171,6 +173,7 @@ export function lemonAccessSnapshot(
     !order.setup_fee_usd
   ) {
     paidUntil = nextMonth(time(order.created_at));
+    monthlyPaid = true;
   }
   // Refunds/failures for the latest monthly payment cannot resurrect an older invoice.
   if (latest && (latest.refunded || latest.refunded_amount > 0 || latest.status !== 'paid'))
@@ -191,5 +194,6 @@ export function lemonAccessSnapshot(
     paid_until_value: paidUntil > 0 ? new Date(paidUntil).toISOString() : null,
     period_end_value: cycleEnd ? new Date(cycleEnd).toISOString() : null,
     cancel_value: sub.cancelled || sub.status === 'cancelled',
+    monthly_paid_value: monthlyPaid && paidUntil > 0,
   };
 }

@@ -38,7 +38,11 @@ export async function saveCloudRecovery(slot: RecoverySlot, value: unknown, expi
       storage: StorageUsage;
     };
     const previousSize = storage.recovery.find((draft) => draft.slot === slot)?.size || 0;
-    if (body.size > previousSize && storage.used - previousSize + body.size > storage.limit)
+    if (
+      storage.limit !== null &&
+      body.size > previousSize &&
+      storage.used - previousSize + body.size > storage.limit
+    )
       throw new Error(
         'There is not enough private storage for this recovery draft. Delete older files or recovery drafts in My files, then retry saving.',
       );

@@ -22,6 +22,9 @@ test('private storage enforces ownership even with broad existing bucket policie
       '005_cloud_recovery.sql',
       '007_admin_user_deletion.sql',
       '008_plan_storage_limits.sql',
+      '010_lemon_squeezy.sql',
+      '011_guest_dashboard.sql',
+      '012_monthly_unlimited_storage.sql',
     ])
       await db.exec(
         await readFile(new URL(`../supabase/migrations/${name}`, import.meta.url), 'utf8'),

@@ -26,6 +26,9 @@ test('plan storage quotas cover exact uploads, drafts, expiry, deletion and conc
       '006_editor_autosave',
       '007_admin_user_deletion',
       '008_plan_storage_limits',
+      '010_lemon_squeezy',
+      '011_guest_dashboard',
+      '012_monthly_unlimited_storage',
     ])
       await db.exec(
         await readFile(new URL(`../supabase/migrations/${name}.sql`, import.meta.url), 'utf8'),
@@ -208,6 +211,143 @@ test('plan storage quotas cover exact uploads, drafts, expiry, deletion and conc
     await db.exec('set role service_role');
     await db.query('insert into account_controls(user_id,suspended) values($1,true)', [free]);
     await assert.rejects(reserve(free, 1), /suspended/);
+  } finally {
+    await db.close();
+  }
+});
+
+test('verified monthly payments lift byte and file quotas; expiry preserves the entire library', async () => {
+  const db = new PGlite();
+  const actor = randomUUID(),
+    token = randomUUID(),
+    guest = 'c'.repeat(64);
+  const MB = 1024 * 1024;
+  try {
+    await db.exec(
+      'create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key,email text,created_at timestamptz default now(),last_sign_in_at timestamptz);',
+    );
+    await db.exec(cloudTestSchema);
+    for (const name of [
+      '001_billing',
+      '002_paid_intro',
+      '003_platform_admin',
+      '004_cloud_documents',
+      '005_cloud_recovery',
+      '006_editor_autosave',
+      '007_admin_user_deletion',
+      '008_plan_storage_limits',
+      '010_lemon_squeezy',
+      '011_guest_dashboard',
+      '012_monthly_unlimited_storage',
+    ])
+      await db.exec(
+        await readFile(new URL(`../supabase/migrations/${name}.sql`, import.meta.url), 'utf8'),
+      );
+    await db.query('insert into auth.users(id) values($1)', [actor]);
+    await db.exec('set role service_role');
+    await db.query(
+      "insert into lemon_checkouts(id,user_id,pricing_version,plan,variant_id,store_id,test_mode,terms,expires_at) values($1,$2,'initial','trial','2','1',true,'{}',now()+interval '15 minutes')",
+      [token, actor],
+    );
+    const event = async (id: string, time: number, monthly: boolean, status = 'active') =>
+      db.query(
+        "select record_lemon_subscription($1,'501','50','60',$2,$3,$4,now()+interval '1 month',now()+interval '1 month',true,$5)",
+        [token, id, time, status, monthly],
+      );
+    const usage = async () =>
+      (
+        await db.query<{ usage: import('../src/lib/cloud-types').StorageUsage }>(
+          'select account_storage_status($1) usage',
+          [actor],
+        )
+      ).rows[0].usage;
+    const reserve = async (size: number) =>
+      (
+        await db.query<{ doc: { id: string; object_path: string } }>(
+          "select reserve_cloud_document($1,'Example.pdf',$2) doc",
+          [actor, size],
+        )
+      ).rows[0].doc;
+    await event('trial', 10, false);
+    assert.equal(
+      (await usage()).limit,
+      PRO_STORAGE_LIMIT,
+      'A cancelled paid trial retains only 1 GB',
+    );
+    for (let i = 0; i < 20; i++) await reserve(50 * MB);
+    await reserve(24 * MB);
+    await assert.rejects(reserve(1), /storage_limit/);
+    await event('monthly', 20, true);
+    await event('monthly', 20, false); // Duplicate delivery cannot alter the accepted snapshot.
+    await event('late_trial', 15, false);
+    assert.equal((await usage()).limit, null);
+    for (let i = 0; i < 181; i++) await reserve(50 * MB);
+    assert.equal((await usage()).used, PRO_STORAGE_LIMIT + 181 * 50 * MB);
+    assert.equal((await usage()).available, null);
+    assert.equal((await usage()).full, false);
+    await assert.rejects(
+      reserve(50 * MB + 1),
+      /invalid_file/,
+      'Individual upload limits still apply',
+    );
+    const ready = await reserve(1);
+    await db.query(
+      "insert into storage.objects(bucket_id,name,metadata) values('folio-documents',$1,'{\"size\":1}')",
+      [ready.object_path],
+    );
+    await db.query("update cloud_documents set status='ready' where id=$1", [ready.id]);
+    await db.query(
+      'select save_editor_workspace($1,null,$2,0,\'{"text":"saved beyond 1 GB"}\',\'Example.pdf\',$3)',
+      [actor, ready.id, randomUUID()],
+    );
+    await db.query(
+      "insert into storage.objects(bucket_id,name,metadata) values('folio-recovery',$1,$2)",
+      [`${actor}/pro-text.json`, JSON.stringify({ size: MB })],
+    );
+    const guestIds = [randomUUID(), randomUUID()];
+    for (const id of guestIds)
+      await db.query("select reserve_editor_workspace(null,$1,$2,'Guest.pdf',1000)", [guest, id]);
+    await db.query('select claim_editor_workspace($1,$2,$3)', [actor, guest, guestIds[0]]);
+    const claimed = await db.query<{ result: { claimed: number } }>(
+      'select claim_guest_workspaces($1,$2) result',
+      [actor, guest],
+    );
+    assert.equal(
+      claimed.rows[0].result.claimed,
+      1,
+      'Bulk guest transfer works for unlimited accounts',
+    );
+    const before = await usage();
+    await db.query(
+      "update billing_subscriptions set paid_until=now()-interval '1 second' where user_id=$1",
+      [actor],
+    );
+    assert.equal((await usage()).limit, FREE_STORAGE_LIMIT);
+    assert.equal(
+      (await usage()).used,
+      before.used,
+      'Downgrade does not remove old files or drafts',
+    );
+    await assert.rejects(reserve(1), /storage_limit/);
+    await db.query("select save_editor_workspace($1,null,$2,1,'{}','Example.pdf',$3)", [
+      actor,
+      ready.id,
+      randomUUID(),
+    ]);
+    await event('monthly_renewed', 30, true);
+    await db.query('insert into account_controls(user_id,suspended) values($1,true)', [actor]);
+    await assert.rejects(reserve(1), /suspended/);
+    await db.query('delete from account_controls where user_id=$1', [actor]);
+    await db.query('update billing_subscriptions set access_revoked=true where user_id=$1', [
+      actor,
+    ]);
+    assert.equal((await usage()).limit, FREE_STORAGE_LIMIT);
+    await db.exec('set role authenticated');
+    await assert.rejects(
+      db.query('update billing_subscriptions set monthly_paid=true'),
+      /permission denied/,
+    );
+    await assert.rejects(event('forged', 40, true), /permission denied/);
   } finally {
     await db.close();
   }

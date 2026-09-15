@@ -138,6 +138,65 @@ function loadingGate() {
   return { pending, release };
 }
 
+test('monthly storage shows unlimited usage, accepts uploads and lists files beyond the first page', async ({
+  page,
+}) => {
+  await mockGoogle(page);
+  const stored = Array.from({ length: 201 }, (_, i) => ({
+    id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
+    name: `Monthly document ${i + 1}.pdf`,
+    size: 50 * 1024 * 1024,
+    status: 'ready',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }));
+  let uploads = 0;
+  await page.route('**/api/account/files{,?**}', async (route) => {
+    if (route.request().method() === 'POST') {
+      uploads++;
+      await route.fulfill({ status: 503, json: { error: 'Upload received for verification.' } });
+      return;
+    }
+    const offset = Number(new URL(route.request().url()).searchParams.get('offset') || 0);
+    await route.fulfill({
+      json: {
+        files: stored.slice(offset, offset + 200),
+        nextOffset: offset === 0 ? 200 : null,
+        storage: {
+          limit: null,
+          available: null,
+          used: 201 * 50 * 1024 * 1024,
+          full: false,
+          recovery: [],
+        },
+      },
+    });
+  });
+  await page.goto('/account');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.getByRole('link', { name: 'My files', exact: false }).first().click();
+  await expect(
+    page.getByRole('link', { name: 'Monthly document 201.pdf', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText('Up to 50 MB per PDF · Unlimited private storage', { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole('progressbar')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Upload PDF', exact: true })).toBeEnabled();
+  await page.getByLabel('Upload PDF to cloud').setInputFiles({
+    name: 'Monthly upload.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from(await createSample()),
+  });
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'Upload received for verification.' }),
+  ).toBeVisible();
+  expect(uploads).toBe(1);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
 test('file skeletons match rows, respect reduced motion and settle on success or error', async ({
   page,
 }) => {

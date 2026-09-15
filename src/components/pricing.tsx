@@ -188,7 +188,9 @@ export function Pricing({
             <ul>
               {[
                 'Everything in Folio Free',
-                '1 GB of private cloud storage',
+                plan === 'trial'
+                  ? '1 GB during your trial, then unlimited storage with monthly billing'
+                  : 'Unlimited private cloud storage',
                 'Replace and delete existing PDF text',
                 'Change replacement fonts, sizes, and colors',
                 'Find and replace across the document',
@@ -203,6 +205,13 @@ export function Pricing({
             </ul>
           )}
           <small>{offerTerms(catalog, plan)}</small>
+          {compact && (
+            <small>
+              {plan === 'trial'
+                ? '1 GB during your trial. Unlimited private storage when your monthly subscription begins.'
+                : 'Includes unlimited private cloud storage.'}
+            </small>
+          )}
           {plan === 'trial' && (
             <small>One introductory offer per account. Includes all Pro features.</small>
           )}
