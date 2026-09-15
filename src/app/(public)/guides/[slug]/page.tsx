@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { ArrowUpRight, ChevronRight } from 'lucide-react';
 import { guides } from '@/lib/guides';
 import { getTool } from '@/lib/tools';
-import { pageMetadata, breadcrumbSchema, siteUrl } from '@/lib/seo';
+import { pageMetadata, breadcrumbSchema, siteUrl, organizationSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
 export const dynamicParams = false;
 export function generateStaticParams() {
@@ -12,7 +12,18 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const g = guides.find((g) => g.slug === slug);
-  return g ? pageMetadata(g.title, g.description, `/guides/${g.slug}`) : {};
+  if (!g) return {};
+  const base = pageMetadata(g.title, g.description, `/guides/${g.slug}`);
+  return {
+    ...base,
+    openGraph: {
+      ...base.openGraph,
+      type: 'article',
+      publishedTime: g.published,
+      modifiedTime: g.updated,
+      authors: [`${siteUrl}/about`],
+    },
+  };
 }
 export default async function Guide({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -34,9 +45,11 @@ export default async function Guide({ params }: { params: Promise<{ slug: string
           '@type': 'Article',
           headline: g.title,
           description: g.description,
-          datePublished: g.updated,
+          datePublished: g.published,
           dateModified: g.updated,
           author: { '@type': 'Organization', name: 'Folio', url: `${siteUrl}/about` },
+          publisher: organizationSchema(),
+          inLanguage: 'en',
           image: `${siteUrl}/og?title=${encodeURIComponent(g.title)}`,
           mainEntityOfPage: `${siteUrl}/guides/${g.slug}`,
         }}
@@ -53,9 +66,29 @@ export default async function Guide({ params }: { params: Promise<{ slug: string
           </span>
           <h1>{g.title}</h1>
           <p>{g.description}</p>
-          <span className="article-date">Folio field notes · Updated September 13, 2026</span>
+          <span className="article-date">
+            <Link href="/about">Folio field notes</Link> · Updated{' '}
+            <time dateTime={g.updated}>
+              {new Date(`${g.updated}T00:00:00Z`).toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                timeZone: 'UTC',
+              })}
+            </time>
+          </span>
         </header>
         <div className="article-body">
+          <nav className="article-contents" aria-label="On this page">
+            <strong>On this page</strong>
+            <ol>
+              {g.sections.map((section, i) => (
+                <li key={section.title}>
+                  <a href={`#section-${i + 1}`}>{section.title}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
           {g.sections.map((section, i) => (
             <section key={section.title} id={`section-${i + 1}`}>
               <h2>{section.title}</h2>

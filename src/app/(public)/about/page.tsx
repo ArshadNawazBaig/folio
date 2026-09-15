@@ -40,10 +40,10 @@ export default function About() {
       <h2>Designed around your documents.</h2>
       <p>
         Annotation and page tools run on your device. Folio also offers existing text editing, find
-        and replace, and password protection through server processing. An explicit cloud save in
-        the free editor gives you a place to pick up where you left off, while a download puts the
-        finished file in your hands. Our <Link href="/privacy">privacy explanation</Link> describes
-        the details.
+        and replace, and password protection through server processing. The editor automatically
+        saves a private cloud workspace so you can pick up where you left off, while a download puts
+        the finished file in your hands. Our <Link href="/privacy">privacy explanation</Link>{' '}
+        describes the details.
       </p>
       <h2>A little help when you need it.</h2>
       <p>

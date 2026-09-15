@@ -100,7 +100,7 @@ NEXT_PUBLIC_INDEXABLE=true
 NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=your-optional-token
 ```
 
-Keep indexing disabled on previews and local builds. Changing these values requires rebuilding because public routes and metadata are prerendered. No real production domain has been supplied or connected.
+Keep indexing disabled on previews and local builds. Changing these values requires rebuilding because public routes and metadata are prerendered. The current public origin is `https://folio-pdf-kappa.vercel.app`; it has production indexing enabled, while previews are guarded from indexing. Search Console ownership verification and sitemap submission still require the owner's Google account. Run `npm run seo:audit -- https://folio-pdf-kappa.vercel.app` after deployment to check public indexing and private-route exclusions.
 
 ## Checks
 

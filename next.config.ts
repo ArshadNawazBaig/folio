@@ -45,6 +45,9 @@ const config: NextConfig = {
   },
   async headers() {
     return [
+      ...(process.env.VERCEL_ENV && process.env.VERCEL_ENV !== 'production'
+        ? [{ source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] }]
+        : []),
       {
         source: '/:path*',
         headers: [

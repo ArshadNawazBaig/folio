@@ -15,14 +15,15 @@ type Props = {
 export async function generateMetadata({ searchParams }: Props) {
   const p = await searchParams;
   const canonical = new URLSearchParams();
-  if (p.page && p.page !== '1') canonical.set('page', p.page);
+  const page = Math.max(1, Math.min(10000, Number.parseInt(p.page || '1', 10) || 1));
+  if (page > 1) canonical.set('page', String(page));
   const pageSize = normalizePageSize(p.pageSize);
   if (pageSize !== PAGE_SIZE) canonical.set('pageSize', String(pageSize));
   return pageMetadata(
     'The Folio blog — ideas for better documents',
     'Practical PDF tips, thoughtful workflows, and news from Folio. Read the latest from our editorial team.',
     canonical.size ? `/blog?${canonical}` : '/blog',
-    !p.q && !p.category,
+    !p.q && !p.category && pageSize === PAGE_SIZE,
   );
 }
 export default async function Blog({ searchParams }: Props) {

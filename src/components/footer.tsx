@@ -18,18 +18,36 @@ export function Footer() {
         </div>
         <div>
           <h3>Make it yours</h3>
-          <Link href="/edit-pdf">Edit PDF</Link>
-          <Link href="/edit-pdf-text">PDF text editor</Link>
-          <Link href="/merge-pdf">Merge PDF</Link>
-          <Link href="/compress-pdf">Compress PDF</Link>
-          <Link href="/sign-pdf">Fill & sign</Link>
+          <Link prefetch={false} href="/edit-pdf">
+            Edit PDF
+          </Link>
+          <Link prefetch={false} href="/edit-pdf-text">
+            PDF text editor
+          </Link>
+          <Link prefetch={false} href="/merge-pdf">
+            Merge PDF
+          </Link>
+          <Link prefetch={false} href="/compress-pdf">
+            Compress PDF
+          </Link>
+          <Link prefetch={false} href="/sign-pdf">
+            Fill & sign
+          </Link>
         </div>
         <div>
           <h3>Find your format</h3>
-          <Link href="/pdf-to-jpg">PDF to JPG</Link>
-          <Link href="/pdf-to-png">PDF to PNG</Link>
-          <Link href="/image-to-pdf">Image to PDF</Link>
-          <Link href="/pdf-to-text">PDF to text</Link>
+          <Link prefetch={false} href="/pdf-to-jpg">
+            PDF to JPG
+          </Link>
+          <Link prefetch={false} href="/pdf-to-png">
+            PDF to PNG
+          </Link>
+          <Link prefetch={false} href="/image-to-pdf">
+            Image to PDF
+          </Link>
+          <Link prefetch={false} href="/pdf-to-text">
+            PDF to text
+          </Link>
         </div>
         <div>
           <h3>Around Folio</h3>

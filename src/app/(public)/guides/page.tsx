@@ -22,7 +22,7 @@ export default function Guides() {
       <div className="guides-grid">
         {guides.map((g, i) => (
           <Link href={`/guides/${g.slug}`} key={g.slug}>
-            <div className={`guide-art guide-art-${i}`}>
+            <div className={`guide-art guide-art-${i % 4}`}>
               <span>FOLIO / FIELD NOTES</span>
               <strong>0{i + 1}</strong>
               <small>{g.category}</small>

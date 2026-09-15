@@ -1,41 +1,57 @@
-export const guides = [
+export type Guide = {
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  readTime: string;
+  published: string;
+  updated: string;
+  tool: string;
+  relatedTools?: string[];
+  sections: { title: string; text: string }[];
+};
+export const guides: Guide[] = [
   {
     slug: 'how-to-edit-a-pdf',
-    title: 'A thoughtful guide to editing your PDF',
+    title: 'How to Edit a PDF Online: Text, Annotations & Saving',
     description:
       'Add text, highlights, and a signature without losing sight of the original. A practical guide to working in the Folio editor.',
     category: 'Editing',
     readTime: '4 min read',
-    updated: '2026-09-14',
+    published: '2026-09-14',
+    updated: '2026-09-15',
     tool: 'edit-pdf',
+    relatedTools: ['edit-pdf-text', 'organize-pdf', 'sign-pdf'],
     sections: [
       {
         title: 'Start with the right kind of edit',
-        text: 'A PDF captures the appearance of a document. The free Folio editor adds annotations, text, images, shapes, and visual signatures. The Pro PDF text editor replaces supported existing text blocks and offers font, size, color, and find-and-replace controls. It does not reflow paragraphs or recognize scanned text. For extensive paragraph changes, editing the source document and exporting a fresh PDF is often the better fit.',
+        text: 'A PDF captures the appearance of a document. The free Folio editor adds annotations, text, images, shapes, and visual signatures. Choose Edit Text in the same workspace to replace supported original text blocks, with font, size, color, and find-and-replace controls. You can edit and preview first; original-text changes require a premium plan only at download. It does not reflow paragraphs or recognize scanned text. For extensive paragraph changes, editing the source document and exporting a fresh PDF is often the better fit.',
       },
       {
         title: 'Give each addition a clear purpose',
-        text: 'Choose Edit PDF, open a document, and select Add text. Click where you want the annotation, then replace its wording in the properties panel. Adjust the size and color, and drag the annotation into place. A short note in the margin is often more readable than a large block over the original text. Use highlights sparingly so the most important passages still stand out. You can move, duplicate, resize, or delete your additions and use Undo to recover from a change.',
+        text: 'Choose Edit PDF, open a document, and select Add text. Click where you want the annotation and type directly into its text box. For an existing PDF text block, choose Edit Text, select the words on the page, and type in place. The properties panel adjusts appearance. Adjust the size and color, and drag the annotation into place. A short note in the margin is often more readable than a large block over the original text. Use highlights sparingly so the most important passages still stand out. You can move, duplicate, resize, or delete your additions and use Undo to recover from a change.',
       },
       {
         title: 'Put the pages in order',
-        text: 'The left sidebar shows page thumbnails. Select a page, then use the controls to move it up or down, rotate it, duplicate it, or delete it. Keep at least one page in the document. If a page already has annotations, export the PDF and reopen that copy before rotating it; this keeps all of the new marks aligned with the page. Add a blank page if you need room for notes or a new cover.',
+        text: 'The left sidebar shows page thumbnails. Select a page, then use the controls to move it up or down, rotate it, duplicate it, or delete it. Keep at least one page in the document. After changing page layout, review the position of annotations and form fields in the preview and exported copy. Add a blank page if you need room for notes or a new cover.',
       },
       {
         title: 'Save a draft, then check the export',
-        text: 'Save to cloud uploads your edited PDF to your private account so you can open it on another device. Sign in when saving, and keep the editor tab open until the upload finishes. Download PDF creates a separate file containing your changes. Open that exported file in a PDF reader and check the pages you edited, including any signatures or form fields. Keep your original separately. Unsaved changes stay in the current tab. Download a separate backup of work you want to keep.',
+        text: 'The editor automatically uploads your PDF and saves a recovery workspace to private cloud storage. Use Save now to request a save, then wait for All changes saved before refreshing or leaving. Guests have 100 MB of storage and their files expire after 24 hours. Google sign-in opens separately so the editor remains open; signing in lets you keep files in your account. Download PDF creates your finished file. Added annotations, forms, and signatures export for free when no original-text changes remain. Check the downloaded pages in a PDF reader and keep an original copy.',
       },
     ],
   },
   {
     slug: 'how-to-merge-and-split-pdfs',
-    title: 'Bring PDFs together. Take them apart.',
+    title: 'How to Merge and Split PDF Files Without Losing Pages',
     description:
       'Learn when to merge documents, how to arrange their order, and how to extract just the pages you need.',
     category: 'Organization',
     readTime: '3 min read',
-    updated: '2026-09-13',
+    published: '2026-09-13',
+    updated: '2026-09-15',
     tool: 'merge-pdf',
+    relatedTools: ['split-pdf', 'organize-pdf'],
     sections: [
       {
         title: 'Build one useful document',
@@ -57,13 +73,15 @@ export const guides = [
   },
   {
     slug: 'why-your-pdf-wont-get-smaller',
-    title: 'Why some PDFs won’t get smaller',
+    title: 'Why Your PDF Won’t Get Smaller — and What to Try',
     description:
       'Understand PDF file size, lossless optimization, image-heavy documents, and why compression results vary.',
     category: 'File size',
     readTime: '3 min read',
-    updated: '2026-09-13',
+    published: '2026-09-13',
+    updated: '2026-09-15',
     tool: 'compress-pdf',
+    relatedTools: ['split-pdf', 'compress-images'],
     sections: [
       {
         title: 'A PDF is more than its page count',
@@ -85,13 +103,15 @@ export const guides = [
   },
   {
     slug: 'fillable-pdf-vs-flattened-pdf',
-    title: 'Fillable or flattened? Choose the right PDF.',
+    title: 'Fillable vs. Flattened PDFs: Which Should You Share?',
     description:
       'Understand editable PDF form fields, flattened exports, and visual signatures before sharing your completed document.',
     category: 'Forms',
     readTime: '3 min read',
-    updated: '2026-09-13',
+    published: '2026-09-13',
+    updated: '2026-09-15',
     tool: 'create-pdf-form',
+    relatedTools: ['sign-pdf'],
     sections: [
       {
         title: 'Leave room for the next person',
@@ -108,6 +128,126 @@ export const guides = [
       {
         title: 'Choose the right signature workflow',
         text: 'A typed or drawn signature is a visual mark. Folio adds these marks as document annotations; it does not verify identity, issue certificates, or create a cryptographic audit trail. If a recipient requires a certificate-based digital signature, use their specified signing process. For ordinary completed forms, confirm the recipient’s format requirements and check that the exported values are visible in their preferred PDF reader.',
+      },
+    ],
+  },
+  {
+    slug: 'how-to-sign-a-pdf',
+    title: 'How to Sign a PDF: Draw, Type or Upload Your Signature',
+    description:
+      'Add a signature to a PDF using a mouse, touch screen, typed name, or image. Position it clearly and check the finished document before sharing.',
+    category: 'Signing',
+    readTime: '3 min read',
+    published: '2026-09-15',
+    updated: '2026-09-15',
+    tool: 'sign-pdf',
+    relatedTools: ['create-pdf-form', 'edit-pdf'],
+    sections: [
+      {
+        title: 'Choose how you want to sign',
+        text: 'Open Sign PDF and choose your document. In the editor, select Sign to open the signature dialog. Draw is useful when you want to write with a mouse, stylus, or touch screen. Type turns your name into a visual signature. Image lets you use a signature picture you already have. These are three ways to place a visual mark on the page; choose the one that gives the clearest result at the size you need.',
+      },
+      {
+        title: 'Create a clear signature',
+        text: 'For a drawn signature, write comfortably across the drawing area instead of squeezing the mark into a corner. Clear it and try again if the strokes overlap or the name is difficult to read. For a typed signature, check spelling and preview the style before inserting it. For an image, use a tightly cropped picture with enough detail to remain clear when resized. A transparent PNG can avoid a white rectangle covering a colored form background.',
+      },
+      {
+        title: 'Place it beside the right information',
+        text: 'Confirm the signature in the dialog, place it on the page, and adjust its position and size. Avoid stretching it into a different proportion or covering printed labels. Use Add Text for a date or printed name if the PDF has no fillable field for them. A signature on one page does not automatically sign every page: check whether the recipient has marked additional places for initials or a signature and complete those separately.',
+      },
+      {
+        title: 'Check the download and keep the right original',
+        text: 'A PDF containing only added signatures, annotations, and form values downloads for free. Changes to original PDF text use premium downloads. Open the exported copy to confirm the signature is visible and the page order is correct. Folio visual signatures do not create a digital certificate or verify identity. If the recipient asks for certificate-based signing or a particular signing platform, use that process. Keep an unsigned original and check the editor save status before closing your workspace.',
+      },
+    ],
+  },
+  {
+    slug: 'how-to-convert-pdf-to-images',
+    title: 'How to Convert PDF Pages to JPG or PNG at the Right Resolution',
+    description:
+      'Choose JPG or PNG, select PDF pages, and set export resolution. Learn how to keep small text clear without making image files unnecessarily large.',
+    category: 'Conversion',
+    readTime: '3 min read',
+    published: '2026-09-15',
+    updated: '2026-09-15',
+    tool: 'pdf-to-png',
+    relatedTools: ['pdf-to-jpg', 'pdf-to-text', 'compress-images'],
+    sections: [
+      {
+        title: 'Choose a format for the content',
+        text: 'PNG is a useful starting point for screenshots, charts, diagrams, and pages with small text because its compression does not add JPEG artifacts. JPG often produces a smaller file for photographs and illustrated pages, although sharp letter edges can become less distinct at lower quality. Both formats turn the entire PDF page into pixels. Links, selectable text, and interactive form fields do not remain interactive in the image. Use PDF to Text instead if you need the selectable words.',
+      },
+      {
+        title: 'Select just the pages you need',
+        text: 'Open PDF to PNG or PDF to JPG and choose a PDF. Enter the required page range, such as 1-3, 5, to export the first three pages and page five. Use positions in the file rather than printed page labels; a cover sheet can shift the numbering. Convert the selection and inspect the result preview. Exporting one page makes an image file, while several pages are packaged in a ZIP. The preview navigation lets you check each page before downloading.',
+      },
+      {
+        title: 'Match resolution to the intended size',
+        text: 'Use a lower resolution for a small screen preview and a higher resolution when small text or printing matters. At 300 DPI, a US Letter page is about 2550 by 3300 pixels. Doubling resolution in both directions creates roughly four times as many pixels, so processing and file size can grow quickly. More pixels cannot reconstruct detail missing from an original scan. Folio limits raster output to 25 million pixels per page and 200 pages per export to bound memory use.',
+      },
+      {
+        title: 'Inspect the actual result before sharing',
+        text: 'Look at the exported preview at a useful reading size, especially footnotes, fine chart lines, and signatures. If JPG letters look uneven, try PNG or a higher resolution and compare. If the file is too large, export fewer pages or choose a smaller resolution. You can also use Compress Images after export, checking the new result before replacing the first version. These conversions and downloads are free, and your original PDF remains unchanged.',
+      },
+    ],
+  },
+  {
+    slug: 'how-to-combine-images-into-pdf',
+    title: 'How to Combine JPG, PNG and WEBP Images into One PDF',
+    description:
+      'Turn receipts, photos, or screenshots into an ordered PDF. Choose image-sized or A4 pages, check orientation, and preview every page before export.',
+    category: 'Conversion',
+    readTime: '3 min read',
+    published: '2026-09-15',
+    updated: '2026-09-15',
+    tool: 'image-to-pdf',
+    relatedTools: ['jpg-to-pdf', 'png-to-pdf', 'merge-images', 'compress-images'],
+    sections: [
+      {
+        title: 'Prepare pictures that belong together',
+        text: 'Combining images into one PDF is useful for a set of receipts, project photographs, or screenshots that someone should read in order. Open Image to PDF for a mixed group of JPG, PNG, and WEBP files, or choose a format-specific tool for JPG or PNG. Each image becomes a separate page. Check that every picture is readable before adding it; packaging a blurred receipt inside a PDF will not make its details clearer.',
+      },
+      {
+        title: 'Arrange the reading order',
+        text: 'Choose the images and use the move controls beside each file to set their order. Remove accidental duplicates before creating the PDF. The tool accepts up to 20 files per batch, with a 50 MB limit for each file and a 150 MB combined limit. Very large images may need resizing first. Keep the originals separately if you plan to adjust brightness or compression. File names can help you recognize pages, but the order in the workspace determines the PDF order.',
+      },
+      {
+        title: 'Choose page dimensions deliberately',
+        text: 'Fit-to-image makes each page follow its picture’s proportions, using 96 pixels per inch to determine the PDF page dimensions. A4 centers the picture on a standard page with margins, which is useful when the document will be printed or combined with other A4 paperwork. Mixing portrait and landscape photographs is allowed. Ordinary JPG and PNG images retain their image data; WEBP and photos that need orientation correction are decoded before embedding so they display correctly.',
+      },
+      {
+        title: 'Review the PDF, not only the file list',
+        text: 'Choose Create PDF and move through the result preview. Confirm the first and last pages, orientation, visible margins, and total page count. If something is wrong, adjust the order or page setting and recreate the result. Download the PDF when it looks right; this workflow is free. Text photographed inside the images remains part of those images rather than selectable PDF text. A searchable text layer needs OCR, which is not currently a standalone Folio tool.',
+      },
+    ],
+  },
+  {
+    slug: 'how-to-password-protect-a-pdf',
+    title: 'How to Password Protect a PDF Before Sharing It',
+    description:
+      'Create a PDF that requires an opening password. Check encryption limits, retain an original, and avoid confusing password protection with redaction.',
+    category: 'Protection',
+    readTime: '3 min read',
+    published: '2026-09-15',
+    updated: '2026-09-15',
+    tool: 'protect-pdf',
+    relatedTools: ['split-pdf'],
+    sections: [
+      {
+        title: 'Start with a supported original',
+        text: 'Open Protect PDF and choose an unencrypted, unsigned PDF. The tool accepts files up to 10 MB and 100 pages. If the file is larger, prepare an appropriate smaller copy or split the document before protecting it. Keep an unencrypted original somewhere you can access independently. Rewriting a document can invalidate a cryptographic signature, so Folio requires an unsigned source for this workflow. Adding an opening password is a separate task from signing the document.',
+      },
+      {
+        title: 'Set and confirm the opening password',
+        text: 'Enter a password of 8–64 characters, then type it again in the confirmation field. Use the visibility control to check it in a private setting if the values do not match. Avoid placing the password in the PDF file name or on its first page. Folio processes the PDF and password in memory when creating the protected download and does not save the opening password. The application cannot recover it for you later, so keep your own record.',
+      },
+      {
+        title: 'Download and test the protected copy',
+        text: 'You can choose your file and configure protection before paying. Downloading the encrypted copy requires a premium plan. Sign-in and checkout open separately so the current workspace stays open. After access is confirmed, request the protected download, then open that file in a PDF reader and confirm it asks for the correct password. Folio uses AES-256 encryption for this copy. Send the password through a separate channel when that fits your sharing process.',
+      },
+      {
+        title: 'Understand what protection does and does not change',
+        text: 'An opening password controls access to the file. Once someone can open it, this workflow does not prevent them from copying or sharing its contents. It also does not remove sensitive text, clean metadata, or sanitize attachments. If you need a redacted document, use a process designed to remove that information and verify its result separately. Keep the original and the protected copy clearly named, and check that you are sharing the intended version.',
       },
     ],
   },

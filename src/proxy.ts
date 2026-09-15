@@ -1,17 +1,25 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getPlatform } from '@/lib/server/platform';
+import { siteUrl } from '@/lib/seo';
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const next = () => {
+    const response = NextResponse.next();
+    // Production deployment aliases must not compete with the preferred public domain.
+    if (process.env.VERCEL_ENV && request.nextUrl.hostname !== new URL(siteUrl).hostname)
+      response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    return response;
+  };
   // Admin recovery, support, sign-in, cancellation, and signed payment events stay reachable.
   if (
     /^\/(admin|account|dashboard|auth|maintenance|support)(\/|$)/.test(pathname) ||
     /^\/api\/(admin|support|account|workspaces)(\/|$)/.test(pathname) ||
     ['/api/billing/webhook', '/api/billing/portal'].includes(pathname)
   )
-    return NextResponse.next();
+    return next();
   try {
     const { settings } = await getPlatform();
-    if (!settings.maintenance) return NextResponse.next();
+    if (!settings.maintenance) return next();
   } catch {
     if (!pathname.startsWith('/api/'))
       return NextResponse.rewrite(new URL('/maintenance', request.url), {

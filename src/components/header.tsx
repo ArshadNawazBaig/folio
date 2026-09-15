@@ -65,7 +65,12 @@ export function Header() {
           <Logo />
           <nav aria-label="Main navigation" className="desktop-nav">
             {nav.map(([label, href]) => (
-              <Link key={href} href={href} aria-current={path === href ? 'page' : undefined}>
+              <Link
+                prefetch={false}
+                key={href}
+                href={href}
+                aria-current={path === href ? 'page' : undefined}
+              >
                 {label}
               </Link>
             ))}
@@ -90,6 +95,7 @@ export function Header() {
               </span>
             ) : (
               <Link
+                prefetch={false}
                 href={hasAccount ? '/dashboard' : '/account'}
                 className="header-account"
                 onClick={() => setMenu(false)}
@@ -111,13 +117,17 @@ export function Header() {
         {menu && (
           <nav className="mobile-nav" aria-label="Mobile navigation">
             {nav.map(([label, href]) => (
-              <Link key={href} href={href} onClick={() => setMenu(false)}>
+              <Link prefetch={false} key={href} href={href} onClick={() => setMenu(false)}>
                 {label}
                 <ChevronRight size={17} />
               </Link>
             ))}
             {!checkingAccount && (
-              <Link href={hasAccount ? '/dashboard' : '/account'} onClick={() => setMenu(false)}>
+              <Link
+                prefetch={false}
+                href={hasAccount ? '/dashboard' : '/account'}
+                onClick={() => setMenu(false)}
+              >
                 {hasAccount ? 'Dashboard' : 'Sign in'} <ChevronRight size={17} />
               </Link>
             )}
@@ -156,7 +166,12 @@ export function Header() {
         <div className="search-results">
           {filtered.length ? (
             filtered.map((t) => (
-              <Link href={`/${t.slug}`} key={t.slug} onClick={() => dialog.current?.close()}>
+              <Link
+                prefetch={false}
+                href={`/${t.slug}`}
+                key={t.slug}
+                onClick={() => dialog.current?.close()}
+              >
                 <span className={`tool-icon ${t.color}`}>
                   <ToolIcon name={t.icon} />
                 </span>

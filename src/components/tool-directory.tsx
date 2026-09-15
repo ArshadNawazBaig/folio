@@ -1,96 +1,95 @@
-'use client';
-import { Pagination } from './pagination';
-import { useRecordPagination } from './use-record-pagination';
-import { useState } from 'react';
 import Link from 'next/link';
-import { Search, ArrowUpRight, X } from 'lucide-react';
-import { tools as defaultTools, categories, type Tool } from '@/lib/tools';
+import Form from 'next/form';
+import { Search, ArrowRight, ArrowUpRight, X } from 'lucide-react';
+import { categories } from '@/lib/tools';
+import { directoryHref, type toolDirectory } from '@/lib/tool-directory';
+import { PAGE_SIZE } from '@/lib/pagination.mjs';
+import { Pagination } from './pagination';
 import { ToolIcon } from './icon';
-export function ToolDirectory({
-  conversionOnly = false,
-  tools = defaultTools,
-}: {
-  conversionOnly?: boolean;
-  tools?: Tool[];
-}) {
-  const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('All tools');
-  const matches = tools.filter(
-    (t) =>
-      (!conversionOnly || t.category === 'Convert') &&
-      (category === 'All tools' || t.category === category) &&
-      `${t.name} ${t.short} ${t.keywords.join(' ')}`.toLowerCase().includes(query.toLowerCase()),
-  );
-  const pagination = useRecordPagination(matches.length, `${query}|${category}`);
+
+export function ToolDirectory({ directory: d }: { directory: ReturnType<typeof toolDirectory> }) {
+  const link = (category = d.category, q = d.q) =>
+    directoryHref(d.path, { q, category, pageSize: d.pageSize });
   return (
     <div className="tool-directory">
       <div className="directory-controls">
-        <div className="directory-search">
-          <Search size={18} />
+        <Form className="directory-search" action={d.path} role="search" prefetch={false}>
+          <Search size={18} aria-hidden="true" />
+          {d.category && <input type="hidden" name="category" value={d.category} />}
+          {d.pageSize !== PAGE_SIZE && <input type="hidden" name="pageSize" value={d.pageSize} />}
           <input
+            key={d.q}
+            name="q"
             aria-label="Find a PDF tool"
             placeholder="Find just the tool you need…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            defaultValue={d.q}
+            maxLength={120}
           />
-          {query && (
-            <button className="icon-button" aria-label="Clear search" onClick={() => setQuery('')}>
+          {d.q && (
+            <Link
+              prefetch={false}
+              href={link(d.category, '')}
+              className="icon-button"
+              aria-label="Clear search"
+            >
               <X size={16} />
-            </button>
+            </Link>
           )}
-        </div>
-        {!conversionOnly && (
-          <div className="category-tabs" aria-label="Filter tools">
-            {['All tools', ...categories].map((c) => (
-              <button
-                aria-pressed={category === c}
-                key={c}
-                className={category === c ? 'active' : ''}
-                onClick={() => setCategory(c)}
+          <button className="icon-button" aria-label="Search directory">
+            <ArrowRight size={18} />
+          </button>
+        </Form>
+        {!d.conversionOnly && (
+          <nav className="category-tabs" aria-label="Filter tools">
+            {['', ...categories].map((category) => (
+              <Link
+                prefetch={false}
+                href={link(category)}
+                aria-current={category === d.category ? 'page' : undefined}
+                key={category}
+                className={category === d.category ? 'active' : ''}
               >
-                {c}
-              </button>
+                {category || 'All tools'}
+              </Link>
             ))}
-          </div>
+          </nav>
         )}
       </div>
-      <div className="directory-result-count" aria-live="polite">
-        {matches.length} thoughtful tools. One place to work.
-      </div>
+      <div className="directory-result-count">{d.total} thoughtful tools. One place to work.</div>
       <div className="directory-grid">
-        {matches.slice(pagination.start, pagination.end).map((t) => (
-          <Link href={`/${t.slug}`} className="directory-card" key={t.slug}>
+        {d.tools.map((tool) => (
+          <Link prefetch={false} href={`/${tool.slug}`} className="directory-card" key={tool.slug}>
             <div className="directory-card-top">
-              <span className={`tool-icon ${t.color}`}>
-                <ToolIcon name={t.icon} size={24} />
+              <span className={`tool-icon ${tool.color}`}>
+                <ToolIcon name={tool.icon} size={24} />
               </span>
-              {!t.available ? (
+              {!tool.available ? (
                 <span className="status-label">COMING SOON</span>
               ) : (
                 <ArrowUpRight size={17} />
               )}
             </div>
-            <h2>{t.name}</h2>
-            <p>{t.short}</p>
-            <small>{t.category}</small>
+            <h2>{tool.name}</h2>
+            <p>{tool.short}</p>
+            <small>{tool.category}</small>
           </Link>
         ))}
       </div>
-      <Pagination {...pagination} label="Tools pagination" />
-      {!matches.length && (
+      <Pagination
+        page={d.page}
+        pageSize={d.pageSize}
+        total={d.total}
+        href={d.href}
+        label="Tools pagination"
+      />
+      {!d.tools.length && (
         <div className="directory-empty">
           <Search size={30} />
           <h2>A different word might do it.</h2>
           <p>Try “merge”, “smaller”, “signature”, or “image”.</p>
-          <button
-            className="button secondary"
-            onClick={() => {
-              setQuery('');
-              setCategory('All tools');
-            }}
-          >
+          <Link prefetch={false} className="button secondary" href={d.path}>
             Show all tools
-          </button>
+          </Link>
         </div>
       )}
     </div>

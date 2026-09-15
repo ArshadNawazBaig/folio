@@ -16,7 +16,7 @@
   text-align: center;
   padding: 76px 0 64px;
 }
-.journalHero h1 {
+.journalHero :is(h1, .heroPlaceholder) {
   font-size: clamp(52px, 6vw, 82px);
   line-height: 1.07;
   letter-spacing: -4px;
@@ -490,7 +490,7 @@
   .journalHero {
     padding: 48px 0;
   }
-  .journalHero h1 {
+  .journalHero :is(h1, .heroPlaceholder) {
     letter-spacing: -2px;
   }
   .journalHero p {

@@ -1,12 +1,7 @@
 import type { Metadata } from 'next';
+import { seoConfiguration } from './site-config';
 
-const configured = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-const parsed = new URL(configured);
-export const siteUrl = parsed.origin;
-export const isIndexable =
-  process.env.NEXT_PUBLIC_INDEXABLE === 'true' &&
-  parsed.protocol === 'https:' &&
-  !['localhost', '127.0.0.1', '::1'].includes(parsed.hostname);
+export const { siteUrl, isIndexable } = seoConfiguration(process.env);
 export const brand = 'Folio';
 export function pageMetadata(
   title: string,
@@ -20,6 +15,14 @@ export function pageMetadata(
     description,
     alternates: { canonical: path },
     robots: { index: isIndexable && index, follow: isIndexable && index },
+    ...(isIndexable && index
+      ? {
+          other: {
+            googlebot:
+              'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+          },
+        }
+      : {}),
     openGraph: {
       type: 'website',
       locale: 'en_US',
@@ -35,6 +38,15 @@ export function pageMetadata(
       description,
       images: [image],
     },
+  };
+}
+export function organizationSchema() {
+  return {
+    '@type': 'Organization',
+    '@id': `${siteUrl}/#organization`,
+    name: brand,
+    url: siteUrl,
+    logo: `${siteUrl}/icon.svg`,
   };
 }
 export function breadcrumbSchema(items: { name: string; path: string }[]) {

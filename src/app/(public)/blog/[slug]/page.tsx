@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Clock, ArrowUpRight } from 'lucide-react';
 import { publicPostBySlug } from '@/lib/server/blog';
-import { pageMetadata, siteUrl, breadcrumbSchema } from '@/lib/seo';
+import { pageMetadata, siteUrl, breadcrumbSchema, organizationSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
 import { RichContent } from '@/components/blog/rich-content';
 import { BlogLike } from '@/components/blog/blog-like';
@@ -53,8 +53,11 @@ export default async function BlogPost({ params }: Props) {
           description: post.excerpt,
           datePublished: post.publishedAt,
           dateModified: post.updatedAt,
-          author: { '@type': 'Person', name: post.author },
-          publisher: { '@type': 'Organization', name: 'Folio', url: siteUrl },
+          author: post.author.toLowerCase().startsWith('folio')
+            ? { ...organizationSchema(), url: `${siteUrl}/about` }
+            : { '@type': 'Person', name: post.author },
+          publisher: organizationSchema(),
+          inLanguage: 'en',
           image: post.cover || `${siteUrl}/og?title=${encodeURIComponent(post.title)}`,
           mainEntityOfPage: `${siteUrl}/blog/${post.slug}`,
           keywords: post.tags.join(', '),

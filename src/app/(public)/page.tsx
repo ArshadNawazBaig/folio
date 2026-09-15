@@ -17,7 +17,7 @@ import { EditorPreview } from '@/components/document-preview';
 import { ToolIcon } from '@/components/icon';
 import { Faq } from '@/components/faq';
 import { popularSlugs } from '@/lib/tools';
-import { pageMetadata, siteUrl } from '@/lib/seo';
+import { pageMetadata, siteUrl, organizationSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
 export const metadata = pageMetadata(
   'Free Online PDF Tools — Edit, Merge & Convert',
@@ -33,10 +33,18 @@ export default async function Home() {
       <StructuredData
         data={{
           '@context': 'https://schema.org',
-          '@type': 'WebSite',
-          name: 'Folio',
-          url: siteUrl,
-          description: 'Browser-based PDF editing and document tools.',
+          '@graph': [
+            organizationSchema(),
+            {
+              '@type': 'WebSite',
+              '@id': `${siteUrl}/#website`,
+              name: 'Folio',
+              url: siteUrl,
+              description: 'Online PDF editing, conversion, forms, and document tools.',
+              publisher: { '@id': `${siteUrl}/#organization` },
+              inLanguage: 'en',
+            },
+          ],
         }}
       />
       <section className="hero container">
@@ -54,11 +62,12 @@ export default async function Home() {
             </em>
           </h1>
           <p className="hero-description">
-            Edit, convert, and bring it all together.
-            <br />A thoughtful set of PDF tools for whatever comes next.
+            Your online PDF editor, converter, and form toolkit.
+            <br />
+            Edit, merge, compress, and sign PDFs in one place.
           </p>
           <HomeUpload />
-          <Link href="/workspace?sample=proposal" className="sample-link">
+          <Link prefetch={false} href="/workspace?sample=proposal" className="sample-link">
             Just looking? Try a sample document <ArrowRight size={15} />
           </Link>
         </div>
@@ -70,7 +79,7 @@ export default async function Home() {
             <span className="eyebrow">A GOOD PLACE TO START</span>
             <h2 id="popular-title">Everyday essentials.</h2>
           </div>
-          <Link href="/tools" className="text-link">
+          <Link prefetch={false} href="/tools" className="text-link">
             Explore all tools <ArrowUpRight size={17} />
           </Link>
         </div>
@@ -78,7 +87,7 @@ export default async function Home() {
           {popularSlugs.map((slug) => {
             const t = tools.find((t) => t.slug === slug)!;
             return (
-              <Link href={`/${t.slug}`} className="popular-tool" key={t.slug}>
+              <Link prefetch={false} href={`/${t.slug}`} className="popular-tool" key={t.slug}>
                 <div className={`tool-icon ${t.color}`}>
                   <ToolIcon name={t.icon} size={25} />
                 </div>
@@ -142,7 +151,7 @@ export default async function Home() {
               Keep working without uploading again
             </li>
           </ul>
-          <Link href="/edit-pdf" className="button dark">
+          <Link prefetch={false} href="/edit-pdf" className="button dark">
             Meet your new editor <ArrowUpRight size={16} />
           </Link>
         </div>
@@ -195,7 +204,7 @@ export default async function Home() {
               </span>
               <Check size={17} />
             </div>
-            <Link className="workflow-finish" href="/workspace?sample=proposal">
+            <Link prefetch={false} className="workflow-finish" href="/workspace?sample=proposal">
               Make something of it <ArrowRight size={16} />
             </Link>
           </div>
@@ -235,7 +244,7 @@ export default async function Home() {
               empiezan aquí.
             </span>
           </div>
-          <Link href="/translate-pdf" className="text-link">
+          <Link prefetch={false} href="/translate-pdf" className="text-link">
             Explore the translation workspace <ArrowUpRight size={16} />
           </Link>
         </div>
@@ -274,7 +283,7 @@ export default async function Home() {
               Let’s make it happen.
             </div>
           </div>
-          <Link href="/forms" className="text-link">
+          <Link prefetch={false} href="/forms" className="text-link">
             Find your starting point <ArrowUpRight size={16} />
           </Link>
         </div>
@@ -319,7 +328,7 @@ export default async function Home() {
           <span className="eyebrow">MAKE ROOM FOR WHAT MATTERS</span>
           <h2>A better day for your documents.</h2>
         </div>
-        <Link href="/tools" className="button primary">
+        <Link prefetch={false} href="/tools" className="button primary">
           Find your tool <ArrowUpRight size={18} />
         </Link>
       </section>
