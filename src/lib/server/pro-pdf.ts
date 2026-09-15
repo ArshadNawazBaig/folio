@@ -1,3 +1,4 @@
+import { textBlockSchema } from '../text-block-schema';
 import 'server-only';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
@@ -10,7 +11,8 @@ import { ApiError } from './http';
 import { MAX_PREVIEW_WIDTH } from '../pdf-preview.mjs';
 const edit = z
   .object({
-    id: z.string().regex(/^\d+:\d+$/),
+    id: z.string().regex(/^\d+:\d+(?::[a-f\d-]{36})?$/),
+    copy: textBlockSchema.optional(),
     original: z.string().max(10000),
     text: z.string().max(2000),
     font: z.custom<TextFont>((value) => value === 'original' || isDocumentFont(value)),

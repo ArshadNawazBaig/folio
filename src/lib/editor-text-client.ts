@@ -34,13 +34,25 @@ export async function exportWorkspacePdf(
     return runPdf('edit', [{ bytes, name }], { state: withoutTextChanges(state), flatten });
   // Arrange the source pages before replacing text, then add annotations and field values.
   // Only the authenticated export endpoint returns PDF bytes with original-text changes.
+  const sourcePages = [...state.pages];
+  for (const page of state.pages) {
+    for (const change of Object.values(state.textChanges?.[page.id] || {})) {
+      if (change.copy && !sourcePages.some((item) => item.sourceIndex === change.copy!.page))
+        sourcePages.push({
+          ...page,
+          id: `copy-source-${change.copy.page}`,
+          sourceIndex: change.copy.page,
+          rotation: 0,
+        });
+    }
+  }
   const arranged = await runPdf('edit', [{ bytes, name }], {
-    state: { pages: state.pages, annotations: [], formValues: {} },
+    state: { pages: sourcePages, annotations: [], formValues: {} },
   });
   const response = await requestTextPdf(
     arranged.bytes,
     name,
-    { operation: 'edit', changes: arrangedTextChanges(state) },
+    { operation: 'edit', changes: arrangedTextChanges(state, sourcePages) },
     true,
   );
   const edited = new Uint8Array(await response.arrayBuffer());

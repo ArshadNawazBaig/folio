@@ -24,6 +24,7 @@ export function textFontOptions(block: TextBlock) {
 }
 export function unchangedText(block: TextBlock, change: TextChange) {
   return (
+    !change.copy &&
     change.text === block.text &&
     change.font === 'original' &&
     change.size === block.size &&
@@ -37,11 +38,19 @@ export function hasTextChanges(state: EditorState) {
   return state.pages.some((page) => Object.keys(state.textChanges?.[page.id] || {}).length > 0);
 }
 // Each displayed page owns its edits, including duplicates of the same original page.
-export function arrangedTextChanges(state: EditorState): TextChange[] {
+export function arrangedTextChanges(state: EditorState, sourcePages = state.pages): TextChange[] {
   return state.pages.flatMap((page, index) =>
     Object.values(state.textChanges?.[page.id] || {}).map((change) => ({
       ...change,
-      id: `${index}:${change.id.split(':')[1]}`,
+      id: `${index}:${change.id.split(':').slice(1).join(':')}`,
+      ...(change.copy
+        ? {
+            copy: {
+              ...change.copy,
+              page: sourcePages.findIndex((source) => source.sourceIndex === change.copy!.page),
+            },
+          }
+        : {}),
     })),
   );
 }

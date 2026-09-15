@@ -20,6 +20,8 @@ import {
   WandSparkles,
   PanelsTopLeft,
   Files,
+  Copy,
+  ClipboardPaste,
   ChevronDown,
   type LucideIcon,
 } from 'lucide-react';
@@ -130,6 +132,8 @@ export function EditorToolbar({
   canRedo,
   undo,
   redo,
+  copyText,
+  pasteText,
   editText,
   image,
   signature,
@@ -144,6 +148,8 @@ export function EditorToolbar({
   canRedo: boolean;
   undo: () => void;
   redo: () => void;
+  copyText?: () => void;
+  pasteText?: () => void;
   editText: () => void;
   image: () => void;
   signature: (tab: 'draw' | 'image' | 'type') => void;
@@ -190,6 +196,20 @@ export function EditorToolbar({
         />
         <ToolButton label="Undo" icon={Undo2} disabled={busy || !canUndo} onClick={undo} />
         <ToolButton label="Redo" icon={Redo2} disabled={busy || !canRedo} onClick={redo} />
+        <ToolButton
+          label="Copy"
+          accessibleLabel="Copy text box"
+          icon={Copy}
+          disabled={busy || !copyText}
+          onClick={() => copyText?.()}
+        />
+        <ToolButton
+          label="Paste"
+          accessibleLabel="Paste text box"
+          icon={ClipboardPaste}
+          disabled={busy || !pasteText}
+          onClick={() => pasteText?.()}
+        />
         <span className="toolbar-divider" />
         <ToolButton
           label="Add Text"
@@ -202,7 +222,7 @@ export function EditorToolbar({
         <ToolButton
           label="Edit Text"
           accessibleLabel="Edit original text"
-        icon={SquareDashedText}
+          icon={SquareDashedText}
           active={mode === 'original-text'}
           disabled={busy}
           onClick={editText}

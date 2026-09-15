@@ -65,6 +65,7 @@ import { useWorkspaceSync } from './use-workspace-sync';
 import { usePreparedText } from './use-prepared-text';
 import { useInteractiveTextPreview } from './use-interactive-text-preview';
 import { useEditorExit } from './use-editor-exit';
+import { screenTextOffset } from '@/lib/pdf-text-position.mjs';
 import type { WorkspaceRecord } from '@/lib/workspace-types';
 import { runPdf } from '@/lib/pdf-client';
 import { loadViewer } from '@/lib/pdf-viewer';
@@ -75,6 +76,9 @@ import type { inspectPdf } from '@/lib/pdf-engine';
 type Field = Awaited<ReturnType<typeof inspectPdf>>['fields'][number];
 const initialState: EditorState = { pages: [], annotations: [], formValues: {} };
 const palette = ['#202522', '#c44934', '#3e6852', '#3a638b', '#efc95b'];
+type TextClipboard =
+  | { kind: 'original'; block: TextBlock; change: TextChange }
+  | { kind: 'added'; annotation: Annotation };
 export function Editor() {
   const { user, access } = useAccount();
   const userId = user?.id;
@@ -100,6 +104,8 @@ export function Editor() {
   const [selectedId, setSelectedId] = useState('');
   const [textInspection, setTextInspection] = useState<TextInspection | null>(null);
   const [originalSelection, setOriginalSelection] = useState<TextBlock | null>(null);
+  const [textClipboard, setTextClipboard] = useState<TextClipboard | null>(null);
+  const pasteCount = useRef(0);
   const [gateOpen, setGateOpen] = useState(false);
   const [restoredWorkspace, setRestoredWorkspace] = useState<WorkspaceRecord | null>(null);
   const [inlineAnnotation, setInlineAnnotation] = useState('');
@@ -226,6 +232,29 @@ export function Editor() {
   }, [bytes, busy, mode]);
   const selected = state.annotations.find((a) => a.id === selectedId);
   const pageModel = state.pages[pageIndex];
+  const copyBlocksKey = JSON.stringify(
+    Object.values(state.textChanges?.[pageModel?.id] || {})
+      .filter((change) => change.copy)
+      .map((change) => ({ ...change.copy!, id: change.id, page: pageModel?.sourceIndex })),
+  );
+  const copyBlocks = useMemo(() => JSON.parse(copyBlocksKey) as TextBlock[], [copyBlocksKey]);
+  const editorInspection = useMemo(
+    () =>
+      preparedText.inspection
+        ? {
+            ...preparedText.inspection,
+            blocks: [...preparedText.inspection.blocks, ...copyBlocks],
+          }
+        : null,
+    [preparedText.inspection, copyBlocks],
+  );
+  useEffect(() => {
+    if (
+      originalSelection?.id.split(':').length === 3 &&
+      !copyBlocks.some((block) => block.id === originalSelection.id)
+    )
+      setOriginalSelection(null);
+  }, [copyBlocks, originalSelection]);
   const sideways = !!pageModel && pageModel.rotation % 180 !== 0;
   const pageWidth = pageModel ? (sideways ? pageModel.height : pageModel.width) : 595;
   const pageHeight = pageModel ? (sideways ? pageModel.width : pageModel.height) : 842;
@@ -298,6 +327,8 @@ export function Editor() {
     ) => {
       const version = ++loadVersion.current;
       setTextInspection(null);
+      setTextClipboard(null);
+      pasteCount.current = 0;
       setOriginalSelection(null);
       setInlineAnnotation('');
       setGateOpen(false);
@@ -550,6 +581,105 @@ export function Editor() {
       group,
     );
   }
+  const canCopyText = !!(originalSelection || selected?.kind === 'text');
+  const canPasteText =
+    !!textClipboard && (textClipboard.kind === 'added' || pageModel?.sourceIndex !== null);
+  function copyTextBox() {
+    if (busy || !pageModel) return;
+    const current = stateRef.current;
+    let copied: TextClipboard | null = null;
+    if (originalSelection) {
+      const change = resolvedTextChange(
+        originalSelection,
+        current.textChanges?.[pageModel.id]?.[originalSelection.id],
+      );
+      copied = {
+        kind: 'original',
+        block: structuredClone(change.copy || originalSelection),
+        change: structuredClone(change),
+      };
+    } else {
+      const annotation = current.annotations.find((item) => item.id === selectedId);
+      if (annotation?.kind === 'text') copied = { kind: 'added', annotation: { ...annotation } };
+    }
+    if (!copied) return;
+    pasteCount.current = 0;
+    setTextClipboard(copied);
+    const text = copied.kind === 'original' ? copied.change.text : copied.annotation.text;
+    // The editor clipboard works even when system clipboard access is unavailable.
+    void navigator.clipboard?.writeText(text).catch(() => {});
+    setNotice('Text box copied. Use Paste to place an editable copy.');
+  }
+  function pasteTextBox() {
+    if (busy || !pageModel || !textClipboard || !canPasteText) return;
+    const current = stateRef.current;
+    const distance = 12 * ++pasteCount.current;
+    setInlineAnnotation('');
+    setPropertiesTab('style');
+    if (textClipboard.kind === 'added') {
+      const source = textClipboard.annotation;
+      const copy = {
+        ...source,
+        id: crypto.randomUUID(),
+        pageId: pageModel.id,
+        x: Math.max(0, Math.min(pageWidth - source.width, source.x + distance)),
+        y: Math.max(0, Math.min(pageHeight - source.height, source.y + distance)),
+      };
+      commit({ ...current, annotations: [...current.annotations, copy] });
+      setOriginalSelection(null);
+      setSelectedId(copy.id);
+      setMode('select');
+    } else {
+      const { block, change } = textClipboard;
+      const transforms: Record<number, number[]> = {
+        0: [1, 0, 0, -1],
+        90: [0, 1, 1, 0],
+        180: [-1, 0, 0, 1],
+        270: [0, -1, -1, 0],
+      };
+      const delta = screenTextOffset(distance, distance, transforms[pageModel.rotation]);
+      const [left, bottom, right, top] = block.bounds;
+      const x = (change.offset?.x || 0) + delta.x;
+      const y = (change.offset?.y || 0) + delta.y;
+      const id = `${pageModel.sourceIndex}:${block.objectIndex}:${crypto.randomUUID()}`;
+      const copy: TextChange = {
+        ...change,
+        id,
+        copy: structuredClone(block),
+        offset: {
+          x: Math.max(0, Math.min(pageModel.width - (right - left), left + x)) - left,
+          y: Math.max(0, Math.min(pageModel.height - (top - bottom), bottom + y)) - bottom,
+        },
+      };
+      commit({
+        ...current,
+        textChanges: {
+          ...current.textChanges,
+          [pageModel.id]: { ...current.textChanges?.[pageModel.id], [id]: copy },
+        },
+      });
+      setSelectedId('');
+      setOriginalSelection({ ...block, id, page: pageModel.sourceIndex! });
+      setMode('original-text');
+    }
+    setNotice('Text box pasted. Drag it into place or click to edit.');
+  }
+  const clipboardActions = useRef({
+    copy: copyTextBox,
+    paste: pasteTextBox,
+    canCopyText,
+    canPasteText,
+    originalSelection,
+    pageModel,
+  });
+  clipboardActions.current = {
+    copy: copyTextBox,
+    paste: pasteTextBox,
+    canCopyText,
+    canPasteText,
+    originalSelection,
+    pageModel,
+  };
   async function exportFile(nextTool?: string, verified = false, leaveConfirmed = false) {
     if (!bytes) return false;
     if (nextTool === 'edit-pdf-text') {
@@ -626,7 +756,9 @@ export function Editor() {
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (e.defaultPrevented || (e.target as HTMLElement)?.closest('dialog[open]')) return;
-      const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName);
+      const typing =
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName) ||
+        !!(e.target as HTMLElement)?.closest('[contenteditable="true"]');
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         void saveRef.current();
@@ -642,6 +774,29 @@ export function Editor() {
         e.preventDefault();
         if (e.shiftKey) redo();
         else undo();
+      }
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey) {
+        const action = e.key.toLowerCase();
+        if (action === 'c' && clipboardActions.current.canCopyText) {
+          e.preventDefault();
+          clipboardActions.current.copy();
+        } else if (action === 'v' && clipboardActions.current.canPasteText) {
+          e.preventDefault();
+          clipboardActions.current.paste();
+        }
+      }
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        const { originalSelection: block, pageModel: page } = clipboardActions.current;
+        const changes = { ...stateRef.current.textChanges?.[page?.id || ''] };
+        if (block && page && changes[block.id]?.copy) {
+          e.preventDefault();
+          delete changes[block.id];
+          commit({
+            ...stateRef.current,
+            textChanges: { ...stateRef.current.textChanges, [page.id]: changes },
+          });
+          setOriginalSelection(null);
+        }
       }
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
         e.preventDefault();
@@ -1295,6 +1450,8 @@ export function Editor() {
             canRedo={history.index < history.states.length - 1}
             undo={undo}
             redo={redo}
+            copyText={canCopyText ? copyTextBox : undefined}
+            pasteText={canPasteText ? pasteTextBox : undefined}
             editText={() => void enableOriginalText()}
             image={() => imageInput.current?.click()}
             more={[
@@ -1500,7 +1657,7 @@ export function Editor() {
                     </span>
                   ) : !preparedText.ready ? (
                     <span role="status">Preparing editable text on this page…</span>
-                  ) : !textInspection?.blocks.some(
+                  ) : !editorInspection?.blocks.some(
                       (block) => block.page === pageModel.sourceIndex,
                     ) ? (
                     'No editable text was found on this page. You can still use Add Text.'
@@ -1550,7 +1707,7 @@ export function Editor() {
                       onPreviewError={setPreviewError}
                     />
                   )}
-                  {preparedText.inspection && pageModel.sourceIndex !== null && (
+                  {editorInspection && pageModel.sourceIndex !== null && (
                     <InlinePdfText
                       key={pageModel.id}
                       document={doc}
@@ -1559,7 +1716,7 @@ export function Editor() {
                       previewClient={interactivePreview}
                       page={pageModel}
                       width={canvasWidth}
-                      inspection={preparedText.inspection}
+                      inspection={editorInspection}
                       selected={originalSelection?.id || ''}
                       changes={state.textChanges?.[pageModel.id] || {}}
                       enabled={mode === 'original-text' || (!!textInspection && mode === 'select')}
@@ -2035,7 +2192,8 @@ export function Editor() {
                     <h2>Text appearance</h2>
                     <p className="panel-description">
                       Type directly on the page. Drag the move handle to reposition this text. Use
-                      Tab or Shift+Tab to move between text blocks.
+                      Tab or Shift+Tab to move between text blocks. Copy and Paste in the toolbar
+                      reuse the whole text box.
                     </p>
                     <FontPicker
                       key={originalSelection.id}
@@ -2078,6 +2236,23 @@ export function Editor() {
                         }
                       />
                     </label>
+                    {state.textChanges?.[pageModel.id]?.[originalSelection.id]?.copy && (
+                      <button
+                        className="button secondary danger"
+                        onClick={() => {
+                          const current = stateRef.current;
+                          const changes = { ...current.textChanges?.[pageModel.id] };
+                          delete changes[originalSelection.id];
+                          commit({
+                            ...current,
+                            textChanges: { ...current.textChanges, [pageModel.id]: changes },
+                          });
+                          setOriginalSelection(null);
+                        }}
+                      >
+                        <Trash2 size={15} /> Delete copied text
+                      </button>
+                    )}
                     <p className="panel-description">
                       The original font is preserved where available. Missing characters use a
                       matching font automatically.

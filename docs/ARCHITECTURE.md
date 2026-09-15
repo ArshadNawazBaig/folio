@@ -41,3 +41,9 @@ Start with a modest deployment and scale from measurements. One million register
 ## Private account library
 
 The customer dashboard uses Supabase private Storage for explicit PDF saves and uploads. Metadata lives in `cloud_documents`; every API verifies the user and scopes queries to their ID. Direct browser transfers use the user JWT with bucket RLS. An atomic reservation function enforces account capacity, and completion checks object size/type before exposing it. There are no public download URLs. Older browser drafts can be explicitly moved as PDF copies; no new browser drafts are written. See [DASHBOARD.md](DASHBOARD.md) for migration 004, lifecycle limits, and production cleanup considerations.
+
+## Text box clipboard
+
+The shared editor toolbar copies and pastes original PDF text nodes and added text annotations. Whole-node Ctrl/Cmd+C and Ctrl/Cmd+V shortcuts apply outside text inputs; normal character selection and paste remain native while typing. The node clipboard stays in the current editor session and clears when another document opens. Pasted nodes get distinct IDs and a position offset, use the regular undo/save queue, and remain independently editable after refresh.
+
+Original-text copies retain a validated source-block descriptor in `TextChange.copy`. PDFium imports a temporary source page, transfers only the selected text object (and its paint companion where applicable), and removes the temporary page. Font resources, glyph spacing, opacity and appearance are retained. Preview remains pixel-only and finished original-text exports keep the existing download entitlement check. Export remaps copy references after page arrangement and retains temporary source pages only until copies are applied, allowing removal of a source page without losing its pasted text. Original nodes can be pasted onto pages from the uploaded PDF; added text boxes can also be pasted onto newly inserted blank pages.

@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -183,6 +184,14 @@ export function InlinePdfText({
 }) {
   const [geometry, setGeometry] = useState<Record<string, Geometry>>({});
   const documentFonts = useDocumentFonts(Object.values(changes).map((change) => change.font));
+  const copySourcesKey = JSON.stringify([
+    ...new Set(
+      Object.values(changes).flatMap((change) =>
+        change.copy && change.copy.page !== page.sourceIndex ? [change.copy.page] : [],
+      ),
+    ),
+  ]);
+  const copySources = useMemo(() => JSON.parse(copySourcesKey) as number[], [copySourcesKey]);
   const [originalFonts, setOriginalFonts] = useState<Record<string, CSSProperties>>({});
   const [expandedFonts, setExpandedFonts] = useState<Record<string, CSSProperties>>({});
   const [baseWidth, setBaseWidth] = useState(1);
@@ -232,6 +241,7 @@ export function InlinePdfText({
   if (hiddenBlock)
     desiredChanges[hiddenBlock.id] = {
       ...defaultTextChange(hiddenBlock),
+      ...(changes[hiddenBlock.id]?.copy ? { copy: changes[hiddenBlock.id].copy } : {}),
       text: '',
     };
   const pixelWidth = usePdfPreviewWidth(width);
@@ -307,6 +317,18 @@ export function InlinePdfText({
           const font = pdfPage.commonObjs.get(item.fontName) as ViewerFont;
           candidates.push({ font, x: item.transform[4], y: item.transform[5] });
         }
+        for (const index of copySources) {
+          const source = await document.getPage(index + 1);
+          await source.getOperatorList();
+          for (const item of (await source.getTextContent()).items) {
+            if ('fontName' in item && source.commonObjs.has(item.fontName))
+              candidates.push({
+                font: source.commonObjs.get(item.fontName) as ViewerFont,
+                x: item.transform[4],
+                y: item.transform[5],
+              });
+          }
+        }
         const expanded: Record<string, CSSProperties> = {};
         await Promise.all(
           inspection.blocks
@@ -364,7 +386,7 @@ export function InlinePdfText({
       cancelled = true;
       mixedFaces.forEach((face) => globalThis.document.fonts.delete(face));
     };
-  }, [document, inspection, page.sourceIndex, page.rotation]);
+  }, [document, inspection, page.sourceIndex, page.rotation, copySources]);
 
   useEffect(() => {
     if (previewCache.current?.bytes !== bytes || previewCache.current.page !== page.sourceIndex)
@@ -398,7 +420,10 @@ export function InlinePdfText({
             operation: 'preview',
             partial: true,
             page: page.sourceIndex,
-            changes: Object.values(desired.changes),
+            changes: Object.values(desired.changes).map((change) => ({
+              ...change,
+              id: `${page.sourceIndex}:${change.id.split(':').slice(1).join(':')}`,
+            })),
             rotation: desired.rotation,
             pixelWidth: desired.pixelWidth,
           },
@@ -468,8 +493,15 @@ export function InlinePdfText({
         page: page.sourceIndex,
         changes: Object.values({
           ...changes,
-          [block.id]: { ...defaultTextChange(block), text: '' },
-        }),
+          [block.id]: {
+            ...defaultTextChange(block),
+            ...(changes[block.id]?.copy ? { copy: changes[block.id].copy } : {}),
+            text: '',
+          },
+        }).map((change) => ({
+          ...change,
+          id: `${page.sourceIndex}:${change.id.split(':').slice(1).join(':')}`,
+        })),
         rotation: page.rotation,
         pixelWidth,
       });

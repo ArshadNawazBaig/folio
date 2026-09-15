@@ -1,5 +1,6 @@
+import { textBlockSchema } from './text-block-schema';
 import { z } from 'zod';
-import { replacementFonts, type TextFont, type DocumentFont } from './pro-types';
+import { type TextFont, type DocumentFont } from './pro-types';
 import { isDocumentFont } from './document-font-registry.mjs';
 import { isPdfTextSize } from './pdf-text-size.mjs';
 import type { EditorMode, EditorState } from './types';
@@ -10,6 +11,7 @@ const id = z.string().min(1).max(128);
 const color = z.string().regex(/^#[\da-f]{6}$/i);
 const textChange = z.object({
   id,
+  copy: textBlockSchema.optional(),
   original: z.string().max(10000),
   text: z.string().max(2000),
   font: z.custom<TextFont>((value) => value === 'original' || isDocumentFont(value)),
@@ -86,32 +88,7 @@ export const workspaceSchema = z
         pageCount: z.number().int().min(1).max(100),
         pages: z.array(z.number().int().min(0).max(99)).max(100).optional(),
         skipped: number.nonnegative(),
-        blocks: z
-          .array(
-            z.object({
-              id,
-              page: z.number().int().min(0).max(99),
-              objectIndex: z.number().int().nonnegative(),
-              text: z.string().max(10000),
-              font: z.string().max(256),
-              fontWeight: number.min(0).max(1000).optional(),
-              fontItalic: z.boolean().optional(),
-              fontCharacters: z.string().max(1024).optional(),
-              fontCategory: z.enum(['sans', 'serif', 'mono']).optional(),
-              replacementFont: z.enum(replacementFonts),
-              size: number,
-              color,
-              paint: z
-                .object({
-                  coords: z.array(number.min(-1e6).max(1e6)).length(4),
-                  colors: z.array(color).min(2).max(65),
-                })
-                .optional(),
-              bounds: z.tuple([number, number, number, number]),
-              matrix: z.array(number).length(6).optional(),
-            }),
-          )
-          .max(5000),
+        blocks: z.array(textBlockSchema).max(5000),
       })
       .nullable(),
     page: z.number().int().min(0).max(499),

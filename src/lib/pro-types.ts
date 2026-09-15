@@ -57,6 +57,7 @@ export type PixelTextPreview = {
 export type InteractiveTextImage = TextPreview | PixelTextPreview;
 export type TextChange = {
   id: string;
+  copy?: TextBlock;
   original: string;
   text: string;
   font: TextFont;

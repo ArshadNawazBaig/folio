@@ -3,6 +3,7 @@ import { isPdfTextSize } from './pdf-text-size.mjs';
 import { isPdfTextOffset, moveTextMatrix } from './pdf-text-position.mjs';
 import { pdfPreviewLayout } from './pdf-preview.mjs';
 import { visibleClippedText } from './pdf-text-clip.mjs';
+import { copyTextObjects } from './pdf-text-copy.mjs';
 import {
   sourcePaints,
   markedPaint,
@@ -77,6 +78,7 @@ export async function processTextPdf(bytes, job, platform) {
     free(source);
     throw new Error('This PDF cannot be opened. Use an unencrypted, undamaged PDF.');
   }
+  const copiedPages = new Map();
   const fontPrograms = new Map(),
     loadedFonts = new Map(),
     characterSets = new Map();
@@ -235,6 +237,25 @@ export async function processTextPdf(bytes, job, platform) {
         changes.set(change.id, change);
       }
     } else if (job.operation !== 'inspect') throw new Error('Unknown PDF operation.');
+    if ([...changes.values()].some((change) => change.copy)) {
+      const mapped = copyTextObjects(
+        api,
+        heap,
+        doc,
+        source,
+        bytes.length,
+        [...changes.values()],
+        pageCount,
+        alloc,
+        free,
+        copiedPages,
+      );
+      changes.clear();
+      for (const change of mapped) {
+        if (changes.has(change.id)) throw new Error('Choose distinct text boxes to edit.');
+        changes.set(change.id, change);
+      }
+    }
     // Inspection needs every text object. An edit/preview only needs objects on
     // changed pages; the original bytes already contain all untouched content.
     // Keep validating changes on other pages too, including stale object IDs.
@@ -248,7 +269,8 @@ export async function processTextPdf(bytes, job, platform) {
       throw new Error('Some selected text could not be edited. Reopen the original PDF.');
     let applied = 0;
     for (const p of pages) {
-      const page = api.FPDF_LoadPage(doc, p);
+      const page = copiedPages.get(p) || api.FPDF_LoadPage(doc, p);
+      copiedPages.delete(p);
       if (!page) throw new Error(`Page ${p + 1} could not be opened.`);
       let textPage = api.FPDFText_LoadPage(page);
       try {
@@ -273,14 +295,17 @@ export async function processTextPdf(bytes, job, platform) {
             skipped++;
             continue;
           }
+          const copied = changes.get(`${p}:${i}`)?.copy;
           const len = api.FPDFTextObj_GetText(object, textPage, 0, 0);
-          if (len <= 2 || len > 20000) {
+          if ((!copied && len <= 2) || len > 20000) {
             skipped++;
             continue;
           }
-          const textPtr = alloc(len);
+          const textPtr = alloc(Math.max(2, len));
           api.FPDFTextObj_GetText(object, textPage, textPtr, len);
-          const text = heap.UTF16ToString(textPtr);
+          // PDFium suppresses overlapping duplicate glyphs during extraction. The
+          // copy source was verified against its own page before it was inserted.
+          const text = copied ? changes.get(`${p}:${i}`).original : heap.UTF16ToString(textPtr);
           free(textPtr);
           if (!text.trim()) continue;
           const id = `${p}:${i}`;
@@ -893,6 +918,7 @@ export async function processTextPdf(bytes, job, platform) {
       }
     }
   } finally {
+    for (const page of copiedPages.values()) api.FPDF_ClosePage(page);
     for (const { handle } of loadedFonts.values()) api.FPDFFont_Close(handle);
     api.FPDF_CloseDocument(doc);
     free(source);
