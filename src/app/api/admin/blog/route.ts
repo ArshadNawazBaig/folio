@@ -4,30 +4,31 @@ import { requireAdmin } from '@/lib/server/platform';
 import { apiError, ApiError, boundedBody } from '@/lib/server/http';
 import { adminPostFields, blogDatabaseError } from '@/lib/server/blog';
 import { blankDraft } from '@/lib/blog';
+import { readPage, pageSizeSchema } from '@/lib/server/pagination';
 export async function GET(request: Request) {
   try {
     await requireAdmin(request);
     const parsed = z
       .object({
         page: z.coerce.number().int().min(1).max(10000).default(1),
+        pageSize: pageSizeSchema,
         q: z.string().max(120).default(''),
         status: z.enum(['all', 'draft', 'published', 'scheduled', 'trashed']).default('all'),
       })
       .safeParse(Object.fromEntries(new URL(request.url).searchParams));
     if (!parsed.success) throw new ApiError(400, 'Choose valid post filters.');
-    const { page, q, status } = parsed.data;
+    const { page, q, status, pageSize } = parsed.data;
     let query = adminDb()
       .from('blog_posts')
       .select(adminPostFields, { count: 'exact' })
       .order('updated_at', { ascending: false })
-      .order('id')
-      .range((page - 1) * 15, page * 15 - 1);
+      .order('id');
     if (status === 'all') query = query.neq('status', 'trashed');
     else query = query.eq('status', status === 'scheduled' ? 'published' : status);
     if (status === 'scheduled') query = query.gt('published_at', new Date().toISOString());
     if (status === 'published') query = query.lte('published_at', new Date().toISOString());
     if (q) query = query.ilike('draft->>title', `%${q.replace(/[\\%_]/g, '\\$&')}%`);
-    const { data, error, count } = await query;
+    const { data, error, count } = await readPage(query, page, pageSize);
     blogDatabaseError(error);
     return Response.json(
       {

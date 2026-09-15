@@ -1,4 +1,6 @@
 'use client';
+import { Pagination } from './pagination';
+import { useRecordPagination } from './use-record-pagination';
 import { useState } from 'react';
 import Link from 'next/link';
 import { Search, ArrowUpRight, X } from 'lucide-react';
@@ -19,6 +21,7 @@ export function ToolDirectory({
       (category === 'All tools' || t.category === category) &&
       `${t.name} ${t.short} ${t.keywords.join(' ')}`.toLowerCase().includes(query.toLowerCase()),
   );
+  const pagination = useRecordPagination(matches.length, `${query}|${category}`);
   return (
     <div className="tool-directory">
       <div className="directory-controls">
@@ -55,7 +58,7 @@ export function ToolDirectory({
         {matches.length} thoughtful tools. One place to work.
       </div>
       <div className="directory-grid">
-        {matches.map((t) => (
+        {matches.slice(pagination.start, pagination.end).map((t) => (
           <Link href={`/${t.slug}`} className="directory-card" key={t.slug}>
             <div className="directory-card-top">
               <span className={`tool-icon ${t.color}`}>
@@ -73,6 +76,7 @@ export function ToolDirectory({
           </Link>
         ))}
       </div>
+      <Pagination {...pagination} label="Tools pagination" />
       {!matches.length && (
         <div className="directory-empty">
           <Search size={30} />

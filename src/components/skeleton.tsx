@@ -1,3 +1,4 @@
+import { PAGE_SIZE } from '@/lib/pagination.mjs';
 import type { CSSProperties, ReactNode } from 'react';
 import s from './skeleton.module.css';
 
@@ -65,11 +66,11 @@ export function SignInSkeleton({ description = false }: { description?: boolean 
   );
 }
 
-export function TicketListSkeleton() {
+export function TicketListSkeleton({ count = PAGE_SIZE }: { count?: number }) {
   return (
     <div className="admin-ticket-list" aria-busy="true">
       <LoadingLabel>Loading conversations…</LoadingLabel>
-      {[0, 1, 2].map((i) => (
+      {Array.from({ length: count }, (_, i) => (
         <div className={s.ticket} key={i} aria-hidden="true">
           <strong>
             <Skeleton width={i === 1 ? '62%' : '82%'} height={12} />
@@ -83,11 +84,11 @@ export function TicketListSkeleton() {
   );
 }
 
-export function ThreadSkeleton() {
+export function ThreadSkeleton({ count = PAGE_SIZE }: { count?: number }) {
   return (
     <div className="support-thread" aria-busy="true">
       <LoadingLabel>Loading conversation…</LoadingLabel>
-      {[0, 1].map((i) => (
+      {Array.from({ length: count }, (_, i) => (
         <article key={i} className={i ? 'staff' : ''} aria-hidden="true">
           <strong>
             <Skeleton width={90} height={11} />
@@ -104,10 +105,16 @@ export function ThreadSkeleton() {
   );
 }
 
-export function AdminTableSkeleton({ columns = 5 }: { columns?: number }) {
+export function AdminTableSkeleton({
+  columns = 5,
+  count = PAGE_SIZE,
+}: {
+  columns?: number;
+  count?: number;
+}) {
   return (
     <>
-      {Array.from({ length: 5 }, (_, row) => (
+      {Array.from({ length: count }, (_, row) => (
         <tr key={row} aria-hidden="true" className={s.tableRow}>
           {Array.from({ length: columns }, (_, col) => (
             <td key={col}>
@@ -138,12 +145,12 @@ export function AdminTableSkeleton({ columns = 5 }: { columns?: number }) {
   );
 }
 
-export function AuditSkeleton() {
+export function AuditSkeleton({ count = PAGE_SIZE }: { count?: number }) {
   return (
     <div aria-busy="true">
       <LoadingLabel>Loading activity…</LoadingLabel>
       <ul className="admin-audit-list">
-        {[0, 1, 2].map((i) => (
+        {Array.from({ length: count }, (_, i) => (
           <li key={i} aria-hidden="true">
             <Skeleton width={17} height={17} />
             <div className={s.auditText}>

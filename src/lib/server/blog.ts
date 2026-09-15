@@ -3,6 +3,8 @@ import { cache } from 'react';
 import { adminDb, authReady } from './auth';
 import { ApiError } from './http';
 import { blogDraftSchema, readingMinutes, type PublicPost } from '../blog';
+import { PAGE_SIZE } from '../pagination.mjs';
+import { readPage } from './pagination';
 
 export function blogDatabaseError(error: { message?: string; code?: string } | null) {
   if (!error) return;
@@ -50,7 +52,7 @@ function publicPost(row: PublicRow): PublicPost {
   };
 }
 const publicFields = 'id,published,published_at,published_updated_at,like_count';
-export async function publicPosts(page = 1, query = '', category = '') {
+export async function publicPosts(page = 1, query = '', category = '', pageSize = PAGE_SIZE) {
   if (!authReady()) return { posts: [] as PublicPost[], total: 0, unavailable: false };
   let request = adminDb()
     .from('blog_posts')
@@ -58,12 +60,11 @@ export async function publicPosts(page = 1, query = '', category = '') {
     .eq('status', 'published')
     .lte('published_at', new Date().toISOString())
     .order('published_at', { ascending: false })
-    .order('id')
-    .range((page - 1) * 12, page * 12 - 1);
+    .order('id');
   // Avoid PostgREST filter interpolation; this value is a single ilike parameter.
   if (query) request = request.ilike('published->>title', `%${query.replace(/[\\%_]/g, '\\$&')}%`);
   if (category) request = request.eq('published->>category', category);
-  const { data, count, error } = await request;
+  const { data, count, error } = await readPage(request, page, pageSize);
   if (error) return { posts: [] as PublicPost[], total: 0, unavailable: true };
   return { posts: (data || []).map(publicPost), total: count || 0, unavailable: false };
 }

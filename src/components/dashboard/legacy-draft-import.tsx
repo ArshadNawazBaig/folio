@@ -1,4 +1,6 @@
 'use client';
+import { Pagination } from '../pagination';
+import { useRecordPagination } from '../use-record-pagination';
 import { useEffect, useState } from 'react';
 import { CloudUpload, FileText } from 'lucide-react';
 import { deleteDocument, getDocument, getDocuments } from '@/lib/storage';
@@ -19,6 +21,7 @@ export function LegacyDraftImport({ refresh }: { refresh: () => Promise<void> })
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const pagination = useRecordPagination(drafts.length + recoveries.length);
   useEffect(() => {
     let active = true;
     getDocuments()
@@ -120,7 +123,7 @@ export function LegacyDraftImport({ refresh }: { refresh: () => Promise<void> })
           </button>
           {expanded && (
             <div className={s.fileList}>
-              {drafts.map((doc) => (
+              {drafts.slice(pagination.start, pagination.end).map((doc) => (
                 <div className={s.fileRow} key={doc.id}>
                   <FileText size={20} />
                   <div className={s.fileName}>
@@ -137,23 +140,29 @@ export function LegacyDraftImport({ refresh }: { refresh: () => Promise<void> })
                   </button>
                 </div>
               ))}
-              {recoveries.map((draft) => (
-                <div className={s.fileRow} key={draft.kind}>
-                  <FileText size={20} />
-                  <div className={s.fileName}>
-                    <strong>{draft.name}</strong>
-                    <small>Checkout recovery · {draft.kind.replaceAll('-', ' ')}</small>
+              {recoveries
+                .slice(
+                  Math.max(0, pagination.start - drafts.length),
+                  Math.max(0, pagination.end - drafts.length),
+                )
+                .map((draft) => (
+                  <div className={s.fileRow} key={draft.kind}>
+                    <FileText size={20} />
+                    <div className={s.fileName}>
+                      <strong>{draft.name}</strong>
+                      <small>Checkout recovery · {draft.kind.replaceAll('-', ' ')}</small>
+                    </div>
+                    <button
+                      className="button secondary"
+                      disabled={!!busy}
+                      onClick={() => void moveRecovery(draft)}
+                    >
+                      <CloudUpload size={16} />
+                      {busy === draft.kind ? 'Moving…' : 'Move recovery to cloud'}
+                    </button>
                   </div>
-                  <button
-                    className="button secondary"
-                    disabled={!!busy}
-                    onClick={() => void moveRecovery(draft)}
-                  >
-                    <CloudUpload size={16} />
-                    {busy === draft.kind ? 'Moving…' : 'Move recovery to cloud'}
-                  </button>
-                </div>
-              ))}
+                ))}
+              <Pagination {...pagination} disabled={!!busy} label="Older drafts pagination" />
             </div>
           )}
         </>

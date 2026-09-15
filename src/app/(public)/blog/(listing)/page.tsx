@@ -1,18 +1,27 @@
 import Link from 'next/link';
-import { Search, ArrowLeft, ArrowRight, BookOpen } from 'lucide-react';
+import { Search, ArrowRight, BookOpen } from 'lucide-react';
 import { publicPosts } from '@/lib/server/blog';
 import { pageMetadata, breadcrumbSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
+import { Pagination } from '@/components/pagination';
+import { PAGE_SIZE, normalizePageSize, pageCount } from '@/lib/pagination.mjs';
+import { redirect } from 'next/navigation';
 import { PostCard } from '@/components/blog/post-card';
 import s from '@/components/blog/blog.module.css';
 export const dynamic = 'force-dynamic';
-type Props = { searchParams: Promise<{ q?: string; page?: string; category?: string }> };
+type Props = {
+  searchParams: Promise<{ q?: string; page?: string; category?: string; pageSize?: string }>;
+};
 export async function generateMetadata({ searchParams }: Props) {
   const p = await searchParams;
+  const canonical = new URLSearchParams();
+  if (p.page && p.page !== '1') canonical.set('page', p.page);
+  const pageSize = normalizePageSize(p.pageSize);
+  if (pageSize !== PAGE_SIZE) canonical.set('pageSize', String(pageSize));
   return pageMetadata(
     'The Folio blog — ideas for better documents',
     'Practical PDF tips, thoughtful workflows, and news from Folio. Read the latest from our editorial team.',
-    p.page && p.page !== '1' ? `/blog?page=${encodeURIComponent(p.page)}` : '/blog',
+    canonical.size ? `/blog?${canonical}` : '/blog',
     !p.q && !p.category,
   );
 }
@@ -21,9 +30,18 @@ export default async function Blog({ searchParams }: Props) {
   const q = typeof params.q === 'string' ? params.q.slice(0, 120) : '',
     category = typeof params.category === 'string' ? params.category.slice(0, 50) : '';
   const page = Math.max(1, Math.min(10000, Number.parseInt(params.page || '1', 10) || 1));
-  const { posts, total, unavailable } = await publicPosts(page, q, category);
-  const href = (n: number) =>
-    `/blog?${new URLSearchParams({ ...(q ? { q } : {}), ...(category ? { category } : {}), page: String(n) })}`;
+  const pageSize = normalizePageSize(params.pageSize);
+  const { posts, total, unavailable } = await publicPosts(page, q, category, pageSize);
+  const filters = new URLSearchParams({
+    ...(q ? { q } : {}),
+    ...(category ? { category } : {}),
+    ...(pageSize !== PAGE_SIZE ? { pageSize: String(pageSize) } : {}),
+  });
+  const paginationHref = `/blog${filters.size ? `?${filters}` : ''}`;
+  if (!unavailable && page > pageCount(total, pageSize)) {
+    filters.set('page', String(pageCount(total, pageSize)));
+    redirect(`/blog?${filters}`);
+  }
   return (
     <main id="main" className={s.journal}>
       <StructuredData
@@ -53,6 +71,8 @@ export default async function Blog({ searchParams }: Props) {
           </span>
         </div>
         <form action="/blog" className={s.search}>
+          {pageSize !== PAGE_SIZE && <input type="hidden" name="pageSize" value={pageSize} />}
+          {category && <input type="hidden" name="category" value={category} />}
           <Search size={17} />
           <input
             name="q"
@@ -97,28 +117,14 @@ export default async function Blog({ searchParams }: Props) {
           )}
         </div>
       )}
-      {(page > 1 || total > page * 12) && (
-        <nav className={s.pagination} aria-label="Blog pagination">
-          {page > 1 ? (
-            <Link href={href(page - 1)}>
-              <ArrowLeft size={16} />
-              Previous
-            </Link>
-          ) : (
-            <span />
-          )}
-          <span>
-            Page {page} of {Math.max(page, Math.ceil(total / 12))}
-          </span>
-          {total > page * 12 ? (
-            <Link href={href(page + 1)}>
-              Next
-              <ArrowRight size={16} />
-            </Link>
-          ) : (
-            <span />
-          )}
-        </nav>
+      {!unavailable && (
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          href={paginationHref}
+          label="Blog pagination"
+        />
       )}
     </main>
   );

@@ -1,3 +1,4 @@
+import { PAGE_SIZE } from '@/lib/pagination.mjs';
 import { Skeleton, LoadingLabel } from '@/components/skeleton';
 import s from '@/components/blog/blog.module.css';
 export default function Loading() {
@@ -18,7 +19,7 @@ export default function Loading() {
         <Skeleton width={300} height={44} radius={30} />
       </div>
       <div className={s.postGrid}>
-        {[0, 1, 2].map((i) => (
+        {Array.from({ length: PAGE_SIZE }, (_, i) => (
           <article key={i} className={s.postCard}>
             <Skeleton height={220} />
             <div className={s.cardBody}>

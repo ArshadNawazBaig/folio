@@ -3,6 +3,7 @@ import { adminDb, requireUser } from '@/lib/server/auth';
 import { ApiError, apiError, boundedBody } from '@/lib/server/http';
 import { publicLimit } from '@/lib/server/public-limit';
 import { databaseError } from '@/lib/server/platform';
+import { requestedPage, requestedPageSize, readPage, filterLiteral } from '@/lib/server/pagination';
 const ticketSchema = z
   .object({
     name: z.string().trim().min(2).max(100),
@@ -45,42 +46,59 @@ export async function GET(request: Request) {
     const user = await requireUser(request, { allowSuspended: true });
     const db = adminDb(),
       email = user.email_confirmed_at ? user.email?.toLowerCase() : '';
-    // Union in application code avoids interpolating email text into PostgREST filters.
-    const owned = await db
-      .from('support_tickets')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('updated_at', { ascending: false })
-      .limit(50);
-    databaseError(owned.error);
-    const matching = email
-      ? await db
-          .from('support_tickets')
-          .select('*')
-          .is('user_id', null)
-          .eq('email', email)
-          .order('updated_at', { ascending: false })
-          .limit(50)
-      : { data: [], error: null };
-    databaseError(matching.error);
-    const tickets = [...(owned.data || []), ...(matching.data || [])]
-      .sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at))
-      .slice(0, 50);
-    const ticket = new URL(request.url).searchParams.get('ticket');
-    let messages: unknown[] = [];
-    if (ticket) {
-      if (!tickets.some((t) => t.id === ticket))
-        throw new ApiError(404, 'This inquiry is not available to your account.');
-      const result = await db
-        .from('support_messages')
-        .select('id,ticket_id,staff,message,created_at')
-        .eq('ticket_id', ticket)
-        .order('created_at', { ascending: false })
-        .limit(100);
+    const params = new URL(request.url).searchParams;
+    const page = requestedPage(params),
+      messagePage = requestedPage(params, 'messagePage');
+    const pageSize = requestedPageSize(params),
+      messagePageSize = requestedPageSize(params, 'messagePageSize');
+    const owners = `user_id.eq.${user.id}${email ? `,and(user_id.is.null,email.eq.${filterLiteral(email)})` : ''}`;
+    const listed = await readPage(
+      db
+        .from('support_tickets')
+        .select('*', { count: 'exact' })
+        .or(owners)
+        .order('updated_at', { ascending: false })
+        .order('id'),
+      page,
+      pageSize,
+    );
+    databaseError(listed.error);
+    const ticketId = params.get('ticket');
+    let messages: unknown[] = [],
+      messageTotal = 0,
+      ticket = null;
+    if (ticketId) {
+      if (!z.uuid().safeParse(ticketId).success) throw new ApiError(400, 'Choose a valid inquiry.');
+      const selected = await db
+        .from('support_tickets')
+        .select('*')
+        .eq('id', ticketId)
+        .or(owners)
+        .maybeSingle();
+      databaseError(selected.error);
+      if (!selected.data) throw new ApiError(404, 'This inquiry is not available to your account.');
+      ticket = selected.data;
+      const result = await readPage(
+        db
+          .from('support_messages')
+          .select('id,ticket_id,staff,message,created_at', { count: 'exact' })
+          .eq('ticket_id', ticketId)
+          .order('created_at', { ascending: false })
+          .order('id'),
+        messagePage,
+        messagePageSize,
+      );
       databaseError(result.error);
       messages = result.data?.reverse() || [];
+      messageTotal = result.count || 0;
     }
-    return Response.json({ tickets, messages });
+    return Response.json({
+      tickets: listed.data || [],
+      total: listed.count || 0,
+      ticket,
+      messages,
+      messageTotal,
+    });
   } catch (error) {
     return apiError(error);
   }

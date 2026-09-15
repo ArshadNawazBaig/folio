@@ -1,3 +1,4 @@
+import { PAGE_SIZE, normalizePageSize } from './pagination.mjs';
 import catalog from './document-font-catalog.json' with { type: 'json' };
 import { parseDocumentFont, standardDocumentFonts } from './document-fonts.mjs';
 
@@ -36,11 +37,12 @@ export function findDocumentFont(value) {
 export function isDocumentFont(value) {
   return standardDocumentFonts.includes(value) || !!findDocumentFont(value);
 }
-export function searchDocumentFonts(query = '', page = 0) {
+export function searchDocumentFonts(query = '', page = 0, pageSize = PAGE_SIZE) {
+  pageSize = normalizePageSize(pageSize);
   const normalized = query.toLowerCase().trim();
   const matches = ordered.filter((font) => font.family.toLowerCase().includes(normalized));
   return {
-    fonts: matches.slice(page * 24, (page + 1) * 24),
+    fonts: matches.slice(page * pageSize, (page + 1) * pageSize),
     total: matches.length,
     count: catalog.length,
     page,

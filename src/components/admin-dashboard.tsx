@@ -14,11 +14,11 @@ import {
   X,
   Check,
   Search,
-  ChevronLeft,
-  ChevronRight,
   AlertCircle,
   LogOut,
 } from 'lucide-react';
+import { Pagination } from './pagination';
+import { PAGE_SIZE, pageCount } from '@/lib/pagination.mjs';
 import { AdminNavigation } from './admin-navigation';
 import { adminNavigation as navigation } from '@/lib/admin-navigation';
 import { Dropdown } from './dropdown';
@@ -62,6 +62,9 @@ type Snapshot = {
   tickets?: { rows: SupportTicket[]; total: number };
   messages?: SupportMessage[];
   audit?: AuditEntry[];
+  auditTotal?: number;
+  priceHistoryTotal?: number;
+  messageTotal?: number;
   priceHistory?: {
     id: string;
     name: string;
@@ -88,8 +91,11 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [notice, setNotice] = useState('');
+  const [pageSize, setPageSize] = useState(PAGE_SIZE),
+    [messagePageSize, setMessagePageSize] = useState(PAGE_SIZE);
   const [search, setSearch] = useState(''),
     [page, setPage] = useState(1),
+    [messagePage, setMessagePage] = useState(1),
     [ticket, setTicket] = useState<SupportTicket | null>(null),
     [ticketFilter, setTicketFilter] = useState('all'),
     [reply, setReply] = useState(''),
@@ -103,7 +109,18 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
   const [trialVariantId, setTrialVariantId] = useState('');
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [loadedKey, setLoadedKey] = useState('');
-  const queryKey = [user?.id, section, search, page, ticketFilter, ticket?.id].join('|');
+  const queryKey = [
+    user?.id,
+    section,
+    search,
+    page,
+    ticketFilter,
+    ticket?.id,
+    messagePage,
+    pageSize,
+    messagePageSize,
+  ].join('|');
+  const formSource = useRef('');
   const modal = useRef<HTMLDialogElement>(null),
     generation = useRef(0);
   const load = useCallback(async () => {
@@ -120,26 +137,50 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
         view: section,
         q: search,
         page: String(page),
+        pageSize: String(pageSize),
+        messagePageSize: String(messagePageSize),
+        messagePage: String(messagePage),
         status: ticketFilter,
       });
       if (ticket) params.set('ticket', ticket.id);
       const result = await (await accountFetch(`/api/admin?${params}`)).json();
       if (current !== generation.current) return;
       setData(result);
+      const resultTotal =
+        section === 'users'
+          ? result.users?.total
+          : section === 'subscriptions'
+            ? result.subscriptions?.total
+            : section === 'support'
+              ? result.tickets?.total
+              : section === 'pricing'
+                ? result.priceHistoryTotal
+                : result.auditTotal;
+      if (typeof resultTotal === 'number' && page > pageCount(resultTotal, pageSize))
+        setPage(pageCount(resultTotal, pageSize));
+      if (
+        typeof result.messageTotal === 'number' &&
+        messagePage > pageCount(result.messageTotal, messagePageSize)
+      )
+        setMessagePage(pageCount(result.messageTotal, messagePageSize));
       setLoadedKey(queryKey);
       setAuthorized(true);
-      setSettings(result.settings);
-      const c = result.catalog;
-      setMonthlyVariantId(c.monthlyPriceId || '');
-      setTrialVariantId(c.trialPriceId || '');
-      setPricing({
-        name: c.name,
-        currency: c.currency,
-        monthlyAmount: c.monthlyAmount,
-        trialAmount: c.trialAmount,
-        trialDays: c.trialDays,
-        trialEnabled: c.trialEnabled,
-      });
+      const formKey = `${user.id}|${section}|${result.catalog.version}`;
+      if (formSource.current !== formKey) {
+        formSource.current = formKey;
+        setSettings(result.settings);
+        const c = result.catalog;
+        setMonthlyVariantId(c.monthlyPriceId || '');
+        setTrialVariantId(c.trialPriceId || '');
+        setPricing({
+          name: c.name,
+          currency: c.currency,
+          monthlyAmount: c.monthlyAmount,
+          trialAmount: c.trialAmount,
+          trialDays: c.trialDays,
+          trialEnabled: c.trialEnabled,
+        });
+      }
     } catch (e) {
       if (current === generation.current) {
         setAuthorized(false);
@@ -148,7 +189,18 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
     } finally {
       if (current === generation.current) setLoading(false);
     }
-  }, [user, section, search, page, ticket, ticketFilter, queryKey]);
+  }, [
+    user,
+    section,
+    search,
+    page,
+    ticket,
+    ticketFilter,
+    queryKey,
+    messagePage,
+    pageSize,
+    messagePageSize,
+  ]);
   useEffect(() => {
     const timer = setTimeout(() => void load(), 200);
     return () => {
@@ -445,7 +497,19 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
                 <small>Integration configuration does not confirm a completed live payment.</small>
               </section>
             </div>
-            <AuditList rows={data.audit || []} loading={dataPending} />
+            <AuditList rows={data.audit || []} loading={dataPending} count={pageSize} />
+            <Pagination
+              page={page}
+              pageSize={pageSize}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setPage(1);
+              }}
+              total={data.auditTotal || 0}
+              onChange={setPage}
+              disabled={dataPending || busy}
+              label="Activity pagination"
+            />
           </>
         )}
         {(section === 'users' || section === 'subscriptions') && (
@@ -496,7 +560,7 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
                 </thead>
                 <tbody>
                   {dataPending ? (
-                    <AdminTableSkeleton />
+                    <AdminTableSkeleton count={pageSize} />
                   ) : section === 'users' ? (
                     (data.users?.rows || []).map((row) => (
                       <tr key={row.id}>
@@ -646,7 +710,18 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
                 />
               )}
             </div>
-            <Pagination page={page} total={total} onChange={setPage} />
+            <Pagination
+              page={page}
+              pageSize={pageSize}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setPage(1);
+              }}
+              total={total}
+              onChange={setPage}
+              disabled={dataPending || busy}
+              label={`${section} pagination`}
+            />
             <p className="admin-footnote">
               Suspension blocks account actions and Pro downloads. Billing cancellation and support
               stay available. Courtesy grants do not create a Lemon Squeezy charge or cancel an
@@ -862,6 +937,18 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
                 ) : (
                   <EmptyState text="The initial plan is $1 for 7 days, then $25/month." />
                 )}
+                <Pagination
+                  page={page}
+                  pageSize={pageSize}
+                  onPageSizeChange={(size) => {
+                    setPageSize(size);
+                    setPage(1);
+                  }}
+                  total={data.priceHistoryTotal || 0}
+                  onChange={setPage}
+                  disabled={dataPending || busy}
+                  label="Pricing history pagination"
+                />
               </section>
             </div>
           </div>
@@ -949,7 +1036,7 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
                 />
               </div>
               {dataPending && !ticket ? (
-                <TicketListSkeleton />
+                <TicketListSkeleton count={pageSize} />
               ) : (
                 <div className="admin-ticket-list">
                   {(data.tickets?.rows || []).map((row) => (
@@ -958,6 +1045,7 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
                       className={ticket?.id === row.id ? 'selected' : ''}
                       onClick={() => {
                         setTicket(row);
+                        setMessagePage(1);
                         setReply('');
                         setStatus(row.status);
                         setPriority(row.priority);
@@ -978,7 +1066,18 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
               {!dataPending && !data.tickets?.rows.length && (
                 <EmptyState text="No inquiries in this view." />
               )}
-              <Pagination page={page} total={data.tickets?.total || 0} onChange={setPage} />
+              <Pagination
+                page={page}
+                pageSize={pageSize}
+                onPageSizeChange={(size) => {
+                  setPageSize(size);
+                  setPage(1);
+                }}
+                total={data.tickets?.total || 0}
+                onChange={setPage}
+                disabled={dataPending || busy}
+                label="Inquiries pagination"
+              />
             </section>
             <section className="admin-card">
               {ticket ? (
@@ -989,7 +1088,7 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
                     {ticket.name} · {ticket.email}
                   </p>
                   {dataPending ? (
-                    <ThreadSkeleton />
+                    <ThreadSkeleton count={messagePageSize} />
                   ) : (
                     <div className="support-thread">
                       <article>
@@ -1006,6 +1105,18 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
                       ))}
                     </div>
                   )}
+                  <Pagination
+                    page={messagePage}
+                    pageSize={messagePageSize}
+                    onPageSizeChange={(size) => {
+                      setMessagePageSize(size);
+                      setMessagePage(1);
+                    }}
+                    total={data.messageTotal || 0}
+                    onChange={setMessagePage}
+                    disabled={dataPending || busy}
+                    label="Replies pagination"
+                  />
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
@@ -1068,26 +1179,19 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
         )}
         {section === 'audit' && (
           <>
-            <AuditList rows={data.audit || []} loading={dataPending} />
-            <div className="admin-pagination">
-              <button
-                className="icon-button"
-                aria-label="Previous activity page"
-                disabled={page === 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <span>Page {page}</span>
-              <button
-                className="icon-button"
-                aria-label="Next activity page"
-                disabled={(data.audit?.length || 0) < 25}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
+            <AuditList rows={data.audit || []} loading={dataPending} count={pageSize} />
+            <Pagination
+              page={page}
+              pageSize={pageSize}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setPage(1);
+              }}
+              total={data.auditTotal || 0}
+              onChange={setPage}
+              disabled={dataPending || busy}
+              label="Activity pagination"
+            />
           </>
         )}
       </main>
@@ -1229,46 +1333,21 @@ function EmptyState({ text }: { text: string }) {
     </div>
   );
 }
-function Pagination({
-  page,
-  total,
-  onChange,
+function AuditList({
+  rows,
+  loading = false,
+  count = PAGE_SIZE,
 }: {
-  page: number;
-  total: number;
-  onChange: (page: number) => void;
+  rows: AuditEntry[];
+  loading?: boolean;
+  count?: number;
 }) {
-  return (
-    <div className="admin-pagination">
-      <span>
-        Page {page} of {Math.max(1, Math.ceil(total / 25))}
-      </span>
-      <button
-        className="icon-button"
-        aria-label="Previous results page"
-        disabled={page <= 1}
-        onClick={() => onChange(page - 1)}
-      >
-        <ChevronLeft size={18} />
-      </button>
-      <button
-        className="icon-button"
-        aria-label="Next results page"
-        disabled={page * 25 >= total}
-        onClick={() => onChange(page + 1)}
-      >
-        <ChevronRight size={18} />
-      </button>
-    </div>
-  );
-}
-function AuditList({ rows, loading = false }: { rows: AuditEntry[]; loading?: boolean }) {
   return (
     <section className="admin-card">
       <h2>Recorded activity</h2>
       <p>Pricing, account access, subscription changes, and support updates leave a record.</p>
       {loading ? (
-        <AuditSkeleton />
+        <AuditSkeleton count={count} />
       ) : rows.length ? (
         <ul className="admin-audit-list">
           {rows.map((row) => (

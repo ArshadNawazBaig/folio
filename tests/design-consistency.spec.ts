@@ -167,7 +167,7 @@ test('design: dashboard navigation and file/account dialogs fit narrow mobile sc
   page,
 }, info) => {
   await mockGoogle(page);
-  await page.route('**/api/account/files', (route) =>
+  await page.route('**/api/account/files{,?**}', (route) =>
     route.fulfill({
       json: {
         files: [

@@ -103,6 +103,21 @@ const rows = [
     published_updated_at: '2026-08-12T12:00:00Z',
     like_count: 4,
   })),
+  ...Array.from({ length: 22 }, (_, i) => ({
+    id: `00000000-0000-4000-8000-${String(i + 200).padStart(12, '0')}`,
+    published: {
+      ...published,
+      title: `Pagination guide ${i + 1}`,
+      slug: `pagination-guide-${i + 1}`,
+      category: 'Pagination guides',
+      featured: false,
+    },
+    public_slug: `pagination-guide-${i + 1}`,
+    status: 'published',
+    published_at: '2026-08-11T12:00:00Z',
+    published_updated_at: '2026-08-11T12:00:00Z',
+    like_count: 0,
+  })),
   {
     id: 'private',
     published: { ...published, slug: 'secret-draft' },
@@ -223,6 +238,10 @@ const server = createServer(async (req, res) => {
     );
     const count = result.length,
       offset = Number(url.searchParams.get('offset') || 0);
+    if (offset > 0 && offset >= count && req.headers.prefer?.includes('count=exact')) {
+      send({ code: 'PGRST103', message: 'Requested range not satisfiable' }, 416);
+      return;
+    }
     result = result.slice(offset, offset + Number(url.searchParams.get('limit') || 1000));
     res.setHeader('content-range', `0-${Math.max(0, result.length - 1)}/${count}`);
     send(result);

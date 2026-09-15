@@ -1,7 +1,9 @@
 'use client';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import { Check, ChevronDown, ChevronLeft, ChevronRight, Loader2, Search } from 'lucide-react';
+import { Check, ChevronDown, Loader2, Search } from 'lucide-react';
+import { Pagination } from './pagination';
+import { PAGE_SIZE } from '@/lib/pagination.mjs';
 import { Dropdown } from './dropdown';
 import { loadBrowserDocumentFont } from '@/lib/document-font-client';
 import { documentFontStyle, parseDocumentFont } from '@/lib/document-fonts.mjs';
@@ -38,6 +40,7 @@ export function FontPicker({
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [page, setPage] = useState(0);
   const [results, setResults] = useState<Results | null>(null);
   const [family, setFamily] = useState<Family | null>(null);
@@ -92,7 +95,8 @@ export function FontPicker({
     setResults(null);
     setError('');
     const timer = setTimeout(() => {
-      void fetch(`/api/fonts?q=${encodeURIComponent(query)}&page=${page}`, {
+      // Include the page size in the cache key when the shared default changes.
+      void fetch(`/api/fonts?q=${encodeURIComponent(query)}&page=${page}&pageSize=${pageSize}`, {
         signal: AbortSignal.any([abort.signal, AbortSignal.timeout(12000)]),
       })
         .then(async (response) => {
@@ -112,7 +116,7 @@ export function FontPicker({
       clearTimeout(timer);
       abort.abort();
     };
-  }, [open, query, page, retry]);
+  }, [open, query, page, retry, pageSize]);
 
   function reference(font: Family): TextFont {
     const wanted =
@@ -292,30 +296,19 @@ export function FontPicker({
                   {preview ? 'The quick brown fox · 123' : 'Loading preview…'}
                 </div>
               )}
-              {results && results.total > 24 && (
-                <div className="font-library-pagination">
-                  <button
-                    type="button"
-                    className="icon-button"
-                    aria-label="Previous fonts"
-                    disabled={page === 0 || busy}
-                    onClick={() => setPage((p) => p - 1)}
-                  >
-                    <ChevronLeft size={16} />
-                  </button>
-                  <span>
-                    Page {page + 1} of {Math.ceil(results.total / 24)}
-                  </span>
-                  <button
-                    type="button"
-                    className="icon-button"
-                    aria-label="Next fonts"
-                    disabled={(page + 1) * 24 >= results.total || busy}
-                    onClick={() => setPage((p) => p + 1)}
-                  >
-                    <ChevronRight size={16} />
-                  </button>
-                </div>
+              {results && (
+                <Pagination
+                  page={page + 1}
+                  pageSize={pageSize}
+                  onPageSizeChange={(size) => {
+                    setPageSize(size);
+                    setPage(0);
+                  }}
+                  total={results.total}
+                  onChange={(next) => setPage(next - 1)}
+                  disabled={busy}
+                  label="Fonts pagination"
+                />
               )}
               {open && error && (
                 <div className="font-picker-error" role="alert">

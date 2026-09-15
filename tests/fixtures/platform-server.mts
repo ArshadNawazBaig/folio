@@ -1,6 +1,6 @@
 // Isolated server-route harness: real PostgreSQL policies and route handlers, mocked Supabase transport.
 import assert from 'node:assert/strict';
-import { createHmac } from 'node:crypto';
+import { createHmac, createHash } from 'node:crypto';
 import { lemon } from './lemon-provider';
 import * as webhookApi from '../../src/app/api/billing/webhook/route';
 import { syncSubscription } from '../../src/lib/server/billing';
@@ -22,6 +22,9 @@ import * as guestSessionApi from '../../src/app/api/workspaces/session/route';
 import * as filesApi from '../../src/app/api/account/files/route';
 import * as fileApi from '../../src/app/api/account/files/[id]/route';
 import * as accountBillingApi from '../../src/app/api/account/billing/route';
+import * as fontsApi from '../../src/app/api/fonts/route';
+import { restFilters } from './rest-filters';
+import { requestedPage, filterLiteral } from '../../src/lib/server/pagination';
 import { cloudTestSchema } from './cloud-schema';
 import { proxy } from '../../src/proxy';
 import { clearPlatformCache, getPlatform } from '../../src/lib/server/platform';
@@ -195,24 +198,7 @@ globalThis.fetch = async (input, init) => {
       ].includes(table),
     );
     const params: unknown[] = [];
-    const conditions: string[] = [];
-    for (const [key, value] of url.searchParams) {
-      if (['select', 'order', 'limit', 'offset', 'on_conflict'].includes(key)) continue;
-      const pos = value.indexOf('.');
-      const op = value.slice(0, pos),
-        v = value.slice(pos + 1);
-      assert.ok(['eq', 'is', 'gt', 'neq', 'not'].includes(op));
-      if (op === 'not') {
-        assert.equal(v, 'is.null');
-        conditions.push(`${ident(key)} is not null`);
-        continue;
-      }
-      conditions.push(
-        op === 'is' && v === 'null'
-          ? `${ident(key)} is null`
-          : `${ident(key)} ${op === 'gt' ? '>' : op === 'neq' ? '<>' : '='} $${params.push(v)}`,
-      );
-    }
+    const conditions = restFilters(url.searchParams, params, ident);
     const where = conditions.length ? ` where ${conditions.join(' and ')}` : '';
     if (req.method === 'GET') {
       const fields = (url.searchParams.get('select') || '*')
@@ -235,6 +221,11 @@ globalThis.fetch = async (input, init) => {
       const limit = Number(url.searchParams.get('limit') || 1000),
         offset = Number(url.searchParams.get('offset') || 0);
       assert.ok(Number.isInteger(limit) && Number.isInteger(offset));
+      if (offset > 0 && offset >= count && req.headers.get('prefer')?.includes('count=exact'))
+        return Response.json(
+          { code: 'PGRST103', message: 'Requested range not satisfiable' },
+          { status: 416 },
+        );
       const result = await db.query(
         `select ${fields} from ${ident(table)}${where}${order.length ? ' order by ' + order.join(',') : ''} limit ${limit} offset ${offset}`,
         params,
@@ -1448,8 +1439,254 @@ try {
   assert.equal(cloudObjects.has(otherPath), false);
   assert.equal(recoveryObjects.has(`${other}/pro-text.json`), false);
   assert.equal((await adminApi.GET(request('/api/admin', admin))).status, 200);
+
+  // Exercise real route pagination across the existing 25-row database RPC boundary.
+  for (const size of [10, 25, 50, 100]) {
+    const first = await (await fontsApi.GET(request(`/api/fonts?pageSize=${size}`))).json();
+    const second = await (await fontsApi.GET(request(`/api/fonts?page=1&pageSize=${size}`))).json();
+    assert.equal(first.fonts.length, size);
+    assert.equal(second.fonts.length, size);
+    assert.equal(first.fonts.some((font: { id: string }) => second.fonts.some((other: { id: string }) => other.id === font.id)), false);
+  }
+  assert.equal((await fontsApi.GET(request('/api/fonts?pageSize=1000'))).status, 400);
+  for (const value of ['0', '-1', '1.5', 'NaN', 'Infinity', '100001'])
+    assert.throws(() => requestedPage(new URLSearchParams({ page: value })));
+  assert.equal(requestedPage(new URLSearchParams()), 1);
+  const unusualEmail = 'a"\\),user_id.not.is.null@example.test';
+  const boundEmail: unknown[] = [];
+  restFilters(
+    new URLSearchParams({
+      or: `(user_id.eq.owner,and(user_id.is.null,email.eq.${filterLiteral(unusualEmail)}))`,
+    }),
+    boundEmail,
+    ident,
+  );
+  assert.deepEqual(boundEmail, ['owner', unusualEmail]);
+  await db.exec('reset role');
+  const paginatedUsers = (
+    await db.query<{ id: string }>(`
+    insert into auth.users(id,email)
+    select gen_random_uuid(),'pagination-'||lpad(i::text,3,'0')||'@example.test'
+    from generate_series(1,31) i returning id
+  `)
+  ).rows;
+  await db.exec('set role service_role');
+  for (const [index, member] of paginatedUsers.entries())
+    await db.query(
+      "insert into billing_subscriptions(stripe_subscription_id,user_id,price_id,status) values ($1,$2,'fixture-price','active')",
+      [`pagination-${index}`, member.id],
+    );
+  for (const view of ['users', 'subscriptions']) {
+    const seen = new Set<string>();
+    for (let page = 1; page <= 4; page++) {
+      const res = await adminApi.GET(
+        request(`/api/admin?view=${view}&q=pagination-&page=${page}`, admin),
+      );
+      assert.equal(res.status, 200, await res.clone().text());
+      const result = (await res.json())[view];
+      assert.equal(result.total, 31);
+      assert.equal(result.rows.length, page === 4 ? 1 : 10);
+      for (const row of result.rows) {
+        const key = row.id || row.stripe_subscription_id;
+        assert.equal(seen.has(key), false, 'Each record appears on exactly one page');
+        seen.add(key);
+      }
+    }
+    assert.equal(seen.size, 31);
+    const larger = await (
+      await adminApi.GET(request(`/api/admin?view=${view}&q=pagination-&page=2&pageSize=25`, admin))
+    ).json();
+    assert.equal(larger[view].rows.length, 6);
+    const all = await (
+      await adminApi.GET(request(`/api/admin?view=${view}&q=pagination-&pageSize=100`, admin))
+    ).json();
+    assert.equal(all[view].rows.length, 31);
+  }
+
+  await db.query(
+    `insert into cloud_documents(user_id,name,object_path,size,status)
+    select $1::uuid,'Pagination '||lpad(i::text,3,'0')||'.pdf',$1::text||'/pagination/'||i||'.pdf',100,'ready'
+    from generate_series(1,31) i`,
+    [admin],
+  );
+  const filePage = await (
+    await filesApi.GET(request('/api/account/files?page=2&q=Pagination&sort=name', admin))
+  ).json();
+  assert.equal(filePage.total, 31);
+  assert.equal(filePage.files.length, 10);
+  assert.equal(filePage.files[0].name, 'Pagination 011.pdf');
+  assert.equal(filePage.files[9].name, 'Pagination 020.pdf');
+  const largerFiles = await (
+    await filesApi.GET(
+      request('/api/account/files?page=2&pageSize=25&q=Pagination&sort=name', admin),
+    )
+  ).json();
+  assert.equal(largerFiles.files.length, 6);
+  assert.equal(largerFiles.files[0].name, 'Pagination 026.pdf');
+  assert.deepEqual(largerFiles.storage, filePage.storage);
+  for (const invalid of ['0', '-1', '11', '1.5', '101', 'all', 'NaN']) {
+    assert.equal(
+      (await filesApi.GET(request(`/api/account/files?pageSize=${invalid}`, admin))).status,
+      400,
+    );
+    assert.equal(
+      (await adminApi.GET(request(`/api/admin?view=users&pageSize=${invalid}`, admin))).status,
+      400,
+    );
+    assert.equal(
+      (await supportApi.GET(request(`/api/support?messagePageSize=${invalid}`, admin))).status,
+      400,
+    );
+  }
+  const lastFiles = await (
+    await filesApi.GET(request('/api/account/files?page=4&q=Pagination&sort=name', admin))
+  ).json();
+  assert.equal(lastFiles.files.length, 1);
+  assert.equal(lastFiles.nextOffset, null);
+  assert.deepEqual(
+    lastFiles.storage,
+    filePage.storage,
+    'Storage totals do not depend on the current page',
+  );
+  assert.equal(lastFiles.readyCount, filePage.readyCount);
+  const exactFile = await (
+    await filesApi.GET(request('/api/account/files?q=Pagination%20031&sort=name', admin))
+  ).json();
+  assert.equal(exactFile.files[0].name, 'Pagination 031.pdf');
+  assert.equal(exactFile.total, 1);
+  const removedFilePage = await (
+    await filesApi.GET(request('/api/account/files?page=10&q=Pagination', admin))
+  ).json();
+  assert.equal(removedFilePage.total, 31);
+  assert.deepEqual(removedFilePage.files, []);
+  assert.equal((await filesApi.GET(request('/api/account/files?page=0', admin))).status, 400);
+
+  const paginationToken = 'd'.repeat(64);
+  const paginationGuest = createHash('sha256').update(paginationToken).digest('hex');
+  await db.query(
+    `insert into cloud_documents(guest_hash,expires_at,name,object_path,size,status)
+    select $1,now()+interval '1 day','Pagination guest '||lpad(i::text,3,'0')||'.pdf',
+      'guest/'||$1||'/pagination/'||i||'.pdf',100,'ready' from generate_series(1,11) i`,
+    [paginationGuest],
+  );
+  const libraryRequest = (path: string, signedIn = false, token = paginationToken) =>
+    new Request(`http://localhost${path}`, {
+      headers: {
+        'x-folio-workspace': '1',
+        cookie: `folio-workspace-session=${token}`,
+        ...(signedIn ? { authorization: `Bearer ${admin}` } : {}),
+      },
+    });
+  const guestPage = await (
+    await workspacesApi.GET(libraryRequest('/api/workspaces?page=2&sort=name'))
+  ).json();
+  assert.equal(guestPage.total, 11);
+  assert.equal(guestPage.files.length, 1);
+  assert.equal(guestPage.storage.used, 1100, 'Guest quota includes files on every page');
+  const largerGuestPage = await (
+    await workspacesApi.GET(libraryRequest('/api/workspaces?pageSize=25&sort=name'))
+  ).json();
+  assert.equal(largerGuestPage.files.length, 11);
+  assert.deepEqual(largerGuestPage.storage, guestPage.storage);
+  const combinedPage = await (
+    await filesApi.GET(libraryRequest('/api/account/files?page=5&q=Pagination&sort=name', true))
+  ).json();
+  assert.equal(combinedPage.total, 42);
+  assert.equal(combinedPage.files.length, 2);
+  assert.equal(
+    combinedPage.files.every((file: { guest: boolean }) => file.guest),
+    true,
+  );
+  const isolatedPage = await (
+    await filesApi.GET(
+      libraryRequest('/api/account/files?page=5&q=Pagination&sort=name', true, 'e'.repeat(64)),
+    )
+  ).json();
+  assert.equal(isolatedPage.total, 31);
+  assert.deepEqual(
+    isolatedPage.files,
+    [],
+    'Unclaimed files remain private to their original browser',
+  );
+
+  const paginationTickets = (
+    await db.query<{ id: string }>(
+      `
+    insert into support_tickets(user_id,email,name,subject,message)
+    select $1,'admin@example.test','Admin','Pagination inquiry '||i,'Message '||i
+    from generate_series(1,31) i returning id`,
+      [admin],
+    )
+  ).rows;
+  const selectedInquiry = paginationTickets[0].id;
+  await db.query(
+    `insert into support_messages(ticket_id,author_id,staff,message,created_at)
+    select $1,$2,false,'Reply '||i,now()+i*interval '1 second'
+    from generate_series(1,25) i`,
+    [selectedInquiry, admin],
+  );
+  const inbox = await (
+    await supportApi.GET(
+      request(`/api/support?page=4&ticket=${selectedInquiry}&messagePage=2`, admin),
+    )
+  ).json();
+  assert.equal(inbox.total, 31);
+  assert.equal(inbox.tickets.length, 1);
+  assert.equal(
+    inbox.ticket.id,
+    selectedInquiry,
+    'Opening a ticket is independent of the list page',
+  );
+  assert.equal(inbox.messageTotal, 25);
+  assert.equal(inbox.messages.length, 10);
+  assert.equal(inbox.messages[0].message, 'Reply 6');
+  assert.equal(inbox.messages[9].message, 'Reply 15');
+  const foreignTicket = (
+    await db.query<{ id: string }>(
+      "insert into support_tickets(user_id,email,name,subject,message) values ($1,'someone@example.test','Other','Private inquiry','Private message') returning id",
+      [paginatedUsers[0].id],
+    )
+  ).rows[0];
+  assert.equal(
+    (await supportApi.GET(request(`/api/support?ticket=${foreignTicket.id}`, admin))).status,
+    404,
+  );
+  const staffInbox = await (
+    await adminApi.GET(
+      request(`/api/admin?view=support&page=2&ticket=${selectedInquiry}&messagePage=3`, admin),
+    )
+  ).json();
+  assert.equal(staffInbox.tickets.rows.length, 10);
+  assert.equal(staffInbox.messageTotal, 25);
+  assert.equal(staffInbox.messages.length, 5);
+  const largerInbox = await (
+    await supportApi.GET(
+      request(`/api/support?pageSize=50&ticket=${selectedInquiry}&messagePageSize=25`, admin),
+    )
+  ).json();
+  assert.equal(largerInbox.tickets.length, 31);
+  assert.equal(largerInbox.messages.length, 25);
+
+  await db.query(`insert into pricing_versions(id,name,currency,monthly_amount,trial_amount,trial_days,trial_enabled)
+    select 'pagination-'||i,'Folio Pro','usd',2500,100,7,true from generate_series(1,21) i`);
+  await db.query(
+    `insert into admin_audit(actor_id,action,target)
+    select $1,'pagination.test',i::text from generate_series(1,21) i`,
+    [admin],
+  );
+  for (const [view, key] of [
+    ['audit', 'audit'],
+    ['overview', 'audit'],
+    ['pricing', 'priceHistory'],
+  ]) {
+    const data = await (
+      await adminApi.GET(request(`/api/admin?view=${view}&page=2`, admin))
+    ).json();
+    assert.equal(data[key].length, 10);
+    assert.ok(data[`${key}Total`] >= 21);
+  }
   console.log(
-    'Server routes verified: admin authorization, activation, complete user deletion, failure recovery, storage isolation, billing cleanup, support and maintenance.',
+    'Server routes verified: admin authorization, activation, complete user deletion, failure recovery, storage isolation, billing cleanup, support, maintenance and record pagination.',
   );
 } finally {
   globalThis.fetch = fetchOriginal;

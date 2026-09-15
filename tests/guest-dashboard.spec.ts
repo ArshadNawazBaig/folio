@@ -5,6 +5,51 @@ import { FREE_STORAGE_LIMIT } from '../src/lib/cloud-types';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
 
+test('guest files use ten-record pages and return to the previous page after its last file is deleted', async ({
+  page,
+  workspaceStorage,
+}) => {
+  for (let i = 1; i <= 11; i++) {
+    const id = `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`;
+    workspaceStorage.records.set(id, {
+      id,
+      name: `Guest document ${String(i).padStart(2, '0')}.pdf`,
+      revision: 0,
+      bytes: Buffer.from('%PDF-fixture'),
+      snapshot: null,
+      size: 100,
+      expiresAt: new Date(Date.now() + 86400000).toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+  }
+  await page.goto('/account');
+  await page.getByRole('button', { name: 'Continue as guest', exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await page
+    .getByRole('link', { name: /My files/ })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/dashboard\?view=files$/);
+  const pager = page.getByRole('navigation', { name: 'Files pagination' });
+  await expect(pager).toContainText('1–10 of 11 records');
+  await pager.getByRole('combobox', { name: 'Records per page' }).click();
+  await page.getByRole('option', { name: '25 per page', exact: true }).click();
+  await expect(pager).toContainText('1–11 of 11 records');
+  await expect(page.getByRole('link', { name: /^Guest document \d+\.pdf$/ })).toHaveCount(11);
+  await pager.getByRole('combobox', { name: 'Records per page' }).click();
+  await page.getByRole('option', { name: '10 per page', exact: true }).click();
+  await pager.getByRole('button', { name: 'Next page' }).click();
+  await expect(pager).toContainText('11–11 of 11 records');
+  const lastFile = page.getByRole('button', { name: /^Delete Guest document/ });
+  await expect(lastFile).toHaveCount(1);
+  await lastFile.click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete file', exact: true }).click();
+  await expect(pager).toContainText('1–10 of 10 records');
+  await expect(page.getByRole('link', { name: /^Guest document \d+\.pdf$/ })).toHaveCount(10);
+  await expect(pager.getByRole('button', { name: 'Next page' })).toBeDisabled();
+  expect(workspaceStorage.records.size).toBe(10);
+});
+
 test('guest sign-out retries on failure, clears the session and updates other open tabs', async ({
   page,
   context,
@@ -134,7 +179,7 @@ test('simultaneous guest dashboard tabs share one private browser session', asyn
   context,
 }) => {
   let created = 0;
-  await context.route('**/api/workspaces', async (route) => {
+  await context.route('**/api/workspaces{,?**}', async (route) => {
     expect(route.request().method()).toBe('GET');
     const existing = route.request().headers().cookie?.includes('folio-workspace-session=');
     const headers: Record<string, string> = {};
@@ -349,7 +394,7 @@ test('sign-in retains every guest file even when the account is full and claims 
     workspaceStorage.accountFull = false;
     await route.fulfill({ json: { removed: true } });
   });
-  await page.route('**/api/account/files', async (route) => {
+  await page.route('**/api/account/files{,?**}', async (route) => {
     const files = workspaceStorage.accountFull
       ? [
           {
@@ -371,6 +416,20 @@ test('sign-in retains every guest file even when the account is full and claims 
             created_at: f.updatedAt,
             updated_at: f.updatedAt,
           }));
+    files.push(
+      ...[...workspaceStorage.records.values()]
+        .filter((f) => f.expiresAt && Date.parse(f.expiresAt) > Date.now())
+        .map((f) => ({
+          id: f.id,
+          name: f.name,
+          size: f.size || 0,
+          status: 'ready',
+          created_at: f.updatedAt,
+          updated_at: f.updatedAt,
+          expires_at: f.expiresAt,
+          guest: true,
+        })),
+    );
     const used = workspaceStorage.accountFull ? FREE_STORAGE_LIMIT : buffer.length * 2;
     await route.fulfill({
       json: {

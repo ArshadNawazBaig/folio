@@ -1,4 +1,5 @@
 'use client';
+import { PAGE_SIZE } from '@/lib/pagination.mjs';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -13,12 +14,12 @@ import {
   Trash2,
   RotateCcw,
   Heart,
-  ChevronLeft,
-  ChevronRight,
   LogOut,
 } from 'lucide-react';
 import { accountFetch, authClient } from '@/lib/auth-client';
 import { postStatus, type BlogSummary } from '@/lib/blog';
+import { Pagination } from '../pagination';
+import { pageCount } from '@/lib/pagination.mjs';
 import { AdminNavigation } from '../admin-navigation';
 import { Dropdown } from '../dropdown';
 import { Skeleton, LoadingLabel } from '../skeleton';
@@ -33,6 +34,7 @@ export function AdminBlog() {
 }
 function PostManager() {
   const router = useRouter();
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [posts, setPosts] = useState<BlogSummary[]>([]),
     [total, setTotal] = useState(0),
     [page, setPage] = useState(1),
@@ -52,7 +54,7 @@ function PostManager() {
     setError('');
     const timer = setTimeout(() => {
       void accountFetch(
-        `/api/admin/blog?${new URLSearchParams({ page: String(page), q: query, status })}`,
+        `/api/admin/blog?${new URLSearchParams({ page: String(page), pageSize: String(pageSize), q: query, status })}`,
         { signal: controller.signal },
       )
         .then((r) => r.json())
@@ -60,6 +62,7 @@ function PostManager() {
           if (current === generation.current) {
             setPosts(data.posts);
             setTotal(data.total);
+            if (page > pageCount(data.total, pageSize)) setPage(pageCount(data.total, pageSize));
           }
         })
         .catch((e) => {
@@ -73,7 +76,7 @@ function PostManager() {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [page, query, status, refresh]);
+  }, [page, query, status, refresh, pageSize]);
   const clearNotice = useCallback(() => setNotice(null), []);
   async function create(sourceId?: string) {
     setBusy(true);
@@ -207,7 +210,7 @@ function PostManager() {
           ) : loading ? (
             <div aria-busy="true">
               <LoadingLabel>Loading blog posts…</LoadingLabel>
-              {[0, 1, 2, 3, 4].map((i) => (
+              {Array.from({ length: pageSize }, (_, i) => (
                 <div className={s.postRow} aria-hidden="true" key={i}>
                   <Skeleton width={62} height={62} radius={8} />
                   <div className={s.postName}>
@@ -321,31 +324,19 @@ function PostManager() {
               ))}
             </div>
           )}
-          {!loading && !error && (
-            <footer className={s.listFooter}>
-              <span>
-                {total} {total === 1 ? 'post' : 'posts'}
-              </span>
-              <div>
-                <button
-                  className="icon-button"
-                  aria-label="Previous posts"
-                  disabled={page === 1}
-                  onClick={() => setPage((p) => p - 1)}
-                >
-                  <ChevronLeft size={17} />
-                </button>
-                <span>Page {page}</span>
-                <button
-                  className="icon-button"
-                  aria-label="Next posts"
-                  disabled={total <= page * 15}
-                  onClick={() => setPage((p) => p + 1)}
-                >
-                  <ChevronRight size={17} />
-                </button>
-              </div>
-            </footer>
+          {!error && (
+            <Pagination
+              page={page}
+              pageSize={pageSize}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setPage(1);
+              }}
+              total={total}
+              onChange={setPage}
+              disabled={loading || busy}
+              label="Posts pagination"
+            />
           )}
         </section>
       </main>

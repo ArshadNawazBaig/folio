@@ -12,6 +12,8 @@ import {
 import { changeSubscription, billingReady } from '@/lib/server/billing';
 import { validateLemonVariant } from '@/lib/server/lemon-squeezy';
 import { deleteUser } from '@/lib/server/delete-user';
+import { databasePage } from '@/lib/pagination.mjs';
+import { readPage, pageSizeSchema } from '@/lib/server/pagination';
 export const runtime = 'nodejs';
 const querySchema = z.object({
   view: z
@@ -19,6 +21,9 @@ const querySchema = z.object({
     .default('overview'),
   q: z.string().max(120).default(''),
   page: z.coerce.number().int().min(1).max(100000).default(1),
+  messagePage: z.coerce.number().int().min(1).max(100000).default(1),
+  pageSize: pageSizeSchema,
+  messagePageSize: pageSizeSchema,
   ticket: z.uuid().optional(),
   status: z.enum(['all', 'open', 'pending', 'resolved']).default('all'),
 });
@@ -37,54 +42,79 @@ export async function GET(request: Request) {
       result.overview = data;
     }
     if (q.view === 'users' || q.view === 'subscriptions') {
-      const { data, error } = await db.rpc(
-        q.view === 'users' ? 'admin_users' : 'admin_subscriptions',
-        { actor: actor.id, query_text: q.q, page_number: q.page },
+      result[q.view] = await databasePage(
+        q.page,
+        async (page: number) => {
+          const { data, error } = await db.rpc(
+            q.view === 'users' ? 'admin_users' : 'admin_subscriptions',
+            { actor: actor.id, query_text: q.q, page_number: page },
+          );
+          databaseError(error);
+          return data;
+        },
+        q.pageSize,
       );
-      databaseError(error);
-      result[q.view] = data;
       if (q.view === 'users') {
         const readiness = await db.from('user_deletions').select('user_id').limit(0);
         result.userDeletionReady = !readiness.error;
       }
     }
     if (q.view === 'overview' || q.view === 'audit') {
-      const { data, error } = await db
-        .from('admin_audit')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .range((q.page - 1) * 25, q.page * 25 - 1);
+      const { data, error, count } = await readPage(
+        db
+          .from('admin_audit')
+          .select('*', { count: 'exact' })
+          .order('created_at', { ascending: false })
+          .order('id'),
+        q.page,
+        q.pageSize,
+      );
       databaseError(error);
       result.audit = data;
+      result.auditTotal = count || 0;
     }
     if (q.view === 'pricing') {
-      const { data, error } = await db
-        .from('pricing_versions')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(15);
+      const { data, error, count } = await readPage(
+        db
+          .from('pricing_versions')
+          .select('*', { count: 'exact' })
+          .order('created_at', { ascending: false })
+          .order('id'),
+        q.page,
+        q.pageSize,
+      );
       databaseError(error);
       result.priceHistory = data;
+      result.priceHistoryTotal = count || 0;
     }
     if (q.view === 'support') {
       let tickets = db
         .from('support_tickets')
         .select('*', { count: 'exact' })
         .order('updated_at', { ascending: false })
-        .range((q.page - 1) * 25, q.page * 25 - 1);
+        .order('id');
       if (q.status !== 'all') tickets = tickets.eq('status', q.status);
-      const { data, error, count } = await tickets;
+      const { data, error, count } = await readPage(tickets, q.page, q.pageSize);
       databaseError(error);
       result.tickets = { rows: data, total: count };
       if (q.ticket) {
-        const { data: messages, error: messageError } = await db
-          .from('support_messages')
-          .select('id,ticket_id,staff,message,created_at')
-          .eq('ticket_id', q.ticket)
-          .order('created_at', { ascending: false })
-          .limit(100);
+        const {
+          data: messages,
+          error: messageError,
+          count: messageCount,
+        } = await readPage(
+          db
+            .from('support_messages')
+            .select('id,ticket_id,staff,message,created_at', { count: 'exact' })
+            .eq('ticket_id', q.ticket)
+            .order('created_at', { ascending: false })
+            .order('id'),
+          q.messagePage,
+          q.messagePageSize,
+        );
         databaseError(messageError);
         result.messages = messages?.reverse();
+        result.messageTotal = messageCount || 0;
       }
     }
     return Response.json(result);

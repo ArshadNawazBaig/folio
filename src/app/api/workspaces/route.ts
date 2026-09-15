@@ -11,10 +11,12 @@ import {
   type CloudDocument,
   pdfName,
 } from '@/lib/cloud-types';
+import { fileFilters } from '@/lib/server/pagination';
 import { cloudFields } from '@/lib/server/cloud-storage';
 export async function GET(request: Request) {
   let cookie: string | null = null;
   try {
+    const { page, q, sort, pageSize } = fileFilters(new URL(request.url).searchParams);
     const identity = await workspaceIdentity(request, true);
     cookie = identity.cookie;
     // List only this browser's unclaimed files. Account files use the account API.
@@ -32,10 +34,22 @@ export async function GET(request: Request) {
       files = (data || []).map((file) => ({ ...file, guest: true }));
     }
     const used = files.reduce((total, file) => total + file.size + (file.workspace_size || 0), 0);
+    const filtered = files
+      .filter((file) => file.name.toLowerCase().includes(q.toLowerCase()))
+      .sort(
+        (a, b) =>
+          (sort === 'name'
+            ? a.name.localeCompare(b.name)
+            : sort === 'size'
+              ? b.size - a.size
+              : Date.parse(b.updated_at) - Date.parse(a.updated_at)) || a.id.localeCompare(b.id),
+      );
     return workspaceResponse(
       request,
       {
-        files,
+        files: filtered.slice((page - 1) * pageSize, page * pageSize),
+        total: filtered.length,
+        readyCount: files.filter((file) => file.status === 'ready').length,
         storage: {
           used,
           limit: FREE_STORAGE_LIMIT,

@@ -1,5 +1,6 @@
 import { test as base, expect, type BrowserContext } from '@playwright/test';
 import type { WorkspaceSnapshot } from '../../src/lib/workspace-types';
+import { PAGE_SIZE } from '../../src/lib/pagination.mjs';
 import { FREE_STORAGE_LIMIT } from '../../src/lib/cloud-types';
 type FileRecord = {
   id: string;
@@ -50,7 +51,7 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
     } else
       await route.fulfill({ body: file.bytes || Buffer.alloc(0), contentType: 'application/pdf' });
   });
-  await context.route('**/api/workspaces{,/**}', async (route) => {
+  await context.route('**/api/workspaces{,?**,/**}', async (route) => {
     const request = route.request();
     expect(request.headers()['x-folio-workspace']).toBe('1');
     const id = new URL(request.url()).pathname.split('/')[3];
@@ -96,11 +97,28 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
         expires_at: file.expiresAt,
         guest: true,
       }));
+      const query = new URL(request.url()).searchParams;
+      const page = Number(query.get('page') || 1),
+        pageSize = Number(query.get('pageSize') || PAGE_SIZE),
+        search = query.get('q') || '',
+        sort = query.get('sort') || 'recent';
+      const filtered = files
+        .filter((file) => file.name.toLowerCase().includes(search.toLowerCase()))
+        .sort(
+          (a, b) =>
+            (sort === 'name'
+              ? a.name.localeCompare(b.name)
+              : sort === 'size'
+                ? b.size - a.size
+                : Date.parse(b.updated_at) - Date.parse(a.updated_at)) || a.id.localeCompare(b.id),
+        );
       const used = files.reduce((total, file) => total + file.size + file.workspace_size, 0);
       await route.fulfill({
         headers: sessionHeaders,
         json: {
-          files,
+          files: filtered.slice((page - 1) * pageSize, page * pageSize),
+          total: filtered.length,
+          readyCount: files.filter((file) => file.status === 'ready').length,
           storage: {
             used,
             limit: FREE_STORAGE_LIMIT,

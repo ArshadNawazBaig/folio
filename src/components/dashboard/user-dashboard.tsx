@@ -30,6 +30,7 @@ import {
   type StorageUsage,
   type CloudDocument,
 } from '@/lib/cloud-types';
+import { PAGE_SIZE, pageCount } from '@/lib/pagination.mjs';
 import { formatBytes } from '@/lib/utils';
 import { CloudFiles, CloudFileSkeleton } from './cloud-files';
 import { DashboardBilling, DashboardSettings } from './account-settings';
@@ -45,11 +46,11 @@ const navigation = [
 type Props = { view: DashboardView; adminRequired: boolean; checkoutSuccess: boolean };
 export function UserDashboard(props: Props) {
   const { user, loading } = useAccount();
-  if (loading && !user) return <DashboardLoading view={props.view} />;
+  if (loading && !user) return <DashboardLoading />;
   // Reset every private view and in-flight result when the account changes.
   return <DashboardContent key={user?.id || 'guest'} {...props} />;
 }
-function DashboardLoading({ view }: { view: DashboardView }) {
+function DashboardLoading() {
   return (
     <div className={s.dashboard} aria-busy="true">
       <aside className={s.sidebar}>
@@ -98,7 +99,7 @@ function DashboardLoading({ view }: { view: DashboardView }) {
               </div>
               <Skeleton width={116} height={42} radius={9} />
             </div>
-            <CloudFileSkeleton compact={view === 'overview'} />
+            <CloudFileSkeleton />
           </section>
         </main>
       </div>
@@ -122,6 +123,20 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
   }, [view]);
   const router = useRouter();
   const [files, setFiles] = useState<CloudDocument[]>([]);
+  const [filePageSize, setFilePageSize] = useState(PAGE_SIZE);
+  const [filePage, setFilePage] = useState(1),
+    [fileQuery, setFileQuery] = useState(''),
+    [fileSort, setFileSort] = useState('recent');
+  const [fileTotal, setFileTotal] = useState(0),
+    [readyCount, setReadyCount] = useState(0);
+  const fileKey = [guest, filePage, fileQuery, fileSort, filePageSize].join('|');
+  const [loadedFileKey, setLoadedFileKey] = useState('');
+  const fileGeneration = useRef(0);
+  useEffect(() => {
+    setFilePage(1);
+    setFileQuery('');
+    setFileSort('recent');
+  }, [view]);
   const [storage, setStorage] = useState<StorageUsage | null>(null);
   const [loading, setLoading] = useState(true);
   const [fileError, setFileError] = useState('');
@@ -130,6 +145,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
   const [signingOut, setSigningOut] = useState(false);
   const loadFiles = useCallback(
     async (signal?: AbortSignal) => {
+      const current = ++fileGeneration.current;
       setLoading(true);
       setFileError('');
       try {
@@ -145,50 +161,53 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
               'Guest files could not be moved to your account yet. Refresh to retry; browser files remain available until their listed expiry.';
           }
         }
+        const params = new URLSearchParams({
+          page: String(filePage),
+          pageSize: String(filePageSize),
+          q: fileQuery,
+          sort: fileSort,
+        });
         const data = await (
           await (guest
-            ? workspaceRequest('', { signal })
-            : accountFetch('/api/account/files', { signal }))
+            ? workspaceRequest(`?${params}`, { signal })
+            : accountFetch(`/api/account/files?${params}`, {
+                signal,
+                headers: { 'x-folio-workspace': '1' },
+              }))
         ).json();
-        // Monthly libraries can exceed one API page. Load metadata in bounded
-        // batches so files remain searchable and manageable after a downgrade too.
-        if (!guest) {
-          while (typeof data.nextOffset === 'number') {
-            const next = await (
-              await accountFetch(`/api/account/files?offset=${data.nextOffset}`, { signal })
-            ).json();
-            data.files.push(...next.files);
-            data.nextOffset = next.nextOffset;
-          }
-          data.files = [
-            ...new Map<string, CloudDocument>(
-              data.files.map((file: CloudDocument) => [file.id, file]),
-            ).values(),
-          ];
-        }
-        const remaining =
-          !guest && transfer ? await (await workspaceRequest('', { signal })).json() : null;
-        if (!signal?.aborted) {
-          setFiles([...data.files, ...(remaining?.files || [])]);
+        if (!signal?.aborted && current === fileGeneration.current) {
+          setFiles(data.files);
+          const total = data.total ?? data.files.length;
+          setFileTotal(total);
+          setReadyCount(
+            data.readyCount ??
+              data.files.filter((file: CloudDocument) => file.status === 'ready').length,
+          );
+          if (filePage > pageCount(total, filePageSize))
+            setFilePage(pageCount(total, filePageSize));
           setStorage(data.storage || null);
           setTransferNotice(transfer);
         }
       } catch (error) {
-        if (!signal?.aborted)
+        if (!signal?.aborted && current === fileGeneration.current)
           setFileError(error instanceof Error ? error.message : 'Your files could not be loaded.');
       } finally {
-        if (!signal?.aborted) setLoading(false);
+        if (!signal?.aborted && current === fileGeneration.current) {
+          setLoadedFileKey(fileKey);
+          setLoading(false);
+        }
       }
     },
-    [guest],
+    [guest, filePage, fileQuery, fileSort, fileKey, filePageSize],
   );
   useEffect(() => {
     if (!sessionReady) return;
     const controller = new AbortController();
-    void loadFiles(controller.signal);
+    const timer = setTimeout(() => void loadFiles(controller.signal), 180);
     const onFocus = () => void loadFiles(controller.signal);
     window.addEventListener('focus', onFocus);
     return () => {
+      clearTimeout(timer);
       controller.abort();
       window.removeEventListener('focus', onFocus);
     };
@@ -210,7 +229,6 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
     }
   }
   const name = guest ? 'Guest account' : displayName(user?.user_metadata);
-  const ready = files.filter((f) => f.status === 'ready');
   const bytes = storage?.used ?? files.reduce((n, f) => n + f.size + (f.workspace_size || 0), 0);
   const capacity = storage ? storage.limit : access.pro ? PRO_STORAGE_LIMIT : FREE_STORAGE_LIMIT;
   const titles = {
@@ -243,7 +261,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
             >
               <Icon size={18} />
               <span>{label}</span>
-              {id === 'files' && !loading && !fileError && <small>{ready.length}</small>}
+              {id === 'files' && !loading && !fileError && <small>{readyCount}</small>}
             </Link>
           ))}
         </nav>
@@ -378,7 +396,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                       ) : fileError ? (
                         '—'
                       ) : (
-                        ready.length
+                        readyCount
                       )}
                     </strong>
                     <small>In your private cloud</small>
@@ -450,6 +468,24 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
             <CloudFiles
               key={view}
               files={files}
+              pageSize={filePageSize}
+              onPageSizeChange={(size) => {
+                setFilePageSize(size);
+                setFilePage(1);
+              }}
+              page={filePage}
+              total={fileTotal}
+              onPageChange={setFilePage}
+              query={fileQuery}
+              sort={fileSort}
+              onQueryChange={(value) => {
+                setFileQuery(value);
+                setFilePage(1);
+              }}
+              onSortChange={(value) => {
+                setFileSort(value);
+                setFilePage(1);
+              }}
               storage={
                 storage ?? {
                   used: bytes,
@@ -459,7 +495,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                   recovery: [],
                 }
               }
-              loading={loading}
+              loading={loading || loadedFileKey !== fileKey}
               error={fileError}
               refresh={loadFiles}
               compact={view === 'overview'}

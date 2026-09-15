@@ -24,9 +24,9 @@ test('catalog searches and validates actual families, weights and styles', () =>
   const first = searchDocumentFonts();
   assert.ok(first.count > 1800);
   assert.equal(first.fonts[0].id, 'inter');
-  assert.equal(first.fonts.length, 24);
+  assert.equal(first.fonts.length, 10);
   const ids = new Set<string>();
-  for (let page = 0; page < Math.ceil(first.count / 24); page++)
+  for (let page = 0; page < Math.ceil(first.count / 10); page++)
     for (const font of searchDocumentFonts('', page).fonts) ids.add(font.id);
   assert.equal(ids.size, first.count);
   assert.equal(searchDocumentFonts('  PaCiFiCo ').fonts[0].family, 'Pacifico');

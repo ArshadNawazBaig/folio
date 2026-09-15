@@ -44,6 +44,8 @@ import {
   Maximize2,
   Minimize2,
 } from 'lucide-react';
+import { Pagination } from '../pagination';
+import { PAGE_SIZE, pageCount } from '@/lib/pagination.mjs';
 import { accountFetch } from '@/lib/auth-client';
 import {
   blogDraftSchema,
@@ -170,6 +172,9 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
     [schedule, setSchedule] = useState(''),
     [uploading, setUploading] = useState(false),
     [revisions, setRevisions] = useState<BlogRevision[]>([]),
+    [revisionPageSize, setRevisionPageSize] = useState(PAGE_SIZE),
+    [revisionPage, setRevisionPage] = useState(1),
+    [revisionTotal, setRevisionTotal] = useState(0),
     [historyLoading, setHistoryLoading] = useState(false),
     [revision, setRevision] = useState<BlogRevision | null>(null);
   const [, redraw] = useState(0);
@@ -349,12 +354,21 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
       setUploading(false);
     }
   }
-  async function history() {
+  async function history(page = 1, pageSize = revisionPageSize) {
+    setRevisionPage(page);
+    setRevisionPageSize(pageSize);
     setTab('history');
     setHistoryLoading(true);
     try {
-      const data = await (await accountFetch(`/api/admin/blog/${initial.id}/revisions`)).json();
+      const data = await (
+        await accountFetch(
+          `/api/admin/blog/${initial.id}/revisions?page=${page}&pageSize=${pageSize}`,
+        )
+      ).json();
       setRevisions(data.revisions);
+      setRevisionTotal(data.total ?? data.revisions.length);
+      if (page > pageCount(data.total ?? data.revisions.length, pageSize))
+        return await history(pageCount(data.total ?? data.revisions.length, pageSize), pageSize);
     } catch (e) {
       setNotice({
         text: e instanceof Error ? e.message : 'Revisions could not be loaded.',
@@ -906,14 +920,14 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
                   <div className={s.inspectorHeading}>
                     <h2>A little room to go back.</h2>
                     <p>
-                      Your last 30 saved versions. Restoring creates an editable draft; it does not
-                      change the live post.
+                      Your saved versions. Restoring creates an editable draft; it does not change
+                      the live post.
                     </p>
                   </div>
                   {historyLoading ? (
                     <div aria-busy="true">
                       <LoadingLabel>Loading revisions…</LoadingLabel>
-                      {[0, 1, 2].map((i) => (
+                      {Array.from({ length: revisionPageSize }, (_, i) => (
                         <p key={i}>
                           <Skeleton height={50} />
                         </p>
@@ -940,6 +954,15 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
                   ) : (
                     <p className={s.sideNote}>Saved changes will appear here.</p>
                   )}
+                  <Pagination
+                    page={revisionPage}
+                    pageSize={revisionPageSize}
+                    onPageSizeChange={(size) => void history(1, size)}
+                    total={revisionTotal}
+                    onChange={(next) => void history(next)}
+                    disabled={historyLoading}
+                    label="Revision history pagination"
+                  />
                 </>
               )}
             </div>

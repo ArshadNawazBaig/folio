@@ -1,4 +1,6 @@
 'use client';
+import { Pagination } from './pagination';
+import { useRecordPagination } from './use-record-pagination';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowUpRight, Loader2 } from 'lucide-react';
@@ -35,6 +37,8 @@ export function FormTemplates() {
   const [busy, setBusy] = useState('');
   const [category, setCategory] = useState('All templates');
   const [error, setError] = useState('');
+  const matches = templates.filter((t) => category === 'All templates' || t.category === category);
+  const pagination = useRecordPagination(matches.length, category);
   async function open(id: string, title: string) {
     setBusy(id);
     setError('');
@@ -62,43 +66,42 @@ export function FormTemplates() {
         ))}
       </div>
       <div className="template-grid">
-        {templates
-          .filter((t) => category === 'All templates' || t.category === category)
-          .map((t) => (
-            <button
-              className="template-card"
-              key={t.id}
-              disabled={!!busy}
-              onClick={() => open(t.id, t.title)}
-            >
-              <div className={`template-preview ${t.color}`}>
-                <div className="template-paper">
-                  <span>FOLIO / A GOOD START</span>
-                  <h3>{t.heading}</h3>
-                  {['Your name', 'Email address', 'A little more about you'].map((l) => (
-                    <div className="template-field" key={l}>
-                      <span>{l}</span>
-                      <i />
-                    </div>
-                  ))}
-                  <small>MADE FOR THE DETAILS.</small>
-                </div>
+        {matches.slice(pagination.start, pagination.end).map((t) => (
+          <button
+            className="template-card"
+            key={t.id}
+            disabled={!!busy}
+            onClick={() => open(t.id, t.title)}
+          >
+            <div className={`template-preview ${t.color}`}>
+              <div className="template-paper">
+                <span>FOLIO / A GOOD START</span>
+                <h3>{t.heading}</h3>
+                {['Your name', 'Email address', 'A little more about you'].map((l) => (
+                  <div className="template-field" key={l}>
+                    <span>{l}</span>
+                    <i />
+                  </div>
+                ))}
+                <small>MADE FOR THE DETAILS.</small>
               </div>
-              <div className="template-info">
-                <span>{t.category} · Fillable PDF</span>
-                <h3>
-                  {t.title}
-                  {busy === t.id ? (
-                    <Loader2 size={18} className="spin" />
-                  ) : (
-                    <ArrowUpRight size={18} />
-                  )}
-                </h3>
-                <p>{t.subtitle}</p>
-              </div>
-            </button>
-          ))}
+            </div>
+            <div className="template-info">
+              <span>{t.category} · Fillable PDF</span>
+              <h3>
+                {t.title}
+                {busy === t.id ? (
+                  <Loader2 size={18} className="spin" />
+                ) : (
+                  <ArrowUpRight size={18} />
+                )}
+              </h3>
+              <p>{t.subtitle}</p>
+            </div>
+          </button>
+        ))}
       </div>
+      <Pagination {...pagination} disabled={!!busy} label="Templates pagination" />
       {error && (
         <p role="alert" className="error-message">
           {error}

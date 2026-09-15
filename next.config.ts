@@ -17,6 +17,7 @@ const config: NextConfig = {
       './src/lib/pdf-original-fonts.mjs',
       './src/lib/document-fonts.mjs',
       './src/lib/document-font-registry.mjs',
+      './src/lib/pagination.mjs',
       './src/lib/document-font-catalog.json',
       './src/lib/server/document-fonts.mjs',
       './public/fonts/pdf/*',

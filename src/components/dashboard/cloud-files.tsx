@@ -1,4 +1,5 @@
 'use client';
+import { PAGE_SIZE } from '@/lib/pagination.mjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { exportWorkspacePdf } from '@/lib/editor-text-client';
@@ -27,8 +28,19 @@ import { download, formatBytes } from '@/lib/utils';
 import { LegacyDraftImport } from './legacy-draft-import';
 import { Skeleton, LoadingLabel } from '../skeleton';
 import s from './dashboard.module.css';
+import { Pagination } from '../pagination';
+import { useRecordPagination } from '../use-record-pagination';
 type Props = {
   files: CloudDocument[];
+  page: number;
+  pageSize: number;
+  onPageSizeChange: (size: number) => void;
+  total: number;
+  onPageChange: (page: number) => void;
+  query: string;
+  sort: string;
+  onQueryChange: (query: string) => void;
+  onSortChange: (sort: string) => void;
   storage: StorageUsage;
   loading: boolean;
   error: string;
@@ -45,6 +57,15 @@ const recoveryNames: Record<RecoverySlot, string> = {
 };
 export function CloudFiles({
   files,
+  page,
+  pageSize,
+  onPageSizeChange,
+  total,
+  onPageChange,
+  query,
+  sort,
+  onQueryChange,
+  onSortChange,
   storage,
   loading,
   error,
@@ -55,6 +76,8 @@ export function CloudFiles({
   const { user, access } = useAccount();
   const router = useRouter();
   const userId = user?.id;
+  const recoveryDrafts = storage.recovery.filter((draft) => draft.slot in recoveryNames);
+  const recoveryPagination = useRecordPagination(recoveryDrafts.length);
   const [hasWorkspace, setHasWorkspace] = useState(false);
   useEffect(() => {
     let active = true;
@@ -71,8 +94,6 @@ export function CloudFiles({
       active = false;
     };
   }, [userId, loading]);
-  const [query, setQuery] = useState('');
-  const [sort, setSort] = useState('recent');
   const [busy, setBusy] = useState('');
   const [actionError, setActionError] = useState('');
   const [notice, setNotice] = useState('');
@@ -116,16 +137,7 @@ export function CloudFiles({
       guest ? 'PDF saved to your guest workspace for 24 hours.' : 'PDF saved to your account.',
     );
   }
-  const ordered = files
-    .filter((f) => f.name.toLowerCase().includes(query.toLowerCase()))
-    .sort((a, b) =>
-      sort === 'name'
-        ? a.name.localeCompare(b.name)
-        : sort === 'size'
-          ? b.size - a.size
-          : Date.parse(b.updated_at) - Date.parse(a.updated_at),
-    );
-  const visible = compact ? ordered.filter((f) => f.status === 'ready').slice(0, 4) : ordered;
+  const visible = files;
   return (
     <section className={s.fileSection}>
       <div className={s.sectionHeading}>
@@ -209,14 +221,14 @@ export function CloudFiles({
                 aria-label="Search cloud files"
                 placeholder="Find a document…"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => onQueryChange(e.target.value)}
               />
             </label>
             <Dropdown
               label="Sort files"
               hideLabel
               value={sort}
-              onValueChange={setSort}
+              onValueChange={onSortChange}
               options={[
                 { value: 'recent', label: 'Recently saved' },
                 { value: 'name', label: 'Name A–Z' },
@@ -255,8 +267,8 @@ export function CloudFiles({
         </div>
       )}
       <>
-        {loading && !files.length ? (
-          <CloudFileSkeleton compact={compact} />
+        {loading ? (
+          <CloudFileSkeleton count={pageSize} />
         ) : !error && !visible.length ? (
           <div className={s.empty}>
             <span className={s.emptyIcon}>
@@ -416,49 +428,63 @@ export function CloudFiles({
           )
         )}
       </>
+      {!error && (
+        <Pagination
+          pageSize={pageSize}
+          onPageSizeChange={onPageSizeChange}
+          label="Files pagination"
+          page={page}
+          total={total}
+          onChange={onPageChange}
+          disabled={loading || !!busy}
+        />
+      )}
       {!compact && !guest && <LegacyDraftImport refresh={refresh} />}
       {!compact && !!storage.recovery.length && (
         <div className={s.recoveryDrafts}>
           <h3>Recovery drafts</h3>
           <p>Saved work from other tools also counts toward your private storage.</p>
-          {storage.recovery
-            .filter((draft) => draft.slot in recoveryNames)
-            .map((draft) => {
-              const slot = draft.slot as RecoverySlot;
-              const label = recoveryNames[slot];
-              return (
-                <div className={s.fileRow} key={slot}>
-                  <span className={s.fileIcon}>
-                    <FileText size={23} />
-                  </span>
-                  <div className={s.fileName}>
-                    <strong>{label}</strong>
-                    <small>{formatBytes(draft.size)}</small>
-                  </div>
-                  <button
-                    className="icon-button"
-                    disabled={!!busy}
-                    aria-label={`Delete ${label}`}
-                    onClick={() => {
-                      setSelected({
-                        id: slot,
-                        recoverySlot: slot,
-                        name: label,
-                        size: draft.size,
-                        status: 'ready',
-                        created_at: '',
-                        updated_at: '',
-                      });
-                      setAction('delete');
-                      setActionError('');
-                      dialog.current?.showModal();
-                    }}
-                  >
-                    <Trash2 size={17} />
-                  </button>
+          {recoveryDrafts.slice(recoveryPagination.start, recoveryPagination.end).map((draft) => {
+            const slot = draft.slot as RecoverySlot;
+            const label = recoveryNames[slot];
+            return (
+              <div className={s.fileRow} key={slot}>
+                <span className={s.fileIcon}>
+                  <FileText size={23} />
+                </span>
+                <div className={s.fileName}>
+                  <strong>{label}</strong>
+                  <small>{formatBytes(draft.size)}</small>
                 </div>
-              );
-            })}
+                <button
+                  className="icon-button"
+                  disabled={!!busy}
+                  aria-label={`Delete ${label}`}
+                  onClick={() => {
+                    setSelected({
+                      id: slot,
+                      recoverySlot: slot,
+                      name: label,
+                      size: draft.size,
+                      status: 'ready',
+                      created_at: '',
+                      updated_at: '',
+                    });
+                    setAction('delete');
+                    setActionError('');
+                    dialog.current?.showModal();
+                  }}
+                >
+                  <Trash2 size={17} />
+                </button>
+              </div>
+            );
+          })}
+          <Pagination
+            {...recoveryPagination}
+            disabled={!!busy || loading}
+            label="Recovery drafts pagination"
+          />
         </div>
       )}
       <dialog
@@ -558,11 +584,11 @@ export function CloudFiles({
   );
 }
 
-export function CloudFileSkeleton({ compact = false }: { compact?: boolean }) {
+export function CloudFileSkeleton({ count = PAGE_SIZE }: { count?: number }) {
   return (
     <div className={s.fileList} aria-busy="true" data-loading-files="">
       <LoadingLabel>Loading your files…</LoadingLabel>
-      {Array.from({ length: compact ? 3 : 5 }, (_, i) => (
+      {Array.from({ length: count }, (_, i) => (
         <div className={s.fileRow} key={i} aria-hidden="true">
           <Skeleton width={36} height={43} radius={6} />
           <div className={s.fileName}>

@@ -12,6 +12,141 @@ const emptyStorage = {
   full: false,
   recovery: [],
 };
+
+test('shared pagination navigates admin records, resets search and adapts to mobile', async ({
+  page,
+}) => {
+  await mockGoogle(page, true);
+  const users = Array.from({ length: 31 }, (_, i) => ({
+    id: `00000000-0000-4000-8000-${String(i + 100).padStart(12, '0')}`,
+    email: `member-${String(i + 1).padStart(2, '0')}@example.test`,
+    created_at: new Date().toISOString(),
+    suspended: false,
+    is_admin: false,
+    grant_until: null,
+  }));
+  await page.route('**/api/admin?**', async (route) => {
+    const params = new URL(route.request().url()).searchParams;
+    const matching = users.filter((user) => user.email.includes(params.get('q') || ''));
+    const pageSize = Number(params.get('pageSize') || 10);
+    const offset = (Number(params.get('page') || 1) - 1) * pageSize;
+    await route.fulfill({
+      json: {
+        catalog: DEFAULT_CATALOG,
+        settings: DEFAULT_SETTINGS,
+        billingReady: false,
+        userDeletionReady: true,
+        users: { total: matching.length, rows: matching.slice(offset, offset + pageSize) },
+        overview: { users: 31, paid: 0, trials: 0, operations: 0, suspended: 0, openTickets: 0 },
+      },
+    });
+  });
+  await page.goto('/admin');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await page.getByRole('button', { name: 'Users', exact: true }).click();
+  const pager = page.getByRole('navigation', { name: 'users pagination' });
+  await expect(pager).toContainText('1–10 of 31 records');
+  await expect(page.locator('tbody tr')).toHaveCount(10);
+  await pager.getByRole('button', { name: 'Next page' }).click();
+  await expect(pager).toContainText('11–20 of 31 records');
+  await expect(page.getByRole('cell', { name: /member-11@example.test/ })).toBeVisible();
+  await pager.getByRole('button', { name: 'Page 4', exact: true }).click();
+  await expect(pager).toContainText('31–31 of 31 records');
+  await expect(page.locator('tbody tr')).toHaveCount(1);
+  await expect(pager.getByRole('button', { name: 'Next page' })).toBeDisabled();
+  await pager.getByRole('combobox', { name: 'Records per page' }).click();
+  await page.getByRole('option', { name: '25 per page', exact: true }).click();
+  await expect(pager).toContainText('1–25 of 31 records');
+  await expect(page.locator('tbody tr')).toHaveCount(25);
+  await pager.getByRole('button', { name: 'Next page' }).click();
+  await expect(pager).toContainText('26–31 of 31 records');
+  await expect(page.locator('tbody tr')).toHaveCount(6);
+  await pager.getByRole('combobox', { name: 'Records per page' }).click();
+  await page.getByRole('option', { name: '10 per page', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Search users' }).fill('member-01');
+  await expect(pager).toContainText('1–1 of 1 record');
+  await expect(pager.getByRole('button', { name: 'Previous page' })).toBeDisabled();
+  await page.getByRole('textbox', { name: 'Search users' }).fill('');
+  await expect(pager).toContainText('1–10 of 31 records');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(pager.getByText('Page 1 of 4', { exact: true })).toBeVisible();
+  await pager.getByRole('button', { name: 'Next page' }).click();
+  await expect(pager).toContainText('11–20 of 31 records');
+  await pager.getByRole('combobox', { name: 'Records per page' }).click();
+  await page.getByRole('option', { name: '50 per page', exact: true }).click();
+  await expect(pager).toContainText('1–31 of 31 records');
+  await expect(page.locator('tbody tr')).toHaveCount(31);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(
+    (await new AxeBuilder({ page }).include('nav[aria-label="users pagination"]').analyze())
+      .violations,
+  ).toEqual([]);
+  await pager.screenshot({ path: '/tmp/folio-pagination-mobile.png' });
+});
+
+test('support conversations and replies page independently in groups of ten', async ({ page }) => {
+  await mockGoogle(page);
+  const tickets = Array.from({ length: 21 }, (_, i) => ({
+    id: `00000000-0000-4000-8000-${String(i + 100).padStart(12, '0')}`,
+    subject: `Question ${i + 1}`,
+    message: 'Original inquiry',
+    status: 'open',
+    updated_at: new Date().toISOString(),
+  }));
+  const messages = Array.from({ length: 23 }, (_, i) => ({
+    id: String(i),
+    message: `Reply ${i + 1}`,
+    staff: true,
+    created_at: new Date().toISOString(),
+  }));
+  await page.route('**/api/support{,?**}', async (route) => {
+    const params = new URL(route.request().url()).searchParams;
+    const pageSize = Number(params.get('pageSize') || 10);
+    const offset = (Number(params.get('page') || 1) - 1) * pageSize;
+    const messagePageSize = Number(params.get('messagePageSize') || 10);
+    const replyOffset = (Number(params.get('messagePage') || 1) - 1) * messagePageSize;
+    const ticket = tickets.find((item) => item.id === params.get('ticket'));
+    await route.fulfill({
+      json: {
+        tickets: tickets.slice(offset, offset + pageSize),
+        total: tickets.length,
+        ticket,
+        messages: ticket ? messages.slice(replyOffset, replyOffset + messagePageSize) : [],
+        messageTotal: ticket ? messages.length : 0,
+      },
+    });
+  });
+  await page.goto('/account');
+  await page.getByRole('button', { name: 'Continue with Google' }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.goto('/support');
+  const pager = page.getByRole('navigation', { name: 'Conversations pagination' });
+  await expect(pager).toContainText('1–10 of 21 records');
+  await pager.getByRole('button', { name: 'Next page' }).click();
+  await expect(pager).toContainText('11–20 of 21 records');
+  await page.getByRole('button', { name: /^Question 11 / }).click();
+  const replies = page.getByRole('navigation', { name: 'Replies pagination' });
+  await expect(replies).toContainText('1–10 of 23 records');
+  await replies.getByRole('button', { name: 'Next page' }).click();
+  await expect(replies).toContainText('11–20 of 23 records');
+  await expect(page.locator('.support-thread')).toContainText('Reply 11');
+  await expect(pager).toContainText('11–20 of 21 records');
+  await expect(page.locator('.support-thread article')).toHaveCount(11); // Original inquiry + ten replies.
+  await pager.getByRole('button', { name: 'Next page' }).click();
+  await expect(pager).toContainText('21–21 of 21 records');
+  await expect(replies).toHaveCount(0);
+  await pager.getByRole('combobox', { name: 'Records per page' }).click();
+  await page.getByRole('option', { name: '25 per page', exact: true }).click();
+  await expect(pager).toContainText('1–21 of 21 records');
+  await page.getByRole('button', { name: /^Question 1 / }).click();
+  await replies.getByRole('combobox', { name: 'Records per page' }).click();
+  await page.getByRole('option', { name: '50 per page', exact: true }).click();
+  await expect(replies).toContainText('1–23 of 23 records');
+  await expect(page.locator('.support-thread article')).toHaveCount(24);
+  await expect(pager.getByRole('combobox', { name: 'Records per page' })).toContainText(
+    '25 per page',
+  );
+});
 test('Google creates a PKCE session, uses the customer account, and signs out', async ({
   page,
 }) => {
@@ -47,7 +182,7 @@ test('private storage shows plan capacity, blocks full uploads and frees space a
     fileBytes = 80 * MB,
     recoveryBytes = 20 * MB,
     uploads = 0;
-  await page.route('**/api/account/files', async (route) => {
+  await page.route('**/api/account/files{,?**}', async (route) => {
     if (route.request().method() === 'POST') {
       uploads++;
       throw new Error('Over-limit uploads must not be sent');
@@ -157,11 +292,17 @@ test('monthly storage shows unlimited usage, accepts uploads and lists files bey
       await route.fulfill({ status: 503, json: { error: 'Upload received for verification.' } });
       return;
     }
-    const offset = Number(new URL(route.request().url()).searchParams.get('offset') || 0);
+    const params = new URL(route.request().url()).searchParams;
+    const pageSize = Number(params.get('pageSize') || 10);
+    const offset = (Number(params.get('page') || 1) - 1) * pageSize;
+    const matching = stored.filter((file) =>
+      file.name.toLowerCase().includes((params.get('q') || '').toLowerCase()),
+    );
     await route.fulfill({
       json: {
-        files: stored.slice(offset, offset + 200),
-        nextOffset: offset === 0 ? 200 : null,
+        files: matching.slice(offset, offset + pageSize),
+        total: matching.length,
+        readyCount: stored.length,
         storage: {
           limit: null,
           available: null,
@@ -176,9 +317,32 @@ test('monthly storage shows unlimited usage, accepts uploads and lists files bey
   await page.getByRole('button', { name: 'Continue with Google' }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
   await page.getByRole('link', { name: 'My files', exact: false }).first().click();
+  await expect(page).toHaveURL(/\/dashboard\?view=files$/);
+  await expect(page.getByRole('link', { name: /^Monthly document \d+\.pdf$/ })).toHaveCount(10);
+  await page
+    .getByRole('navigation', { name: 'Files pagination' })
+    .getByRole('button', { name: 'Page 21', exact: true })
+    .click();
   await expect(
     page.getByRole('link', { name: 'Monthly document 201.pdf', exact: true }),
   ).toBeVisible();
+  const filePager = page.getByRole('navigation', { name: 'Files pagination' });
+  await filePager.getByRole('combobox', { name: 'Records per page' }).click();
+  await page.getByRole('option', { name: '100 per page', exact: true }).click();
+  await expect(filePager).toContainText('1–100 of 201 records');
+  await expect(page.getByRole('link', { name: /^Monthly document \d+\.pdf$/ })).toHaveCount(100);
+  await filePager.getByRole('button', { name: 'Next page' }).click();
+  await expect(filePager).toContainText('101–200 of 201 records');
+  await expect(
+    page.getByRole('link', { name: 'Monthly document 101.pdf', exact: true }),
+  ).toBeVisible();
+  await page.getByLabel('Search cloud files').fill('Monthly document 1.pdf');
+  await expect(
+    page.getByRole('link', { name: 'Monthly document 1.pdf', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Files pagination' })).toContainText(
+    '1–1 of 1 record',
+  );
   await expect(
     page.getByText('Up to 50 MB per PDF · Unlimited private storage', { exact: true }),
   ).toBeVisible();
@@ -214,7 +378,7 @@ test('file skeletons match rows, respect reduced motion and settle on success or
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }));
-  await page.route('**/api/account/files', async (route) => {
+  await page.route('**/api/account/files{,?**}', async (route) => {
     await gate.pending;
     await route.fulfill(
       fail
@@ -264,9 +428,10 @@ test('file skeletons match rows, respect reduced motion and settle on success or
     expect(Math.abs(before!.height - after!.height)).toBeLessThanOrEqual(1);
     gate = loadingGate();
     await page.getByRole('button', { name: 'Refresh files' }).click();
-    await expect(first).toBeVisible();
-    await expect(placeholders).toHaveCount(0);
+    await expect(placeholders).toBeVisible();
+    await expect(first).toHaveCount(0);
     gate.release();
+    await expect(placeholders).toHaveCount(0);
     gate = loadingGate();
     fail = true;
     await page.reload();
@@ -405,7 +570,7 @@ test('admin skeletons replace unknown metrics and directory records while reques
       fullPage: true,
     });
     await page.getByRole('button', { name: 'Users', exact: true }).click();
-    await expect(page.locator('.admin-table-scroll tbody tr')).toHaveCount(5);
+    await expect(page.locator('.admin-table-scroll tbody tr')).toHaveCount(10);
     await expect(page.getByText('No users to display.')).toHaveCount(0);
     await page.screenshot({
       path: '/tmp/folio-skeleton-admin-users.png',
@@ -977,14 +1142,19 @@ test('cloud library uploads, renames, downloads and opens real PDF bytes', async
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   });
-  await page.route('**/api/account/files', async (route) => {
+  await page.route('**/api/account/files{,?**}', async (route) => {
     if (route.request().method() === 'POST') {
       const body = route.request().postDataJSON();
       expect(body.size).toBe(bytes.length);
       name = body.name;
       await route.fulfill({ status: 201, json: { id, path: `account/${id}.pdf` } });
-    } else
-      await route.fulfill({ json: { files: uploaded ? [record()] : [], storage: emptyStorage } });
+    } else {
+      const q = new URL(route.request().url()).searchParams.get('q') || '';
+      const files = uploaded && name.toLowerCase().includes(q.toLowerCase()) ? [record()] : [];
+      await route.fulfill({
+        json: { files, total: files.length, readyCount: uploaded ? 1 : 0, storage: emptyStorage },
+      });
+    }
   });
   await page.route(`**/api/account/files/${id}`, async (route) => {
     if (route.request().method() === 'PATCH') {
@@ -1008,7 +1178,7 @@ test('cloud library uploads, renames, downloads and opens real PDF bytes', async
       await route.fulfill({ json: { Key: `folio-documents/account/${id}.pdf` } });
     } else await route.fulfill({ body: bytes, contentType: 'application/pdf' });
   });
-  await page.goto('/dashboard?view=files');
+  await page.goto('/account?next=%2Fdashboard%3Fview%3Dfiles');
   await page.getByRole('button', { name: 'Continue with Google' }).click();
   await expect(page).toHaveURL(/\/dashboard\?view=files$/);
   await page
@@ -1057,7 +1227,7 @@ test('editor cloud saves and browser draft imports include the finished PDF edit
   await mockGoogle(page);
   const uploaded: Uint8Array[] = [];
   let failSave = false;
-  await page.route('**/api/account/files', async (route) => {
+  await page.route('**/api/account/files{,?**}', async (route) => {
     if (route.request().method() === 'POST') {
       if (failSave) {
         await route.fulfill({ status: 503, json: { error: 'Storage temporarily unavailable.' } });
@@ -1293,7 +1463,7 @@ test('inline text workspace saves privately, restores annotations and only expor
       },
     }),
   );
-  await page.route('**/api/account/files', (route) =>
+  await page.route('**/api/account/files{,?**}', (route) =>
     route.fulfill({
       json: {
         files: [...workspaceStorage.records.values()].map((file) => ({

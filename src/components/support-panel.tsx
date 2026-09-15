@@ -3,13 +3,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Inbox, MessageSquare, RefreshCw } from 'lucide-react';
 import { useAccount } from './account-provider';
+import { Pagination } from './pagination';
+import { PAGE_SIZE, pageCount } from '@/lib/pagination.mjs';
 import { accountFetch } from '@/lib/auth-client';
 import type { SupportTicket, SupportMessage } from '@/lib/platform';
 import { TicketListSkeleton, ThreadSkeleton } from './skeleton';
 export function SupportPanel() {
   const { user, loading: accountLoading } = useAccount();
   const [loading, setLoading] = useState(true);
-  const [messagesFor, setMessagesFor] = useState('');
   const generation = useRef(0);
   const [name, setName] = useState(''),
     [email, setEmail] = useState(''),
@@ -19,6 +20,13 @@ export function SupportPanel() {
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false),
     [receipt, setReceipt] = useState('');
+  const [pageSize, setPageSize] = useState(PAGE_SIZE),
+    [messagePageSize, setMessagePageSize] = useState(PAGE_SIZE);
+  const [page, setPage] = useState(1),
+    [total, setTotal] = useState(0);
+  const [messagePage, setMessagePage] = useState(1),
+    [messageTotal, setMessageTotal] = useState(0);
+  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
   const [tickets, setTickets] = useState<SupportTicket[]>([]),
     [selected, setSelected] = useState(''),
     [messages, setMessages] = useState<SupportMessage[]>([]),
@@ -34,19 +42,28 @@ export function SupportPanel() {
     setLoading(true);
     try {
       const data = await (
-        await accountFetch(`/api/support${selected ? `?ticket=${selected}` : ''}`)
+        await accountFetch(
+          `/api/support?${new URLSearchParams({ page: String(page), pageSize: String(pageSize), messagePageSize: String(messagePageSize), messagePage: String(messagePage), ...(selected ? { ticket: selected } : {}) })}`,
+        )
       ).json();
       if (current !== generation.current) return;
       setTickets(data.tickets);
+      setSelectedTicket(data.ticket || null);
+      const nextTotal = data.total ?? data.tickets.length;
+      const nextMessageTotal = data.messageTotal ?? data.messages.length;
+      setTotal(nextTotal);
+      setMessageTotal(nextMessageTotal);
+      if (page > pageCount(nextTotal, pageSize)) setPage(pageCount(nextTotal, pageSize));
+      if (messagePage > pageCount(nextMessageTotal, messagePageSize))
+        setMessagePage(pageCount(nextMessageTotal, messagePageSize));
       setMessages(data.messages);
-      setMessagesFor(selected);
     } catch (e) {
       if (current === generation.current)
         setError(e instanceof Error ? e.message : 'Your inquiries could not be loaded.');
     } finally {
       if (current === generation.current) setLoading(false);
     }
-  }, [user, selected]);
+  }, [user, selected, page, messagePage, pageSize, messagePageSize]);
   useEffect(() => {
     if (user?.email) setEmail(user.email);
     const profileName = user?.user_metadata.full_name || user?.user_metadata.name;
@@ -63,7 +80,9 @@ export function SupportPanel() {
     setTickets([]);
     setMessages([]);
     setSelected('');
-    setMessagesFor('');
+    setSelectedTicket(null);
+    setPage(1);
+    setMessagePage(1);
   }, [user?.id]);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -102,14 +121,15 @@ export function SupportPanel() {
         body: JSON.stringify({ ticket: selected, message: reply }),
       });
       setReply('');
-      await load();
+      if (messagePage !== 1) setMessagePage(1);
+      else await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Your reply could not be sent.');
     } finally {
       setBusy(false);
     }
   }
-  const ticket = tickets.find((t) => t.id === selected);
+  const ticket = selected ? selectedTicket || tickets.find((t) => t.id === selected) : null;
   return (
     <>
       <div className="support-grid">
@@ -215,7 +235,7 @@ export function SupportPanel() {
             </button>
           </div>
           {(accountLoading && !user) || (loading && !tickets.length) ? (
-            <TicketListSkeleton />
+            <TicketListSkeleton count={pageSize} />
           ) : !user ? (
             <div className="admin-empty">
               <Inbox size={27} />
@@ -238,6 +258,8 @@ export function SupportPanel() {
                   onClick={() => {
                     if (selected === t.id) return;
                     setSelected(t.id);
+                    setSelectedTicket(t);
+                    setMessagePage(1);
                     setLoading(true);
                     setMessages([]);
                     setReply('');
@@ -251,11 +273,30 @@ export function SupportPanel() {
               ))}
             </div>
           )}
+          {user && (
+            <Pagination
+              page={page}
+              pageSize={pageSize}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setPage(1);
+              }}
+              total={total}
+              onChange={(next) => {
+                setPage(next);
+                setSelected('');
+                setSelectedTicket(null);
+                setMessagePage(1);
+              }}
+              disabled={loading || busy}
+              label="Conversations pagination"
+            />
+          )}
           {ticket && (
             <>
               <h3>{ticket.subject}</h3>
-              {loading && messagesFor !== selected ? (
-                <ThreadSkeleton />
+              {loading ? (
+                <ThreadSkeleton count={messagePageSize} />
               ) : (
                 <div className="support-thread">
                   <article>
@@ -271,6 +312,18 @@ export function SupportPanel() {
                   ))}
                 </div>
               )}
+              <Pagination
+                page={messagePage}
+                pageSize={messagePageSize}
+                onPageSizeChange={(size) => {
+                  setMessagePageSize(size);
+                  setMessagePage(1);
+                }}
+                total={messageTotal}
+                onChange={setMessagePage}
+                disabled={loading || busy}
+                label="Replies pagination"
+              />
               <form onSubmit={postReply}>
                 <label>
                   Add a reply

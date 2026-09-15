@@ -100,13 +100,13 @@ export async function mockGoogle(page: Page | BrowserContext, admin = false, fai
       },
     });
   });
-  await page.route('**/api/account/files', (route) =>
+  await page.route('**/api/account/files{,?**}', (route) =>
     route.fulfill({ json: { files: [], storage: emptyStorage } }),
   );
   await page.route('**/api/account/billing', (route) =>
     route.fulfill({ json: { hasCustomer: false, subscription: null } }),
   );
-  await page.route('**/api/support', (route) =>
+  await page.route('**/api/support{,?**}', (route) =>
     route.fulfill({ json: { tickets: [], messages: [] } }),
   );
   await page.route('**/api/admin?**', (route) =>
