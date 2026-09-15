@@ -25,17 +25,22 @@ test('long pages stay sharp after editing, zooming and refreshing', async ({ pag
   await input.fill('Updated long receipt');
   await input.press('Enter');
   const preview = page.locator('.inline-pdf-preview');
-  const sections = preview.locator('img');
+  const sections = preview.locator('img, canvas');
   async function sharp() {
     await expect(page.locator('.inline-text-status')).toHaveText('Page preview updated.');
     await expect
       .poll(async () =>
         sections.evaluateAll(
           (images) =>
-            images.length > 1 &&
+            images.length > 0 &&
             images.every((element) => {
-              const img = element as HTMLImageElement;
-              return img.complete && img.naturalWidth >= img.getBoundingClientRect().width * 2;
+              const pixels =
+                element instanceof HTMLCanvasElement
+                  ? element.width
+                  : (element as HTMLImageElement).complete
+                    ? (element as HTMLImageElement).naturalWidth
+                    : 0;
+              return pixels >= element.getBoundingClientRect().width * 2;
             }),
         ),
       )
@@ -47,9 +52,14 @@ test('long pages stay sharp after editing, zooming and refreshing', async ({ pag
       }),
     );
     for (let i = 1; i < geometry.length; i++)
-      expect(Math.abs(geometry[i].top - geometry[i - 1].bottom)).toBeLessThan(0.1);
+      expect(geometry[i].top).toBeGreaterThanOrEqual(geometry[i - 1].bottom - 0.1);
     const bounds = await preview.boundingBox();
-    expect(geometry.at(-1)!.bottom - geometry[0].top).toBeCloseTo(bounds!.height, 0);
+    expect(
+      geometry.reduce((total, section) => total + section.bottom - section.top, 0),
+    ).toBeLessThan(bounds!.height / 4);
+    // The untouched page remains visible while high resolution edited strips cover its old ink.
+    await expect(preview).toHaveAttribute('data-partial', 'true');
+    await expect(page.locator('.editable-page > .pdf-canvas')).toBeVisible();
   }
   await sharp();
   await page.screenshot({ path: testInfo.outputPath('long-page-edited.png') });

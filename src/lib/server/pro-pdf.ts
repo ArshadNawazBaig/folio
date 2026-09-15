@@ -16,6 +16,7 @@ const edit = z
     font: z.custom<TextFont>((value) => value === 'original' || isDocumentFont(value)),
     size: z.number().refine(isPdfTextSize, 'Choose a valid positive text size.'),
     color: z.string().regex(/^#[\da-f]{6}$/i),
+    preservePaint: z.boolean().optional(),
     offset: z
       .object({
         x: z.number().finite().min(-100000).max(100000),
@@ -35,6 +36,7 @@ export const proJob = z.discriminatedUnion('operation', [
     .object({
       operation: z.literal('preview'),
       pixelWidth: z.number().int().min(1).max(MAX_PREVIEW_WIDTH).optional(),
+      partial: z.boolean().optional(),
       changes: z.array(edit).max(5000),
       page: z.number().int().min(0).max(99),
       rotation: z.union([z.literal(0), z.literal(90), z.literal(180), z.literal(270)]).optional(),

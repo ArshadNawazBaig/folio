@@ -1,6 +1,7 @@
 import { init } from '@embedpdf/pdfium';
 import { processTextPdf } from '../lib/pdf-text-engine.mjs';
 import { documentFontUrl } from '../lib/document-fonts.mjs';
+import type { InteractiveTextImage, TextInspection } from '../lib/pro-types';
 
 const engine = (async () => {
   if (typeof OffscreenCanvas === 'undefined') throw new Error('Browser previews are unavailable.');
@@ -20,6 +21,7 @@ void engine.then(
 );
 const platform = {
   allowExport: false,
+  transferPixels: true,
   engine: () => engine,
   async loadFont(face: { google?: boolean; name: string; url?: string }) {
     const response = await fetch(face.google ? documentFontUrl(face.name) : face.url!, {
@@ -48,7 +50,9 @@ const platform = {
   },
 };
 let source: Uint8Array | null = null;
-let pending: { id: number; job: object } | null = null;
+type WorkerJob = { operation: 'inspect'; page: number } | { operation: 'preview' };
+let pending: { id: number; job: WorkerJob; background?: boolean } | null = null;
+const inspections = new Map<number, TextInspection>();
 let running = false;
 async function work() {
   if (running) return;
@@ -59,8 +63,17 @@ async function work() {
       pending = null;
       try {
         if (!source) throw new Error('The document is unavailable.');
-        const result = await processTextPdf(source, request.job, platform);
-        self.postMessage({ id: request.id, result });
+        const result =
+          (request.job.operation === 'inspect' && inspections.get(request.job.page)) ||
+          ((await processTextPdf(source, request.job, platform)) as
+            InteractiveTextImage | TextInspection);
+        if (request.job.operation === 'inspect') {
+          inspections.set(request.job.page, result as TextInspection);
+          if (inspections.size > 4) inspections.delete(inspections.keys().next().value!);
+        }
+        const transfer =
+          'pixels' in result ? result.pixels.map((tile) => tile.data.buffer as ArrayBuffer) : [];
+        self.postMessage({ id: request.id, result }, { transfer });
       } catch (error) {
         self.postMessage({
           id: request.id,
@@ -80,16 +93,28 @@ self.onmessage = (event) => {
       source = message.bytes;
   } else if (message.type === 'cancel') {
     if (pending?.id === message.id) pending = null;
-  } else if (message.type === 'preview') {
-    if (message.job?.operation !== 'preview') {
+  } else if (message.type === 'job') {
+    if (
+      message.job?.operation !== 'preview' &&
+      !(
+        message.job?.operation === 'inspect' &&
+        Number.isInteger(message.job.page) &&
+        message.job.page >= 0 &&
+        message.job.page < 100
+      )
+    ) {
       self.postMessage({
         id: message.id,
         error: 'Use the download action to export a finished PDF.',
       });
       return;
     }
+    if (message.background && pending && !pending.background) {
+      self.postMessage({ id: message.id, error: 'Preview superseded.' });
+      return;
+    }
     if (pending) self.postMessage({ id: pending.id, error: 'Preview superseded.' });
-    pending = { id: message.id, job: message.job };
+    pending = { id: message.id, job: message.job, background: message.background };
     void work();
   }
 };

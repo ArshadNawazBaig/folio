@@ -3537,7 +3537,7 @@ dialog::backdrop {
   pointer-events: none;
   z-index: 0;
 }
-.editable-page:has(> .inline-pdf-preview) > .pdf-canvas,
+.editable-page:has(> .inline-pdf-preview:not([data-partial])) > .pdf-canvas,
 .editable-page:has(> .inline-preview-loading) > .pdf-canvas {
   visibility: hidden;
 }
@@ -3621,7 +3621,8 @@ dialog::backdrop {
   letter-spacing: normal;
   box-sizing: content-box;
 }
-.inline-text-input {
+.inline-text-input,
+.inline-text-input:focus-visible {
   pointer-events: auto;
   outline: 1px solid #708d58;
   outline-offset: 3px;
@@ -3668,7 +3669,8 @@ dialog::backdrop {
   margin-left: 8px;
   pointer-events: auto;
 }
-.inline-annotation-input {
+.inline-annotation-input,
+.inline-annotation-input:focus-visible {
   width: 100%;
   height: 100%;
   min-height: 1.25em;
@@ -3901,6 +3903,42 @@ dialog::backdrop {
   font-size: 17px;
   letter-spacing: -0.5px;
   margin: 0 0 13px;
+}
+.properties-content > .font-picker {
+  margin-bottom: 15px;
+}
+.properties-content .font-picker .dropdown-label {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+}
+.properties-content label:has(> input[type='color']) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.properties-content label > input[type='color'] {
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  padding: 5px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  cursor: pointer;
+}
+.properties-content label > input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.properties-content label > input[type='color']::-webkit-color-swatch {
+  border: 0;
+  border-radius: 3px;
+}
+.properties-content label > input[type='color']::-moz-color-swatch {
+  border: 0;
+  border-radius: 3px;
 }
 .panel-description {
   font-size: 10px;
@@ -5764,7 +5802,8 @@ dialog::backdrop {
   .properties-content h2 {
     font-size: 18px;
   }
-  .properties-content label {
+  .properties-content label,
+  .properties-content .font-picker .dropdown-label {
     font-size: 11px;
   }
   .properties-content input,

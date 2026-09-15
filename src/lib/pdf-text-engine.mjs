@@ -3,6 +3,13 @@ import { isPdfTextSize } from './pdf-text-size.mjs';
 import { isPdfTextOffset, moveTextMatrix } from './pdf-text-position.mjs';
 import { pdfPreviewLayout } from './pdf-preview.mjs';
 import {
+  sourcePaints,
+  markedPaint,
+  paintColor,
+  movedPaint,
+  drawGradientText,
+} from './pdf-text-paint.mjs';
+import {
   completeOriginalFont,
   matchingOriginalFont,
   originalFontWeight,
@@ -46,6 +53,22 @@ export async function processTextPdf(bytes, job, platform) {
     return ptr;
   };
   const free = (ptr) => heap.wasmExports.free(ptr);
+  const objectBounds = (object) => {
+    const ptr = alloc(16);
+    try {
+      if (!api.FPDFPageObj_GetBounds(object, ptr, ptr + 4, ptr + 8, ptr + 12)) return null;
+      return [0, 4, 8, 12].map((v) => heap.getValue(ptr + v, 'float'));
+    } finally {
+      free(ptr);
+    }
+  };
+  const dirtyBounds = [];
+  const dirty = (object, p) => {
+    if (job.operation === 'preview' && job.partial === true && p === job.page) {
+      const bounds = objectBounds(object);
+      if (bounds) dirtyBounds.push(bounds);
+    }
+  };
   const source = alloc(bytes.length);
   heap.HEAPU8.set(bytes, source);
   const doc = api.FPDF_LoadMemDocument(source, bytes.length, '');
@@ -259,15 +282,78 @@ export async function processTextPdf(bytes, job, platform) {
           free(textPtr);
           if (!text.trim()) continue;
           const id = `${p}:${i}`;
-          const change = changes.get(id);
+          let change = changes.get(id);
           if (change && text !== change.original)
             throw new Error(
               'The PDF changed since it was opened. Reopen the original and try again.',
             );
+          let painted = null;
+          const colorPtr = alloc(16);
+          let transparent;
+          try {
+            transparent =
+              api.FPDFPageObj_GetFillColor(
+                object,
+                colorPtr,
+                colorPtr + 4,
+                colorPtr + 8,
+                colorPtr + 12,
+              ) && heap.getValue(colorPtr + 12, 'i32') === 0;
+          } finally {
+            free(colorPtr);
+          }
+          if (transparent) {
+            const companion = i > 0 ? api.FPDFPage_GetObject(page, i - 1) : 0;
+            const companionType = companion && api.FPDFPageObj_GetType(companion);
+            const bounds = objectBounds(object),
+              graphicBounds = companion && objectBounds(companion);
+            if (
+              bounds &&
+              graphicBounds &&
+              [3, 5].includes(companionType) &&
+              bounds[0] >= graphicBounds[0] - 2 &&
+              bounds[1] >= graphicBounds[1] - 2 &&
+              bounds[2] <= graphicBounds[2] + 2 &&
+              bounds[3] <= graphicBounds[3] + 2 &&
+              graphicBounds[2] - graphicBounds[0] <= (bounds[2] - bounds[0]) * 2 + 10 &&
+              graphicBounds[3] - graphicBounds[1] <= (bounds[3] - bounds[1]) * 2 + 10
+            ) {
+              const candidates =
+                companionType === 5
+                  ? (await sourcePaints(bytes)).filter((entry) =>
+                      entry.bounds.every((n, index) => Math.abs(n - graphicBounds[index]) < 1),
+                    )
+                  : [];
+              const paint =
+                companionType === 3
+                  ? markedPaint(api, heap, companion, alloc, free)
+                  : candidates.length &&
+                      candidates.every(
+                        (entry) =>
+                          JSON.stringify(entry.paint) === JSON.stringify(candidates[0].paint),
+                      )
+                    ? candidates[0].paint
+                    : null;
+              if (paint) painted = { object: companion, paint };
+            }
+            // An invisible OCR/selection layer is not the visible lettering.
+            if (!painted) {
+              skipped++;
+              continue;
+            }
+            if (change && change.preservePaint === undefined && change.color === '#000000') {
+              // Upgrade edits saved before transparent text was identified correctly.
+              change = { ...change, color: paintColor(painted.paint, bounds), preservePaint: true };
+            }
+          }
+          if (change) {
+            dirty(object, p);
+            if (painted) dirty(painted.object, p);
+          }
           if (change?.text === '') {
             // Selecting text only removes its original ink from the background.
             // There is no replacement font to inspect, load or validate here.
-            pending.push({ object, index: i, change, runs: [], complete: 0 });
+            pending.push({ object, index: i, change, runs: [], complete: 0, painted });
             continue;
           }
           const scratch = alloc(64);
@@ -328,10 +414,13 @@ export async function processTextPdf(bytes, job, platform) {
               fontCharacters,
               replacementFont: fallbackFont(font),
               size,
-              color: `#${rgba
-                .slice(0, 3)
-                .map((n) => n.toString(16).padStart(2, '0'))
-                .join('')}`,
+              color: painted
+                ? paintColor(painted.paint, bounds)
+                : `#${rgba
+                    .slice(0, 3)
+                    .map((n) => n.toString(16).padStart(2, '0'))
+                    .join('')}`,
+              ...(painted ? { paint: painted.paint } : {}),
               bounds,
               matrix,
             });
@@ -369,7 +458,8 @@ export async function processTextPdf(bytes, job, platform) {
                 matrix,
                 size,
                 color: blocks.at(-1).color,
-                alpha: rgba[3],
+                alpha: painted ? 255 : rgba[3],
+                painted,
                 // A Unicode round-trip can succeed for glyph 0 (.notdef). Validate the
                 // font program too, and complete known subsets with the exact named face.
                 complete,
@@ -386,7 +476,7 @@ export async function processTextPdf(bytes, job, platform) {
         const preserved = [];
         for (const {
           object,
-          index,
+          index: sourceIndex,
           change,
           matrix,
           size,
@@ -394,7 +484,57 @@ export async function processTextPdf(bytes, job, platform) {
           alpha,
           complete,
           runs,
+          painted,
         } of pending.reverse()) {
+          const index = sourceIndex - (painted ? 1 : 0);
+          if (painted) {
+            if (!api.FPDFPage_RemoveObject(page, painted.object))
+              throw new Error('The original text appearance could not be removed.');
+            api.FPDFPageObj_Destroy(painted.object);
+          }
+          const finishAppearance = (objects) => {
+            for (const object of objects) dirty(object, p);
+            if (!painted || !change.text) return;
+            if (
+              change.preservePaint !== false &&
+              (change.preservePaint || change.color === color)
+            ) {
+              const appearance = movedPaint(
+                painted.paint,
+                [matrix[4], matrix[5]],
+                change.size / size,
+                change.offset,
+              );
+              if (appearance.colors.every((color) => color === appearance.colors[0])) {
+                // A constant gradient is a solid fill. Keep it as sharp, native PDF text.
+                const rgb = appearance.colors[0].match(/[\da-f]{2}/gi).map((v) => parseInt(v, 16));
+                for (const object of objects) api.FPDFPageObj_SetFillColor(object, ...rgb, 255);
+                return;
+              }
+              for (const [offset, object] of objects.entries()) {
+                // Pair each font run with its own appearance so it remains editable
+                // after export, including words that need a missing-glyph fallback.
+                const image = drawGradientText(
+                  api,
+                  heap,
+                  doc,
+                  page,
+                  [object],
+                  appearance,
+                  alloc,
+                  free,
+                );
+                if (!api.FPDFPage_InsertObjectAtIndex(page, image, index + offset * 2)) {
+                  api.FPDFPageObj_Destroy(image);
+                  throw new Error('The text appearance could not be inserted.');
+                }
+                dirty(image, p);
+              }
+            } else {
+              const rgb = change.color.match(/[\da-f]{2}/gi).map((v) => parseInt(v, 16));
+              for (const object of objects) api.FPDFPageObj_SetFillColor(object, ...rgb, 255);
+            }
+          };
           if (runs.length) {
             const replacements = [],
               scratch = alloc(28);
@@ -458,6 +598,7 @@ export async function processTextPdf(bytes, job, platform) {
                 replacement.inserted = true;
                 preserved.push(replacement);
               }
+              finishAppearance(replacements.map((replacement) => replacement.object));
             } finally {
               for (const replacement of replacements)
                 if (!replacement.inserted) api.FPDFPageObj_Destroy(replacement.object);
@@ -466,7 +607,7 @@ export async function processTextPdf(bytes, job, platform) {
             applied++;
             continue;
           }
-          if (change.font === 'original' && change.text && !complete) {
+          if (change.font === 'original' && change.text && !complete && !painted) {
             // Keep the actual PDF font resource and the object's rendering state. Loading a
             // standard font here loses embedded families, intermediate weights and italics.
             const textPtr = alloc((change.text.length + 1) * 2),
@@ -491,6 +632,7 @@ export async function processTextPdf(bytes, job, platform) {
               }
               // Matrix/color-only edits leave the font's encoded glyphs untouched.
               if (change.text !== change.original) preserved.push({ object, text: change.text });
+              finishAppearance([object]);
             } finally {
               free(textPtr);
               free(matrixPtr);
@@ -500,9 +642,14 @@ export async function processTextPdf(bytes, job, platform) {
           }
           let replacement = 0;
           if (change.text) {
-            replacement = complete
-              ? api.FPDFPageObj_CreateTextObj(doc, complete, change.size)
-              : api.FPDFPageObj_NewTextObj(doc, change.font, change.size);
+            replacement =
+              complete || (painted && change.font === 'original')
+                ? api.FPDFPageObj_CreateTextObj(
+                    doc,
+                    complete || api.FPDFTextObj_GetFont(object),
+                    change.size,
+                  )
+                : api.FPDFPageObj_NewTextObj(doc, change.font, change.size);
             if (!replacement) throw new Error('The replacement font could not be loaded.');
             const textPtr = alloc((change.text.length + 1) * 2),
               matrixPtr = alloc(24);
@@ -535,7 +682,9 @@ export async function processTextPdf(bytes, job, platform) {
             api.FPDFPageObj_Destroy(replacement);
             throw new Error('The replacement text could not be inserted.');
           }
-          if (complete) preserved.push({ object: replacement, text: change.text });
+          if (complete || (painted && replacement))
+            preserved.push({ object: replacement, text: change.text });
+          if (replacement) finishAppearance([replacement]);
           applied++;
         }
         if (pending.length && !api.FPDFPage_GenerateContent(page))
@@ -593,7 +742,13 @@ export async function processTextPdf(bytes, job, platform) {
       }
     }
     if (job.operation === 'inspect')
-      return { pageCount, blocks, skipped, ...(job.page === undefined ? {} : { pages }) };
+      return {
+        version: 2,
+        pageCount,
+        blocks,
+        skipped,
+        ...(job.page === undefined ? {} : { pages }),
+      };
     if (applied !== changes.size)
       throw new Error('Some selected text could not be edited. Reopen the original PDF.');
     if (job.operation === 'preview') return await renderPreview();
@@ -608,12 +763,59 @@ export async function processTextPdf(bytes, job, platform) {
       try {
         const pageWidth = api.FPDF_GetPageWidthF(page),
           pageHeight = api.FPDF_GetPageHeightF(page);
-        const {
+        let {
           width,
           height,
           tiles: regions,
         } = pdfPreviewLayout(pageWidth, pageHeight, job.pixelWidth);
+        const partial = job.partial === true;
+        if (partial) {
+          // Selection/edits only replace strips containing old or new ink. The
+          // existing PDF canvas supplies the rest of a long page without repainting it.
+          const scale = Math.min((job.pixelWidth || width) / pageWidth, 65536 / pageHeight);
+          width = Math.max(1, Math.floor(pageWidth * scale));
+          height = Math.max(1, Math.floor(pageHeight * scale));
+          const ptr = alloc(8),
+            intervals = [];
+          try {
+            for (const bounds of dirtyBounds) {
+              const ys = [];
+              for (const [x, y] of [
+                [bounds[0], bounds[1]],
+                [bounds[2], bounds[3]],
+              ]) {
+                if (!api.FPDF_PageToDevice(page, 0, 0, width, height, 0, x, y, ptr, ptr + 4))
+                  throw new Error('The text preview position could not be read.');
+                ys.push(heap.getValue(ptr + 4, 'i32'));
+              }
+              const padding = Math.max(4, Math.ceil(scale * 2));
+              const top = Math.max(0, Math.min(...ys) - padding),
+                bottom = Math.min(height, Math.max(...ys) + padding);
+              if (bottom > top) intervals.push([top, bottom]);
+            }
+          } finally {
+            free(ptr);
+          }
+          const merged = [];
+          for (const interval of intervals.sort((a, b) => a[0] - b[0])) {
+            const last = merged.at(-1);
+            if (last && interval[0] <= last[1] + 8) last[1] = Math.max(last[1], interval[1]);
+            else merged.push(interval);
+          }
+          regions = [];
+          const tileHeight = Math.max(1, Math.min(4096, Math.floor((4 * 1024 * 1024) / width)));
+          for (const [top, bottom] of merged)
+            for (let y = top; y < bottom; y += tileHeight)
+              regions.push({ top: y, height: Math.min(tileHeight, bottom - y) });
+          if (regions.reduce((size, region) => size + width * region.height, 0) > 64 * 1024 * 1024)
+            throw new Error('The edited area is too large to preview at this zoom.');
+        }
         const tiles = [];
+        // Keep browser selections out of the PNG encode/base64/decode pipeline.
+        // Long pages retain the bounded PNG path to limit transferred pixel memory.
+        const directPixels =
+          platform.transferPixels &&
+          regions.reduce((n, r) => n + width * r.height, 0) <= 16 * 1024 * 1024;
         let outputSize = 0;
         for (const region of regions) {
           const bitmap = api.FPDFBitmap_Create(width, region.height, 1);
@@ -634,21 +836,33 @@ export async function processTextPdf(bytes, job, platform) {
                 rgba[to + 2] = heap.HEAPU8[from];
                 rgba[to + 3] = heap.HEAPU8[from + 3];
               }
-            const preview = await platform.encodeRgba(rgba, width, region.height);
-            outputSize += preview.length;
-            if (outputSize > 32 * 1024 * 1024)
-              throw new Error('The page preview is too large. Reduce the zoom and retry.');
-            tiles.push({ ...region, preview });
+            if (directPixels) tiles.push({ ...region, data: rgba });
+            else {
+              const preview = await platform.encodeRgba(rgba, width, region.height);
+              outputSize += preview.length;
+              if (outputSize > 32 * 1024 * 1024)
+                throw new Error('The page preview is too large. Reduce the zoom and retry.');
+              tiles.push({ ...region, preview });
+            }
           } finally {
             api.FPDFBitmap_Destroy(bitmap);
           }
         }
+        if (directPixels)
+          return {
+            pixels: tiles,
+            width,
+            height,
+            page: job.page,
+            ...(partial ? { partial: true } : {}),
+          };
         return {
-          preview: tiles[0].preview,
+          preview: tiles[0]?.preview || '',
           width,
           height,
           page: job.page,
-          ...(tiles.length > 1 ? { tiles } : {}),
+          ...(tiles.length > 1 || partial ? { tiles } : {}),
+          ...(partial ? { partial: true } : {}),
         };
       } finally {
         api.FPDF_ClosePage(page);

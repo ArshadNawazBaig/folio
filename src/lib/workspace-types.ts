@@ -15,6 +15,7 @@ const textChange = z.object({
   font: z.custom<TextFont>((value) => value === 'original' || isDocumentFont(value)),
   size: number.refine(isPdfTextSize, 'Choose a valid positive text size.'),
   color,
+  preservePaint: z.boolean().optional(),
   offset: z
     .object({ x: number.min(-100000).max(100000), y: number.min(-100000).max(100000) })
     .optional(),
@@ -81,6 +82,7 @@ export const workspaceSchema = z
     }),
     inspection: z
       .object({
+        version: z.number().int().min(1).max(2).optional(),
         pageCount: z.number().int().min(1).max(100),
         pages: z.array(z.number().int().min(0).max(99)).max(100).optional(),
         skipped: number.nonnegative(),
@@ -99,6 +101,12 @@ export const workspaceSchema = z
               replacementFont: z.enum(replacementFonts),
               size: number,
               color,
+              paint: z
+                .object({
+                  coords: z.array(number.min(-1e6).max(1e6)).length(4),
+                  colors: z.array(color).min(2).max(65),
+                })
+                .optional(),
               bounds: z.tuple([number, number, number, number]),
               matrix: z.array(number).length(6).optional(),
             }),

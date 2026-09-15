@@ -1,6 +1,7 @@
 import { PDFDocument, StandardFonts } from 'pdf-lib';
 import { test, expect } from './fixtures/editor-storage';
 import type { Request } from '@playwright/test';
+import { disableBrowserTextPreview } from './fixtures/text-preview-worker';
 
 function inspectionPage(request: Request): number | undefined {
   const body = request.postDataBuffer()?.toString() || '';
@@ -25,6 +26,7 @@ async function document(pages = 3) {
 test('text preparation begins on open and a slow response does not disable the editor toolbar', async ({
   page,
 }) => {
+  await disableBrowserTextPreview(page);
   let release!: () => void;
   const held = new Promise<void>((resolve) => {
     release = resolve;
@@ -61,6 +63,7 @@ test('prepared pages activate without another inspection and partial metadata su
   page,
   workspaceStorage,
 }) => {
+  await disableBrowserTextPreview(page);
   const pages: number[] = [];
   page.on('request', (request) => {
     const index = inspectionPage(request);

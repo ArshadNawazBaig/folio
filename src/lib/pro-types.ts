@@ -25,10 +25,12 @@ export type TextBlock = {
   replacementFont: ReplacementFont;
   size: number;
   color: string;
+  paint?: { coords: number[]; colors: string[] };
   bounds: [number, number, number, number];
   matrix?: number[];
 };
 export type TextInspection = {
+  version?: number;
   pageCount: number;
   blocks: TextBlock[];
   skipped: number;
@@ -36,12 +38,23 @@ export type TextInspection = {
   pages?: number[];
 };
 export type TextPreview = {
+  partial?: boolean;
   preview: string;
   width: number;
   height: number;
   page: number;
   tiles?: { preview: string; top: number; height: number }[];
 };
+// Browser-only preview pixels are transferred from the worker, never persisted
+// in workspaces or returned by the public preview API.
+export type PixelTextPreview = {
+  partial?: boolean;
+  width: number;
+  height: number;
+  page: number;
+  pixels: { data: Uint8Array; top: number; height: number }[];
+};
+export type InteractiveTextImage = TextPreview | PixelTextPreview;
 export type TextChange = {
   id: string;
   original: string;
@@ -49,6 +62,7 @@ export type TextChange = {
   font: TextFont;
   size: number;
   color: string;
+  preservePaint?: boolean;
   offset?: { x: number; y: number };
 };
 export type ProPlan = {

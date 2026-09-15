@@ -50,7 +50,12 @@ import { PdfTextSizeInput } from './pdf-text-size-input';
 import { DownloadGate } from './download-gate';
 import { SignatureDialog } from './signature-dialog';
 import type { SignatureResult, SignatureTab } from '@/lib/signature';
-import { defaultTextChange, hasTextChanges, unchangedText } from '@/lib/editor-text';
+import {
+  defaultTextChange,
+  resolvedTextChange,
+  hasTextChanges,
+  unchangedText,
+} from '@/lib/editor-text';
 import { exportWorkspacePdf } from '@/lib/editor-text-client';
 import { readProDraft } from '@/lib/pro-draft';
 import { AccountRequestError } from '@/lib/auth-client';
@@ -145,13 +150,16 @@ export function Editor() {
   const [color, setColor] = useState('#202522');
   const [textSize, setTextSize] = useState(18);
   const [flatten, setFlatten] = useState(false);
-  const interactivePreview = useInteractiveTextPreview(bytes, doc?.numPages);
+  const interactive = useInteractiveTextPreview(bytes, doc?.numPages);
+  const interactivePreview = interactive.client;
   const preparedText = usePreparedText(
     bytes,
     name,
     doc?.numPages,
     state.pages[pageIndex]?.sourceIndex ?? null,
     textInspection,
+    interactivePreview,
+    interactive.starting,
   );
   useEffect(() => {
     // Prefetch stays out of the saved workspace until text editing is used.
@@ -530,7 +538,11 @@ export function Editor() {
     if (!pageModel) return;
     const current = stateRef.current;
     const pageChanges = { ...current.textChanges?.[pageModel.id] };
-    const next = { ...(pageChanges[block.id] || defaultTextChange(block)), ...patch };
+    const next = {
+      ...resolvedTextChange(block, pageChanges[block.id]),
+      ...patch,
+      ...(patch.color !== undefined ? { preservePaint: false } : {}),
+    };
     if (unchangedText(block, next)) delete pageChanges[block.id];
     else pageChanges[block.id] = next;
     commit(
@@ -2022,7 +2034,8 @@ export function Editor() {
                   <>
                     <h2>Text appearance</h2>
                     <p className="panel-description">
-                      Type directly on the page. Drag the move handle to reposition this text.
+                      Type directly on the page. Drag the move handle to reposition this text. Use
+                      Tab or Shift+Tab to move between text blocks.
                     </p>
                     <FontPicker
                       key={originalSelection.id}
@@ -2055,9 +2068,9 @@ export function Editor() {
                       <input
                         type="color"
                         value={
-                          (
-                            state.textChanges?.[pageModel.id]?.[originalSelection.id] ||
-                            originalSelection
+                          resolvedTextChange(
+                            originalSelection,
+                            state.textChanges?.[pageModel.id]?.[originalSelection.id],
                           ).color
                         }
                         onChange={(event) =>

@@ -10,8 +10,8 @@ import {
 import { Move } from 'lucide-react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import type { PageModel } from '@/lib/types';
-import type { TextBlock, TextChange, TextInspection, TextPreview } from '@/lib/pro-types';
-import { defaultTextChange } from '@/lib/editor-text';
+import type { TextBlock, TextChange, TextInspection, InteractiveTextImage } from '@/lib/pro-types';
+import { defaultTextChange, resolvedTextChange } from '@/lib/editor-text';
 import {
   interactiveTextPreview,
   type InteractiveTextPreview,
@@ -28,6 +28,8 @@ import { documentFontStyle } from '@/lib/document-fonts.mjs';
 import { useDocumentFonts } from '@/lib/document-font-client';
 import { usePdfPreviewWidth } from '@/lib/use-pdf-preview-width';
 import { TextPreviewImage } from './text-preview-image';
+import { decodeTextPreview, trimPreviews } from '@/lib/text-preview-cache';
+import { textPaintStyle } from '@/lib/text-paint-style';
 
 type Geometry = {
   left: number;
@@ -197,7 +199,7 @@ export function InlinePdfText({
     pointer: number;
   } | null>(null);
   type Preview = {
-    image: TextPreview;
+    image: InteractiveTextImage;
     changes: Record<string, TextChange>;
     key: string;
     rotation: number;
@@ -214,6 +216,8 @@ export function InlinePdfText({
   const [error, setError] = useState('');
   const [previewRetry, setPreviewRetry] = useState(0);
   const root = useRef<HTMLDivElement>(null);
+  const returnFocus = useRef('');
+  const prefetchTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const editGroup = useRef('');
   const blocks = inspection.blocks.filter((block) => block.page === page.sourceIndex);
   const scale = width / baseWidth;
@@ -221,6 +225,7 @@ export function InlinePdfText({
   const activeBlock = selectedBlock?.id === active ? selectedBlock : undefined;
   const hiddenBlock = selectedBlock;
   const desiredChanges = { ...changes };
+  const changesKey = JSON.stringify(changes);
   // The selected object is removed from the PDF background throughout typing and dragging.
   // Its live text is drawn once, over that clean background. Deselecting renders it into
   // the page again. Geometry and appearance changes never expose the old ink underneath.
@@ -246,6 +251,15 @@ export function InlinePdfText({
       root.current
         ?.querySelector<HTMLInputElement>('.inline-text-input')
         ?.focus({ preventScroll: true });
+    else if (!activeBlock?.id && returnFocus.current) {
+      const id = returnFocus.current;
+      returnFocus.current = '';
+      root.current
+        ?.querySelector<HTMLButtonElement>(
+          `[data-text-block="${CSS.escape(id)}"] .inline-text-target`,
+        )
+        ?.focus({ preventScroll: true });
+    }
   }, [activeBlock?.id, readyToEdit]);
 
   useEffect(() => {
@@ -382,6 +396,7 @@ export function InlinePdfText({
           name,
           {
             operation: 'preview',
+            partial: true,
             page: page.sourceIndex,
             changes: Object.values(desired.changes),
             rotation: desired.rotation,
@@ -389,15 +404,9 @@ export function InlinePdfText({
           },
           controller.signal,
         )
-          .then(async (image: TextPreview) => {
+          .then(async (image: InteractiveTextImage) => {
             // Decode first so removing the live overlay and swapping the background are atomic.
-            await Promise.all(
-              (image.tiles || [image]).map(async (tile) => {
-                const decoded = new Image();
-                decoded.src = `data:image/png;base64,${tile.preview}`;
-                await decoded.decode();
-              }),
-            );
+            await decodeTextPreview(image);
             if (!controller.signal.aborted) {
               const next = {
                 image,
@@ -406,17 +415,7 @@ export function InlinePdfText({
                 rotation: desired.rotation,
               };
               cache.set(requestKey, next);
-              const imageSize = (entry: Preview) =>
-                (entry.image.tiles || [entry.image]).reduce(
-                  (size, tile) => size + tile.preview.length,
-                  0,
-                );
-              let total = [...cache.values()].reduce((size, entry) => size + imageSize(entry), 0);
-              while (cache.size > 4 || total > 8 * 1024 * 1024) {
-                const oldest = cache.keys().next().value!;
-                total -= imageSize(cache.get(oldest)!);
-                cache.delete(oldest);
-              }
+              trimPreviews(cache, (entry) => entry.image);
               setPreview(next);
               setStatus('Page preview updated.');
             }
@@ -449,7 +448,36 @@ export function InlinePdfText({
     previewCache,
   ]);
 
+  useEffect(
+    () => () => {
+      clearTimeout(prefetchTimer.current);
+      previewClient?.cancelPrefetch();
+    },
+    [previewClient, page.id, changesKey, pixelWidth, enabled, disabled],
+  );
+
+  function prepareSelection(block: TextBlock) {
+    clearTimeout(prefetchTimer.current);
+    if (!previewClient || disabled || !enabled || selected === block.id) return;
+    // A short dwell avoids work while passing across lines or scrolling. This
+    // never alters the visible page, selection, history, or saved document.
+    prefetchTimer.current = setTimeout(() => {
+      previewClient.prefetch({
+        operation: 'preview',
+        partial: true,
+        page: page.sourceIndex,
+        changes: Object.values({
+          ...changes,
+          [block.id]: { ...defaultTextChange(block), text: '' },
+        }),
+        rotation: page.rotation,
+        pixelWidth,
+      });
+    }, 70);
+  }
+
   function start(block: TextBlock) {
+    clearTimeout(prefetchTimer.current);
     editGroup.current = crypto.randomUUID();
     setActive(block.id);
     select(block);
@@ -528,7 +556,7 @@ export function InlinePdfText({
         {blocks.map((block) => {
           const box = geometry[block.id];
           if (!box) return null;
-          const savedValue = changes[block.id] || defaultTextChange(block);
+          const savedValue = resolvedTextChange(block, changes[block.id]);
           const moving = dragged?.id === block.id;
           const value = moving ? { ...savedValue, offset: dragged.offset } : savedValue;
           const editing = activeBlock?.id === block.id;
@@ -569,9 +597,21 @@ export function InlinePdfText({
             transform: `rotate(${box.angle}deg)`,
             background: 'transparent',
           };
+          const paintStyle = textPaintStyle(
+            block,
+            value,
+            viewport.transform,
+            scale,
+            (box.left + shift.x) * scale + originX,
+            (box.top + shift.y) * scale + originY,
+            box.angle,
+            style.width,
+            style.height,
+          );
           return (
             <div
               key={block.id}
+              data-text-block={block.id}
               className={`inline-text-node ${selected === block.id ? 'selected' : ''} ${moving ? 'moving' : ''}`}
               style={{
                 left: (box.left + shift.x) * scale,
@@ -662,14 +702,18 @@ export function InlinePdfText({
                     aria-label={`Edit original text: ${block.text}`}
                     value={value.text}
                     maxLength={2000}
-                    style={{ ...style, visibility: inkRemoved ? 'visible' : 'hidden' }}
+                    style={{
+                      ...style,
+                      ...(paintStyle ? { color: 'transparent', caretColor: value.color } : {}),
+                      visibility: inkRemoved ? 'visible' : 'hidden',
+                    }}
                     readOnly={!inkRemoved}
                     disabled={disabled}
                     onPointerDown={(event) => event.stopPropagation()}
                     onChange={(event) =>
                       update(block, { text: event.target.value }, editGroup.current)
                     }
-                    onBlur={() => setActive('')}
+                    onBlur={() => setActive((current) => (current === block.id ? '' : current))}
                     onKeyDown={(event) => {
                       event.stopPropagation();
                       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
@@ -683,12 +727,32 @@ export function InlinePdfText({
                       ) {
                         event.preventDefault();
                         save();
+                      } else if (event.key === 'Tab') {
+                        const next =
+                          blocks[
+                            blocks.findIndex((item) => item.id === block.id) +
+                              (event.shiftKey ? -1 : 1)
+                          ];
+                        if (next) {
+                          event.preventDefault();
+                          start(next);
+                        }
                       } else if (event.key === 'Enter' || event.key === 'Escape') {
                         event.preventDefault();
+                        returnFocus.current = block.id;
                         event.currentTarget.blur();
                       }
                     }}
                   />
+                  {inkRemoved && paintStyle && (
+                    <span
+                      aria-hidden="true"
+                      className="inline-text-value"
+                      style={{ ...style, ...paintStyle, pointerEvents: 'none' }}
+                    >
+                      {value.text || '\u00a0'}
+                    </span>
+                  )}
                 </>
               ) : (
                 <>
@@ -697,7 +761,7 @@ export function InlinePdfText({
                       className={
                         selected === block.id ? 'inline-text-value' : 'inline-text-pending'
                       }
-                      style={style}
+                      style={{ ...style, ...paintStyle }}
                     >
                       {value.text || '\u00a0'}
                     </span>
@@ -718,6 +782,13 @@ export function InlinePdfText({
                       }
                       aria-label={`Edit text: ${block.text}`}
                       title="Click to edit this text"
+                      onPointerEnter={(event) => {
+                        if (event.pointerType === 'mouse' || event.pointerType === 'pen')
+                          prepareSelection(block);
+                      }}
+                      onPointerLeave={() => clearTimeout(prefetchTimer.current)}
+                      onFocus={() => prepareSelection(block)}
+                      onBlur={() => clearTimeout(prefetchTimer.current)}
                       onPointerDown={(event) => event.stopPropagation()}
                       onClick={() => start(block)}
                     >

@@ -8,7 +8,14 @@ export const defaultTextChange = (block: TextBlock): TextChange => ({
   font: 'original',
   size: block.size,
   color: block.color,
+  ...(block.paint ? { preservePaint: true } : {}),
 });
+export function resolvedTextChange(block: TextBlock, change?: TextChange): TextChange {
+  if (!change) return defaultTextChange(block);
+  if (block.paint && change.preservePaint === undefined && change.color === '#000000')
+    return { ...change, color: block.color, preservePaint: true };
+  return change;
+}
 export function textFontOptions(block: TextBlock) {
   return [
     { value: 'original', label: `Original · ${block.font.replace(/^[A-Z]{6}\+/, '')}` },
@@ -21,6 +28,7 @@ export function unchangedText(block: TextBlock, change: TextChange) {
     change.font === 'original' &&
     change.size === block.size &&
     change.color === block.color &&
+    (!block.paint || change.preservePaint !== false) &&
     !change.offset?.x &&
     !change.offset?.y
   );
