@@ -12,6 +12,44 @@ export type Guide = {
 };
 export const guides: Guide[] = [
   {
+    slug: 'choose-a-free-pdf-editor',
+    title: 'Choosing the Best Free PDF Editor for Your Task',
+    description:
+      'Choose a free PDF editor by checking downloads, text editing, signatures, file limits and privacy. See which Folio workflows are free and which require a plan.',
+    category: 'Choosing your tools',
+    readTime: '4 min read',
+    published: '2026-09-17',
+    updated: '2026-09-17',
+    tool: 'edit-pdf',
+    relatedTools: ['sign-pdf', 'merge-pdf', 'split-pdf', 'image-to-pdf'],
+    sections: [
+      {
+        title: 'Choose for the document you need to finish',
+        text: 'The best free PDF editor for your task is one that can produce the finished file you need within its free allowance. Adding a note, correcting an existing sentence, filling a form, and combining receipts are different jobs. Before uploading, identify the exact change and check whether both that feature and its download are free. This guide explains those choices using Folio’s current capabilities. It is written by the team behind Folio, not an independent ranking of competing products.',
+      },
+      {
+        title: 'Check free downloads before spending time editing',
+        text: 'An editor may let you preview a feature without including the finished download in its free tier. Check for payment requirements, export watermarks, file-size limits, and any sign-in requirement. Try a small, non-sensitive sample first: add a note, download it, and open it in another PDF reader. In Folio, added text, highlights, images, shapes, visual signatures, form fields, and page organization include free PDF downloads without a Folio watermark. Downloads containing original-text changes require a paid plan. Mixing a free annotation with an original-text change therefore makes that document’s export a paid workflow; you can undo the original-text change to keep an annotation-only export free.',
+      },
+      {
+        title: 'Adding text and changing existing text are different',
+        text: 'Use Add Text for a comment, date, name, or other addition. It places a new text box on the page without changing the words underneath. In Folio, choose Add Text, click the page, type your note, and adjust its position or appearance. Use Edit Text to replace supported words already in the PDF. That feature preserves the original appearance where the embedded font allows, but downloading those changes requires a plan. A white rectangle over a sentence does not securely remove it. If the document is a scan or its letters are drawn as shapes, it needs OCR or another reconstruction step; Folio’s original-text editor does not include OCR.',
+      },
+      {
+        title: 'Use a focused free tool when editing is unnecessary',
+        text: 'Choose Merge PDF to combine separate files, Split PDF to extract selected pages, or Image to PDF to collect photos and receipts into a document. Those workflows include free downloads and do not need original-text editing. For a form, Fill & Sign lets you complete supported fields and draw, type, or upload a visual signature. This is not a certificate-based digital signature or identity verification service. For compression, check the result rather than expecting a fixed reduction: Folio optimizes PDF structure without downsampling images, so an already optimized or image-heavy file may not get smaller.',
+      },
+      {
+        title: 'Understand guest storage and file privacy',
+        text: 'A tool that runs in a browser does not necessarily keep every file on your device. Folio’s editor automatically uploads documents and recovery drafts to private cloud storage. Guests can start without Google sign-in, receive 100 MB of storage, and have a 24-hour file expiry. When that space is full, delete old files before uploading more. Sign in to keep files in your account and access them across devices. Standalone merge, split, and image tools process files in the browser; server-assisted features use Folio or connected document services. Choose a workflow that fits your document’s confidentiality requirements, and keep your own original copy.',
+      },
+      {
+        title: 'Review the exported file, not just the preview',
+        text: 'After downloading, open the PDF in your usual reader. Confirm the page order, small text, signature placement, and any fields or links you need. Zoom in to inspect fine details. For a reusable form, leave fields interactive; a flattened copy makes their current appearance part of the page. Keep the original when changing a signed document, because rewriting it can invalidate its existing digital signature. Use Folio’s free editor when additions, signatures, and page changes solve your task. If you need substantial paragraph rewriting, editing the source document and exporting a fresh PDF may give you a more predictable result.',
+      },
+    ],
+  },
+  {
     slug: 'how-to-edit-a-pdf',
     title: 'How to Edit a PDF Online: Text, Annotations & Saving',
     description:

@@ -57,7 +57,7 @@ test('homepage is usable without JavaScript and mobile navigation stays within t
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Your documents.');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Free PDF tools.');
   await page
     .getByRole('main')
     .getByRole('link', { name: 'Explore all tools', exact: true })

@@ -77,6 +77,14 @@ const config: NextConfig = {
       })),
       { source: '/api/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
       {
+        source: '/pdfium/:file.wasm.gz',
+        headers: [
+          { key: 'Content-Type', value: 'application/wasm' },
+          { key: 'Content-Encoding', value: 'gzip' },
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
         source: '/api/:path((?!fonts(?:/|$)).*)',
         headers: [{ key: 'Cache-Control', value: 'private, no-store' }],
       },

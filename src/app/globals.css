@@ -1035,6 +1035,22 @@ dialog::backdrop {
   padding-top: 26px;
   padding-bottom: 48px;
 }
+.free-tools-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 32px;
+  margin-top: 22px;
+}
+.free-tools-note p {
+  flex: 1 1 320px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.free-tools-note .text-link {
+  font-size: 13px;
+}
 .popular-tools {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -1844,6 +1860,45 @@ dialog::backdrop {
 .two-fields > label {
   flex: 1;
   min-width: 0;
+}
+.tool-settings .two-fields > .dropdown-field {
+  flex: 1;
+}
+.tool-settings .dropdown-field .dropdown-label {
+  font-size: 10px;
+  line-height: inherit;
+  margin-bottom: 7px;
+}
+.tool-settings input:not([type='checkbox']):not([type='color']) {
+  min-height: 44px;
+  border-radius: 8px;
+}
+.tool-settings label:has(> input[type='color']) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tool-settings input[type='color'] {
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 5px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.tool-settings input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.tool-settings input[type='color']::-webkit-color-swatch {
+  border: 0;
+  border-radius: 3px;
+}
+.tool-settings input[type='color']::-moz-color-swatch {
+  border: 0;
+  border-radius: 3px;
 }
 .setting-note {
   padding: 15px;
@@ -4048,7 +4103,7 @@ dialog::backdrop {
   color: #4e663d;
   font-weight: 700;
 }
-.properties-tabs button:last-child {
+.properties-tabs button[aria-label='Search document'] {
   margin-left: auto;
 }
 .properties-content {
@@ -6156,8 +6211,63 @@ dialog::backdrop {
   color: #45563c;
 }
 
-.mobile-properties-toggle {
+.editor-mobile-panels,
+.editor-panel-close,
+.editor-panel-backdrop {
   display: none;
+}
+@media (max-width: 999px) {
+  .editor-mobile-panels {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    gap: 12px;
+    padding: 5px 12px;
+    border-bottom: 1px solid var(--border);
+    background: #fdfdfa;
+  }
+  .editor-panel-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    color: #4e663d;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .editor-panel-toggle[aria-expanded='true'] {
+    border-color: #b9c9a7;
+    background: #e6ecdc;
+  }
+  .editor-panel-close,
+  .sidebar-heading .editor-panel-close,
+  .properties-tabs .editor-panel-close {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-self: center;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 8px;
+    border: 0;
+    color: #4e663d;
+  }
+  .properties-tabs,
+  .sidebar-heading {
+    flex-shrink: 0;
+  }
+  .sidebar-heading {
+    gap: 3px;
+    padding: 6px;
+  }
+  .sidebar-heading h2 {
+    margin-right: auto;
+  }
 }
 @media (max-width: 700px) {
   .translation-language {
@@ -6166,8 +6276,18 @@ dialog::backdrop {
   .translation-settings > .button {
     width: 100%;
   }
-  .mobile-properties-toggle {
-    display: inline-flex;
+  .editor-panel-backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 19;
+    background: #20252218;
+  }
+  .properties-sidebar {
+    width: min(300px, calc(100% - 48px));
+  }
+  .page-sidebar {
+    width: 170px;
   }
 }
 

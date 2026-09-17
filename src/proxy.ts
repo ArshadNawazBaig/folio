@@ -1,8 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getPlatform } from '@/lib/server/platform';
 import { siteUrl } from '@/lib/seo';
+import { legacyPublicRedirect } from '@/lib/site-config';
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const destination = legacyPublicRedirect(request.nextUrl, request.method, process.env);
+  if (destination) return NextResponse.redirect(destination, 308);
   const next = () => {
     const response = NextResponse.next();
     // Production deployment aliases must not compete with the preferred public domain.
@@ -10,6 +13,7 @@ export async function proxy(request: NextRequest) {
       response.headers.set('X-Robots-Tag', 'noindex, nofollow');
     return response;
   };
+  if (['/robots.txt', '/sitemap.xml'].includes(pathname)) return next();
   // Admin recovery, support, sign-in, cancellation, and signed payment events stay reachable.
   if (
     /^\/(admin|account|dashboard|auth|maintenance|support)(\/|$)/.test(pathname) ||
@@ -41,4 +45,6 @@ export async function proxy(request: NextRequest) {
     headers: { 'Retry-After': '300', 'Cache-Control': 'no-store' },
   });
 }
-export const config = { matcher: ['/((?!_next|pdfjs|.*\\.[^/]+$).*)'] };
+export const config = {
+  matcher: ['/((?!_next|pdfjs|.*\\.[^/]+$).*)', '/robots.txt', '/sitemap.xml'],
+};

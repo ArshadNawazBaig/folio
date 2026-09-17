@@ -30,6 +30,14 @@ export function EditorContentSkeleton({
           </div>
         ))}
       </div>
+      <div className="editor-mobile-panels" aria-hidden="true">
+        {[0, 1].map((item) => (
+          <span className="editor-panel-toggle" key={item}>
+            <Skeleton width={17} height={17} />
+            <Skeleton width={item ? 61 : 35} height={12} />
+          </span>
+        ))}
+      </div>
       <div
         className={`editor-body editor-skeleton-body ${sidebar ? '' : 'hide-pages'} ${properties ? '' : 'hide-properties'}`}
         aria-hidden="true"

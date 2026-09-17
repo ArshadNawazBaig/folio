@@ -188,7 +188,7 @@ test('premium operations and billing cannot be unlocked with client flags or a s
   }
   await page.goto('/account?checkout=success');
   await expect(
-    page.getByText('Accounts and purchases are not connected yet.', { exact: false }),
+    page.getByRole('button', { name: 'Continue with Google', exact: true }),
   ).toBeVisible();
   await page.goto('/edit-pdf-text');
   await page.evaluate(() => localStorage.setItem('folio-pro', 'true'));

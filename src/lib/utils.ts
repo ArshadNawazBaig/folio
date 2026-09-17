@@ -35,7 +35,10 @@ export function parsePages(input: string, total: number): number[] {
 }
 export function friendlyError(error: unknown) {
   const text = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
-  if (/encrypt|password/i.test(text))
+  if (
+    (error instanceof Error && error.name === 'PasswordException') ||
+    /encrypted|password[ -]protected|PDF.*password|password.*PDF/i.test(text)
+  )
     return 'This PDF is password protected. Open it with its password in a trusted PDF reader and save an unlocked copy first.';
   if (/parse|invalid pdf|header|xref/i.test(text))
     return 'This file could not be read as a PDF. It may be damaged or use an unsupported format.';

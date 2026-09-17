@@ -53,7 +53,9 @@ test('anyone can edit and preview their PDF; payment appears only at download an
   await page.getByRole('button', { name: 'Download PDF', exact: true }).click();
   const gate = page.getByRole('dialog');
   await expect(gate).toBeVisible();
-  await expect(gate.getByText('A premium plan is required', { exact: false })).toBeVisible();
+  await expect(
+    gate.getByText('Downloading those changes requires a premium plan.', { exact: false }),
+  ).toBeVisible();
   await expect(gate.getByText('Keep this tab open', { exact: false })).toBeVisible();
   await expect(gate.locator('.plan-price')).toHaveText('$1 for 7 days');
   await expect(gate.getByRole('button', { name: 'Continue with Google' })).toBeVisible();
@@ -131,14 +133,12 @@ test('password setup is free, mismatch errors appear before payment, and checkou
     .click();
   await expect(page.getByLabel('Opening password', { exact: true })).toHaveValue('my-secret-123');
 });
-test('admin preview has accessible sections, no fabricated customers, and no unauthenticated mutation access', async ({
+test('admin sections stay accessible and reject unauthenticated mutation access', async ({
   page,
   request,
 }) => {
   await page.goto('/admin');
-  await expect(
-    page.getByText('Dashboard preview. Live administration is not connected yet.'),
-  ).toBeVisible();
+  await expect(page.getByText('Sign in with your super admin account.')).toBeVisible();
   await page.screenshot({ path: '/tmp/folio-pro/admin-overview.png', fullPage: true });
   for (const section of [
     'Overview',
@@ -213,6 +213,14 @@ test('pricing refreshes published terms and support never reports a failed submi
   await expect(page.locator('.price-card.featured .plan-price')).toHaveText('$2 for 10 days');
   await expect(page.locator('.plan-renewal').filter({ hasText: 'Then $30/month' })).toBeVisible();
   await page.goto('/support');
+  await page.route('**/api/support', (route) =>
+    route.request().method() === 'POST'
+      ? route.fulfill({
+          status: 503,
+          json: { error: 'Support is temporarily unavailable. Please retry.' },
+        })
+      : route.continue(),
+  );
   await page.getByLabel('Your name').fill('Test Person');
   await page.getByLabel('Email address').fill('person@example.test');
   await page.getByLabel('Subject', { exact: true }).fill('Help with an export');
@@ -221,7 +229,7 @@ test('pricing refreshes published terms and support never reports a failed submi
     .fill('My PDF export needs a little help.');
   await page.getByRole('button', { name: 'Send inquiry' }).click();
   await expect(page.locator('.error-message[role=alert]')).toContainText(
-    'Accounts are not connected yet.',
+    'Support is temporarily unavailable. Please retry.',
   );
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toHaveValue(
     'My PDF export needs a little help.',

@@ -26,7 +26,7 @@ export const tools: Tool[] = [
     name: 'Edit PDF',
     short: 'Make it yours. Every last detail.',
     description:
-      'Add text, highlights, shapes, images, and signatures to your PDF. Arrange pages and download your finished document, right in your browser.',
+      'Add text, highlight, annotate and sign PDFs online for free. Download your additions for free; changes to original PDF text require a paid plan.',
     icon: 'edit',
     category: 'Edit & organize',
     color: 'orange',
@@ -41,12 +41,20 @@ export const tools: Tool[] = [
       'Use one workspace to edit original text, add annotations and signatures, and organize pages. Select Edit Text to change supported text directly on the page. Scanned pages can be annotated, but need OCR for original text editing.',
     faq: [
       [
+        'Is this PDF editor free to use and download?',
+        'Yes for added text, highlights, images, shapes, signatures, form fields, and page organization. Download these changes without a subscription or a Folio watermark. Replacing original PDF text is available to try, but downloading a document with those changes requires a paid plan.',
+      ],
+      [
         'Can I change the original text?',
-        'Yes. Select Edit Text in the same editor, click a supported text block, and type directly on the page. Font, size and color controls are available. Paragraphs do not automatically reflow.',
+        'Yes. Select Edit Text in the same editor, click a supported text block, and type directly on the page. Font, size and color controls are available. Paragraphs do not automatically reflow. You can preview changes before buying; downloading original-text changes requires a paid plan.',
       ],
       [
         'Will my file be uploaded?',
         'Yes. Your editor document and changes are saved in private cloud storage for refresh recovery. Guest files expire after 24 hours. Sign in to keep your files and access them across devices.',
+      ],
+      [
+        'Can I edit a PDF without signing in?',
+        'You can start as a guest without Google sign-in. Guest editor documents are saved privately with a 100 MB storage allowance and expire after 24 hours. Sign in to keep your files and open them on another device.',
       ],
     ],
     keywords: ['annotate', 'write', 'add text', 'highlight'],
@@ -136,7 +144,7 @@ export const tools: Tool[] = [
     name: 'Merge PDF',
     short: 'Bring your pages together.',
     description:
-      'Combine multiple PDFs into one organized document. Choose the file order, merge locally, and download a single PDF.',
+      'Merge PDF files online for free. Arrange multiple PDFs in your preferred order, combine them in your browser, and download one document without signing in.',
     icon: 'merge',
     category: 'Edit & organize',
     color: 'sage',
@@ -196,7 +204,7 @@ export const tools: Tool[] = [
     name: 'Split PDF',
     short: 'Keep just the pages you need.',
     description:
-      'Extract a page range or split a PDF into individual pages. Download a selected PDF or a ZIP of separate files.',
+      'Split PDF files online for free. Extract selected pages into one PDF or download individual pages in a ZIP. No sign-up needed.',
     icon: 'split',
     category: 'Edit & organize',
     color: 'blue',
@@ -484,7 +492,7 @@ export const tools: Tool[] = [
     name: 'Fill & sign',
     short: 'Make it official. Make it simple.',
     description:
-      'Add a typed or drawn signature, fill supported PDF fields, and download a completed copy.',
+      'Sign a PDF online for free. Draw, type or upload a visual signature, fill supported form fields, and download your completed copy.',
     icon: 'sign',
     category: 'Forms & signing',
     color: 'orange',
@@ -611,9 +619,9 @@ export const popularSlugs = [
   'edit-pdf',
   'merge-pdf',
   'compress-pdf',
-  'pdf-to-word',
+  'split-pdf',
   'sign-pdf',
-  'translate-pdf',
+  'image-to-pdf',
 ];
 export const getTool = (slug: string) => tools.find((t) => t.slug === slug);
 export const editorTools = ['edit-pdf', 'organize-pdf', 'sign-pdf', 'create-pdf-form'];

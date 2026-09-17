@@ -33,6 +33,7 @@ import {
   Settings2,
   MessageSquare,
   Link2,
+  PanelLeft,
 } from 'lucide-react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { Logo } from './logo';
@@ -137,9 +138,28 @@ export function Editor() {
   const [sidebar, setSidebar] = useState(true);
   const [properties, setProperties] = useState(true);
   const [propertiesTab, setPropertiesTab] = useState('style');
+  const pagesToggle = useRef<HTMLButtonElement>(null);
+  const propertiesToggle = useRef<HTMLButtonElement>(null);
+  const showProperties = useCallback(() => {
+    if (window.innerWidth <= 700) setSidebar(false);
+    setProperties(true);
+  }, []);
+  function toggleProperties() {
+    if (properties) setProperties(false);
+    else showProperties();
+  }
+  function togglePages() {
+    if (!sidebar && window.innerWidth <= 700) setProperties(false);
+    setSidebar(!sidebar);
+  }
+  function closeSidePanel(panel: 'pages' | 'properties') {
+    if (panel === 'pages') setSidebar(false);
+    else setProperties(false);
+    (panel === 'pages' ? pagesToggle : propertiesToggle).current?.focus({ preventScroll: true });
+  }
   useEffect(() => {
     const compact = window.matchMedia('(max-width: 999px)');
-    const narrow = window.matchMedia('(max-width: 699px)');
+    const narrow = window.matchMedia('(max-width: 700px)');
     const hideProperties = () => {
       if (compact.matches) setProperties(false);
     };
@@ -377,7 +397,7 @@ export function Editor() {
     if (initialLoad.current) return;
     initialLoad.current = true;
     if (window.innerWidth < 1000) setProperties(false);
-    if (window.innerWidth < 700) setSidebar(false);
+    if (window.innerWidth <= 700) setSidebar(false);
     const requested = params.get('mode') as EditorMode;
     if (
       [
@@ -404,7 +424,7 @@ export function Editor() {
       setMode(requested);
       if (requested === 'form-fill') {
         setPropertiesTab('form');
-        setProperties(true);
+        showProperties();
       }
     }
     void (async () => {
@@ -479,7 +499,7 @@ export function Editor() {
         setBusy('');
       }
     })();
-  }, [params, openBytes]);
+  }, [params, openBytes, showProperties]);
   useEffect(
     () => () => {
       void doc?.loadingTask.destroy();
@@ -891,7 +911,8 @@ export function Editor() {
       annotationEditGroup.current = crypto.randomUUID();
       setInlineAnnotation(a.id);
     }
-    if (!['text', 'signature'].includes(kind) || window.innerWidth >= 1000) setProperties(true);
+    if (window.innerWidth >= 1000 || ['comment', 'link', 'field', 'checkbox'].includes(kind))
+      showProperties();
     setPropertiesTab('style');
   }
   function pointerDown(e: React.PointerEvent<HTMLDivElement>) {
@@ -1442,8 +1463,11 @@ export function Editor() {
               setInlineAnnotation('');
               setSelectedId('');
               setPropertiesTab('style');
-              if (['signature', 'comment', 'link', 'whiteout', 'erase'].includes(next))
-                setProperties(true);
+              if (
+                window.innerWidth >= 1000 &&
+                ['signature', 'comment', 'link', 'whiteout', 'erase'].includes(next)
+              )
+                showProperties();
             }}
             busy={!!busy}
             canUndo={history.index > 0}
@@ -1475,7 +1499,7 @@ export function Editor() {
                 label: 'Fill existing fields',
                 onClick: () => {
                   setMode('form-fill');
-                  setProperties(true);
+                  showProperties();
                   setPropertiesTab('form');
                 },
               },
@@ -1483,21 +1507,21 @@ export function Editor() {
                 label: 'Review annotations',
                 onClick: () => {
                   setMode('select');
-                  setProperties(true);
+                  showProperties();
                   setPropertiesTab('annotations');
                 },
               },
               {
                 label: 'Find text',
                 onClick: () => {
-                  setProperties(true);
+                  showProperties();
                   setPropertiesTab('find');
                 },
               },
               { label: 'Add a password', onClick: () => void exportFile('protect-pdf') },
               {
                 label: properties ? 'Hide properties' : 'Show properties',
-                onClick: () => setProperties(!properties),
+                onClick: toggleProperties,
               },
             ]}
             layout={[
@@ -1507,7 +1531,7 @@ export function Editor() {
               { label: 'Fit to width', onClick: () => setZoom(100) },
               {
                 label: sidebar ? 'Hide page thumbnails' : 'Show page thumbnails',
-                onClick: () => setSidebar(!sidebar),
+                onClick: togglePages,
               },
             ]}
             manage={[
@@ -1528,16 +1552,65 @@ export function Editor() {
               { label: 'Merge another PDF', onClick: () => void exportFile('merge-pdf') },
             ]}
           />
+          <div className="editor-mobile-panels" role="group" aria-label="Editor side panels">
+            <button
+              ref={pagesToggle}
+              className="editor-panel-toggle"
+              aria-label="Toggle page thumbnails"
+              aria-expanded={sidebar}
+              aria-controls="pages-panel"
+              onClick={togglePages}
+            >
+              <PanelLeft size={17} aria-hidden="true" />
+              Pages
+            </button>
+            <button
+              ref={propertiesToggle}
+              className="editor-panel-toggle mobile-properties-toggle"
+              aria-label="Toggle properties and forms"
+              aria-expanded={properties}
+              aria-controls="properties-panel"
+              onClick={toggleProperties}
+            >
+              <Settings2 size={17} aria-hidden="true" />
+              Properties
+            </button>
+          </div>
           <div
             className={`editor-body ${sidebar ? '' : 'hide-pages'} ${properties ? '' : 'hide-properties'}`}
           >
-            <aside className="page-sidebar">
+            {(sidebar || properties) && (
+              <button
+                className="editor-panel-backdrop"
+                aria-label="Dismiss side panel"
+                onClick={() => closeSidePanel(properties ? 'properties' : 'pages')}
+              />
+            )}
+            <aside
+              className="page-sidebar"
+              id="pages-panel"
+              aria-label="Page thumbnails"
+              onKeyDown={(event) => {
+                if (event.key === 'Escape' && !event.defaultPrevented && window.innerWidth < 1000) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  closeSidePanel('pages');
+                }
+              }}
+            >
               <div className="sidebar-heading">
                 <h2>
                   Pages <span>{state.pages.length}</span>
                 </h2>
                 <button className="icon-button" aria-label="Add a blank page" onClick={addPage}>
                   <Plus size={16} />
+                </button>
+                <button
+                  className="icon-button editor-panel-close"
+                  aria-label="Close page thumbnails"
+                  onClick={() => closeSidePanel('pages')}
+                >
+                  <X size={18} aria-hidden="true" />
                 </button>
               </div>
               <div className="page-thumbnails">
@@ -1548,6 +1621,7 @@ export function Editor() {
                     onClick={() => {
                       setPageIndex(i);
                       setSelectedId('');
+                      if (window.innerWidth <= 700) closeSidePanel('pages');
                     }}
                     aria-label={`Go to page ${i + 1}`}
                     aria-current={i === pageIndex ? 'page' : undefined}
@@ -1784,7 +1858,7 @@ export function Editor() {
                                 return;
                               }
                               setSelectedId(a.id);
-                              setProperties(true);
+                              showProperties();
                               setPropertiesTab('style');
                             }
                             if (
@@ -1994,7 +2068,18 @@ export function Editor() {
               </div>
               <div className="canvas-bottom-space" />
             </div>
-            <aside className="properties-sidebar" id="properties-panel">
+            <aside
+              className="properties-sidebar"
+              id="properties-panel"
+              aria-label="Properties and forms"
+              onKeyDown={(event) => {
+                if (event.key === 'Escape' && !event.defaultPrevented && window.innerWidth < 1000) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  closeSidePanel('properties');
+                }
+              }}
+            >
               <div className="properties-tabs">
                 <button
                   className={propertiesTab === 'style' ? 'active' : ''}
@@ -2017,6 +2102,13 @@ export function Editor() {
                   onClick={() => setPropertiesTab('find')}
                 >
                   <Search size={15} />
+                </button>
+                <button
+                  className="icon-button editor-panel-close"
+                  aria-label="Close properties and forms"
+                  onClick={() => closeSidePanel('properties')}
+                >
+                  <X size={18} aria-hidden="true" />
                 </button>
               </div>
               <div className="properties-content">
@@ -2636,15 +2728,6 @@ export function Editor() {
             </section>
           )}
           <footer className="editor-statusbar">
-            <button
-              className="icon-button mobile-properties-toggle"
-              aria-label="Toggle properties and forms"
-              aria-expanded={properties}
-              aria-controls="properties-panel"
-              onClick={() => setProperties(!properties)}
-            >
-              <Settings2 size={17} />
-            </button>
             <span className="editor-privacy" role="status" aria-live="polite">
               <ShieldCheck size={14} />
               {autosave.phase === 'saved'

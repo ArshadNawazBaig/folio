@@ -2,6 +2,7 @@
 import { requestTextPdf } from './editor-text-client';
 import type { InteractiveTextImage, TextInspection } from './pro-types';
 import { trimPreviews } from './text-preview-cache';
+import { retryTransientRequest } from './request-retry';
 
 type WorkerResult = InteractiveTextImage | TextInspection;
 
@@ -156,7 +157,12 @@ async function browserOrServer<T>(
   signal: AbortSignal,
   run: (client: InteractiveTextPreview, signal: AbortSignal) => Promise<T>,
 ): Promise<T> {
-  if (!client) return (await requestTextPdf(bytes, name, job, false, signal)).json();
+  const request = (signal: AbortSignal) =>
+    retryTransientRequest<T>(
+      async () => (await requestTextPdf(bytes, name, job, false, signal)).json(),
+      signal,
+    );
+  if (!client) return request(signal);
   const controller = new AbortController();
   const abort = () => controller.abort();
   signal.addEventListener('abort', abort, { once: true });
@@ -172,7 +178,7 @@ async function browserOrServer<T>(
   });
   const server = fallbackReady.then(async () => {
     if (controller.signal.aborted) throw new DOMException('Preview cancelled.', 'AbortError');
-    return (await requestTextPdf(bytes, name, job, false, controller.signal)).json() as Promise<T>;
+    return request(controller.signal);
   });
   try {
     return await Promise.any([browser, server]);

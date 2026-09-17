@@ -95,12 +95,12 @@ Image and PDF batches accept up to 20 files, 50 MB per file, and 150 MB total. T
 See [docs/SEO.md](docs/SEO.md). Set the following at **build time** for the production domain:
 
 ```dotenv
-NEXT_PUBLIC_SITE_URL=https://your-real-domain.com
+NEXT_PUBLIC_SITE_URL=https://thebestfreepdf.com
 NEXT_PUBLIC_INDEXABLE=true
 NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=your-optional-token
 ```
 
-Keep indexing disabled on previews and local builds. Changing these values requires rebuilding because public routes and metadata are prerendered. The current public origin is `https://folio-pdf-kappa.vercel.app`; it has production indexing enabled, while previews are guarded from indexing. Search Console ownership verification and sitemap submission still require the owner's Google account. Run `npm run seo:audit -- https://folio-pdf-kappa.vercel.app` after deployment to check public indexing and private-route exclusions.
+Keep indexing disabled on previews and local builds. Changing these values requires rebuilding because public routes and metadata are prerendered. The current public origin is `https://thebestfreepdf.com`; it has production indexing enabled, while previews are guarded from indexing. Search Console ownership verification and sitemap submission still require the owner's Google account. Run `npm run seo:audit -- https://thebestfreepdf.com` after deployment to check public indexing and private-route exclusions.
 
 ## Checks
 
@@ -110,12 +110,21 @@ npm run lint
 npm test
 npx playwright install chromium
 npm run build
+npm run test:tools
 npm run test:e2e
 npm run test:auth
 npm run test:design
+npm run test:blog
 ```
 
 See [docs/DESIGN.md](docs/DESIGN.md) for shared interface patterns and the desktop/mobile design checks.
+
+For repeatable tool checks without production credentials, use `npm run test:tools`.
+It runs the real PDF/image engines with local service fixtures on port 3001, using
+`.next-auth-tests` and leaving the normal dev server alone. Run it sequentially
+with the auth, design and blog suites, which share that port/build directory.
+See the [tool quality audit](docs/reviews/QUALITY-AUDIT-2026-09-17.md) for coverage
+and the remaining live-service and large-file release limits.
 
 Engine tests validate exported content, forms, page order, crop boundaries, rotations, ranges, ZIP files, actual text replacement/deletion, and password encryption. Billing tests run the SQL migration in PostgreSQL via PGlite and check paid coverage, role restrictions, quotas, and webhook event ordering. Browser tests cover free workflows, user-file preview and download gating, draft recovery, admin preview, support errors, responsive layouts, accessibility, and server-rendered SEO. Server-route tests use real PostgreSQL with mocked Supabase transport to verify role checks, support ownership, account controls, and maintenance recovery. E2E tests run against a production build at port 3000; the unconfigured-billing tests expect no payment/account environment variables. The isolated Google browser suite exercises the real Supabase client with simulated OAuth responses, including PKCE, admin routing, cancellation, expiry, and sign-out. Connected services still require the verification in the setup guide.
 

@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PDFDocument, degrees, rgb } from 'pdf-lib';
+import { PDFDocument, PDFDict, PDFName, degrees, rgb } from 'pdf-lib';
 import JSZip from 'jszip';
 import { createSample } from '../src/lib/sample';
 import { exportEditor, inspectPdf, pagePoint, processPdf } from '../src/lib/pdf-engine';
-import { parsePages } from '../src/lib/utils';
+import { friendlyError, parsePages } from '../src/lib/utils';
 import type { Annotation } from '../src/lib/types';
 import { processTextPdf } from '../scripts/pdf-text-engine.mjs';
 import { PNG } from 'pngjs';
@@ -64,6 +64,56 @@ test('rotations, crop boundaries, and numbered footers are saved', async () => {
   assert.match(await extractText(numbered.bytes, 2), /42/);
   assert.match(await extractText(numbered.bytes, 3), /43/);
   await assert.rejects(processPdf('crop', [input], { margin: 400 }), /visible area/);
+});
+test('invalid watermark and numbering settings never silently produce a different document', async () => {
+  for (const options of [
+    { text: '' },
+    { text: '   ' },
+    { text: 'Two\nlines' },
+    { size: 0 },
+    { size: NaN },
+    { opacity: 0 },
+    { opacity: 1.1 },
+    { opacity: -1 },
+    { color: 'invalid' },
+  ])
+    await assert.rejects(processPdf('watermark', [input], options));
+  for (const start of [0, -1, 1.5, Infinity, NaN])
+    await assert.rejects(processPdf('numbers', [input], { start }), /positive whole/);
+  const result = await processPdf('watermark', [input], {
+    text: 'APPROVED',
+    pages: [1],
+    size: 30,
+    opacity: 0.6,
+    color: '#7436ff',
+  });
+  assert.doesNotMatch(await extractText(result.bytes, 1), /APPROVED/);
+  assert.match(await extractText(result.bytes, 2), /APPROVED/);
+});
+test('non-text PDF operations do not embed unused fonts', async () => {
+  const countFonts = (doc: PDFDocument) =>
+    doc.context
+      .enumerateIndirectObjects()
+      .filter(
+        ([, object]) =>
+          object instanceof PDFDict && object.get(PDFName.of('Type')) === PDFName.of('Font'),
+      ).length;
+  const original = countFonts(await PDFDocument.load(sample));
+  for (const operation of ['rotate', 'crop', 'compress'] as const) {
+    const result = await processPdf(operation, [input]);
+    assert.equal(countFonts(await PDFDocument.load(result.bytes)), original, operation);
+  }
+});
+test('password validation messages remain relevant to the tool', () => {
+  assert.equal(friendlyError(new Error('Enter the Wi-Fi password.')), 'Enter the Wi-Fi password.');
+  assert.equal(
+    friendlyError(new Error('The passwords do not match.')),
+    'The passwords do not match.',
+  );
+  assert.match(friendlyError(new Error('The PDF is encrypted')), /password protected/);
+  const password = new Error('No password given');
+  password.name = 'PasswordException';
+  assert.match(friendlyError(password), /password protected/);
 });
 test('editing exports text, reordering, blank pages, and field values', async () => {
   const { state } = await inspectPdf(sample);

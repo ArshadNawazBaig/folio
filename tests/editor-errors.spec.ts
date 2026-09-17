@@ -22,6 +22,11 @@ test('unavailable accessibility text does not report a failed PDF preview', asyn
   }
   await expect(page.locator('.editable-page canvas')).toBeVisible();
   await expect(page.locator('main [role=alert]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Edit original text', exact: true }).click();
+  await page.getByRole('button', { name: 'Edit text: A place to', exact: true }).click();
+  await expect(
+    page.getByRole('textbox', { name: 'Edit original text: A place to', exact: true }),
+  ).toBeEditable();
 });
 
 for (const width of [1440, 390])

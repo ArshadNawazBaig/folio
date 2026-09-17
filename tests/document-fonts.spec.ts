@@ -159,8 +159,6 @@ test('added text keeps its Google font through save, refresh, and a free PDF dow
 test('font picker fits a mobile viewport and remains keyboard accessible', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/workspace?sample=proposal');
-  // The development-only Next.js badge otherwise covers the mobile properties button.
-  await page.addStyleTag({ content: 'nextjs-portal { display: none; }' });
   await page.getByRole('button', { name: 'Add text', exact: true }).click();
   await page.locator('.editable-page').click({ position: { x: 80, y: 100 } });
   await page.getByRole('textbox', { name: 'Edit added text', exact: true }).fill('Mobile font');

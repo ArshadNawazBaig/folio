@@ -16,25 +16,27 @@
 
 ## Production configuration
 
-The public deployment uses `https://folio-pdf-kappa.vercel.app`. Production indexing is enabled through `NEXT_PUBLIC_INDEXABLE=true`; Preview has a separate false value. The code also rejects indexing in Vercel preview/development environments even if that flag is accidentally enabled. Noncanonical Vercel deployment aliases receive noindex headers on application pages. Local development stays noindex.
+The public deployment uses `https://thebestfreepdf.com`. Production indexing is enabled through `NEXT_PUBLIC_INDEXABLE=true`; Preview has a separate false value. The code also rejects indexing in Vercel preview/development environments even if that flag is accidentally enabled. Noncanonical Vercel deployment aliases receive noindex headers on application pages. Local development stays noindex.
 
 The initial live audit found `Disallow: /`, noindex on public pages, and an empty sitemap. The production deployment has been rebuilt with public indexing enabled. Future changes to the domain or indexing environment variables also require a rebuild.
 
 ## Search Console setup
 
 1. Open [Google Search Console](https://search.google.com/search-console/welcome) using the Google account that should own the property.
-2. Add a **URL-prefix** property for `https://folio-pdf-kappa.vercel.app/`. A Domain property requires control of DNS, so use that option only for your own custom domain.
-3. Choose **HTML tag** verification. Copy only the `content` value from the supplied `google-site-verification` meta tag into `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` in Vercel's Production environment.
+2. Add a **Domain property** for `thebestfreepdf.com` and publish Google’s exact TXT verification record in the domain’s DNS settings. Alternatively, add a **URL-prefix** property for `https://thebestfreepdf.com/` and use the HTML-tag steps below.
+3. For a URL-prefix property, choose **HTML tag** verification. Copy only the `content` value from the supplied `google-site-verification` meta tag into `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` in Vercel's Production environment.
 4. Rebuild/deploy, then click **Verify** in Search Console. The token hook is implemented; account ownership cannot be verified without your Google account. No verification token has been supplied yet.
-5. In **Sitemaps**, submit `https://folio-pdf-kappa.vercel.app/sitemap.xml`.
+5. In **Sitemaps**, submit `https://thebestfreepdf.com/sitemap.xml`.
 6. Use URL Inspection for the homepage and a few priority tool/guide pages. Inspect the live URL and request indexing where appropriate. Submission is a discovery request, not a ranking guarantee.
 7. Monitor Page indexing, Search performance, and Core Web Vitals. Investigate excluded canonical pages, server errors, or failed sitemap fetches before publishing more content.
 
 ## Changing to a custom domain
 
+The preferred domain is `https://thebestfreepdf.com`. DNS and HTTPS are working, and `www` permanently redirects to the apex with paths and query strings preserved. Production metadata, sitemap, social URLs and checkout return links use the new origin. Legacy public Vercel URLs redirect permanently; legacy private sessions and APIs stay reachable during the transition. See [the domain migration record](CUSTOM-DOMAIN.md) for verification and service setup.
+
 - Choose the real domain and set `NEXT_PUBLIC_SITE_URL` to its HTTPS origin.
 - Set `NEXT_PUBLIC_INDEXABLE=true` only for the production build. Leave it false for previews. Build again after either variable changes.
-- Configure the hosting provider's preferred-domain redirect (for example www to the apex domain), HTTPS, and CDN caching. The app cannot choose this policy until the domain is known.
+- Configure the hosting provider's preferred-domain redirect (for example www to the apex domain), HTTPS, and CDN caching. The configured preference is the apex domain.
 - Verify the deployed canonical URLs, sitemap, robots rules, social cards, response codes, and security headers. Confirm the host is not adding a conflicting noindex header.
 - Verify the new property in Search Console and submit its sitemap. Keep the old property while the change is processed; use permanent redirects and updated canonical URLs consistently.
 - Review visible capability descriptions when enabling new processing providers. Update availability, metadata, and sitemap inclusion together.
@@ -49,7 +51,7 @@ Publish useful guides based on actual user questions; keep conversion limits and
 
 - `/tools` and `/convert` use server-rendered pagination with real links, ten records by default, and the existing custom per-page selector. Search and category filters use GET URLs and remain usable without JavaScript. Filtered and alternate-page-size lists are noindex; ordinary paginated pages have their own canonical URLs.
 - Task-specific titles describe all 29 catalogue tools. Image and QR tools no longer inherit an incorrect “Free PDF Tool” suffix. The layout adds the Folio brand once.
-- Eight guides cover current, supported workflows. Publication and update dates are separate, and the visible update date matches Article markup. Guides link to tools; matching tool pages link back to the guides. Each guide has a table of contents with section links.
+- Nine guides cover choosing an editor and current, supported workflows. Publication and update dates are separate, and the visible update date matches Article markup. Guides link to tools; matching tool pages link back to the guides. Each guide has a table of contents with section links.
 - Homepage WebSite and Organization entities share stable IDs. Article publishers and blog editorial authors use the appropriate entity type. No fake reviews, ratings, customer numbers, or rankings are added.
 - Expensive tool/workspace navigation does not preload processing bundles from marketing links before someone chooses a tool. Article content and navigation remain server rendered.
 
@@ -58,7 +60,7 @@ Publish useful guides based on actual user questions; keep conversion limits and
 Run against the preferred public origin after deploying:
 
 ```sh
-npm run seo:audit -- https://folio-pdf-kappa.vercel.app /tmp/folio-seo-report.json
+npm run seo:audit -- https://thebestfreepdf.com /tmp/folio-seo-report.json
 ```
 
 The command checks robots, a nonempty sitemap, canonical URLs, response codes, distinct titles, descriptions, one H1 per public page, social metadata, parsable JSON-LD, private-route noindex protection, and real 404 responses. It exits unsuccessfully when those checks fail. This checks technical readiness, not Google's actual index or rankings.
@@ -79,6 +81,28 @@ The baseline blocked indexing and loaded approximately 292 KiB of unused JavaScr
 
 ## Initial search priorities
 
+### Free PDF search focus — September 17, 2026
+
+The homepage now introduces the actual free PDF workflows, with direct links to six working tools. `/edit-pdf` targets “free PDF editor online” specifically for added text, annotations, signatures, forms, and page changes. Visible copy and FAQs distinguish those free downloads from paid original-text exports. No entitlement or pricing rules were changed. Avoid describing the entire product as completely free.
+
+`/guides/choose-a-free-pdf-editor` addresses “best free PDF editor” as a decision guide: export charges, annotation versus replacement, signatures, limitations, privacy, and checking the exported result. It identifies Folio as the author and does not invent competitor tests or declare Folio the best. The guide is linked from the homepage, editor, relevant tool pages, guide index, and sitemap.
+
+| Search intent                                | Primary page                       | Supporting page                        |
+| -------------------------------------------- | ---------------------------------- | -------------------------------------- |
+| Free PDF tools online                        | `/`                                | `/tools`                               |
+| Free PDF editor online; add text to PDF free | `/edit-pdf`                        | `/guides/how-to-edit-a-pdf`            |
+| Best free PDF editor; choosing a free editor | `/guides/choose-a-free-pdf-editor` | `/edit-pdf`                            |
+| Merge PDF free; combine PDF files            | `/merge-pdf`                       | `/guides/how-to-merge-and-split-pdfs`  |
+| Split PDF free; extract PDF pages            | `/split-pdf`                       | `/guides/how-to-merge-and-split-pdfs`  |
+| Sign PDF online free                         | `/sign-pdf`                        | `/guides/how-to-sign-a-pdf`            |
+| Free PDF to JPG / PNG converter              | `/pdf-to-jpg`, `/pdf-to-png`       | `/guides/how-to-convert-pdf-to-images` |
+
+A search-results spot check showed that the “best free PDF editor” phrase often surfaces editorial comparison articles. This is an intent observation, not a measured keyword difficulty, search-volume estimate, or a record of Folio’s Google position. Avoid duplicate “best”, “free”, and “online” landing pages for the same editor.
+
+After Search Console verification, record an initial 28-day baseline: indexed canonical pages, non-brand impressions and clicks, CTR, and average position grouped by the above queries and destination pages. Compare successive periods using the same country and device filters. Use actual queries to improve relevant pages; do not treat a Lighthouse score or a sitemap submission as ranking evidence. Useful product demonstrations and original guides can be shared with relevant communities or reviewers by the owner. No outreach or purchased links are part of this implementation.
+
+Deployed September 17, 2026 as `dpl_HQs9Ddb2zyztqGhHDfEAubY8yvxz`. The production SEO audit passed for **49 public sitemap URLs with no reported issues**. Six SEO/access unit checks, three existing browser tests, lint, type checking, and the isolated production build passed. Desktop/mobile review and live mobile checks covered the homepage, editor landing page, and new guide. The owner confirmed Search Console is not yet verified; verification, submission, and actual Google performance measurement remain pending.
+
 | User question                                     | Useful destination                                                   |
 | ------------------------------------------------- | -------------------------------------------------------------------- |
 | Edit existing text in a PDF                       | `/edit-pdf-text` and `/guides/how-to-edit-a-pdf`                     |
@@ -90,6 +114,10 @@ The baseline blocked indexing and loaded approximately 292 KiB of unused JavaScr
 | PDF compression did not reduce file size          | `/compress-pdf`, `/guides/why-your-pdf-wont-get-smaller`             |
 
 These are intent-based priorities, not researched search-volume or difficulty estimates. Start measuring impressions and clicks for these specific tasks before evaluating broad terms such as “PDF editor.” Update useful content from actual support questions and observed searches. Do not create duplicate city, language, or keyword pages that offer the same content. Unconnected Office conversion and translation routes remain noindex until they work.
+
+## Custom-domain deployment verification — September 17, 2026
+
+Deployment `dpl_FxE9XR4CyT9KuGtzqpEMwvGQKoAX` uses `https://thebestfreepdf.com`. The live audit passed for **49 public sitemap URLs with zero issues**. Public pages no longer receive the previous noncanonical-host noindex header. `www` and legacy public Vercel URLs redirect permanently; private legacy sessions and APIs stay reachable and noindex. Guest save/refresh smoke checks passed on the new origin. The existing Lemon Squeezy webhook uses the new domain. Supabase’s application callback allowlist/Site URL still need the owner’s update; see [CUSTOM-DOMAIN.md](CUSTOM-DOMAIN.md).
 
 ## Reference documentation
 

@@ -1,8 +1,7 @@
 # Vercel deployment
 
-Folio is deployed at **https://folio-pdf-kappa.vercel.app** in the
-`arshadnawazbaigs-projects/folio-pdf` Vercel project. This is a testing deployment:
-Lemon Squeezy remains in test mode and search indexing is disabled.
+Folio is deployed at **https://thebestfreepdf.com** in the
+`arshadnawazbaigs-projects/folio-pdf` Vercel project. Public search indexing is enabled. Lemon Squeezy remains in test mode.
 
 ## Build and redeploy
 
@@ -86,12 +85,13 @@ The CLI can create `.env.local` with a Vercel OIDC token; do not commit it.
 
 - Supabase public configuration and server credentials are configured in Vercel.
   Server secrets do not use the `NEXT_PUBLIC_` prefix.
-- Supabase's Site URL is the stable URL above. Its redirect allowlist includes
-  `https://folio-pdf-kappa.vercel.app/auth/callback**` for the application's callback
-  query parameters. The existing localhost redirect remains available.
+- Supabase must use the Site URL above and allow
+  `https://thebestfreepdf.com/auth/callback**` for the application’s callback
+  query parameters. Keep existing localhost and legacy Vercel callbacks during migration.
+  Confirm the project settings in [CUSTOM-DOMAIN.md](CUSTOM-DOMAIN.md).
 - The Lemon Squeezy **test** webhook now points to
-  `https://folio-pdf-kappa.vercel.app/api/billing/webhook`.
-- `NEXT_PUBLIC_SITE_URL` uses the stable URL and `NEXT_PUBLIC_INDEXABLE=false`.
+  `https://thebestfreepdf.com/api/billing/webhook`.
+- `NEXT_PUBLIC_SITE_URL` uses the stable URL and `NEXT_PUBLIC_INDEXABLE=true` for Production only.
   Translation and Office conversions remain disabled until their separate
   provider credentials and `DOCUMENT_RESULT_KEY` are configured.
 

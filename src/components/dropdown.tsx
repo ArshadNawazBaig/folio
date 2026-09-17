@@ -35,7 +35,7 @@ export function Dropdown(props: DropdownProps) {
         disabled={disabled}
       >
         <Select.Label className={hideLabel ? 'sr-only' : 'dropdown-label'}>{label}</Select.Label>
-        <Select.Trigger className="dropdown-trigger">
+        <Select.Trigger className="dropdown-trigger" aria-label={label}>
           {icon && (
             <span className="dropdown-leading-icon" aria-hidden="true">
               {icon}
@@ -116,7 +116,7 @@ function SearchableDropdown({
         <Combobox.Label className={hideLabel ? 'sr-only' : 'dropdown-label'}>
           {label}
         </Combobox.Label>
-        <Combobox.Trigger className="dropdown-trigger">
+        <Combobox.Trigger className="dropdown-trigger" aria-label={label}>
           {icon && (
             <span className="dropdown-leading-icon" aria-hidden="true">
               {icon}

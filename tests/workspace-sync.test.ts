@@ -266,3 +266,45 @@ test('undo during an in-flight write stays unsaved until the undo also reaches s
   await saving;
   assert.deepEqual(stored, original);
 });
+
+test('a lost save response retries the same write and then persists edits made during recovery', async (t) => {
+  const statuses: SyncStatus[] = [];
+  let stored = original;
+  let revision = restored.revision;
+  let writeId = '';
+  const writes: string[] = [];
+  let lost!: () => void;
+  const responseLost = new Promise<void>((resolve) => (lost = resolve));
+  t.mock.method(globalThis, 'fetch', async (_url: unknown, init: RequestInit) => {
+    if (init.method !== 'PATCH') return Response.json({ ...restored, revision, snapshot: stored });
+    const body = JSON.parse(init.body as string);
+    writes.push(body.writeId);
+    // Emulate the server's idempotency key: the first response fails AFTER commit.
+    if (body.writeId !== writeId) {
+      assert.equal(body.revision, revision);
+      writeId = body.writeId;
+      stored = body.snapshot;
+      revision++;
+    }
+    if (writes.length === 1) {
+      lost();
+      throw new TypeError('Load failed');
+    }
+    return Response.json({ revision, updatedAt: restored.updatedAt, expiresAt: null });
+  });
+  const sync = new WorkspaceSync('workspace', new Uint8Array(), (s) => statuses.push(s), restored);
+  t.after(() => sync.dispose());
+  sync.update(restored.name, edited);
+  const saving = sync.flush(true);
+  await responseLost;
+  assert.notEqual(statuses.at(-1)?.phase, 'saved');
+  const newest = { ...edited, flatten: true };
+  sync.update(restored.name, newest);
+  await saving;
+  assert.equal(writes.length, 3);
+  assert.equal(writes[0], writes[1]);
+  assert.notEqual(writes[1], writes[2]);
+  assert.equal(revision, 3, 'The repeated write must not increment the revision twice');
+  assert.deepEqual(stored, newest);
+  assert.equal(statuses.at(-1)?.phase, 'saved');
+});

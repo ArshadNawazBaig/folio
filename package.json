@@ -16,6 +16,7 @@
     "postinstall": "node scripts/prepare-assets.mjs",
     "test": "tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
+    "test:tools": "playwright test --config=playwright.tools.config.ts",
     "format": "prettier --write src tests scripts docs *.ts *.json README.md",
     "format:check": "prettier --check src tests scripts docs *.ts *.json README.md",
     "test:auth": "playwright test --config=playwright.auth.config.ts",

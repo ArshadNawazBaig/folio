@@ -59,10 +59,11 @@ export function UploadArea({
         type="file"
         accept={accept}
         multiple={multiple}
+        disabled={busy}
         hidden
         aria-label="Choose document files"
         onChange={(e) => {
-          if (e.target.files) onFiles(Array.from(e.target.files));
+          if (!busy && e.target.files) onFiles(Array.from(e.target.files));
           e.target.value = '';
         }}
       />

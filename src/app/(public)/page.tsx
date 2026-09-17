@@ -20,8 +20,8 @@ import { popularSlugs } from '@/lib/tools';
 import { pageMetadata, siteUrl, organizationSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
 export const metadata = pageMetadata(
-  'Free Online PDF Tools — Edit, Merge & Convert',
-  'A calmer way to work with PDFs. Edit, merge, compress, convert, and fill documents in your browser. No sign-up needed for local tools.',
+  'Free PDF Tools Online — Edit, Merge, Compress & Sign',
+  'Add text, annotate, sign, merge and split PDFs online with free downloads. Original-text edits require a paid plan to download. Start with Folio in your browser.',
   '/',
 );
 export default async function Home() {
@@ -54,7 +54,7 @@ export default async function Home() {
             LESS PAPERWORK. MORE POSSIBILITY.
           </div>
           <h1>
-            Your documents.
+            Free PDF tools.
             <br />
             <em>
               Beautifully
@@ -62,9 +62,9 @@ export default async function Home() {
             </em>
           </h1>
           <p className="hero-description">
-            Your online PDF editor, converter, and form toolkit.
+            Add text, sign, merge, and split PDFs for free.
             <br />
-            Edit, merge, compress, and sign PDFs in one place.
+            Useful tools. Free downloads. Right in your browser.
           </p>
           <HomeUpload />
           <Link prefetch={false} href="/workspace?sample=proposal" className="sample-link">
@@ -77,7 +77,7 @@ export default async function Home() {
         <div className="section-heading compact-heading">
           <div>
             <span className="eyebrow">A GOOD PLACE TO START</span>
-            <h2 id="popular-title">Everyday essentials.</h2>
+            <h2 id="popular-title">Free tools for everyday PDFs.</h2>
           </div>
           <Link prefetch={false} href="/tools" className="text-link">
             Explore all tools <ArrowUpRight size={17} />
@@ -101,13 +101,22 @@ export default async function Home() {
             );
           })}
         </div>
+        <div className="free-tools-note">
+          <p>
+            Added text, annotations, signatures, and page tools include free downloads. Downloads
+            containing changes to original PDF text require a paid plan.
+          </p>
+          <Link href="/guides/choose-a-free-pdf-editor" className="text-link">
+            How to choose a free PDF editor <ArrowRight size={15} />
+          </Link>
+        </div>
       </section>
       <section className="confidence-strip container">
         <div>
           <ShieldCheck />
           <span>
             <strong>Private by design</strong>
-            <small>Local tools keep files on your device.</small>
+            <small>Editor drafts use private cloud storage.</small>
           </span>
         </div>
         <div>
@@ -121,7 +130,7 @@ export default async function Home() {
           <Zap />
           <span>
             <strong>Ready when you are</strong>
-            <small>No installation. No account required.</small>
+            <small>No installation. Start as a guest.</small>
           </span>
         </div>
       </section>
@@ -301,12 +310,16 @@ export default async function Home() {
         <Faq
           items={[
             [
+              'What can I do with Folio for free?',
+              'Add text, highlights, images, and signatures; fill forms; merge, split, and organize pages; or convert PDF pages to images. These workflows include free downloads. Original-text editing can be tried in the editor, but downloading those changes requires a paid plan. Password-protected, translated, and Office-converted downloads also require a paid plan when available.',
+            ],
+            [
               'Do I need an account to use Folio?',
-              'You can start editing and previewing PDFs without an account. Sign in to save documents to private cloud storage and access My files across your devices.',
+              'You can start as a guest without Google sign-in. Guest editor files use private cloud storage, with 100 MB of space and a 24-hour expiry. Sign in with Google to keep your documents and access them across your devices.',
             ],
             [
               'Where do my documents go?',
-              'Annotation and page tools process files in your browser. Original text editing and password protection send the PDF to Folio for processing; translation and Office conversion use connected document services. Saved files and signed-in checkout recovery drafts use private cloud storage.',
+              'The editor automatically uploads your document and saves changes to private cloud storage, including for guests. Standalone merge, split, and image tools process files in your browser. Some original-text operations and password protection use Folio’s servers; translation and Office conversion use connected document services.',
             ],
             [
               'Can I use Folio on my phone?',

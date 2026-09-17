@@ -430,7 +430,26 @@ export async function processPdf(
       type: 'application/zip',
     };
   }
-  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const font =
+    operation === 'watermark' || operation === 'numbers'
+      ? await doc.embedFont(StandardFonts.Helvetica)
+      : null;
+  if (operation === 'watermark') {
+    if (!(options.text ?? 'DRAFT').trim() || /[\r\n]/.test(options.text ?? ''))
+      throw new Error('Enter watermark text on a single line.');
+    if (!Number.isFinite(options.size ?? 48) || (options.size ?? 48) < 1)
+      throw new Error('Choose a positive watermark text size.');
+    const opacity = options.opacity ?? 0.18;
+    if (!Number.isFinite(opacity) || opacity <= 0 || opacity > 1)
+      throw new Error('Choose a watermark opacity greater than 0% and up to 100%.');
+  }
+  if (
+    operation === 'numbers' &&
+    (!Number.isSafeInteger(options.start ?? 1) || (options.start ?? 1) < 1)
+  )
+    throw new Error('Choose a positive whole starting number.');
+  if (font && !/^#[0-9a-f]{6}$/i.test(options.color ?? '#202522'))
+    throw new Error('Choose a valid text color.');
   for (let n = 0; n < indices.length; n++) {
     const p = doc.getPage(indices[n]);
     if (operation === 'rotate')
@@ -442,17 +461,15 @@ export async function processPdf(
         throw new Error('The crop margin must leave a visible area on every selected page.');
       p.setCropBox(x + m, y + m, width - m * 2, height - m * 2);
     }
-    if (operation === 'watermark' || operation === 'numbers') {
+    if (font) {
       const rotation = p.getRotation().angle;
       const crop = p.getCropBox();
       const sideways = rotation % 180 !== 0;
       const w = sideways ? crop.height : crop.width;
       const h = sideways ? crop.width : crop.height;
       const text =
-        operation === 'numbers' ? String((options.start || 1) + n) : options.text || 'DRAFT';
-      const size = operation === 'numbers' ? 11 : options.size || 48;
-      if (!Number.isFinite(size) || size < 1 || !Number.isFinite(options.opacity ?? 0.18))
-        throw new Error('Choose a valid text size and opacity.');
+        operation === 'numbers' ? String((options.start ?? 1) + n) : (options.text ?? 'DRAFT');
+      const size = operation === 'numbers' ? 11 : (options.size ?? 48);
       const tw = font.widthOfTextAtSize(text, size);
       if (tw > w - 24)
         throw new Error(

@@ -61,7 +61,7 @@ test('tool search titles cover the catalogue and guide dates and links describe 
   );
   for (const guide of guides) {
     assert.ok(guide.published <= guide.updated);
-    assert.ok(guide.updated <= '2026-09-15');
+    assert.ok(guide.updated <= new Date().toISOString().slice(0, 10));
     for (const slug of [guide.tool, ...(guide.relatedTools || [])])
       assert.ok(
         tools.some((tool) => tool.available && tool.slug === slug),

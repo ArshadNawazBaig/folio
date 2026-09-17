@@ -2,13 +2,21 @@ import { init } from '@embedpdf/pdfium';
 import { processTextPdf } from '../lib/pdf-text-engine.mjs';
 import { documentFontUrl } from '../lib/document-fonts.mjs';
 import type { InteractiveTextImage, TextInspection } from '../lib/pro-types';
+import { retryTransientRequest } from '../lib/request-retry';
+import { browserAsset } from '../lib/pdfium-asset.json';
 
 const engine = (async () => {
   if (typeof OffscreenCanvas === 'undefined') throw new Error('Browser previews are unavailable.');
-  const response = await fetch('/pdfium/pdfium.wasm');
-  if (!response.ok) throw new Error('The preview engine could not be loaded.');
+  const wasmBinary = await retryTransientRequest(async () => {
+    const response = await fetch(browserAsset);
+    if (!response.ok)
+      throw Object.assign(new Error('The preview engine could not be loaded.'), {
+        status: response.status,
+      });
+    return response.arrayBuffer();
+  });
   const api = await init({
-    wasmBinary: await response.arrayBuffer(),
+    wasmBinary,
     print: () => {},
     printErr: () => {},
   });

@@ -308,8 +308,10 @@ export function InlinePdfText({
         }
         // The viewer already loads the PDF's font programs into the browser. Reuse those
         // same faces for typing, including their actual bold/italic outlines.
-        await pdfPage.getOperatorList();
-        const content = await pdfPage.getTextContent();
+        // Font reuse is optional: inspected geometry remains valid when the viewer
+        // cannot extract accessibility text. Matching fonts can still be loaded below.
+        await pdfPage.getOperatorList().catch(() => null);
+        const content = await pdfPage.getTextContent().catch(() => ({ items: [] }));
         const faces: Record<string, CSSProperties> = {};
         const candidates: { font: ViewerFont; x: number; y: number }[] = [];
         for (const item of content.items) {
@@ -319,8 +321,8 @@ export function InlinePdfText({
         }
         for (const index of copySources) {
           const source = await document.getPage(index + 1);
-          await source.getOperatorList();
-          for (const item of (await source.getTextContent()).items) {
+          await source.getOperatorList().catch(() => null);
+          for (const item of (await source.getTextContent().catch(() => ({ items: [] }))).items) {
             if ('fontName' in item && source.commonObjs.has(item.fontName))
               candidates.push({
                 font: source.commonObjs.get(item.fontName) as ViewerFont,

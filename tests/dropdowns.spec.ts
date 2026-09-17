@@ -173,6 +173,7 @@ test('PDF form dropdowns preserve read-only fields, export choices, and hand off
     })),
   ).toEqual([]);
   await page.getByRole('option', { name: 'Compress this PDF', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Leave editor', exact: true }).click();
   await expect(page).toHaveURL(/\/compress-pdf/);
   await expect(page.getByRole('button', { name: 'Optimize PDF', exact: true })).toBeEnabled();
 });

@@ -1,5 +1,5 @@
 'use client';
-import { accountFetch } from './auth-client';
+import { accountFetch, AccountRequestError } from './auth-client';
 import { runPdf } from './pdf-client';
 import { arrangedTextChanges, hasTextChanges, withoutTextChanges } from './editor-text';
 import type { EditorState } from './types';
@@ -19,7 +19,10 @@ export async function requestTextPdf(
     : await fetch('/api/pro/preview', { method: 'POST', body: form, signal });
   if (!response.ok) {
     const result = await response.json().catch(() => ({}));
-    throw new Error(result.error || 'This PDF could not be processed.');
+    throw new AccountRequestError(
+      response.status,
+      result.error || 'This PDF could not be processed.',
+    );
   }
   return response;
 }

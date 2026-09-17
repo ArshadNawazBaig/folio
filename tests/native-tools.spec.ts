@@ -238,6 +238,156 @@ test('QR exports scan correctly, invalidate after edits and fit mobile and deskt
     .fill('example.com/updated');
   await expect(page.getByRole('button', { name: 'Download PNG', exact: true })).toHaveCount(0);
 });
+test('Wi-Fi QR validation identifies the missing password and the completed code scans', async ({
+  page,
+}) => {
+  await page.goto('/create-qr-code');
+  await choose(page, 'QR content', 'Wi-Fi network');
+  await page.getByLabel('Network name', { exact: true }).fill('Office;network');
+  await page.getByRole('button', { name: 'Generate QR code', exact: true }).click();
+  await expect(page.getByRole('main').getByRole('alert')).toHaveText('Enter the Wi-Fi password.');
+  await expect(page.getByRole('button', { name: 'Download PNG', exact: true })).toHaveCount(0);
+  await page.getByLabel('Network password', { exact: true }).fill('test-password');
+  await page.getByRole('button', { name: 'Generate QR code', exact: true }).click();
+  const { data, info } = await sharp((await exported(page, 'Download PNG')).bytes)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  expect(jsQR(new Uint8ClampedArray(data), info.width, info.height)?.data).toBe(
+    'WIFI:T:WPA;S:Office\\;network;P:test-password;H:false;;',
+  );
+});
+
+test('PDF text export honors page order and explains pages without selectable text', async ({
+  page,
+}) => {
+  const pdf = await PDFDocument.create();
+  for (const text of ['First section', 'Second section'])
+    pdf.addPage().drawText(text, { x: 40, y: 600, size: 18 });
+  await page.goto('/pdf-to-text');
+  await page
+    .locator('input[type=file]')
+    .first()
+    .setInputFiles({
+      name: 'sections.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from(await pdf.save()),
+    });
+  await expect(page.getByRole('button', { name: 'Extract text', exact: true })).toBeEnabled();
+  await page.getByLabel('Pages', { exact: true }).fill('2,1');
+  await page.getByRole('button', { name: 'Extract text', exact: true }).click();
+  const text = (await exported(page, 'Download text')).bytes.toString('utf8');
+  expect(text).toMatch(/Page 2[\s\S]*Second section[\s\S]*Page 1[\s\S]*First section/);
+  const blank = await PDFDocument.create();
+  blank.addPage();
+  await page.goto('/pdf-to-text');
+  await page
+    .locator('input[type=file]')
+    .first()
+    .setInputFiles({
+      name: 'blank.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from(await blank.save()),
+    });
+  await expect(page.getByRole('button', { name: 'Extract text', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: 'Extract text', exact: true }).click();
+  await expect(page.getByRole('main').getByRole('alert')).toContainText(
+    'No selectable text was found',
+  );
+  await expect(page.getByRole('button', { name: 'Download text', exact: true })).toHaveCount(0);
+});
+
+test('malformed PDF settings return an actionable validation response', async ({ request }) => {
+  const pdf = await PDFDocument.create();
+  pdf.addPage();
+  const response = await request.post('/api/pro/preview', {
+    multipart: {
+      file: {
+        name: 'settings.pdf',
+        mimeType: 'application/pdf',
+        buffer: Buffer.from(await pdf.save()),
+      },
+      job: '{broken',
+    },
+  });
+  expect(response.status()).toBe(400);
+  expect(await response.json()).toEqual({ error: 'The requested PDF settings are invalid.' });
+});
+
+test('watermark rejects empty text, exports the chosen color, and invalidates an old result', async ({
+  page,
+}) => {
+  const pdf = await PDFDocument.create();
+  pdf.addPage([300, 200]);
+  await page.goto('/watermark-pdf');
+  await page
+    .locator('input[type=file]')
+    .first()
+    .setInputFiles({
+      name: 'blank.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from(await pdf.save()),
+    });
+  const run = page.getByRole('button', { name: 'Add watermark', exact: true });
+  await expect(run).toBeEnabled();
+  await page.getByLabel('Watermark text', { exact: true }).fill('');
+  await run.click();
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('Enter watermark text');
+  await expect(page.getByRole('button', { name: 'Download PDF', exact: true })).toHaveCount(0);
+  await page.getByLabel('Watermark text', { exact: true }).fill('APPROVED');
+  await page.getByLabel('Text size', { exact: true }).fill('24');
+  await page.getByLabel('Watermark color', { exact: true }).fill('#7436ff');
+  await choose(page, 'Opacity', '60% — strong');
+  await run.click();
+  const result = await exported(page, 'Download PDF');
+  const { processTextPdf } = await import('../scripts/pdf-text-engine.mjs');
+  const inspection = await processTextPdf(new Uint8Array(result.bytes), { operation: 'inspect' });
+  expect(inspection.blocks).toEqual(
+    expect.arrayContaining([expect.objectContaining({ text: 'APPROVED', color: '#7436ff' })]),
+  );
+  await page.getByLabel('Watermark color', { exact: true }).fill('#000000');
+  await expect(page.getByRole('button', { name: 'Download PDF', exact: true })).toHaveCount(0);
+});
+
+test('cancelling the final image packaging never publishes a stale download and can be retried', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const read = Blob.prototype.arrayBuffer;
+    let imageReads = 0;
+    Blob.prototype.arrayBuffer = async function () {
+      if (this.type === 'image/png' && ++imageReads === 3) {
+        (window as any).imagePackagingBlocked = true;
+        await new Promise<void>((resolve) => {
+          (window as any).releaseImagePackaging = resolve;
+        });
+      }
+      return read.call(this);
+    };
+  });
+  const pdf = await PDFDocument.create();
+  pdf.addPage([100, 100]).drawText('Test', { size: 12, x: 10, y: 30 });
+  await page.goto('/pdf-to-png');
+  await page
+    .locator('input[type=file]')
+    .first()
+    .setInputFiles({
+      name: 'cancel.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from(await pdf.save()),
+    });
+  const run = page.getByRole('button', { name: 'Convert to PNG', exact: true });
+  await expect(run).toBeEnabled();
+  await run.click();
+  await expect.poll(() => page.evaluate(() => (window as any).imagePackagingBlocked)).toBe(true);
+  await page.getByRole('button', { name: 'Cancel processing', exact: true }).click();
+  await page.evaluate(() => (window as any).releaseImagePackaging());
+  await expect(page.getByRole('main').getByRole('alert')).toHaveText('Processing cancelled.');
+  await expect(page.getByRole('button', { name: 'Download PNG', exact: true })).toHaveCount(0);
+  await run.click();
+  const result = await exported(page, 'Download PNG');
+  expect((await sharp(result.bytes).metadata()).format).toBe('png');
+});
 test('image workspace stays accessible and within a narrow mobile viewport', async ({ page }) => {
   await page.goto('/jpg-to-webp');
   await page.locator('input[type=file]').first().setInputFiles({

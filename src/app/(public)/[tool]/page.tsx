@@ -74,7 +74,7 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           <ToolIcon name={t.icon} size={28} />
         </span>
         <h1>
-          {t.name}
+          {t.slug === 'edit-pdf' ? 'Free PDF editor' : t.name}
           <span className="accent-dot">.</span>
         </h1>
         <p>{t.description}</p>

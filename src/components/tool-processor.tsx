@@ -63,6 +63,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
   const [text, setText] = useState('DRAFT');
   const [fontSize, setFontSize] = useState(48);
   const [opacity, setOpacity] = useState(0.18);
+  const [textColor, setTextColor] = useState('#202522');
   const [margin, setMargin] = useState(20);
   const [start, setStart] = useState(1);
   const [split, setSplit] = useState('range');
@@ -164,9 +165,13 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
     };
   }, [files, images]);
   async function addFiles(selected: File[]) {
+    if (!selected.length || busy) return;
     setError('');
     setResult(null);
     const token = ++version.current;
+    const controller = new AbortController();
+    abort.current?.abort();
+    abort.current = controller;
     try {
       if (selected.length + (multi ? files.length : 0) > 20)
         throw new Error('Add up to 20 files at a time.');
@@ -179,6 +184,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
         throw new Error('Keep the combined file size under 150 MB.');
       for (const f of incoming) {
         if (f.size > MAX_FILE_SIZE) throw new Error(`${f.name} is larger than 50 MB.`);
+        if (!f.size) throw new Error(`${f.name} is empty. Choose a file with content.`);
         if (!(images ? /\.(png|jpe?g|webp)$/i : /\.pdf$/i).test(f.name))
           throw new Error(
             `${f.name}: choose ${images ? 'a JPG, PNG or WEBP image' : 'a PDF file'}.`,
@@ -190,6 +196,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
       setStatus('Reading your files…');
       const next: PdfInput[] = [];
       for (const f of incoming) {
+        controller.signal.throwIfAborted();
         let input = {
           name: f.name,
           bytes: new Uint8Array(await f.arrayBuffer()),
@@ -200,22 +207,30 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
           (/\.webp$/i.test(f.name) ||
             (f.type === 'image/jpeg' && jpegOrientation(input.bytes) !== 1))
         ) {
-          const converted = await processImage(f, { ...defaultImageSettings, format: 'image/png' });
+          const converted = await processImage(
+            f,
+            { ...defaultImageSettings, format: 'image/png' },
+            controller.signal,
+          );
           input = {
             ...input,
             bytes: new Uint8Array(await converted.blob.arrayBuffer()),
             type: 'image/png',
           };
         }
-        if (!images) await runPdf('inspect', [input]);
+        if (!images) await runPdf('inspect', [input], {}, controller.signal);
         next.push(input);
       }
+      controller.signal.throwIfAborted();
       if (token === version.current) setFiles((current) => (multi ? [...current, ...next] : next));
     } catch (e) {
-      setError(friendlyError(e));
+      if (token === version.current)
+        setError(controller.signal.aborted ? 'Processing cancelled.' : friendlyError(e));
     } finally {
-      setBusy(false);
-      setStatus('');
+      if (token === version.current) {
+        setBusy(false);
+        setStatus('');
+      }
     }
   }
   function move(i: number, dir: number) {
@@ -234,6 +249,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
     );
   }
   async function process() {
+    if (busy) return;
     if (editor) {
       openEditor();
       return;
@@ -243,7 +259,8 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
     setBusy(true);
     setStatus('Working on your document…');
     setProgress(null);
-    abort.current = new AbortController();
+    const controller = new AbortController();
+    abort.current = controller;
     try {
       const selected = images ? [] : parsePages(range, count);
       if (slug === 'pdf-to-jpg' || slug === 'pdf-to-png' || slug === 'pdf-to-text') {
@@ -256,7 +273,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
         let outputBytes = 0;
         let extracted = '';
         for (const [n, index] of selected.entries()) {
-          if (abort.current.signal.aborted) throw new Error('Processing cancelled.');
+          controller.signal.throwIfAborted();
           setStatus(`Processing page ${n + 1} of ${selected.length}…`);
           setProgress({ done: n, total: selected.length });
           const p = await viewer.getPage(index + 1);
@@ -279,11 +296,11 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
             canvas.height = Math.ceil(viewport.height);
             const task = p.render({ canvas, viewport, background: '#ffffff' });
             const cancel = () => task.cancel();
-            abort.current.signal.addEventListener('abort', cancel, { once: true });
+            controller.signal.addEventListener('abort', cancel, { once: true });
             try {
               await task.promise;
             } finally {
-              abort.current.signal.removeEventListener('abort', cancel);
+              controller.signal.removeEventListener('abort', cancel);
             }
             const png = slug === 'pdf-to-png';
             const rendered = await new Promise<Blob>((resolve, reject) =>
@@ -308,7 +325,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
           await new Promise((resolve) => setTimeout(resolve, 0));
           setProgress({ done: n + 1, total: selected.length });
         }
-        if (abort.current.signal.aborted) throw new Error('Processing cancelled.');
+        controller.signal.throwIfAborted();
         if (slug === 'pdf-to-text') {
           if (!extracted.replace(/--- Page \d+ ---/g, '').trim())
             throw new Error(
@@ -320,10 +337,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
             type: 'text/plain;charset=utf-8',
           });
         } else {
-          setImageOutputs(previews);
-          setPreviewTab('result');
-          setPage(1);
-          setResult(
+          const output =
             previews.length === 1
               ? {
                   bytes: new Uint8Array(await previews[0].blob.arrayBuffer()),
@@ -334,8 +348,12 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                   bytes: await zip.generateAsync({ type: 'uint8array' }),
                   name: `${baseName(files[0].name)}-images.zip`,
                   type: 'application/zip',
-                },
-          );
+                };
+          controller.signal.throwIfAborted();
+          setImageOutputs(previews);
+          setPreviewTab('result');
+          setPage(1);
+          setResult(output);
         }
       } else {
         const operation: Record<string, PdfOperation> = {
@@ -354,18 +372,20 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
           text,
           size: fontSize,
           opacity,
+          color: textColor,
           start,
           margin,
           a4,
         };
         if (!Number.isInteger(start) || start < 1)
           throw new Error('Choose a positive whole starting number.');
-        const output = await runPdf(operation[slug], files, options, abort.current.signal);
+        const output = await runPdf(operation[slug], files, options, controller.signal);
+        controller.signal.throwIfAborted();
         setResult(output);
       }
       setStatus('Your document is ready.');
     } catch (e) {
-      setError(friendlyError(e));
+      setError(controller.signal.aborted ? 'Processing cancelled.' : friendlyError(e));
       setStatus('');
     } finally {
       setBusy(false);
@@ -379,6 +399,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
     text,
     fontSize,
     opacity,
+    textColor,
     margin,
     start,
     split,
@@ -421,6 +442,11 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
             }
             busy={busy}
           />
+          {busy && (
+            <button className="button ghost" onClick={() => abort.current?.abort()}>
+              Cancel processing
+            </button>
+          )}
           <div className="local-notice">
             <ShieldCheck size={15} />
             {editor
@@ -433,7 +459,13 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
           <div className="processor-controls">
             <div className="panel-heading">
               <h2>{multi ? 'Your files' : 'Your document'}</h2>
-              <span>{multi ? `${files.length} files` : count ? `${count} pages` : 'Reading…'}</span>
+              <span>
+                {multi
+                  ? `${files.length} ${files.length === 1 ? 'file' : 'files'}`
+                  : count
+                    ? `${count} ${count === 1 ? 'page' : 'pages'}`
+                    : 'Reading…'}
+              </span>
             </div>
             <div className="file-list">
               {files.slice(filePagination.start, filePagination.end).map((f, offset) => {
@@ -518,7 +550,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                       setRange(e.target.value);
                       setResult(null);
                     }}
-                    placeholder={`All ${count || ''} pages`}
+                    placeholder={`All ${count || ''} ${count === 1 ? 'page' : 'pages'}`}
                     aria-invalid={selectedPages === null}
                   />
                   <small id="page-range-help">
@@ -558,6 +590,14 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                   <label>
                     Watermark text
                     <input value={text} onChange={(e) => setText(e.target.value)} maxLength={100} />
+                  </label>
+                  <label>
+                    Watermark color
+                    <input
+                      type="color"
+                      value={textColor}
+                      onChange={(e) => setTextColor(e.target.value)}
+                    />
                   </label>
                   <div className="two-fields">
                     <label>

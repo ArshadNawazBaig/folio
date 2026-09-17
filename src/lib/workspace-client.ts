@@ -2,39 +2,51 @@
 import { workspaceRequest } from './workspace-request';
 import { WORKSPACE_LIMIT, type WorkspaceRecord, type WorkspaceSnapshot } from './workspace-types';
 import { CLOUD_FILE_LIMIT } from './cloud-types';
+import { AccountRequestError } from './auth-client';
+import { retryWorkspaceOperation } from './workspace-retry';
 export { workspaceRequest } from './workspace-request';
 export async function uploadWorkspace(id: string, bytes: Uint8Array, name: string) {
-  const result = await (
-    await workspaceRequest('', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ id, name, size: bytes.length }),
-    })
-  ).json();
-  if (!result.ready) {
-    const form = new FormData();
-    form.append('cacheControl', '0');
-    form.append('', new Blob([bytes.slice().buffer], { type: 'application/pdf' }), name);
-    const publicKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-    const uploaded = await fetch(result.uploadUrl, {
-      method: 'PUT',
-      body: form,
-      headers: publicKey ? { apikey: publicKey } : undefined,
-    });
-    // A retry may discover an upload already received by Storage after its response was lost.
-    if (!uploaded.ok && ![400, 409].includes(uploaded.status))
-      throw new Error('The PDF upload failed. Keep this tab open and retry.');
-    await workspaceRequest(`/${id}`, {
-      method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ action: 'finish' }),
-    });
-  }
+  // Establish the guest cookie before reserving a document. If the reservation
+  // response is lost, retrying must still use the same browser identity.
+  await retryWorkspaceOperation(() => workspaceRequest('/session', { method: 'POST' }));
+  await retryWorkspaceOperation(async () => {
+    const result = await (
+      await workspaceRequest('', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id, name, size: bytes.length }),
+      })
+    ).json();
+    if (!result.ready) {
+      const form = new FormData();
+      form.append('cacheControl', '0');
+      form.append('', new Blob([bytes.slice().buffer], { type: 'application/pdf' }), name);
+      const publicKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+      const uploaded = await fetch(result.uploadUrl, {
+        method: 'PUT',
+        body: form,
+        headers: publicKey ? { apikey: publicKey } : undefined,
+      });
+      // A retry may discover an upload already received by Storage after its response was lost.
+      if (!uploaded.ok && ![400, 409].includes(uploaded.status))
+        throw new AccountRequestError(
+          uploaded.status,
+          'The PDF upload failed. Keep this tab open and retry.',
+        );
+      await workspaceRequest(`/${id}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action: 'finish' }),
+      });
+    }
+  });
 }
 export async function readWorkspaceRecord(
   id: string,
 ): Promise<WorkspaceRecord & { sourceUrl: string }> {
-  return (await workspaceRequest(`/${encodeURIComponent(id)}`)).json();
+  return retryWorkspaceOperation(async () =>
+    (await workspaceRequest(`/${encodeURIComponent(id)}`)).json(),
+  );
 }
 export async function readWorkspace(id: string) {
   const record = await readWorkspaceRecord(id);
@@ -55,13 +67,15 @@ export async function saveWorkspace(
     throw new Error(
       'These edits exceed the 8 MB workspace limit. Reduce added images and retry saving.',
     );
-  const result = await (
-    await workspaceRequest(`/${id}`, {
-      method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
-      body,
-    })
-  ).json();
+  const result = await retryWorkspaceOperation(async () =>
+    (
+      await workspaceRequest(`/${id}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body,
+      })
+    ).json(),
+  );
   if (
     result?.revision !== revision + 1 ||
     typeof result.updatedAt !== 'string' ||
@@ -72,11 +86,13 @@ export async function saveWorkspace(
   return result as { revision: number; updatedAt: string; expiresAt: string | null };
 }
 export async function claimWorkspace(id: string) {
-  await workspaceRequest(`/${id}`, {
-    method: 'PATCH',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ action: 'claim' }),
-  });
+  await retryWorkspaceOperation(() =>
+    workspaceRequest(`/${id}`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ action: 'claim' }),
+    }),
+  );
 }
 export async function claimGuestWorkspaces(signal?: AbortSignal) {
   return (await workspaceRequest('/claim', { method: 'POST', signal })).json() as Promise<{

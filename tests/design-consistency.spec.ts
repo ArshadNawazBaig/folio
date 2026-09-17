@@ -191,7 +191,7 @@ test('design: dashboard navigation and file/account dialogs fit narrow mobile sc
     }),
   );
   await page.setViewportSize({ width: 320, height: 640 });
-  await page.goto('/dashboard?view=files');
+  await page.goto('/account?next=%2Fdashboard%3Fview%3Dfiles');
   await page.getByRole('button', { name: 'Continue with Google' }).click();
   await page.getByRole('button', { name: /^Rename Client proposal/ }).click();
   const dialog = page.getByRole('dialog');

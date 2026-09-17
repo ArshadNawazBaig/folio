@@ -15,7 +15,13 @@ export async function readProUpload(request: Request) {
   const file = form.get('file');
   if (!(file instanceof File) || file.size > 10 * 1024 * 1024)
     throw new ApiError(400, 'Choose a PDF smaller than 10 MB.');
-  const job = proJob.safeParse(JSON.parse(String(form.get('job'))));
+  let settings: unknown;
+  try {
+    settings = JSON.parse(String(form.get('job')));
+  } catch {
+    throw new ApiError(400, 'The requested PDF settings are invalid.');
+  }
+  const job = proJob.safeParse(settings);
   if (!job.success) throw new ApiError(400, 'The requested PDF settings are invalid.');
   return { file, job: job.data };
 }

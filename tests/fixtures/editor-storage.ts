@@ -16,12 +16,46 @@ type FileRecord = {
 };
 export async function mockWorkspaceStorage(context: BrowserContext) {
   const records = new Map<string, FileRecord>();
+  const uploadBodies = new Map<string, Buffer>();
+  // WebKit's interception protocol omits multipart file bytes. Capture the
+  // actual browser File for this fake storage origin before sending the request.
+  await context.exposeBinding('__folioWorkspaceUpload', (_source, id: string, bytes: number[]) => {
+    uploadBodies.set(id, Buffer.from(bytes));
+  });
+  await context.addInitScript(() => {
+    const original = window.fetch;
+    window.fetch = async (input, init) => {
+      const url = new URL(
+        typeof input === 'string' ? input : input instanceof URL ? input.href : input.url,
+        window.location.href,
+      );
+      if (
+        url.origin === 'https://folio-workspace-tests.example.test' &&
+        init?.method === 'PUT' &&
+        init.body instanceof FormData
+      ) {
+        const file = init.body.get('');
+        if (file instanceof Blob)
+          await (
+            window as unknown as {
+              __folioWorkspaceUpload: (id: string, bytes: number[]) => Promise<void>;
+            }
+          ).__folioWorkspaceUpload(
+            url.pathname.slice(1),
+            Array.from(new Uint8Array(await file.arrayBuffer())),
+          );
+      }
+      return original.call(window, input, init);
+    };
+  });
   const service = {
     records,
     uploads: 0,
     saves: 0,
     failUploads: false,
     failSaves: false,
+    failUploadConnections: 0,
+    dropSaveResponses: 0,
     failDeletes: false,
     accountFull: false,
     dropEdits: false,
@@ -35,17 +69,17 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
       return;
     }
     if (route.request().method() === 'PUT') {
+      if (service.failUploadConnections > 0) {
+        service.failUploadConnections--;
+        await route.abort('failed');
+        return;
+      }
       if (service.failUploads) {
         await route.fulfill({ status: 503 });
         return;
       }
-      const request = new Request(route.request().url(), {
-        method: 'PUT',
-        headers: route.request().headers(),
-        body: new Uint8Array(route.request().postDataBuffer()!),
-      });
-      const form = await request.formData();
-      file.bytes = Buffer.from(await (form.get('') as File).arrayBuffer());
+      file.bytes = uploadBodies.get(id) || null;
+      expect(file.bytes?.length).toBe(file.size);
       service.uploads++;
       await route.fulfill({ json: { Key: id } });
     } else
@@ -229,6 +263,11 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
       file.writeId = body.writeId;
       file.updatedAt = new Date().toISOString();
       service.saves++;
+    }
+    if (service.dropSaveResponses > 0) {
+      service.dropSaveResponses--;
+      await route.abort('failed');
+      return;
     }
     await route.fulfill({
       json: { revision: file.revision, updatedAt: file.updatedAt, expiresAt: file.expiresAt },
