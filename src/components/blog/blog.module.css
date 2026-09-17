@@ -48,7 +48,7 @@
   align-items: center;
   gap: 18px;
   font-size: 11px;
-  color: #717b68;
+  color: #59644f;
 }
 .search {
   display: flex;
@@ -150,7 +150,7 @@
 }
 .cardBody > .eyebrow > span {
   font-weight: 500;
-  color: #737c6a;
+  color: #59644f;
   letter-spacing: 0;
   text-transform: none;
 }
@@ -269,6 +269,7 @@
   color: #63705d;
 }
 .articleCover {
+  position: relative;
   margin: 0 0 55px;
   aspect-ratio: 1.95;
   border-radius: 13px;

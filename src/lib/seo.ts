@@ -46,7 +46,50 @@ export function organizationSchema() {
     '@id': `${siteUrl}/#organization`,
     name: brand,
     url: siteUrl,
-    logo: `${siteUrl}/icon.svg`,
+    logo: { '@type': 'ImageObject', url: `${siteUrl}/icon-512.png`, width: 512, height: 512 },
+  };
+}
+/** Directory variants stay crawlable even when search/filter results should not be indexed. */
+export function listingMetadata(
+  title: string,
+  description: string,
+  path: string,
+  page: number,
+  index = true,
+): Metadata {
+  return {
+    ...pageMetadata(
+      page > 1 ? `${title} — Page ${page}` : title,
+      page > 1 ? `Page ${page}. ${description}` : description,
+      path,
+      index,
+    ),
+    robots: { index: isIndexable && index, follow: isIndexable },
+  };
+}
+
+export function collectionSchema(
+  name: string,
+  path: string,
+  items: { name: string; path: string }[],
+  offset = 0,
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    '@id': `${siteUrl}${path}#collection`,
+    name,
+    url: `${siteUrl}${path}`,
+    isPartOf: { '@id': `${siteUrl}/#website` },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: items.map((item, i) => ({
+        '@type': 'ListItem',
+        position: offset + i + 1,
+        name: item.name,
+        url: `${siteUrl}${item.path}`,
+      })),
+    },
   };
 }
 export function breadcrumbSchema(items: { name: string; path: string }[]) {

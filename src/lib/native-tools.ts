@@ -70,16 +70,31 @@ export const nativeTools: Tool[] = [
     keywords: [slug, 'image', 'photo', 'picture', 'resize', 'quality'],
   })),
   ...[
-    ['jpg-to-pdf', 'JPG to PDF', 'image/jpeg'],
-    ['png-to-pdf', 'PNG to PDF', 'image/png'],
-    ['merge-images', 'Merge images', 'image/jpeg,image/png,image/webp'],
-  ].map(([slug, name, accept]): Tool => ({
+    [
+      'jpg-to-pdf',
+      'JPG to PDF',
+      'image/jpeg',
+      'Convert JPG photos to PDF for free. Put photos in order, choose A4 or fit-to-image pages, and preview your document before downloading.',
+    ],
+    [
+      'png-to-pdf',
+      'PNG to PDF',
+      'image/png',
+      'Turn PNG screenshots and graphics into PDF pages for free. Arrange your images, choose a page size, then preview and download the PDF.',
+    ],
+    [
+      'merge-images',
+      'Merge images',
+      'image/jpeg,image/png,image/webp',
+      'Merge JPG, PNG and WEBP images into one PDF for free. Combine different formats, reorder the pages and preview the complete document.',
+    ],
+  ].map(([slug, name, accept, description]): Tool => ({
     slug,
     name,
     accept,
     processor: 'image-to-pdf',
     short: 'Bring your pictures into one document.',
-    description: `Create a PDF from your images. Arrange them in order, choose a page size, and review the finished PDF before downloading.`,
+    description,
     action: 'Create PDF',
     category: 'Convert',
     icon: 'image-plus',

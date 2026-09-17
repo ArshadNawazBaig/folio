@@ -6,6 +6,9 @@ import { pageMetadata, siteUrl, breadcrumbSchema, organizationSchema } from '@/l
 import { StructuredData } from '@/components/structured-data';
 import { RichContent } from '@/components/blog/rich-content';
 import { BlogLike } from '@/components/blog/blog-like';
+import { BlogCover } from '@/components/blog/blog-cover';
+import { articleHeadings, articleToolSlugs } from '@/lib/article-navigation';
+import { serverTools } from '@/lib/server/tool-catalog';
 import s from '@/components/blog/blog.module.css';
 export const dynamic = 'force-dynamic';
 type Props = { params: Promise<{ slug: string }> };
@@ -36,6 +39,11 @@ export default async function BlogPost({ params }: Props) {
   const { slug } = await params;
   const post = await publicPostBySlug(slug);
   if (!post) notFound();
+  const contents = articleHeadings(post.content);
+  const linkedTools = articleToolSlugs(post.content, siteUrl);
+  const related = serverTools()
+    .filter((tool) => tool.available && linkedTools.includes(tool.slug))
+    .slice(0, 3);
   return (
     <main id="main" className={s.article}>
       <StructuredData
@@ -77,7 +85,13 @@ export default async function BlogPost({ params }: Props) {
           <div className={s.byline}>
             <span className={s.authorAvatar}>{post.author.slice(0, 1)}</span>
             <div>
-              <strong>{post.author}</strong>
+              <strong>
+                {post.author.toLowerCase().startsWith('folio') ? (
+                  <Link href="/about#editorial">{post.author}</Link>
+                ) : (
+                  post.author
+                )}
+              </strong>
               <time dateTime={post.publishedAt}>
                 {new Date(post.publishedAt).toLocaleDateString('en-US', {
                   month: 'long',
@@ -85,6 +99,17 @@ export default async function BlogPost({ params }: Props) {
                   year: 'numeric',
                 })}
               </time>
+              {post.updatedAt.slice(0, 10) !== post.publishedAt.slice(0, 10) && (
+                <time dateTime={post.updatedAt}>
+                  Updated{' '}
+                  {new Date(post.updatedAt).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                    timeZone: 'UTC',
+                  })}
+                </time>
+              )}
             </div>
             <span>
               <Clock size={15} />
@@ -94,10 +119,22 @@ export default async function BlogPost({ params }: Props) {
         </header>
         {post.cover && (
           <figure className={s.articleCover}>
-            <img src={post.cover} alt={post.coverAlt} />
+            <BlogCover src={post.cover} alt={post.coverAlt} hero />
           </figure>
         )}
         <div className={s.articleBody}>
+          {contents.length > 1 && (
+            <nav className="article-contents" aria-label="On this page">
+              <strong>On this page</strong>
+              <ol>
+                {contents.map((heading) => (
+                  <li key={heading.id}>
+                    <a href={`#${heading.id}`}>{heading.text}</a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          )}
           <RichContent content={post.content} />
           {post.tags.length > 0 && (
             <div className={s.tags}>
@@ -107,12 +144,27 @@ export default async function BlogPost({ params }: Props) {
             </div>
           )}
           <BlogLike id={post.id} slug={post.slug} initialCount={post.likes} />
+          {related.length > 0 && (
+            <section className="tool-reading" aria-label="Tools in this article">
+              <h2>Try the tools in this article.</h2>
+              <div className="tool-reading-grid">
+                {related.map((tool) => (
+                  <Link key={tool.slug} prefetch={false} href={`/${tool.slug}`}>
+                    <strong>
+                      {tool.name} <ArrowUpRight size={16} aria-hidden="true" />
+                    </strong>
+                    <span>{tool.description}</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
           <div className={s.readingCta}>
             <div>
               <span className={s.eyebrow}>PUT IT INTO PRACTICE</span>
               <h2>Your next document starts here.</h2>
             </div>
-            <Link className="button primary" href="/workspace">
+            <Link prefetch={false} className="button primary" href="/edit-pdf">
               Open the PDF editor
               <ArrowUpRight size={16} />
             </Link>

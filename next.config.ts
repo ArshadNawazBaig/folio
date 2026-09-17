@@ -4,6 +4,22 @@ const config: NextConfig = {
   distDir: process.env.FOLIO_TEST_OUTPUT === 'auth' ? '.next-auth-tests' : '.next',
   poweredByHeader: false,
   reactStrictMode: true,
+  // Resolve public metadata in the head; late streamed listing metadata can survive article navigation.
+  htmlLimitedBots: /.*/,
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
+      ...(process.env.NEXT_PUBLIC_SUPABASE_URL?.startsWith('https://')
+        ? [
+            {
+              protocol: 'https' as const,
+              hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname,
+              pathname: '/storage/v1/object/public/folio-blog/**',
+            },
+          ]
+        : []),
+    ],
+  },
   outputFileTracingIncludes: {
     '/api/{pro,documents}/*': [
       './scripts/pro-pdf-worker.mjs',
@@ -40,6 +56,11 @@ const config: NextConfig = {
   },
   async redirects() {
     return [
+      {
+        source: '/apple-touch-icon-precomposed.png',
+        destination: '/apple-touch-icon.png',
+        permanent: true,
+      },
       { source: '/pdf-editor', destination: '/edit-pdf', permanent: true },
       { source: '/translate-pdf-page', destination: '/translate-pdf', permanent: true },
       { source: '/pdf-forms', destination: '/forms', permanent: true },

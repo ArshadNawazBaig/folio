@@ -1,5 +1,11 @@
 # SEO implementation and launch setup
 
+## Latest review — September 17, 2026
+
+See [the current SEO review](reviews/SEO-AUDIT-2026-09-17.md) for the latest changes, checks, and search priorities. The owner now has a Search Console domain property and has submitted the sitemap; its reported fetch failure still needs the expanded Google error/live-inspection result. Earlier “verification pending” entries below are historical.
+
+Run `npm run test:seo` for local browser coverage and `npm run seo:audit -- https://thebestfreepdf.com /tmp/folio-seo-report.json` after deployment. The audit now follows pagination, checks duplicate descriptions and orphan pages, and verifies search/social icon assets in addition to the original checks.
+
 ## Implemented
 
 1. Next.js App Router serves server-rendered content for the homepage, directories, tool pages, pricing, guides, and informational pages. Local tool pages and guides are prerendered; pricing and service availability are read at request time. Public content and links are present without JavaScript. Pricing includes the agreed $1 USD introductory week and $25 USD monthly renewal in server-rendered content and metadata; Lemon Squeezy availability loads separately. No misleading free Pro offer is embedded in structured data.
@@ -51,7 +57,7 @@ Publish useful guides based on actual user questions; keep conversion limits and
 
 - `/tools` and `/convert` use server-rendered pagination with real links, ten records by default, and the existing custom per-page selector. Search and category filters use GET URLs and remain usable without JavaScript. Filtered and alternate-page-size lists are noindex; ordinary paginated pages have their own canonical URLs.
 - Task-specific titles describe all 29 catalogue tools. Image and QR tools no longer inherit an incorrect “Free PDF Tool” suffix. The layout adds the Folio brand once.
-- Nine guides cover choosing an editor and current, supported workflows. Publication and update dates are separate, and the visible update date matches Article markup. Guides link to tools; matching tool pages link back to the guides. Each guide has a table of contents with section links.
+- Ten guides cover choosing an editor, text-editing troubleshooting and current, supported workflows. Publication and update dates are separate, and the visible update date matches Article markup. Guides link to tools; matching tool pages link back to the guides. Each guide has a table of contents with section links.
 - Homepage WebSite and Organization entities share stable IDs. Article publishers and blog editorial authors use the appropriate entity type. No fake reviews, ratings, customer numbers, or rankings are added.
 - Expensive tool/workspace navigation does not preload processing bundles from marketing links before someone chooses a tool. Article content and navigation remain server rendered.
 

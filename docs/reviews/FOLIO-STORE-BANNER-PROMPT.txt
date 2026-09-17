@@ -1,0 +1,16 @@
+Asset: Folio Lemon Squeezy storefront header
+Method: Built-in image_gen tool, followed by deterministic crop and PNG export.
+Final asset: public/brand/folio-store-banner-1600x300.png
+Export: 1600 x 300 px; center strip extracted from the generated image, without stretching.
+
+Final generation/edit prompt:
+Edit this Folio storefront banner into a MUCH SHALLOWER ultra-wide header composition, retaining its exact cream/sage/terracotta brand, paper sheets, pencil, polished editorial style, and exact main headline. The previous image is too tall to fit the storefront.
+DELIVERY LAYOUT: render a 2048x768 canvas, but design the ENTIRE final banner within the CENTER HORIZONTAL STRIP: x=0..2048, y=192..576. This strip is 2048x384, exactly 16:3. The top 192 pixels and bottom 192 pixels are empty flat cream bleed only, with no artwork and no text; they will be removed. All final banner content must fit the center strip. No border around the strip. Do not draw coordinate guides.
+Within that center strip:
+- Left margin x=85. Small uppercase text "FOLIO / PDF WORKSPACE" near y=224.
+- Headline in two compact beautiful serif lines, about 58px: "Made for the work" starting y=263, then terracotta italic "that matters." around y=333. Its entire footprint must end before y=410.
+- Dark sans serif feature line "Edit • Convert • Sign" at y=466, approximately 22px.
+- Small address "thebestfreepdf.com" at y=518, approximately 18px.
+- Right 38% of the strip, x=1270..2048: the original editorial cream document sheets, sage markings, warm terracotta pencil, and subtle soft shadows, rescaled and art directed for this shallow space. Sheets may be cropped at the strip edges, like an intentional flat-lay composition; no important words needed on the decorative papers.
+- Keep lower-center x=900..1180, y=492..576 visually quiet because the store avatar overlaps there.
+Keep everything correctly spelled and cleanly legible. No text above y=208 or below y=552. Avoid adding any other headings or promotional text. Preserve a warm cream background over the whole canvas and generous horizontal spacing. This is a final banner image with surrounding removable bleed, not a screenshot of a banner.

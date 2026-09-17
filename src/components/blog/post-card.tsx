@@ -2,12 +2,13 @@ import Link from 'next/link';
 import { ArrowUpRight, Heart, FileText } from 'lucide-react';
 import type { PublicPost } from '@/lib/blog';
 import s from './blog.module.css';
-export function PostCard({ post }: { post: PublicPost }) {
+import { BlogCover } from './blog-cover';
+export function PostCard({ post, eager = false }: { post: PublicPost; eager?: boolean }) {
   return (
     <article className={s.postCard}>
       <Link href={`/blog/${post.slug}`} className={s.coverLink} tabIndex={-1} aria-hidden="true">
         {post.cover ? (
-          <img src={post.cover} alt="" loading="lazy" />
+          <BlogCover src={post.cover} alt="" eager={eager} />
         ) : (
           <div className={s.coverPlaceholder}>
             <FileText size={54} strokeWidth={1} />

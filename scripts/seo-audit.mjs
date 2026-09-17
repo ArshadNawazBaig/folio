@@ -8,6 +8,9 @@ if (!input || !/^https?:\/\//.test(input)) {
 const origin = new URL(input).origin;
 const issues = [];
 const pages = [];
+const internalLinks = new Set();
+const privatePath =
+  /^\/(?:api|workspace|documents|account|dashboard|admin|auth|support|maintenance)(?:\/|$)/;
 const decode = (value) =>
   value
     .replace(/&amp;/g, '&')
@@ -50,6 +53,9 @@ try {
   check(new Set(urls).size === urls.length, 'The sitemap contains duplicate URLs.');
   check(urls.length <= 50000, 'Split this sitemap before it exceeds 50,000 URLs.');
   const titles = new Map();
+  const descriptions = new Map();
+  const queued = new Set(urls);
+  const sitemapPages = urls.length;
   let cursor = 0;
   await Promise.all(
     Array.from({ length: 4 }, async () => {
@@ -57,12 +63,7 @@ try {
         const url = urls[cursor++];
         try {
           const parsed = new URL(url);
-          check(
-            !/^\/(?:api|workspace|documents|account|dashboard|admin|auth|support|maintenance)(?:\/|$)/.test(
-              parsed.pathname,
-            ),
-            `Private URL appears in sitemap: ${url}`,
-          );
+          check(!privatePath.test(parsed.pathname), `Private URL appears in sitemap: ${url}`);
           const { response, html } = await get(url);
           const meta = tags(html, 'meta');
           const canonical = tags(html, 'link').find((tag) => tag.rel === 'canonical')?.href;
@@ -80,6 +81,11 @@ try {
           check(!titles.has(title), `${url}: title duplicates ${titles.get(title)}.`);
           titles.set(title, url);
           check(!!description, `${url}: missing description.`);
+          check(
+            !descriptions.has(description),
+            `${url}: description duplicates ${descriptions.get(description)}.`,
+          );
+          descriptions.set(description, url);
           check(
             !!canonical && new URL(canonical, origin).href === parsed.href,
             `${url}: canonical does not match this sitemap URL (${canonical}).`,
@@ -100,6 +106,23 @@ try {
             /<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi,
           ))
             JSON.parse(match[1]);
+          for (const link of tags(html, 'a')) {
+            if (!link.href) continue;
+            const target = new URL(link.href, origin);
+            if (target.origin !== origin || privatePath.test(target.pathname)) continue;
+            target.hash = '';
+            internalLinks.add(target.href);
+            // Follow real pagination links as a crawler would. Search/filter combinations are excluded.
+            if (
+              /^\/(?:tools|convert|blog)$/.test(target.pathname) &&
+              [...target.searchParams.keys()].every((key) => key === 'page') &&
+              /^\d+$/.test(target.searchParams.get('page') || '') &&
+              !queued.has(target.href)
+            ) {
+              queued.add(target.href);
+              urls.push(target.href);
+            }
+          }
           pages.push({ url, status: response.status, title, canonical });
         } catch (error) {
           issues.push(`${url}: ${error.message}`);
@@ -107,6 +130,25 @@ try {
       }
     }),
   );
+  for (const url of urls.slice(0, sitemapPages))
+    check(
+      new URL(url).pathname === '/' || internalLinks.has(url),
+      `${url}: no crawlable internal link was found.`,
+    );
+  for (const path of [
+    '/favicon.ico',
+    '/icon-192.png',
+    '/icon-512.png',
+    '/apple-touch-icon.png',
+    '/og?title=PDF%20tools',
+  ]) {
+    const { response } = await get(path);
+    check(response.status === 200, `${path}: image returned HTTP ${response.status}.`);
+    check(
+      /^image\//.test(response.headers.get('content-type') || ''),
+      `${path}: expected an image content type.`,
+    );
+  }
   for (const path of ['/workspace', '/dashboard', '/account', '/admin', '/support']) {
     const { response, html } = await get(path);
     check(
@@ -128,6 +170,7 @@ const report = {
   checkedAt: new Date().toISOString(),
   passed: issues.length === 0,
   pagesChecked: pages.length,
+  internalLinksFound: internalLinks.size,
   issues,
   pages: pages.sort((a, b) => a.url.localeCompare(b.url)),
 };

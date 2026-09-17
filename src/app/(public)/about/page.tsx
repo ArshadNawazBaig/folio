@@ -45,6 +45,18 @@ export default function About() {
         the finished file in your hands. Our <Link href="/privacy">privacy explanation</Link>{' '}
         describes the details.
       </p>
+      <h2 id="editorial">How we write our PDF guides.</h2>
+      <p>
+        Folio publishes its own product guides and tutorials. These explain the tools available in
+        this app, the steps to use them, and limitations to check before sharing a document. They
+        are product guidance from Folio, not independent rankings of PDF services.
+      </p>
+      <p>
+        Free downloads and paid exports are identified in the relevant guides. Publication and
+        update dates describe the article, not a promise that every PDF will produce the same
+        result. If a step is unclear or a tool behaves differently on your file,{' '}
+        <Link href="/support">report the issue to support</Link> so we can investigate.
+      </p>
       <h2>A little help when you need it.</h2>
       <p>
         Our <Link href="/guides">practical guides</Link> explain common PDF tasks and the limits of

@@ -1,16 +1,17 @@
 import { redirect } from 'next/navigation';
 import { serverTools } from '@/lib/server/tool-catalog';
 import { ToolDirectory } from '@/components/tool-directory';
-import { pageMetadata, breadcrumbSchema } from '@/lib/seo';
+import { listingMetadata, breadcrumbSchema, collectionSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
 import { toolDirectory, type DirectoryParams } from '@/lib/tool-directory';
 type Props = { searchParams: Promise<DirectoryParams> };
 export async function generateMetadata({ searchParams }: Props) {
   const directory = toolDirectory(serverTools(), await searchParams, true);
-  return pageMetadata(
+  return listingMetadata(
     'PDF Converter — Convert PDFs, Images & Text Online',
     'Convert PDF pages to JPG, PNG, or plain text. Combine JPG and PNG images into PDF documents for free in your browser.',
     directory.canonical,
+    directory.page,
     directory.index,
   );
 }
@@ -19,6 +20,14 @@ export default async function ConvertPage({ searchParams }: Props) {
   if (directory.outOfRange) redirect(directory.canonical);
   return (
     <main id="main" className="container directory-page">
+      <StructuredData
+        data={collectionSchema(
+          'PDF and image converters',
+          directory.canonical,
+          directory.tools.map((tool) => ({ name: tool.name, path: `/${tool.slug}` })),
+          (directory.page - 1) * directory.pageSize,
+        )}
+      />
       <StructuredData
         data={breadcrumbSchema([
           { name: 'Home', path: '/' },

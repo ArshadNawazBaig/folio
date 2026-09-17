@@ -8,7 +8,7 @@ export type Guide = {
   updated: string;
   tool: string;
   relatedTools?: string[];
-  sections: { title: string; text: string }[];
+  sections: { title: string; text: string; links?: { label: string; href: string }[] }[];
 };
 export const guides: Guide[] = [
   {
@@ -76,6 +76,50 @@ export const guides: Guide[] = [
       {
         title: 'Save a draft, then check the export',
         text: 'The editor automatically uploads your PDF and saves a recovery workspace to private cloud storage. Use Save now to request a save, then wait for All changes saved before refreshing or leaving. Guests have 100 MB of storage and their files expire after 24 hours. Google sign-in opens separately so the editor remains open; signing in lets you keep files in your account. Download PDF creates your finished file. Added annotations, forms, and signatures export for free when no original-text changes remain. Check the downloaded pages in a PDF reader and keep an original copy.',
+      },
+    ],
+  },
+  {
+    slug: 'why-cant-i-edit-pdf-text',
+    title: 'Why Can’t I Edit Text in My PDF? Scans, Fonts & Text Blocks',
+    description:
+      'Find out why PDF text cannot be selected or edited. Check scans, outlined letters, passwords and embedded fonts, then choose a workable next step.',
+    category: 'Editing',
+    readTime: '4 min read',
+    published: '2026-09-17',
+    updated: '2026-09-17',
+    tool: 'edit-pdf-text',
+    relatedTools: ['edit-pdf', 'pdf-to-text'],
+    sections: [
+      {
+        title: 'First check whether the page contains real text',
+        text: 'A PDF can look like a normal document while storing an entire page as one image. Try selecting a few words in a PDF reader and copying them into a plain-text document. If the reader only selects the whole page, the content may be a scan. If you can copy words, there is probably a text layer, but that does not guarantee every block can be rewritten. A page can mix real text, scanned images and drawn lettering. Check the specific section you want to change rather than relying on another editable section.',
+        links: [{ label: 'Extract selectable PDF text', href: '/pdf-to-text' }],
+      },
+      {
+        title: 'Scanned pages need OCR before their words can be changed',
+        text: 'OCR, or optical character recognition, interprets text in a picture. Folio does not currently include OCR. Adding a text box to a scanned page places new text over the image; it does not make the printed words editable. Use an OCR-capable application to create a recognized copy, then inspect the result. Some OCR outputs contain only an invisible search layer over the original image, so changing that layer will not change the visible scan. For substantial corrections, obtaining the original Word, design or other source document is usually a better starting point.',
+      },
+      {
+        title: 'Outlined lettering and complex artwork are different from text',
+        text: 'Design applications sometimes convert letters into vector shapes, particularly in logos, headings or print-ready artwork. Those shapes have no words for a text editor to replace. Other PDFs put text inside clipping paths or nested graphic objects. Folio supports many text blocks, but some structures remain unsupported. If one heading cannot be selected while the paragraphs below it can, check the source document or ask its creator for an export that keeps text as text. Making a PDF searchable and making its visible lettering editable are separate requirements.',
+      },
+      {
+        title: 'Use Edit Text for existing words and Add Text for additions',
+        text: 'In Folio, open the PDF, select Edit Text in the toolbar, wait for the selectable blocks, then click the words on the page. Type directly in the selected block and use Properties to adjust its appearance. On a phone, open Properties with the sidebar control when needed. Add Text creates a separate box for a date, note or answer. It is useful even when the underlying page is scanned. Added text and annotations include free downloads; exporting changes to original PDF text requires a paid plan. Keep an original copy and review the exported document.',
+        links: [
+          { label: 'Open the PDF text editor', href: '/edit-pdf-text' },
+          { label: 'Add text and annotations for free', href: '/edit-pdf' },
+        ],
+      },
+      {
+        title: 'Missing characters can mean the embedded font is incomplete',
+        text: 'Many PDFs embed only the characters used when the document was created. Adding a new digit or symbol can therefore require a replacement font. Folio preserves supported original fonts where possible and uses a matching fallback when a needed character is unavailable. Substitution may change spacing, so inspect names, amounts and line endings. If a word does not fit, adjust the block or choose another font rather than expecting surrounding paragraphs to reflow automatically. An exact visual match may require the original source document and font.',
+      },
+      {
+        title: 'Separate file access, saving and editing problems',
+        text: 'A password-protected file must be opened with its password and saved as an unlocked copy in a trusted reader before using workflows that require an unencrypted PDF. Folio does not recover unknown passwords. If an editable block shows Retry editing, follow the displayed error and retry without replacing your original file. If saving fails, keep the tab open, check your connection and available storage, and use Retry saving. Wait for All changes saved before refreshing. A save error does not mean the document has no text. Share the exact error with support if it continues, and avoid sending sensitive document contents unnecessarily.',
+        links: [{ label: 'Contact Folio support', href: '/support' }],
       },
     ],
   },

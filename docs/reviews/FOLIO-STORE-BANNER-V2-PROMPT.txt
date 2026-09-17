@@ -1,0 +1,24 @@
+Asset: Folio storefront banner v2, designed for centered cropping
+Method: Built-in image_gen editing, followed by deterministic center-strip export.
+Final image: public/brand/folio-store-banner-v2-1600x300.png
+Dimensions: 1600 x 300 PNG.
+Layout: Compact centered copy; decorative edges can be cropped; clear bottom center for the store avatar.
+Verification: Local simulations of center-cover cropping, not a live Lemon Squeezy account update.
+
+Final prompt:
+Redesign the attached Folio banner to survive very aggressive CENTER cropping on phones. The existing large left-aligned copy must be completely removed. Preserve the cream, charcoal, sage and terracotta palette and the refined editorial paper-and-pencil art direction.
+
+CRITICAL COMPOSITION: 2048x768 canvas. The final banner will be extracted from a 2048x384 horizontal strip at y=192..576, then exported at 1600x300. Top and bottom outside this strip should be plain cream bleed. This is an EXTREMELY WIDE AND SHALLOW banner.
+ALL text must be in a VERY SMALL, COMPACT, CENTER-ALIGNED GROUP in the exact horizontal center, wholly inside x=854..1194 (only 340px wide, one sixth of the canvas), and y=235..490. The typography must be dramatically smaller than the reference. Leave most of the banner as deliberate empty space. This central area is the only area that always survives mobile cropping.
+
+Exact text, all centered in that narrow safe column:
+At y around 246, very small understated uppercase sans-serif: "FOLIO"
+At y around 305, refined charcoal serif: "Made for the work"
+At y around 355, elegant terracotta italic serif: "that matters."
+At y around 419, small charcoal sans-serif: "Edit • Convert • Sign"
+At y around 463, small muted charcoal sans-serif: "thebestfreepdf.com"
+The main title should be about 38px within the 2048px-wide master, not the oversized 100px text of the reference. Keep each text line under 340 pixels wide, with no text at the far left or right.
+
+Decoration: symmetrical visual balance, not literal mirror symmetry. On the far left (x=0..560) create cropped warm ivory paper sheets with sage annotation bars and understated shadows; on the far right (x=1500..2048) arrange cream document sheets and a terracotta pencil. Keep artwork entirely out of the central mobile-safe column and its surrounding breathing room. Decorative paper text can be omitted: simple fine gray typographic lines instead. No text on papers that competes with the headline. Artwork is allowed to be cut off by the edges of the shallow strip.
+Leave the entire bottom-center below y=495 clear for the store's overlapping circular logo.
+A quiet, minimalist premium brand header. No large headline, no edge-aligned text, no prices, no fake UI, no buttons, no badges, no gradient, no borders, no crop marks. The result should feel intentionally spacious on desktop and clearly readable after mobile center cropping.

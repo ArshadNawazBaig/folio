@@ -31,7 +31,9 @@ test('directory pagination, filtering and search work without JavaScript', async
   try {
     await page.goto('/tools');
     const seen = new Set<string>();
+    const titles = new Set<string>();
     for (let index = 1; index <= 3; index++) {
+      titles.add(await page.title());
       for (const href of await page
         .locator('.directory-card')
         .evaluateAll((links) => links.map((link) => link.getAttribute('href')!)))
@@ -42,6 +44,7 @@ test('directory pagination, filtering and search work without JavaScript', async
       );
       if (index < 3) await page.getByRole('link', { name: 'Next page', exact: true }).click();
     }
+    expect(titles.size).toBe(3);
     expect([...seen].sort()).toEqual(tools.map((tool) => `/${tool.slug}`).sort());
     await page
       .getByRole('navigation', { name: 'Filter tools' })
@@ -56,12 +59,45 @@ test('directory pagination, filtering and search work without JavaScript', async
     await expect(
       page.locator('.directory-card').getByRole('heading', { name: 'WEBP to JPG', exact: true }),
     ).toBeVisible();
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-      'content',
-      'noindex, nofollow',
-    );
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow');
   } finally {
     await context.close();
+  }
+});
+
+test('blog pagination and article sections have matching crawlable metadata and links', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/blog?page=2');
+  await expect(page).toHaveTitle(/Page 2/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    'href',
+    'https://folio.example/blog?page=2',
+  );
+  const schemas = await page.locator('script[type="application/ld+json"]').allTextContents();
+  const collection = schemas
+    .map((value) => JSON.parse(value))
+    .find((value) => value['@type'] === 'CollectionPage');
+  expect(collection.mainEntity.itemListElement).toHaveLength(10);
+  expect(collection.mainEntity.itemListElement[0].position).toBe(11);
+  await page.goto('/blog?q=Pagination&category=Pagination+guides');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    'href',
+    'https://folio.example/blog?q=Pagination&category=Pagination+guides',
+  );
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow');
+  await page.goto('/blog/better-paperwork');
+  const contents = page.getByRole('navigation', { name: 'On this page' });
+  await expect(contents.getByRole('link')).toHaveCount(2);
+  await contents.getByRole('link', { name: 'Make the next step simple.' }).click();
+  const fragment = new URL(page.url()).hash;
+  await expect(page.locator(fragment)).toHaveText('Make the next step simple.');
+  await expect(page.locator('time[datetime="2026-08-14T12:00:00Z"]')).toContainText('Updated');
+  for (const path of ['/favicon.ico', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png']) {
+    const response = await request.get(path);
+    expect(response.status(), path).toBe(200);
+    expect(response.headers()['content-type'], path).toMatch(/^image\//);
   }
 });
 

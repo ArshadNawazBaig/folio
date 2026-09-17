@@ -1,0 +1,48 @@
+Folio Pro package product images
+
+Method: Built-in image_gen; monthly image derived from the trial artwork for consistency. Final images exported at 1200 x 1200 pixels as PNG.
+
+Trial: public/brand/packages/folio-pro-trial.png
+Monthly: public/brand/packages/folio-pro-monthly.png
+
+Package facts verified against src/lib/plans.ts and src/components/pricing.tsx:
+- Trial: $1 USD for 7 days, 1 GB private cloud storage, then $25 USD/month.
+- Monthly: $25 USD per month, unlimited private cloud storage.
+- Premium PDF downloads; cancel before renewal.
+
+Trial image prompt:
+Use case: ads-marketing.
+Create one finished square product thumbnail image for the Folio Pro 7-day paid introductory trial, for a Lemon Squeezy storefront. Output a high-resolution SQUARE image. It must feel like an expensive, carefully typeset editorial brand asset, matching a warm cream/sage/terracotta document-workspace brand, not a generic SaaS pricing UI.
+
+Visual style: warm ivory #f7f6f2 background, dark charcoal #202522 typography, sage #dce6da paper accents, restrained terracotta #c44934 used on the price and small details. A very subtle tactile paper texture, softly lit, tasteful cream document sheets and a terracotta pencil entering the lower-right edge. Simple gray document rules and sage annotation bars, NO legible text on the decorative sheets, no leaves covering text. Decorative objects only in the lower-right corner and edges; their purpose is to evoke refined document work. No outer card boundary, browser chrome, buttons, fake interface, watermarks, invented awards or ratings.
+
+Layout: absolutely clean typographic hierarchy. Center-align the main content in the central 72% of the square. Keep all actual words at least 110 pixels from the outer edge for a 1024px image; decorative paper may bleed off edges. Main text must remain legible at small storefront thumbnail sizes. Avoid excessive spacing and tiny disclaimers. The content occupies the upper and central region with the renewal line clearly visible near the lower central region. Keep the ornamental artwork behind and outside the typography.
+
+Exact text, in this order, each line rendered verbatim:
+"FOLIO PRO" — small tasteful uppercase sans serif eyebrow.
+"7-day trial" — large refined serif headline.
+"$1" — the largest focal element, bold elegant terracotta type.
+"USD for 7 days" — clearly readable below the price.
+"Premium PDF downloads" — medium dark sans serif.
+"1 GB private cloud storage" — medium dark sans serif.
+"Then $25 USD/month" — clear prominent renewal disclosure, not tiny.
+"Cancel before renewal" — small but readable beneath the renewal line.
+
+No text besides those exact eight lines. This is a paid trial, never label it free. Do not put unlimited storage on this image. Make the graphic polished and spacious, with optically aligned text, crisp letterforms and the same calm editorial quality as a premium stationery brand.
+
+Monthly image prompt:
+Create the matching MONTHLY PLAN product image by editing this Folio Pro trial product graphic. Preserve the square aspect ratio, composition, editorial typography, optical alignment, text hierarchy, premium paper texture, tasteful cropped document sheets and terracotta pencil. This is the second image in a coordinated two-product storefront set. All text should remain inside the same generous safe margins and remain readable as a small product thumbnail.
+
+Change the background from warm ivory to a very subtle pale sage #eef2e8 so the monthly package is easy to distinguish while still feeling like the same brand. Keep charcoal typography and terracotta on the large price and the renewal heading. Maintain clean uncluttered edges and softly lit cream paper artwork.
+
+Replace ALL existing wording with these exact eight lines, in this order, following the same typography and placement as the reference:
+"FOLIO PRO"
+"Monthly plan"
+"$25"
+"USD per month"
+"Premium PDF downloads"
+"Unlimited private cloud storage"
+"Renews monthly"
+"Cancel before renewal"
+
+The plan headline is elegant large serif, the $25 price is the largest focal element, feature lines are crisp sans-serif, and renewal/cancellation information is clearly visible. Adjust font size modestly if necessary to fit the longer storage line without touching the side artwork. Do not retain any reference to $1, seven days, 1 GB, trial, or a different price. Do not invent any additional benefit, claim, rating or text. No buttons, browser mockups, gradients, badges or outer card border. Deliver the finished square product artwork, ready for upload.

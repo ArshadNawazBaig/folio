@@ -5,6 +5,7 @@ import { guides } from '@/lib/guides';
 import { getTool } from '@/lib/tools';
 import { pageMetadata, breadcrumbSchema, siteUrl, organizationSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
+import { relatedGuides } from '@/lib/related-content';
 export const dynamicParams = false;
 export function generateStaticParams() {
   return guides.map((g) => ({ slug: g.slug }));
@@ -93,11 +94,22 @@ export default async function Guide({ params }: { params: Promise<{ slug: string
             <section key={section.title} id={`section-${i + 1}`}>
               <h2>{section.title}</h2>
               <p>{section.text}</p>
+              {section.links && (
+                <ul className="article-next-links">
+                  {section.links.map((link) => (
+                    <li key={link.href}>
+                      <Link prefetch={false} href={link.href}>
+                        {link.label} <ArrowUpRight size={14} aria-hidden="true" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
           ))}
           <div className="article-cta">
             <span>Put a little clarity into practice.</span>
-            <Link className="button primary" href={`/${tool.slug}`}>
+            <Link prefetch={false} className="button primary" href={`/${tool.slug}`}>
               Open {tool.name} <ArrowUpRight size={17} />
             </Link>
           </div>
@@ -105,15 +117,12 @@ export default async function Guide({ params }: { params: Promise<{ slug: string
       </article>
       <div className="article-related">
         <h2>A little more reading.</h2>
-        {guides
-          .filter((other) => other.slug !== g.slug)
-          .slice(0, 2)
-          .map((other) => (
-            <Link key={other.slug} href={`/guides/${other.slug}`}>
-              {other.title}
-              <ArrowUpRight size={17} />
-            </Link>
-          ))}
+        {relatedGuides(g).map((other) => (
+          <Link key={other.slug} href={`/guides/${other.slug}`}>
+            {other.title}
+            <ArrowUpRight size={17} />
+          </Link>
+        ))}
       </div>
     </main>
   );

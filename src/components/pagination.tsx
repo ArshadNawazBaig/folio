@@ -37,7 +37,8 @@ export function Pagination({
     .sort((a, b) => a - b);
   const target = (next: number, size = pageSize) => {
     const url = new URL(href!, 'https://folio.invalid');
-    url.searchParams.set('page', String(next));
+    if (next > 1) url.searchParams.set('page', String(next));
+    else url.searchParams.delete('page');
     if (size === PAGE_SIZE) url.searchParams.delete('pageSize');
     else url.searchParams.set('pageSize', String(size));
     return `${url.pathname}${url.search}${url.hash}`;

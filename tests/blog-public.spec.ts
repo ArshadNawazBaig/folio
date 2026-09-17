@@ -46,7 +46,7 @@ test('published blog is rendered for search engines, hides drafts and supports p
   );
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/blog');
-  await expect(page.getByRole('heading', { name: 'Ideas worth keeping.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'PDF tips. Better documents.' })).toBeVisible();
   const listingHtml = await (await request.get('/blog')).text();
   expect(listingHtml.match(/<h1(?:\s|>)/g)).toHaveLength(1);
   await expect(page.getByRole('heading', { level: 2 })).toHaveCount(10);
@@ -143,7 +143,8 @@ test('blog pagination renders ten posts and preserves search and category in cra
   await expect(pager.getByRole('button', { name: 'Next page' })).toBeDisabled();
   await pager.getByRole('combobox', { name: 'Records per page' }).click();
   await page.getByRole('option', { name: '25 per page', exact: true }).click();
-  await expect(page).toHaveURL(/page=1.*pageSize=25/);
+  await expect(page).toHaveURL(/pageSize=25/);
+  expect(new URL(page.url()).searchParams.has('page')).toBe(false);
   await expect(pager).toContainText('1–22 of 22 records');
   await expect(page.getByRole('heading', { level: 2 })).toHaveCount(22);
   await expect(pager.getByRole('combobox', { name: 'Records per page' })).toContainText(

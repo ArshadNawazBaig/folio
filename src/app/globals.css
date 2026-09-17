@@ -3087,6 +3087,23 @@ dialog::backdrop {
   font-size: 14px;
   line-height: 2;
 }
+.article-next-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-top: 18px;
+  padding: 0;
+  list-style: none;
+}
+.article-next-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--orange-dark, #a94331);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-size: 14px;
+}
 .article-cta {
   background: #e6ebde;
   border: 1px solid #d2dcc5;

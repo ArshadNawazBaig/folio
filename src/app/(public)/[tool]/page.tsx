@@ -16,7 +16,7 @@ import { Faq } from '@/components/faq';
 import { StructuredData } from '@/components/structured-data';
 import { pageMetadata, breadcrumbSchema, siteUrl } from '@/lib/seo';
 import { toolSearchTitle } from '@/lib/tool-seo';
-import { guides } from '@/lib/guides';
+import { guidesForTool, relatedTools } from '@/lib/related-content';
 export const dynamicParams = false;
 export function generateStaticParams() {
   return tools.map((t) => ({ tool: t.slug }));
@@ -34,9 +34,8 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
   const catalog = serverTools();
   const t = catalog.find((t) => t.slug === slug);
   if (!t) notFound();
-  const related = catalog
-    .filter((other) => other.available && other.category === t.category && other.slug !== t.slug)
-    .slice(0, 3);
+  const related = relatedTools(t, catalog);
+  const reading = guidesForTool(t.slug);
   return (
     <main id="main" className="tool-page container">
       <StructuredData
@@ -166,22 +165,19 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
         </div>
         <Faq items={t.faq} />
       </section>
-      {guides.some((guide) => guide.tool === t.slug || guide.relatedTools?.includes(t.slug)) && (
+      {reading.length > 0 && (
         <section className="tool-reading" aria-labelledby="tool-reading-title">
           <span className="eyebrow">HELP FOR YOUR NEXT STEP</span>
           <h2 id="tool-reading-title">Get more from {t.name}.</h2>
           <div className="tool-reading-grid">
-            {guides
-              .filter((guide) => guide.tool === t.slug || guide.relatedTools?.includes(t.slug))
-              .slice(0, 3)
-              .map((guide) => (
-                <Link key={guide.slug} href={`/guides/${guide.slug}`}>
-                  <strong>
-                    {guide.title} <ArrowUpRight size={16} />
-                  </strong>
-                  <span>{guide.description}</span>
-                </Link>
-              ))}
+            {reading.map((guide) => (
+              <Link key={guide.slug} href={`/guides/${guide.slug}`}>
+                <strong>
+                  {guide.title} <ArrowUpRight size={16} />
+                </strong>
+                <span>{guide.description}</span>
+              </Link>
+            ))}
           </div>
         </section>
       )}

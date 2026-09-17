@@ -83,27 +83,40 @@ export function EditorPreview() {
         </div>
         <div className="mini-toolbar">
           <div>
-            <Link href="/workspace?sample=proposal" aria-label="Try the selection tool">
+            <Link
+              prefetch={false}
+              href="/workspace?sample=proposal"
+              aria-label="Try the selection tool"
+            >
               <MousePointer2 size={15} />
             </Link>
             <Link
+              prefetch={false}
               className="active"
               href="/workspace?sample=proposal&mode=text"
               aria-label="Try adding text"
             >
               <Type size={15} />
             </Link>
-            <Link href="/workspace?sample=proposal&mode=highlight" aria-label="Try highlighting">
+            <Link
+              prefetch={false}
+              href="/workspace?sample=proposal&mode=highlight"
+              aria-label="Try highlighting"
+            >
               <Highlighter size={15} />
             </Link>
-            <Link href="/workspace?sample=proposal&mode=signature" aria-label="Try signing">
+            <Link
+              prefetch={false}
+              href="/workspace?sample=proposal&mode=signature"
+              aria-label="Try signing"
+            >
               <Signature size={17} />
             </Link>
             <i />
             <Undo2 size={14} />
             <Redo2 size={14} />
           </div>
-          <Link href="/workspace?sample=proposal" className="mini-export">
+          <Link prefetch={false} href="/workspace?sample=proposal" className="mini-export">
             Open sample <ArrowUpRight size={12} />
           </Link>
         </div>
@@ -156,7 +169,7 @@ export function EditorPreview() {
           <span className="live-dot" />
           Big possibilities. Small learning curve.
         </span>
-        <Link href="/workspace?sample=proposal">
+        <Link prefetch={false} href="/workspace?sample=proposal">
           Take a look inside <ArrowUpRight size={15} />
         </Link>
       </div>

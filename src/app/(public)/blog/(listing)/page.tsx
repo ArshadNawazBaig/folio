@@ -1,37 +1,36 @@
 import Link from 'next/link';
 import { Search, ArrowRight, BookOpen } from 'lucide-react';
 import { publicPosts } from '@/lib/server/blog';
-import { pageMetadata, breadcrumbSchema } from '@/lib/seo';
+import { listingMetadata, breadcrumbSchema, collectionSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
 import { Pagination } from '@/components/pagination';
-import { PAGE_SIZE, normalizePageSize, pageCount } from '@/lib/pagination.mjs';
+import { PAGE_SIZE, pageCount } from '@/lib/pagination.mjs';
+import { blogDirectory } from '@/lib/blog-directory';
+import { type DirectoryParams } from '@/lib/tool-directory';
 import { redirect } from 'next/navigation';
 import { PostCard } from '@/components/blog/post-card';
 import s from '@/components/blog/blog.module.css';
 export const dynamic = 'force-dynamic';
 type Props = {
-  searchParams: Promise<{ q?: string; page?: string; category?: string; pageSize?: string }>;
+  searchParams: Promise<DirectoryParams>;
 };
 export async function generateMetadata({ searchParams }: Props) {
-  const p = await searchParams;
-  const canonical = new URLSearchParams();
-  const page = Math.max(1, Math.min(10000, Number.parseInt(p.page || '1', 10) || 1));
-  if (page > 1) canonical.set('page', String(page));
-  const pageSize = normalizePageSize(p.pageSize);
-  if (pageSize !== PAGE_SIZE) canonical.set('pageSize', String(pageSize));
-  return pageMetadata(
-    'The Folio blog — ideas for better documents',
-    'Practical PDF tips, thoughtful workflows, and news from Folio. Read the latest from our editorial team.',
-    canonical.size ? `/blog?${canonical}` : '/blog',
-    !p.q && !p.category && pageSize === PAGE_SIZE,
+  const d = blogDirectory(await searchParams);
+  return listingMetadata(
+    d.q
+      ? `Search PDF articles: ${d.q}`
+      : d.category
+        ? `${d.category} — PDF Articles`
+        : 'PDF Tips & Tutorials — The Folio Blog',
+    'Practical tutorials for editing PDF text, filling forms, merging files and reducing file size. Understand each workflow before you share your document.',
+    d.canonical,
+    d.page,
+    d.index,
   );
 }
 export default async function Blog({ searchParams }: Props) {
-  const params = await searchParams;
-  const q = typeof params.q === 'string' ? params.q.slice(0, 120) : '',
-    category = typeof params.category === 'string' ? params.category.slice(0, 50) : '';
-  const page = Math.max(1, Math.min(10000, Number.parseInt(params.page || '1', 10) || 1));
-  const pageSize = normalizePageSize(params.pageSize);
+  const directory = blogDirectory(await searchParams);
+  const { q, category, page, pageSize } = directory;
   const { posts, total, unavailable } = await publicPosts(page, q, category, pageSize);
   const filters = new URLSearchParams({
     ...(q ? { q } : {}),
@@ -40,11 +39,22 @@ export default async function Blog({ searchParams }: Props) {
   });
   const paginationHref = `/blog${filters.size ? `?${filters}` : ''}`;
   if (!unavailable && page > pageCount(total, pageSize)) {
-    filters.set('page', String(pageCount(total, pageSize)));
-    redirect(`/blog?${filters}`);
+    const lastPage = pageCount(total, pageSize);
+    if (lastPage > 1) filters.set('page', String(lastPage));
+    redirect(`/blog${filters.size ? `?${filters}` : ''}`);
   }
   return (
     <main id="main" className={s.journal}>
+      {!unavailable && (
+        <StructuredData
+          data={collectionSchema(
+            'PDF tips and tutorials',
+            directory.canonical,
+            posts.map((post) => ({ name: post.title, path: `/blog/${post.slug}` })),
+            (page - 1) * pageSize,
+          )}
+        />
+      )}
       <StructuredData
         data={breadcrumbSchema([
           { name: 'Home', path: '/' },
@@ -54,9 +64,9 @@ export default async function Blog({ searchParams }: Props) {
       <header className={s.journalHero}>
         <span className={s.eyebrow}>THE FOLIO JOURNAL</span>
         <h1>
-          Ideas worth
+          PDF tips.
           <br />
-          <em>keeping.</em>
+          <em>Better documents.</em>
         </h1>
         <p>
           A little know-how for your everyday paperwork.
@@ -98,8 +108,8 @@ export default async function Blog({ searchParams }: Props) {
         </div>
       ) : posts.length ? (
         <div className={s.postGrid}>
-          {posts.map((post) => (
-            <PostCard post={post} key={post.id} />
+          {posts.map((post, index) => (
+            <PostCard post={post} key={post.id} eager={index === 0} />
           ))}
         </div>
       ) : (

@@ -1,16 +1,17 @@
 import { redirect } from 'next/navigation';
 import { serverTools } from '@/lib/server/tool-catalog';
 import { ToolDirectory } from '@/components/tool-directory';
-import { pageMetadata, breadcrumbSchema } from '@/lib/seo';
+import { listingMetadata, breadcrumbSchema, collectionSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
 import { toolDirectory, type DirectoryParams } from '@/lib/tool-directory';
 type Props = { searchParams: Promise<DirectoryParams> };
 export async function generateMetadata({ searchParams }: Props) {
   const directory = toolDirectory(serverTools(), await searchParams);
-  return pageMetadata(
+  return listingMetadata(
     'All PDF Tools — Edit, Organize, Convert & Sign',
     'Find PDF tools for existing text editing, annotations, and password protection. Merge, split, convert, fill, and sign PDFs in one place.',
     directory.canonical,
+    directory.page,
     directory.index,
   );
 }
@@ -19,6 +20,14 @@ export default async function ToolsPage({ searchParams }: Props) {
   if (directory.outOfRange) redirect(directory.canonical);
   return (
     <main id="main" className="container directory-page">
+      <StructuredData
+        data={collectionSchema(
+          'Online PDF tools',
+          directory.canonical,
+          directory.tools.map((tool) => ({ name: tool.name, path: `/${tool.slug}` })),
+          (directory.page - 1) * directory.pageSize,
+        )}
+      />
       <StructuredData
         data={breadcrumbSchema([
           { name: 'Home', path: '/' },

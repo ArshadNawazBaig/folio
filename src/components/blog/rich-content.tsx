@@ -40,11 +40,11 @@ function renderNode(node: RichNode, key: string): ReactNode {
         </p>
       );
     case 'heading':
-      return a.level === 2 ? (
-        <h2 key={key} style={style}>
+      return Number(a.level) === 2 ? (
+        <h2 key={key} id={`section-${key}`} style={style}>
           {children}
         </h2>
-      ) : a.level === 3 ? (
+      ) : Number(a.level) === 3 ? (
         <h3 key={key} style={style}>
           {children}
         </h3>
