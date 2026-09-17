@@ -16,7 +16,9 @@ export async function proxy(request: NextRequest) {
   if (['/robots.txt', '/sitemap.xml'].includes(pathname)) return next();
   // Admin recovery, support, sign-in, cancellation, and signed payment events stay reachable.
   if (
-    /^\/(admin|account|dashboard|auth|maintenance|support)(\/|$)/.test(pathname) ||
+    /^\/(admin|account|dashboard|auth|maintenance|support|security|terms|privacy)(\/|$)/.test(
+      pathname,
+    ) ||
     /^\/api\/(admin|support|account|workspaces)(\/|$)/.test(pathname) ||
     ['/api/billing/webhook', '/api/billing/portal'].includes(pathname)
   )

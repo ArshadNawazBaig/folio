@@ -18,7 +18,7 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
   const records = new Map<string, FileRecord>();
   const uploadBodies = new Map<string, Buffer>();
   // WebKit's interception protocol omits multipart file bytes. Capture the
-  // actual browser File for this fake storage origin before sending the request.
+  // actual browser File for the intercepted storage route before sending the request.
   await context.exposeBinding('__folioWorkspaceUpload', (_source, id: string, bytes: number[]) => {
     uploadBodies.set(id, Buffer.from(bytes));
   });
@@ -30,7 +30,8 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
         window.location.href,
       );
       if (
-        url.origin === 'https://folio-workspace-tests.example.test' &&
+        url.origin === window.location.origin &&
+        url.pathname.startsWith('/__test-workspace-storage/') &&
         init?.method === 'PUT' &&
         init.body instanceof FormData
       ) {
@@ -41,7 +42,7 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
               __folioWorkspaceUpload: (id: string, bytes: number[]) => Promise<void>;
             }
           ).__folioWorkspaceUpload(
-            url.pathname.slice(1),
+            url.pathname.split('/').pop()!,
             Array.from(new Uint8Array(await file.arrayBuffer())),
           );
       }
@@ -61,8 +62,8 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
     dropEdits: false,
     holdSave: null as Promise<void> | null,
   };
-  await context.route('https://folio-workspace-tests.example.test/**', async (route) => {
-    const id = new URL(route.request().url()).pathname.slice(1);
+  await context.route('**/__test-workspace-storage/**', async (route) => {
+    const id = new URL(route.request().url()).pathname.split('/').pop()!;
     const file = records.get(id);
     if (!file) {
       await route.fulfill({ status: 404 });
@@ -184,7 +185,7 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
         json: {
           id: body.id,
           ready: !!records.get(body.id)?.bytes,
-          uploadUrl: `https://folio-workspace-tests.example.test/${body.id}`,
+          uploadUrl: new URL(`/__test-workspace-storage/${body.id}`, request.url()).href,
         },
       });
       return;
@@ -207,7 +208,7 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
           ...file,
           bytes: undefined,
           status: 'ready',
-          sourceUrl: `https://folio-workspace-tests.example.test/${id}`,
+          sourceUrl: new URL(`/__test-workspace-storage/${id}`, request.url()).href,
         },
       });
       return;

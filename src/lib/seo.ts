@@ -13,7 +13,7 @@ export function pageMetadata(
   return {
     title,
     description,
-    alternates: { canonical: path },
+    alternates: { canonical: path, types: { 'application/rss+xml': '/feed.xml' } },
     robots: { index: isIndexable && index, follow: isIndexable && index },
     ...(isIndexable && index
       ? {
@@ -47,6 +47,11 @@ export function organizationSchema() {
     name: brand,
     url: siteUrl,
     logo: { '@type': 'ImageObject', url: `${siteUrl}/icon-512.png`, width: 512, height: 512 },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      url: `${siteUrl}/support`,
+    },
   };
 }
 /** Directory variants stay crawlable even when search/filter results should not be indexed. */

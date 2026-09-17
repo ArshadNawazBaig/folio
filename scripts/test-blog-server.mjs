@@ -31,7 +31,7 @@ const published = {
   author: 'Folio editorial',
   category: 'Working better',
   tags: ['PDF', 'Productivity'],
-  cover: 'https://images.example.test/journal.webp',
+  cover: 'https://images.example.test/journal.webp?w=1200&format=webp',
   coverAlt: 'An organized desk with documents and a plant',
   seoTitle: 'Better paperwork with Folio',
   seoDescription: 'Simple ways to organize, edit, and share everyday PDF documents.',
@@ -244,7 +244,7 @@ const server = createServer(async (req, res) => {
     }
     result = result.slice(offset, offset + Number(url.searchParams.get('limit') || 1000));
     res.setHeader('content-range', `0-${Math.max(0, result.length - 1)}/${count}`);
-    send(result);
+    send(result.map((post) => ({ ...post, cover: post.published.cover })));
     return;
   }
   send({ message: `Unimplemented fixture route: ${url.pathname}` }, 404);

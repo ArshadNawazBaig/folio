@@ -82,11 +82,11 @@ export const publicPostBySlug = cache(async (slug: string): Promise<PublicPost |
 });
 export async function blogSitemap() {
   if (!authReady()) return [];
-  const rows: { public_slug: string; published_updated_at: string }[] = [];
+  const rows: { public_slug: string; published_updated_at: string; cover: string | null }[] = [];
   for (let offset = 0; offset < 45000; offset += 1000) {
     const { data, error } = await adminDb()
       .from('blog_posts')
-      .select('public_slug,published_updated_at')
+      .select('public_slug,published_updated_at,cover:published->>cover')
       .eq('status', 'published')
       .lte('published_at', new Date().toISOString())
       .order('id')

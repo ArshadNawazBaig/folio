@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { contentSecurityPolicy } from './src/lib/security-headers';
 
 const config: NextConfig = {
   distDir: process.env.FOLIO_TEST_OUTPUT === 'auth' ? '.next-auth-tests' : '.next',
@@ -56,6 +57,7 @@ const config: NextConfig = {
   },
   async redirects() {
     return [
+      { source: '/security.txt', destination: '/.well-known/security.txt', permanent: true },
       {
         source: '/apple-touch-icon-precomposed.png',
         destination: '/apple-touch-icon.png',
@@ -74,6 +76,7 @@ const config: NextConfig = {
       {
         source: '/:path*',
         headers: [
+          { key: 'Content-Security-Policy', value: contentSecurityPolicy(process.env) },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'X-Frame-Options', value: 'DENY' },

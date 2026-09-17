@@ -3,6 +3,81 @@ import AxeBuilder from '@axe-core/playwright';
 import { tools } from '../src/lib/tools';
 import { guides } from '../src/lib/guides';
 
+test('public discovery exposes real FAQs, published feeds, image locations and a security contact', async ({
+  page,
+  request,
+}) => {
+  const errors: string[] = [];
+  await page.addInitScript(() => {
+    (window as unknown as { cspErrors: string[] }).cspErrors = [];
+    document.addEventListener('securitypolicyviolation', (event) => {
+      (window as unknown as { cspErrors: string[] }).cspErrors.push(event.violatedDirective);
+    });
+  });
+  page.on('pageerror', (error) => errors.push(error.message));
+  const response = await page.goto('/');
+  expect(response!.headers()['content-security-policy']).toContain("object-src 'none'");
+  await expect(page.locator('head link[type="application/rss+xml"]')).toHaveAttribute(
+    'href',
+    'https://folio.example/feed.xml',
+  );
+  const faq = (await page.locator('script[type="application/ld+json"]').allTextContents())
+    .map((value) => JSON.parse(value))
+    .find((schema) => schema['@type'] === 'FAQPage');
+  const questions = await page.locator('.faq-list summary').allTextContents();
+  expect(faq.mainEntity.map((entry: { name: string }) => entry.name)).toEqual(questions);
+  const answers = await page.locator('.faq-list details > p').allTextContents();
+  expect(
+    faq.mainEntity.map((entry: { acceptedAnswer: { text: string } }) => entry.acceptedAnswer.text),
+  ).toEqual(answers);
+  for (const path of ['/support', '/about', '/terms', '/security', '/feed.xml'])
+    await expect(page.locator(`footer a[href="${path}"]`)).toBeVisible();
+  const feedResponse = await request.get('/feed.xml');
+  expect(feedResponse.status()).toBe(200);
+  expect(feedResponse.headers()['content-type']).toContain('application/rss+xml');
+  const feed = await feedResponse.text();
+  const sitemap = await (await request.get('/sitemap.xml')).text();
+  expect(sitemap).toContain(
+    '<image:loc>https://images.example.test/journal.webp?w=1200&amp;format=webp</image:loc>',
+  );
+  for (const xml of [feed, sitemap]) {
+    expect(
+      await page.evaluate(
+        (text) =>
+          new DOMParser().parseFromString(text, 'application/xml').querySelector('parsererror')
+            ?.textContent || '',
+        xml,
+      ),
+    ).toBe('');
+    expect(xml).not.toContain('secret-draft');
+    expect(xml).not.toContain('scheduled-story');
+  }
+  expect(feed).toContain('/blog/better-paperwork</link>');
+  expect(feed).toContain('/guides/how-to-sign-a-pdf</link>');
+  const security = await request.get('/.well-known/security.txt');
+  expect(security.status()).toBe(200);
+  expect(security.headers()['content-type']).toContain('text/plain');
+  const disclosure = await security.text();
+  expect(disclosure).toContain('Contact: https://folio.example/support');
+  expect(Date.parse(disclosure.match(/^Expires: (.+)$/m)![1])).toBeGreaterThan(Date.now());
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const path of ['/terms', '/security']) {
+    await page.goto(path);
+    await expect(page.locator('main h1')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    expect(
+      (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
+        .violations,
+    ).toEqual([]);
+    expect(
+      await page.evaluate(() => (window as unknown as { cspErrors: string[] }).cspErrors),
+    ).toEqual([]);
+  }
+  expect(errors).toEqual([]);
+});
+
 test('Google can crawl the production sitemap and private workspaces stay noindex', async ({
   request,
 }) => {

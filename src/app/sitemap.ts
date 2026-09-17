@@ -4,6 +4,7 @@ import { serverTools } from '@/lib/server/tool-catalog';
 import { connection } from 'next/server';
 import { guides } from '@/lib/guides';
 import { blogSitemap } from '@/lib/server/blog';
+import { sitemapImage } from '@/lib/publication-feeds';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   await connection();
   const tools = serverTools();
@@ -19,6 +20,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       '/blog',
       '/about',
       '/privacy',
+      '/terms',
+      '/security',
       '/pricing',
     ].map((path) => ({
       url: `${siteUrl}${path || '/'}`,
@@ -28,6 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...posts.map((p) => ({
       url: `${siteUrl}/blog/${p.public_slug}`,
       lastModified: p.published_updated_at,
+      images: sitemapImage(p.cover),
     })),
   ];
 }

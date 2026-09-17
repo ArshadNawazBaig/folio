@@ -52,6 +52,23 @@ try {
   check(urls.length > 0, 'The sitemap is empty.');
   check(new Set(urls).size === urls.length, 'The sitemap contains duplicate URLs.');
   check(urls.length <= 50000, 'Split this sitemap before it exceeds 50,000 URLs.');
+  const feed = await get('/feed.xml');
+  check(feed.response.status === 200, 'feed.xml must return HTTP 200.');
+  check(
+    /application\/rss\+xml/.test(feed.response.headers.get('content-type') || ''),
+    'feed.xml must use the RSS content type.',
+  );
+  check(feed.html.includes('<item>'), 'The publication feed contains no published entries.');
+  const security = await get('/.well-known/security.txt');
+  check(security.response.status === 200, 'security.txt must return HTTP 200.');
+  check(
+    security.html.includes(`Contact: ${origin}/support`),
+    'security.txt has no support contact.',
+  );
+  check(
+    Date.parse(security.html.match(/^Expires: (.+)$/m)?.[1] || '') > Date.now(),
+    'security.txt has expired or has no valid expiry date; review the contact before renewing it.',
+  );
   const titles = new Map();
   const descriptions = new Map();
   const queued = new Set(urls);
@@ -76,6 +93,16 @@ try {
               .map((tag) => tag.content || ''),
           ].join(',');
           check(response.status === 200, `${url}: HTTP ${response.status}.`);
+          check(!!response.headers.get('content-security-policy'), `${url}: missing CSP header.`);
+          check(
+            tags(html, 'link').some(
+              (link) =>
+                link.rel === 'alternate' &&
+                link.type === 'application/rss+xml' &&
+                new URL(link.href, origin).href === `${origin}/feed.xml`,
+            ),
+            `${url}: missing RSS discovery link.`,
+          );
           check(!/noindex/i.test(robots), `${url}: indexing is disabled.`);
           check(!!title, `${url}: missing title.`);
           check(!titles.has(title), `${url}: title duplicates ${titles.get(title)}.`);

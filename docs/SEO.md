@@ -1,10 +1,12 @@
 # SEO implementation and launch setup
 
-## Latest review — September 17, 2026
+## Latest review — September 18, 2026
 
-See [the current SEO review](reviews/SEO-AUDIT-2026-09-17.md) for the latest changes, checks, and search priorities. The owner now has a Search Console domain property and has submitted the sitemap; its reported fetch failure still needs the expanded Google error/live-inspection result. Earlier “verification pending” entries below are historical.
+See [the external-checker review](reviews/SEO-CHECKER-REVIEW-2026-09-18.md) for verified findings, RSS discovery, sitemap images, matching FAQ markup, service terms, security reporting, and CSP. It separates actual gaps from checklist items that do not apply. SPF DNS configuration still requires the domain's email-provider information. Review the security contact before `security.txt` expires on September 1, 2027.
 
-Run `npm run test:seo` for local browser coverage and `npm run seo:audit -- https://thebestfreepdf.com /tmp/folio-seo-report.json` after deployment. The audit now follows pagination, checks duplicate descriptions and orphan pages, and verifies search/social icon assets in addition to the original checks.
+See [the September 17 SEO review](reviews/SEO-AUDIT-2026-09-17.md) for the preceding changes, checks, and search priorities. The owner now has a Search Console domain property and has submitted the sitemap; its reported fetch failure still needs the expanded Google error/live-inspection result. Earlier “verification pending” entries below are historical.
+
+Run `npm run test:seo` for local browser coverage and `npm run seo:audit -- https://thebestfreepdf.com /tmp/folio-seo-report.json` after deployment. The audit follows pagination, checks duplicate descriptions and orphan pages, and verifies search/social icon assets, RSS discovery, CSP and the security contact's expiry in addition to the original checks.
 
 ## Implemented
 

@@ -6559,14 +6559,14 @@ dialog::backdrop {
 .account-card > small a {
   text-decoration: underline;
 }
-.account-card form > label,
+.sign-in-form form > label,
 .pro-field {
   display: block;
   font-size: 11px;
   font-weight: 600;
   margin-bottom: 17px;
 }
-.account-card input,
+.sign-in-form input,
 .pro-field input,
 .pro-field textarea {
   display: block;
@@ -7160,7 +7160,7 @@ dialog::backdrop {
   .pro-text-properties .pro-field input,
   .pro-text-properties .pro-field textarea,
   .protect-card input,
-  .account-card input {
+  .sign-in-form input {
     font-size: 16px;
   }
   .pro-upload-consent {

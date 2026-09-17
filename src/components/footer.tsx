@@ -60,6 +60,9 @@ export function Footer() {
           <Link href="/support">Contact support</Link>
           <Link href="/about">About Folio</Link>
           <Link href="/privacy">Your privacy</Link>
+          <Link href="/terms">Terms of service</Link>
+          <Link href="/security">Report a security issue</Link>
+          <a href="/feed.xml">Subscribe via RSS</a>
         </div>
       </div>
       <div className="footer-bottom container">
