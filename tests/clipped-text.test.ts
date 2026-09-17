@@ -12,7 +12,7 @@ test('rounded cards, nested clips and other sections expose visible text without
     operation: 'inspect',
     page: 0,
   })) as TextInspection;
-  assert.equal(inspection.version, 3);
+  assert.equal(inspection.version, 4);
   assert.deepEqual(
     inspection.blocks.map((b) => b.text),
     [

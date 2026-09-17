@@ -11,7 +11,10 @@ import { ApiError } from './http';
 import { MAX_PREVIEW_WIDTH } from '../pdf-preview.mjs';
 const edit = z
   .object({
-    id: z.string().regex(/^\d+:\d+(?::[a-f\d-]{36})?$/),
+    id: z
+      .string()
+      .max(128)
+      .regex(/^\d+:\d+(?:\.\d+){0,16}(?::[a-f\d-]{36})?$/),
     copy: textBlockSchema.optional(),
     original: z.string().max(10000),
     text: z.string().max(2000),

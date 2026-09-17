@@ -8,7 +8,7 @@ import type { TextInspection } from '@/lib/pro-types';
 
 export function hasInspectedPage(inspection: TextInspection | null, page: number | null) {
   return (
-    inspection?.version === 3 &&
+    inspection?.version === 4 &&
     page !== null &&
     (!inspection.pages || inspection.pages.includes(page))
   );
@@ -24,8 +24,8 @@ export function usePreparedText(
   previewClient: InteractiveTextPreview | null,
   starting: boolean,
 ) {
-  // Re-inspect older metadata so clipped card text and visible paint are available.
-  const currentRestored = restored?.version === 3 ? restored : null;
+  // Re-inspect older metadata so text inside PDF groups is also available.
+  const currentRestored = restored?.version === 4 ? restored : null;
   const cache = useRef<{ bytes: Uint8Array; inspection: TextInspection | null } | null>(null);
   const [result, setResult] = useState<{
     bytes: Uint8Array;

@@ -4,6 +4,8 @@ import { isPdfTextOffset, moveTextMatrix } from './pdf-text-position.mjs';
 import { pdfPreviewLayout } from './pdf-preview.mjs';
 import { visibleClippedText } from './pdf-text-clip.mjs';
 import { copyTextObjects } from './pdf-text-copy.mjs';
+import { pageTextObjects, liftTextObject, regenerateTextForms } from './pdf-text-objects.mjs';
+import { prepareFormTextSource } from './pdf-form-source.mjs';
 import {
   sourcePaints,
   markedPaint,
@@ -71,9 +73,9 @@ export async function processTextPdf(bytes, job, platform) {
       if (bounds) dirtyBounds.push(bounds);
     }
   };
-  const source = alloc(bytes.length);
+  let source = alloc(bytes.length);
   heap.HEAPU8.set(bytes, source);
-  const doc = api.FPDF_LoadMemDocument(source, bytes.length, '');
+  let doc = api.FPDF_LoadMemDocument(source, bytes.length, '');
   if (!doc) {
     free(source);
     throw new Error('This PDF cannot be opened. Use an unencrypted, undamaged PDF.');
@@ -201,6 +203,41 @@ export async function processTextPdf(bytes, job, platform) {
         throw new Error('Password protection could not be applied.');
       return save();
     }
+    let grouped = false;
+    const candidates =
+      job.page !== undefined
+        ? [job.page]
+        : job.changes?.length
+          ? [...new Set(job.changes.map((change) => Number(String(change.id).split(':')[0])))]
+          : Array.from({ length: pageCount }, (_, index) => index);
+    for (const index of candidates) {
+      if (!Number.isInteger(index) || index < 0 || index >= pageCount) continue;
+      const page = api.FPDF_LoadPage(doc, index);
+      if (!page) continue;
+      try {
+        const count = api.FPDFPage_CountObjects(page);
+        for (let i = 0; i < count && !grouped; i++)
+          grouped = api.FPDFPageObj_GetType(api.FPDFPage_GetObject(page, i)) === 5;
+      } finally {
+        api.FPDF_ClosePage(page);
+      }
+      if (grouped) break;
+    }
+    if (grouped) {
+      const prepared = await prepareFormTextSource(bytes);
+      grouped = prepared.nested;
+      if (grouped) {
+        api.FPDF_CloseDocument(doc);
+        doc = 0;
+        free(source);
+        source = 0;
+        bytes = prepared.bytes;
+        source = alloc(bytes.length);
+        heap.HEAPU8.set(bytes, source);
+        doc = api.FPDF_LoadMemDocument(source, bytes.length, '');
+        if (!doc) throw new Error('The PDF groups could not be prepared for editing.');
+      }
+    }
     const blocks = [];
     let skipped = 0;
     const changes = new Map();
@@ -274,12 +311,13 @@ export async function processTextPdf(bytes, job, platform) {
       if (!page) throw new Error(`Page ${p + 1} could not be opened.`);
       let textPage = api.FPDFText_LoadPage(page);
       try {
-        const count = api.FPDFPage_CountObjects(page);
-        if (count > 30000) throw new Error('This page is too complex to edit. Try a simpler PDF.');
+        const entries = pageTextObjects(api, heap, page, textPage, alloc, free, grouped);
         const pending = [];
-        for (let i = 0; i < count; i++) {
-          if (job.operation !== 'inspect' && !changes.has(`${p}:${i}`)) continue;
-          const object = api.FPDFPage_GetObject(page, i),
+        for (const entry of entries) {
+          const i = entry.index,
+            id = `${p}:${entry.path.join('.')}`;
+          if (job.operation !== 'inspect' && !changes.has(id)) continue;
+          const object = entry.object,
             type = api.FPDFPageObj_GetType(object);
           if (type === 5) {
             skipped++;
@@ -295,7 +333,7 @@ export async function processTextPdf(bytes, job, platform) {
             skipped++;
             continue;
           }
-          const copied = changes.get(`${p}:${i}`)?.copy;
+          const copied = changes.get(id)?.copy;
           const len = api.FPDFTextObj_GetText(object, textPage, 0, 0);
           if ((!copied && len <= 2) || len > 20000) {
             skipped++;
@@ -305,10 +343,11 @@ export async function processTextPdf(bytes, job, platform) {
           api.FPDFTextObj_GetText(object, textPage, textPtr, len);
           // PDFium suppresses overlapping duplicate glyphs during extraction. The
           // copy source was verified against its own page before it was inserted.
-          const text = copied ? changes.get(`${p}:${i}`).original : heap.UTF16ToString(textPtr);
+          const text = copied
+            ? changes.get(id).original
+            : (entry.text ?? heap.UTF16ToString(textPtr));
           free(textPtr);
           if (!text.trim()) continue;
-          const id = `${p}:${i}`;
           let change = changes.get(id);
           if (change && text !== change.original)
             throw new Error(
@@ -374,13 +413,20 @@ export async function processTextPdf(bytes, job, platform) {
             }
           }
           if (change) {
-            dirty(object, p);
+            if (
+              entry.members &&
+              job.operation === 'preview' &&
+              job.partial === true &&
+              p === job.page
+            )
+              dirtyBounds.push(entry.bounds);
+            else dirty(object, p);
             if (painted) dirty(painted.object, p);
           }
           if (change?.text === '') {
             // Selecting text only removes its original ink from the background.
             // There is no replacement font to inspect, load or validate here.
-            pending.push({ object, index: i, change, runs: [], complete: 0, painted });
+            pending.push({ object, entry, change, runs: [], complete: 0, painted });
             continue;
           }
           const scratch = alloc(64);
@@ -400,11 +446,13 @@ export async function processTextPdf(bytes, job, platform) {
               skipped++;
               continue;
             }
-            const bounds = [0, 4, 8, 12].map((offset) => heap.getValue(scratch + offset, 'float'));
+            const bounds =
+              entry.bounds ??
+              [0, 4, 8, 12].map((offset) => heap.getValue(scratch + offset, 'float'));
             const size = heap.getValue(scratch + 16, 'float');
-            const matrix = [0, 4, 8, 12, 16, 20].map((offset) =>
-              heap.getValue(scratch + 24 + offset, 'float'),
-            );
+            const matrix =
+              entry.matrix ??
+              [0, 4, 8, 12, 16, 20].map((offset) => heap.getValue(scratch + 24 + offset, 'float'));
             if (!isPdfTextSize(size) || !matrix.every(Number.isFinite)) {
               skipped++;
               continue;
@@ -433,6 +481,7 @@ export async function processTextPdf(bytes, job, platform) {
               id,
               page: p,
               objectIndex: i,
+              ...(entry.members ? { objectPath: entry.path } : {}),
               text,
               font,
               fontWeight,
@@ -480,7 +529,7 @@ export async function processTextPdf(bytes, job, platform) {
               }
               pending.push({
                 object,
-                index: i,
+                entry,
                 change,
                 matrix,
                 size,
@@ -504,7 +553,7 @@ export async function processTextPdf(bytes, job, platform) {
         const preserved = [];
         for (const {
           object,
-          index: sourceIndex,
+          entry,
           change,
           matrix,
           size,
@@ -515,6 +564,8 @@ export async function processTextPdf(bytes, job, platform) {
           painted,
           clipped,
         } of pending.reverse()) {
+          const sourceIndex = liftTextObject(api, heap, page, entry, alloc, free);
+          const regrouped = (entry.members?.length || 0) > 1;
           const index = sourceIndex - (painted ? 1 : 0);
           if (painted) {
             if (!api.FPDFPage_RemoveObject(page, painted.object))
@@ -643,7 +694,10 @@ export async function processTextPdf(bytes, job, platform) {
               matrixPtr = alloc(24);
             try {
               heap.stringToUTF16(change.text, textPtr, (change.text.length + 1) * 2);
-              if (change.text !== change.original && !api.FPDFText_SetText(object, textPtr))
+              if (
+                (change.text !== change.original || regrouped) &&
+                !api.FPDFText_SetText(object, textPtr)
+              )
                 throw new Error(
                   'This text could not be updated using its original font. Choose another font and try again.',
                 );
@@ -660,7 +714,8 @@ export async function processTextPdf(bytes, job, platform) {
                   throw new Error('This text color could not be updated.');
               }
               // Matrix/color-only edits leave the font's encoded glyphs untouched.
-              if (change.text !== change.original) preserved.push({ object, text: change.text });
+              if (change.text !== change.original || regrouped)
+                preserved.push({ object, text: change.text });
               finishAppearance([object]);
             } finally {
               free(textPtr);
@@ -716,6 +771,7 @@ export async function processTextPdf(bytes, job, platform) {
           if (replacement) finishAppearance([replacement]);
           applied++;
         }
+        if (pending.length && grouped) regenerateTextForms(api, heap, page, alloc, free);
         if (pending.length && !api.FPDFPage_GenerateContent(page))
           throw new Error('The changed page could not be saved.');
         if (preserved.length) {
@@ -774,7 +830,7 @@ export async function processTextPdf(bytes, job, platform) {
     }
     if (job.operation === 'inspect')
       return {
-        version: 3,
+        version: 4,
         pageCount,
         blocks,
         skipped,

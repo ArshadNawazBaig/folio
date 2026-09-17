@@ -7,6 +7,7 @@ export const textBlockSchema = z.object({
   id,
   page: z.number().int().min(0).max(99),
   objectIndex: z.number().int().nonnegative(),
+  objectPath: z.array(z.number().int().min(0).max(30000)).min(2).max(17).optional(),
   text: z.string().max(10000),
   font: z.string().max(256),
   fontWeight: number.min(0).max(1000).optional(),

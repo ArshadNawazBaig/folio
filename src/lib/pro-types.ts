@@ -16,6 +16,7 @@ export type TextBlock = {
   id: string;
   page: number;
   objectIndex: number;
+  objectPath?: number[];
   text: string;
   font: string;
   fontWeight?: number;

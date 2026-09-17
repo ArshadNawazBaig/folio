@@ -10,6 +10,8 @@ const config: NextConfig = {
       './scripts/pdf-text-engine.mjs',
       './src/lib/pdf-text-engine.mjs',
       './src/lib/pdf-text-copy.mjs',
+      './src/lib/pdf-text-objects.mjs',
+      './src/lib/pdf-form-source.mjs',
       './src/lib/pdf-text-paint.mjs',
       './src/lib/pdf-text-clip.mjs',
       './src/lib/pdf-text-size.mjs',
