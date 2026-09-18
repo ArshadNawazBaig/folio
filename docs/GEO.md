@@ -2,6 +2,8 @@
 
 This work targets useful, accurate references to Folio in Google AI Overviews/AI Mode, ChatGPT Search, Microsoft Copilot and Perplexity. Passing a crawl check is not evidence of indexing, citations, rankings or traffic. Changes must be deployed before they affect the public website.
 
+For the metadata checker findings, exact HTML and JSON-LD examples, implementation alternatives and page-specific keyword strategy, see [METADATA.md](METADATA.md).
+
 ## What visitors and crawlers can read
 
 Nine tool pages now show a direct answer, input/output formats, download policy, file handling and limitations in server-rendered HTML. The same content is served to visitors and crawler user agents. Download descriptions use the existing access policy; paid tools do not advertise a zero-price offer. The upload distinction matters: standalone processing can be local while opening the same result in the editor starts private cloud saving.

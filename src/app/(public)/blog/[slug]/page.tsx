@@ -32,7 +32,10 @@ export async function generateMetadata({ params }: Props) {
       tags: p.tags,
       ...(p.cover ? { images: [{ url: p.cover, alt: p.coverAlt }] } : {}),
     },
-    twitter: { ...base.twitter, ...(p.cover ? { images: [p.cover] } : {}) },
+    twitter: {
+      ...base.twitter,
+      ...(p.cover ? { images: [{ url: p.cover, alt: p.coverAlt }] } : {}),
+    },
   };
 }
 export default async function BlogPost({ params }: Props) {

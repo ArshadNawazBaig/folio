@@ -20,11 +20,15 @@ import { popularSlugs } from '@/lib/tools';
 import { pageMetadata, siteUrl, organizationSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
 import { guides } from '@/lib/guides';
-export const metadata = pageMetadata(
-  'Free Online PDF Tools — Edit, Merge, Compress & Sign',
-  'Online PDF tools to add text, sign, merge, split and convert images. Annotation downloads are free; original-text downloads require a paid plan.',
-  '/',
-);
+const title = 'Free Online PDF Tools — Edit, Merge, Compress & Sign';
+const description =
+  'Use Folio to add text, sign, merge, split and convert images to PDF. Download annotations free; original-text changes require a paid plan.';
+export const metadata = pageMetadata(title, description, '/', true, {
+  title: 'Folio — Free Online PDF Tools',
+  description: 'Free tools to add text, sign, merge and split PDFs with Folio.',
+  twitterDescription:
+    'Add text, sign, merge, split and convert images to PDF with Folio in your browser. Download annotations free without a Folio watermark. Original-text changes require a paid plan.',
+});
 const popularDescriptions: Record<string, string> = {
   'edit-pdf': 'Add text, highlight passages and place a signature.',
   'merge-pdf': 'Combine PDF files and arrange them in the order you need.',
@@ -54,9 +58,18 @@ export default async function Home() {
               '@id': `${siteUrl}/#website`,
               name: 'Folio',
               url: siteUrl,
-              description:
-                'Online PDF tools for adding text, annotations, signatures, page organization and image conversion. Original-text downloads require a paid plan.',
+              description,
               publisher: { '@id': `${siteUrl}/#organization` },
+              inLanguage: 'en',
+            },
+            {
+              '@type': 'WebPage',
+              '@id': `${siteUrl}/#webpage`,
+              url: `${siteUrl}/`,
+              name: title,
+              description,
+              isPartOf: { '@id': `${siteUrl}/#website` },
+              about: { '@id': `${siteUrl}/#organization` },
               inLanguage: 'en',
             },
           ],
@@ -74,9 +87,9 @@ export default async function Home() {
             <em>PDF tools.</em>
           </h1>
           <p className="hero-description">
-            Add text, annotate, sign, merge, and split PDFs for free.
+            Use Folio to add text, sign, merge, and split PDFs in your browser.
             <br />
-            Work in your browser. Download when you’re ready.
+            Download these changes free. Original-text changes need a paid plan.
           </p>
           <HomeUpload />
           <Link prefetch={false} href="/workspace?sample=proposal" className="sample-link">

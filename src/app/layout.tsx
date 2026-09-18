@@ -20,6 +20,7 @@ export const metadata: Metadata = {
   description:
     'A calmer way to work with PDFs. Edit, merge, split, convert, and fill documents in your browser with Folio.',
   applicationName: 'Folio',
+  formatDetection: { telephone: false, address: false, email: false },
   robots: { index: isIndexable, follow: isIndexable },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,

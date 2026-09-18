@@ -17,6 +17,33 @@ test('public discovery exposes real FAQs, published feeds, image locations and a
   page.on('pageerror', (error) => errors.push(error.message));
   const response = await page.goto('/');
   expect(response!.headers()['content-security-policy']).toContain("object-src 'none'");
+  // Social copy can differ from the search title without losing metadata in the initial HTML.
+  expect(await response!.text()).toContain(
+    'property="og:title" content="Folio — Free Online PDF Tools"',
+  );
+  await expect(page).toHaveTitle('Free Online PDF Tools — Edit, Merge, Compress & Sign | Folio');
+  await expect(page.locator('head meta[property="og:title"]')).toHaveCount(1);
+  await expect(page.locator('head meta[property="og:title"]')).toHaveAttribute(
+    'content',
+    'Folio — Free Online PDF Tools',
+  );
+  await expect(page.locator('head meta[name="author"]')).toHaveAttribute('content', 'Folio');
+  await expect(page.locator('head meta[name="format-detection"]')).toHaveAttribute(
+    'content',
+    'telephone=no, address=no, email=no',
+  );
+  await expect(
+    page.locator('meta[name="twitter:site"], meta[name="twitter:creator"], link[hreflang]'),
+  ).toHaveCount(0);
+  const shareDescription = await page
+    .locator('meta[property="og:description"]')
+    .getAttribute('content');
+  const twitterDescription = await page
+    .locator('meta[name="twitter:description"]')
+    .getAttribute('content');
+  expect(twitterDescription).not.toBe(shareDescription);
+  expect(twitterDescription).toContain('Original-text changes require a paid plan.');
+  await expect(page.locator('meta[name="twitter:image:alt"]')).toHaveAttribute('content', /Folio/);
   await expect(page.locator('head link[type="application/rss+xml"]')).toHaveAttribute(
     'href',
     'https://folio.example/feed.xml',
@@ -24,6 +51,16 @@ test('public discovery exposes real FAQs, published feeds, image locations and a
   const faq = (await page.locator('script[type="application/ld+json"]').allTextContents())
     .map((value) => JSON.parse(value))
     .find((schema) => schema['@type'] === 'FAQPage');
+  const graph = (await page.locator('script[type="application/ld+json"]').allTextContents())
+    .map((value) => JSON.parse(value))
+    .find((schema) => schema['@graph'])['@graph'];
+  const home = graph.find((node: Record<string, unknown>) => node['@type'] === 'WebPage');
+  expect(home.description).toBe(
+    await page.locator('meta[name="description"]').getAttribute('content'),
+  );
+  expect(graph.map((node: Record<string, unknown>) => node['@id'])).toEqual(
+    expect.arrayContaining([home.isPartOf['@id'], home.about['@id']]),
+  );
   const questions = await page.locator('.faq-list summary').allTextContents();
   expect(faq.mainEntity.map((entry: { name: string }) => entry.name)).toEqual(questions);
   const answers = await page.locator('.faq-list details > p').allTextContents();
@@ -163,6 +200,10 @@ test('blog pagination and article sections have matching crawlable metadata and 
   );
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow');
   await page.goto('/blog/better-paperwork');
+  await expect(page.locator('meta[name="author"]')).toHaveAttribute('content', 'Folio editorial');
+  expect(await page.locator('meta[name="twitter:image:alt"]').getAttribute('content')).toBe(
+    await page.locator('meta[property="og:image:alt"]').getAttribute('content'),
+  );
   const contents = page.getByRole('navigation', { name: 'On this page' });
   await expect(contents.getByRole('link')).toHaveCount(2);
   await contents.getByRole('link', { name: 'Make the next step simple.' }).click();

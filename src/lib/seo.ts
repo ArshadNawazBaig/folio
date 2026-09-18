@@ -5,16 +5,27 @@ export const { siteUrl, isIndexable } = seoConfiguration(process.env);
 export const brand = 'Folio';
 export const productDescription =
   'Folio is a browser-based PDF toolkit for annotations, visual signatures, page organization, merging, splitting and conversion. Annotation and page-tool downloads are free; original-text edits and password protection require a paid download. The editor saves documents to private cloud storage.';
+
+type SocialCopy = {
+  title?: string;
+  description?: string;
+  twitterDescription?: string;
+};
+
 export function pageMetadata(
   title: string,
   description: string,
   path: string,
   index = true,
+  social: SocialCopy = {},
 ): Metadata {
-  const image = `/og?title=${encodeURIComponent(title)}`;
+  const shareTitle = social.title ?? `${title} | Folio`;
+  const image = `/og?title=${encodeURIComponent(social.title ?? title)}`;
+  const imageAlt = `${shareTitle} — preview card`;
   return {
     title,
     description,
+    authors: [{ name: brand, url: `${siteUrl}/about` }],
     alternates: { canonical: path, types: { 'application/rss+xml': '/feed.xml' } },
     robots: { index: isIndexable && index, follow: isIndexable && index },
     ...(isIndexable && index
@@ -29,16 +40,16 @@ export function pageMetadata(
       type: 'website',
       locale: 'en_US',
       siteName: brand,
-      title: `${title} | Folio`,
-      description,
+      title: shareTitle,
+      description: social.description ?? description,
       url: path,
-      images: [{ url: image, width: 1200, height: 630, alt: `${title} — Folio PDF tools` }],
+      images: [{ url: image, width: 1200, height: 630, alt: imageAlt }],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${title} | Folio`,
-      description,
-      images: [image],
+      title: shareTitle,
+      description: social.twitterDescription ?? social.description ?? description,
+      images: [{ url: image, alt: imageAlt }],
     },
   };
 }
