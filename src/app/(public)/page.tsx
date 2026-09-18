@@ -21,10 +21,18 @@ import { pageMetadata, siteUrl, organizationSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
 import { guides } from '@/lib/guides';
 export const metadata = pageMetadata(
-  'Free PDF Tools Online — Edit, Merge, Compress & Sign',
-  'Add text, annotate, sign, merge and split PDFs online with free downloads. Original-text edits require a paid plan to download. Start with Folio in your browser.',
+  'Free Online PDF Tools — Edit, Merge, Compress & Sign',
+  'Online PDF tools to add text, sign, merge, split and convert images. Annotation downloads are free; original-text downloads require a paid plan.',
   '/',
 );
+const popularDescriptions: Record<string, string> = {
+  'edit-pdf': 'Add text, highlight passages and place a signature.',
+  'merge-pdf': 'Combine PDF files and arrange them in the order you need.',
+  'compress-pdf': 'Optimize a PDF’s structure. Some files may not get smaller.',
+  'split-pdf': 'Extract selected pages or divide a PDF into separate files.',
+  'sign-pdf': 'Draw, type or upload a signature and place it on the page.',
+  'image-to-pdf': 'Combine JPG, PNG and WEBP images into a PDF.',
+};
 export default async function Home() {
   await connection();
   const tools = serverTools();
@@ -46,7 +54,8 @@ export default async function Home() {
               '@id': `${siteUrl}/#website`,
               name: 'Folio',
               url: siteUrl,
-              description: 'Online PDF editing, conversion, forms, and document tools.',
+              description:
+                'Online PDF tools for adding text, annotations, signatures, page organization and image conversion. Original-text downloads require a paid plan.',
               publisher: { '@id': `${siteUrl}/#organization` },
               inLanguage: 'en',
             },
@@ -60,17 +69,14 @@ export default async function Home() {
             LESS PAPERWORK. MORE POSSIBILITY.
           </div>
           <h1>
-            Free PDF tools.
+            Free online
             <br />
-            <em>
-              Beautifully
-              <br className="hero-break" /> handled.
-            </em>
+            <em>PDF tools.</em>
           </h1>
           <p className="hero-description">
-            Add text, annotate, sign, merge, and split PDFs online for free.
+            Add text, annotate, sign, merge, and split PDFs for free.
             <br />
-            Useful tools. Free downloads. Right in your browser.
+            Work in your browser. Download when you’re ready.
           </p>
           <HomeUpload />
           <Link prefetch={false} href="/workspace?sample=proposal" className="sample-link">
@@ -101,7 +107,7 @@ export default async function Home() {
                   {t.name}
                   <ArrowUpRight size={15} />
                 </h3>
-                <p>{t.short}</p>
+                <p>{popularDescriptions[t.slug] || t.short}</p>
                 {!t.available && <span className="coming-small">Coming soon</span>}
               </Link>
             );
@@ -144,26 +150,27 @@ export default async function Home() {
         <div className="feature-copy">
           <span className="eyebrow">ONE DOCUMENT. ENDLESS POSSIBILITIES.</span>
           <h2>
-            From first draft
+            How do I work
             <br />
-            to <em>ready to share.</em>
+            <em>with a PDF online?</em>
           </h2>
           <p>
-            A note here. A signature there. A few pages in a better order. It’s the little things
-            that make a document feel finished.
+            Choose a tool for the change you need. Use the online PDF editor for notes and
+            signatures, Merge PDF to combine documents, or Split PDF to keep just the pages you
+            want. No software installation is needed.
           </p>
           <ul className="check-list">
             <li>
               <Check size={16} />
-              Add text, highlights, and your personal touch
+              Choose a tool and open your PDF
             </li>
             <li>
               <Check size={16} />
-              Give every page its place
+              Make your changes and review each page
             </li>
             <li>
               <Check size={16} />
-              Keep working without uploading again
+              Download your result and keep the original
             </li>
           </ul>
           <Link prefetch={false} href="/edit-pdf" className="button dark">
@@ -327,17 +334,21 @@ export default async function Home() {
             <br />
             <em>Simple answers.</em>
           </h2>
-          <p>Everything you need to feel at home.</p>
+          <p>Using PDF tools online, from your first upload to the finished file.</p>
         </div>
         <Faq
           items={[
             [
-              'What can I do with Folio for free?',
+              'What can I do with these online PDF tools?',
               'Add text, highlights, images, and signatures; fill forms; merge, split, and organize pages; or convert PDF pages to images. These workflows include free downloads. Original-text editing can be tried in the editor, but downloading those changes requires a paid plan. Password-protected, translated, and Office-converted downloads also require a paid plan when available.',
             ],
             [
-              'Do I need an account to use Folio?',
-              'You can start as a guest without Google sign-in. Guest editor files use private cloud storage, with 100 MB of space and a 24-hour expiry. Sign in with Google to keep your documents and access them across your devices.',
+              'Do I need to install software or create an account?',
+              'Use Folio in your browser without installing software. You can start as a guest without Google sign-in. Guest editor files use private cloud storage, with 100 MB of space and a 24-hour expiry. Sign in to keep your documents and access them across your devices.',
+            ],
+            [
+              'Can I open and read a PDF online?',
+              'Yes. Open a PDF in the editor, move between pages and use the zoom controls to read it. Viewing does not require a paid plan. Editor documents are saved in private cloud storage; guest files expire after 24 hours.',
             ],
             [
               'Where do my documents go?',
