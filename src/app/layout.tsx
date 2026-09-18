@@ -22,7 +22,13 @@ export const metadata: Metadata = {
   applicationName: 'Folio',
   robots: { index: isIndexable, follow: isIndexable },
   verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined },
-  icons: { icon: '/icon.svg' },
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml', sizes: 'any' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+    ],
+    apple: { url: '/apple-touch-icon.png', type: 'image/png', sizes: '180x180' },
+  },
 };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#f7f6f2' };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
