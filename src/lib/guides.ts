@@ -23,6 +23,105 @@ export type Guide = {
 };
 export const guides: Guide[] = [
   {
+    slug: 'does-folio-upload-pdf-files',
+    title: 'Does Folio Upload Your PDF? Local Tools vs. Cloud Saving',
+    description:
+      'See which Folio PDF tools process files locally, which save to private cloud storage, and which send documents for server processing before choosing a workflow.',
+    category: 'Document privacy',
+    readTime: '4 min read',
+    published: '2026-09-18',
+    updated: '2026-09-18',
+    tool: 'merge-pdf',
+    relatedTools: [
+      'edit-pdf',
+      'edit-pdf-text',
+      'split-pdf',
+      'compress-pdf',
+      'sign-pdf',
+      'image-to-pdf',
+      'pdf-to-text',
+      'protect-pdf',
+    ],
+    summary:
+      'Folio’s standalone merge, split, compression, image conversion and text extraction tools process document contents in your browser. Opening a PDF in the editor uploads it for private cloud saving, including guest sessions. Original-text processing and password protection send the PDF to Folio; connected translation and Office conversion send it to a document provider. Choose the workflow before selecting a file.',
+    sections: [
+      {
+        title: 'Which PDF tasks can I finish without a document upload?',
+        text: 'Use the standalone Merge PDF, Split PDF, Compress PDF, PDF to JPG, PDF to PNG, Image to PDF, or PDF to Text tool when that task is all you need. These tools read and process document contents in your browser and let you download the result directly. The website still loads scripts, fonts and viewer assets over the network. Local document processing does not mean the website is an offline application. Choosing to open the result in the main editor starts a different workflow with a private cloud upload.',
+        table: {
+          caption: 'How Folio handles files by workflow — checked September 18, 2026',
+          columns: ['Workflow', 'Where the document goes', 'What to expect'],
+          rows: [
+            {
+              name: 'Standalone merge, split and compression',
+              href: '/merge-pdf#tool-facts',
+              cells: [
+                'Document contents are processed in the current browser tab.',
+                'Download locally. Moving the result into the editor uploads it for cloud saving.',
+              ],
+            },
+            {
+              name: 'Editor, page organization, forms and signing',
+              href: '/edit-pdf#tool-facts',
+              cells: [
+                'The PDF and workspace changes are uploaded to private cloud storage.',
+                'Guest workspaces expire after 24 hours. Signed-in files stay in your account until deleted.',
+              ],
+            },
+            {
+              name: 'Standalone original-text editing',
+              href: '/edit-pdf-text#tool-facts',
+              cells: [
+                'The PDF is sent to Folio for text processing.',
+                'Signed-in checkout recovery expires after seven days; stored copies may remain if cleanup fails. Paid download required.',
+              ],
+            },
+            {
+              name: 'Password protection',
+              href: '/protect-pdf#tool-facts',
+              cells: [
+                'The PDF and opening password are sent to Folio for processing in server memory.',
+                'The tool does not persist the file or password in document storage. Hosting may buffer requests. Paid download required.',
+              ],
+            },
+          ],
+        },
+      },
+      {
+        title: 'Does using the editor as a guest keep the PDF on my device?',
+        text: 'No. Guest access removes the need to sign in before starting; it does not disable uploads. The editor saves the source PDF and workspace changes privately so the same browser can recover work after a refresh. Guest storage is 100 MB, with a 50 MB limit per PDF and a 24-hour workspace expiry. A session cookie provides access. Clearing cookies can remove that access without deleting the cloud copy. Expired files are removed by scheduled cleanup, with a grace period and retries; expiry is not a promise of immediate physical deletion. Signing in attaches the open workspace to your account and removes its guest expiry.',
+        links: [{ label: 'Workspace storage and deletion details', href: '/privacy' }],
+      },
+      {
+        title: 'What changes when I use original-text editing or conversion?',
+        text: 'Adding a new text annotation and replacing an existing word are different operations. Original-text processing sends the PDF to Folio, and downloading those changes requires a paid plan. Password protection also uses Folio’s server and sends the opening password. When connected, translation and Office conversion send the PDF through Folio to the provider named in the workspace. Review that provider before starting processing. Free previews or guest access do not imply that document processing is local. The main editor’s cloud saving also applies when you use original-text features inside that workspace.',
+        links: [
+          { label: 'Original-text editing capabilities', href: '/edit-pdf-text#tool-facts' },
+          { label: 'Current free and paid download policies', href: '/pricing' },
+        ],
+      },
+      {
+        title: 'Example: combine receipts without opening a cloud workspace',
+        text: 'If you only need one PDF containing several receipts, a standalone tool can finish the job. Start with Merge PDF for existing PDFs or Image to PDF for photos. The steps below describe Folio’s workflow; they are not a security certification or a benchmark of other services.',
+        steps: [
+          'Choose Merge PDF for PDF receipts, or Image to PDF for JPG, PNG or WEBP images.',
+          'Add files and arrange them. These tools accept up to 20 files, 50 MB per file and 150 MB total.',
+          'Create the PDF and download it directly. Open the download in your usual PDF reader to check the order and readability.',
+          'If you choose to continue in the Folio editor to annotate or sign, expect a private cloud upload. Keep the standalone download if that is all you need.',
+        ],
+        links: [{ label: 'Combine receipt images into a PDF', href: '/image-to-pdf#tool-facts' }],
+      },
+      {
+        title: 'What should I check before using a sensitive document?',
+        text: 'Check whether the selected workflow uploads the source, where recovery copies are saved, and how deletion works. Use a non-sensitive sample to confirm that the exported file meets your needs. If your requirements prohibit uploads, use an appropriate local workflow and avoid opening the file in a cloud-saved editor. Cropping, covering text, flattening fields and deleting a text block do not sanitize a PDF for secure redaction. Folio does not currently provide secure redaction. This guide describes Folio’s current behavior; the privacy page has the fuller retention and infrastructure details.',
+        links: [
+          { label: 'Read Folio’s privacy explanation', href: '/privacy' },
+          { label: 'How Folio writes and corrects its guides', href: '/about#editorial' },
+        ],
+      },
+    ],
+  },
+  {
     slug: 'choose-a-free-pdf-editor',
     title: 'Best Free PDF Editor: Compare 5 Options by Task',
     description:

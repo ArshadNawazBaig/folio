@@ -104,6 +104,8 @@ Keep indexing disabled on previews and local builds. Changing these values requi
 
 ## Checks
 
+For AI search visibility, see [docs/GEO.md](docs/GEO.md): visible product answers, document-handling comparisons, Google/Bing account setup and citation measurement. Run `npm run test:geo` for isolated crawler and content checks. Optional Bing verification uses the build-time `NEXT_PUBLIC_BING_SITE_VERIFICATION` token.
+
 ```sh
 npm run typecheck
 npm run lint

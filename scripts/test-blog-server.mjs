@@ -258,6 +258,7 @@ const env = {
   SUPABASE_SERVICE_ROLE_KEY: 'test-service',
   NEXT_PUBLIC_SITE_URL: 'https://folio.example',
   NEXT_PUBLIC_INDEXABLE: 'true',
+  NEXT_PUBLIC_BING_SITE_VERIFICATION: 'folio-bing-fixture',
   LEMON_SQUEEZY_API_KEY: '',
   LEMON_SQUEEZY_WEBHOOK_SECRET: '',
   LEMON_SQUEEZY_STORE_ID: '',

@@ -24,7 +24,8 @@
     "test:blog": "playwright test --config=playwright.blog.config.ts",
     "check:setup": "node scripts/check-setup.mjs",
     "seo:audit": "node scripts/seo-audit.mjs",
-    "test:seo": "playwright test --config=playwright.seo.config.ts"
+    "test:seo": "playwright test --config=playwright.seo.config.ts",
+    "test:geo": "playwright test --config=playwright.geo.config.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

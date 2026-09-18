@@ -3,6 +3,8 @@ import { seoConfiguration } from './site-config';
 
 export const { siteUrl, isIndexable } = seoConfiguration(process.env);
 export const brand = 'Folio';
+export const productDescription =
+  'Folio is a browser-based PDF toolkit for annotations, visual signatures, page organization, merging, splitting and conversion. Annotation and page-tool downloads are free; original-text edits and password protection require a paid download. The editor saves documents to private cloud storage.';
 export function pageMetadata(
   title: string,
   description: string,
@@ -46,6 +48,7 @@ export function organizationSchema() {
     '@id': `${siteUrl}/#organization`,
     name: brand,
     url: siteUrl,
+    description: productDescription,
     logo: { '@type': 'ImageObject', url: `${siteUrl}/icon-512.png`, width: 512, height: 512 },
     contactPoint: {
       '@type': 'ContactPoint',

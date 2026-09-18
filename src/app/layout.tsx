@@ -21,7 +21,12 @@ export const metadata: Metadata = {
     'A calmer way to work with PDFs. Edit, merge, split, convert, and fill documents in your browser with Folio.',
   applicationName: 'Folio',
   robots: { index: isIndexable, follow: isIndexable },
-  verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+    other: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION
+      ? { 'msvalidate.01': process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION }
+      : undefined,
+  },
   icons: {
     icon: [
       { url: '/icon.svg', type: 'image/svg+xml', sizes: 'any' },

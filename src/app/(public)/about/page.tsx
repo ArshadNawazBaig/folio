@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { pageMetadata } from '@/lib/seo';
+import { pageMetadata, organizationSchema, productDescription, siteUrl } from '@/lib/seo';
+import { StructuredData } from '@/components/structured-data';
 export const metadata = pageMetadata(
   'About Folio — Thoughtful PDF Tools',
   'Folio brings practical PDF tools into a calm, approachable workspace. Learn what works today and what is still being built.',
@@ -8,6 +9,17 @@ export const metadata = pageMetadata(
 export default function About() {
   return (
     <main id="main" className="container prose-page">
+      <StructuredData
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'AboutPage',
+          '@id': `${siteUrl}/about#page`,
+          url: `${siteUrl}/about`,
+          name: 'About Folio',
+          description: productDescription,
+          mainEntity: organizationSchema(),
+        }}
+      />
       <span className="eyebrow">A LITTLE LESS PAPERWORK</span>
       <h1>
         Made for the work
@@ -18,6 +30,15 @@ export default function About() {
         A document can be a beginning, a decision, a small detail that moves something forward.
         Folio is a place to handle those details with a little more clarity and a little less
         friction.
+      </p>
+      <h2 id="what-is-folio">What is Folio?</h2>
+      <p>{productDescription}</p>
+      <p>
+        File handling depends on the workflow. Our{' '}
+        <Link href="/guides/does-folio-upload-pdf-files">
+          local processing and cloud saving guide
+        </Link>{' '}
+        compares what happens to your PDF before you choose a tool.
       </p>
       <h2>One thoughtful place to work.</h2>
       <p>

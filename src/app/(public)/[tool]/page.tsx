@@ -13,6 +13,7 @@ import { ProtectPdf } from '@/components/protect-pdf';
 import { ImageWorkbench } from '@/components/image-workbench';
 import { QrWorkbench } from '@/components/qr-workbench';
 import { Faq } from '@/components/faq';
+import { ToolFacts } from '@/components/tool-facts';
 import { StructuredData } from '@/components/structured-data';
 import { pageMetadata, breadcrumbSchema, siteUrl } from '@/lib/seo';
 import { toolSearchTitle } from '@/lib/tool-seo';
@@ -50,11 +51,13 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           data={{
             '@context': 'https://schema.org',
             '@type': 'SoftwareApplication',
+            '@id': `${siteUrl}/${t.slug}#software`,
             name: `Folio ${t.name}`,
             applicationCategory: 'UtilitiesApplication',
             operatingSystem: 'Web browser',
             url: `${siteUrl}/${t.slug}`,
             description: t.description,
+            publisher: { '@id': `${siteUrl}/#organization` },
             ...(t.premium
               ? {}
               : { offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } }),
@@ -133,6 +136,7 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           <small>This tool will be enabled when its conversion service is connected.</small>
         </div>
       )}
+      <ToolFacts tool={t} />
       <section className="how-to-section">
         <div className="section-heading">
           <div>
