@@ -2,6 +2,8 @@
 
 ## Latest review — September 18, 2026
 
+See the [keyword and content plan](SEO-KEYWORD-PLAN.md) and [keyword map](SEO-KEYWORD-MAP.csv) for the requested broad PDF/editor searches, additional task queries, preferred landing pages, sourced comparison guide and Search Console measurement plan.
+
 See [the external-checker review](reviews/SEO-CHECKER-REVIEW-2026-09-18.md) for verified findings, RSS discovery, sitemap images, matching FAQ markup, service terms, security reporting, and CSP. It separates actual gaps from checklist items that do not apply. SPF DNS configuration still requires the domain's email-provider information. Review the security contact before `security.txt` expires on September 1, 2027.
 
 See [the September 17 SEO review](reviews/SEO-AUDIT-2026-09-17.md) for the preceding changes, checks, and search priorities. The owner now has a Search Console domain property and has submitted the sitemap; its reported fetch failure still needs the expanded Google error/live-inspection result. Earlier “verification pending” entries below are historical.

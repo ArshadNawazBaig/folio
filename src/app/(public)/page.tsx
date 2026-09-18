@@ -19,6 +19,7 @@ import { Faq } from '@/components/faq';
 import { popularSlugs } from '@/lib/tools';
 import { pageMetadata, siteUrl, organizationSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
+import { guides } from '@/lib/guides';
 export const metadata = pageMetadata(
   'Free PDF Tools Online — Edit, Merge, Compress & Sign',
   'Add text, annotate, sign, merge and split PDFs online with free downloads. Original-text edits require a paid plan to download. Start with Folio in your browser.',
@@ -28,6 +29,11 @@ export default async function Home() {
   await connection();
   const tools = serverTools();
   const translationReady = tools.find((t) => t.slug === 'translate-pdf')?.available;
+  const reading = [
+    'choose-a-free-pdf-editor',
+    'how-to-add-text-to-a-pdf',
+    'how-to-edit-a-pdf-on-mobile',
+  ].map((slug) => guides.find((guide) => guide.slug === slug)!);
   return (
     <main id="main">
       <StructuredData
@@ -62,7 +68,7 @@ export default async function Home() {
             </em>
           </h1>
           <p className="hero-description">
-            Add text, sign, merge, and split PDFs for free.
+            Add text, annotate, sign, merge, and split PDFs online for free.
             <br />
             Useful tools. Free downloads. Right in your browser.
           </p>
@@ -107,7 +113,7 @@ export default async function Home() {
             containing changes to original PDF text require a paid plan.
           </p>
           <Link href="/guides/choose-a-free-pdf-editor" className="text-link">
-            How to choose a free PDF editor <ArrowRight size={15} />
+            Compare free PDF editors <ArrowRight size={15} />
           </Link>
         </div>
       </section>
@@ -161,7 +167,7 @@ export default async function Home() {
             </li>
           </ul>
           <Link prefetch={false} href="/edit-pdf" className="button dark">
-            Meet your new editor <ArrowUpRight size={16} />
+            Open the free PDF editor <ArrowUpRight size={16} />
           </Link>
         </div>
         <div className="workflow-visual">
@@ -218,6 +224,22 @@ export default async function Home() {
             </Link>
           </div>
           <span className="workflow-caption">The details make the difference.</span>
+        </div>
+      </section>
+      <section className="container" aria-labelledby="editor-guides-title">
+        <div className="tool-reading">
+          <span className="eyebrow">CHOOSE WELL. FINISH WITH CONFIDENCE.</span>
+          <h2 id="editor-guides-title">Which PDF editor is right for your task?</h2>
+          <div className="tool-reading-grid">
+            {reading.map((guide) => (
+              <Link key={guide.slug} href={`/guides/${guide.slug}`}>
+                <strong>
+                  {guide.title} <ArrowUpRight size={16} aria-hidden="true" />
+                </strong>
+                <span>{guide.description}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
       <section className="discovery-section container">

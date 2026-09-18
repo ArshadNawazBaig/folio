@@ -8,32 +8,99 @@ export type Guide = {
   updated: string;
   tool: string;
   relatedTools?: string[];
-  sections: { title: string; text: string; links?: { label: string; href: string }[] }[];
+  summary?: string;
+  sections: {
+    title: string;
+    text: string;
+    steps?: string[];
+    table?: {
+      caption: string;
+      columns: string[];
+      rows: { name: string; href: string; cells: string[] }[];
+    };
+    links?: { label: string; href: string }[];
+  }[];
 };
 export const guides: Guide[] = [
   {
     slug: 'choose-a-free-pdf-editor',
-    title: 'Choosing the Best Free PDF Editor for Your Task',
+    title: 'Best Free PDF Editor: Compare 5 Options by Task',
     description:
-      'Choose a free PDF editor by checking downloads, text editing, signatures, file limits and privacy. See which Folio workflows are free and which require a plan.',
+      'Compare Folio, Sejda, PDF24, PDFgear and Adobe by free features, text editing, device support and limits. Choose a PDF editor for the work you need to finish.',
     category: 'Choosing your tools',
-    readTime: '4 min read',
+    readTime: '6 min read',
     published: '2026-09-17',
-    updated: '2026-09-17',
+    updated: '2026-09-18',
     tool: 'edit-pdf',
     relatedTools: ['sign-pdf', 'merge-pdf', 'split-pdf', 'image-to-pdf'],
+    summary:
+      'Choose by the change you need: Folio for browser annotations and visual signatures, Sejda for occasional original-text edits within its free limits, PDF24 Creator for offline Windows tools, PDFgear for Mac text editing, or Adobe’s online editor for comments and markup. Check the finished download and the privacy requirements before committing to a tool.',
     sections: [
       {
-        title: 'Choose for the document you need to finish',
-        text: 'The best free PDF editor for your task is one that can produce the finished file you need within its free allowance. Adding a note, correcting an existing sentence, filling a form, and combining receipts are different jobs. Before uploading, identify the exact change and check whether both that feature and its download are free. This guide explains those choices using Folio’s current capabilities. It is written by the team behind Folio, not an independent ranking of competing products.',
+        title: 'Which is the best PDF editor for your task?',
+        text: 'There is no single best PDF editor for every document. Adding a note, correcting an existing sentence, filling a form, and combining receipts are different jobs. This comparison is written by the team behind Folio. We checked the linked publishers’ feature pages on September 18, 2026; we have not benchmarked these products against each other or assigned performance scores. The options below cover different workflows, and their order is not a ranking. Confirm current limits on each provider’s site and try your own non-sensitive sample.',
       },
       {
-        title: 'Check free downloads before spending time editing',
+        title: 'How do these free PDF editors compare?',
+        text: 'Compare the specific product and platform, not just the brand. A company’s online editor may have different features and upload rules from its desktop software. The product names in this table link to the sources for their features and limits.',
+        table: {
+          caption: 'Free PDF editor comparison — checked September 18, 2026',
+          columns: ['Editor', 'Useful for', 'Free features and limits'],
+          rows: [
+            {
+              name: 'Folio',
+              href: '/edit-pdf',
+              cells: [
+                'Adding text, annotations and visual signatures in a browser.',
+                'Free annotation and page-tool downloads without a Folio watermark. Original-text downloads require a paid plan. Guest editor storage is 100 MB with a 24-hour expiry; drafts are uploaded privately.',
+              ],
+            },
+            {
+              name: 'Sejda Online',
+              href: 'https://www.sejda.com/pdf-editor',
+              cells: [
+                'Occasional changes to existing PDF text in a browser.',
+                'Its free editor supports original-text changes, with limits of 200 pages or 50 MB and three tasks per hour. The online service uploads files and states that they are deleted after two hours.',
+              ],
+            },
+            {
+              name: 'PDF24 Creator',
+              href: 'https://tools.pdf24.org/en/creator',
+              cells: [
+                'Offline PDF organization, conversion and OCR on Windows.',
+                'The desktop suite is free for personal and commercial use and processes files locally. Creator requires Windows; the separate PDF24 web tools are a different workflow.',
+              ],
+            },
+            {
+              name: 'PDFgear for Mac',
+              href: 'https://www.pdfgear.com/pdfgear-for-mac/',
+              cells: [
+                'Changing existing text and organizing PDFs in a Mac app.',
+                'Its publisher offers free text editing, annotations and page tools. Most editing runs locally; AI features and online services need an internet connection. Installation is required.',
+              ],
+            },
+            {
+              name: 'Adobe Acrobat Online',
+              href: 'https://www.adobe.com/acrobat/online/pdf-editor.html',
+              cells: [
+                'Comments, text boxes, highlights and drawings in a browser.',
+                'Adobe’s free online editor supports markup with an Adobe account. Changing existing body text is not part of that free editor; check the paid offering for that task.',
+              ],
+            },
+          ],
+        },
+      },
+      {
+        title: 'Can I download a PDF for free without a watermark?',
         text: 'An editor may let you preview a feature without including the finished download in its free tier. Check for payment requirements, export watermarks, file-size limits, and any sign-in requirement. Try a small, non-sensitive sample first: add a note, download it, and open it in another PDF reader. In Folio, added text, highlights, images, shapes, visual signatures, form fields, and page organization include free PDF downloads without a Folio watermark. Downloads containing original-text changes require a paid plan. Mixing a free annotation with an original-text change therefore makes that document’s export a paid workflow; you can undo the original-text change to keep an annotation-only export free.',
       },
       {
-        title: 'Adding text and changing existing text are different',
+        title: 'Do I need to add text or replace the original words?',
         text: 'Use Add Text for a comment, date, name, or other addition. It places a new text box on the page without changing the words underneath. In Folio, choose Add Text, click the page, type your note, and adjust its position or appearance. Use Edit Text to replace supported words already in the PDF. That feature preserves the original appearance where the embedded font allows, but downloading those changes requires a plan. A white rectangle over a sentence does not securely remove it. If the document is a scan or its letters are drawn as shapes, it needs OCR or another reconstruction step; Folio’s original-text editor does not include OCR.',
+        links: [
+          { label: 'How to add text to a PDF for free', href: '/guides/how-to-add-text-to-a-pdf' },
+          { label: 'Why some PDF text cannot be edited', href: '/guides/why-cant-i-edit-pdf-text' },
+        ],
       },
       {
         title: 'Use a focused free tool when editing is unnecessary',
@@ -42,6 +109,24 @@ export const guides: Guide[] = [
       {
         title: 'Understand guest storage and file privacy',
         text: 'A tool that runs in a browser does not necessarily keep every file on your device. Folio’s editor automatically uploads documents and recovery drafts to private cloud storage. Guests can start without Google sign-in, receive 100 MB of storage, and have a 24-hour file expiry. When that space is full, delete old files before uploading more. Sign in to keep files in your account and access them across devices. Standalone merge, split, and image tools process files in the browser; server-assisted features use Folio or connected document services. Choose a workflow that fits your document’s confidentiality requirements, and keep your own original copy.',
+      },
+      {
+        title: 'How should I evaluate a top PDF editor before using it?',
+        text: 'A top-editor list cannot tell you whether a particular PDF will keep its layout. Use the same short sample in each candidate and compare the exported files. This checklist is a repeatable evaluation method, not a claim that every listed editor has passed these checks.',
+        steps: [
+          'Choose a sample with small text, a link, an image and any form fields you rely on. Keep an untouched copy.',
+          'Make the change you actually need: add a note, replace an existing word, sign, or reorganize a page.',
+          'Download the result. Record any payment, sign-in, watermark or usage-limit requirement before judging the free tier.',
+          'Open the export in a second PDF reader. Compare fonts, colors, page dimensions, selectable text, links and field behavior.',
+          'Check where files are processed, how long uploads remain, and whether your device can handle a longer document.',
+        ],
+        links: [
+          {
+            label: 'Editing PDFs on iPhone and Android',
+            href: '/guides/how-to-edit-a-pdf-on-mobile',
+          },
+          { label: 'Folio free and paid plans', href: '/pricing' },
+        ],
       },
       {
         title: 'Review the exported file, not just the preview',
@@ -76,6 +161,120 @@ export const guides: Guide[] = [
       {
         title: 'Save a draft, then check the export',
         text: 'The editor automatically uploads your PDF and saves a recovery workspace to private cloud storage. Use Save now to request a save, then wait for All changes saved before refreshing or leaving. Guests have 100 MB of storage and their files expire after 24 hours. Google sign-in opens separately so the editor remains open; signing in lets you keep files in your account. Download PDF creates your finished file. Added annotations, forms, and signatures export for free when no original-text changes remain. Check the downloaded pages in a PDF reader and keep an original copy.',
+      },
+    ],
+  },
+  {
+    slug: 'how-to-add-text-to-a-pdf',
+    title: 'How to Add Text to a PDF Online for Free',
+    description:
+      'Type a name, date, answer or note onto a PDF. Position and style your text, save a draft, and download an annotation-only PDF for free without a Folio watermark.',
+    category: 'Editing',
+    readTime: '3 min read',
+    published: '2026-09-18',
+    updated: '2026-09-18',
+    tool: 'edit-pdf',
+    relatedTools: ['sign-pdf', 'create-pdf-form', 'edit-pdf-text'],
+    summary:
+      'Open a PDF in Folio, choose Add Text, click or tap the page, and type. Added text can be moved and styled. Downloads containing only additions, annotations, forms and page changes are free without a Folio watermark. Replacing the original words is a separate editing feature with paid downloads.',
+    sections: [
+      {
+        title: 'How do I type on a PDF?',
+        text: 'Use a new text box when you need to add a date, a reference number, an answer or a note. You can place it on a normal PDF or on top of a scanned page. Start with a copy of the document and choose a clear area for the addition so it does not hide information that the reader needs.',
+        steps: [
+          'Open Edit PDF and choose a PDF from your device. You can start as a guest without Google sign-in.',
+          'Choose Add Text in the toolbar, then click or tap the place where the new text should appear.',
+          'Type into the text box. Select your addition to adjust its font, size and color in Properties.',
+          'Move the selected box into place and check it at a comfortable zoom level. Use Undo if needed.',
+          'Choose Download PDF and open the saved file in a PDF reader to check the position and spelling.',
+        ],
+        links: [{ label: 'Add text in the free PDF editor', href: '/edit-pdf' }],
+      },
+      {
+        title: 'Can I add text without changing the original PDF text?',
+        text: 'Yes. Add Text creates a separate addition; it does not replace the words beneath it. That makes it useful for a response beside a paragraph or a date in a blank space. If you need to correct an existing sentence, choose Edit Text instead and select a supported original block. Downloading original-text replacements requires a paid Folio plan. A scan contains an image of text, so adding a new box does not make its printed words editable or searchable.',
+        links: [
+          {
+            label: 'Understand scans and uneditable text',
+            href: '/guides/why-cant-i-edit-pdf-text',
+          },
+        ],
+      },
+      {
+        title: 'How do I make added text fit the page?',
+        text: 'Use a readable font size and a color with enough contrast against the page. Match the nearby text only when that helps the reader distinguish the new information. Review long names and reference numbers carefully: a box that looks correct at a small zoom may overlap another line when you inspect it closely. For a form that other people will complete, use a fillable text field instead of a fixed text annotation. For a signature, use the Sign tool’s draw, type or image options.',
+        links: [
+          { label: 'Create reusable fillable PDF fields', href: '/create-pdf-form' },
+          { label: 'Add a visual signature', href: '/sign-pdf' },
+        ],
+      },
+      {
+        title: 'Is the finished download free and without a watermark?',
+        text: 'Folio does not add a watermark to free annotation downloads. A document containing added text, highlights, images, shapes, signatures, form fields and page changes can be downloaded for free. If you also replace original PDF text, the combined download requires a paid plan. Undo those original-text changes if you only need the free additions. The preview and the downloaded PDF should both be reviewed; saving a cloud draft and downloading a finished copy are separate actions.',
+        links: [
+          {
+            label: 'Compare free PDF editor features and limits',
+            href: '/guides/choose-a-free-pdf-editor',
+          },
+        ],
+      },
+      {
+        title: 'How do I keep the changes for later?',
+        text: 'Folio’s editor uploads the PDF and saves a recovery draft to private cloud storage. Wait for All changes saved before refreshing or leaving, or use Save now to request a save. Guests have 100 MB of storage and a 24-hour file expiry; signing in lets you keep files in an account and open them across devices. Download your finished copy before a guest file expires. Adding a white cover over sensitive words does not securely redact them, and changes to an already digitally signed document can invalidate that signature.',
+      },
+    ],
+  },
+  {
+    slug: 'how-to-edit-a-pdf-on-mobile',
+    title: 'How to Edit a PDF on iPhone or Android',
+    description:
+      'Add text, annotate and sign a PDF in your phone browser. Learn the mobile controls, guest saving, free downloads and when a desktop works better.',
+    category: 'Editing',
+    readTime: '3 min read',
+    published: '2026-09-18',
+    updated: '2026-09-18',
+    tool: 'edit-pdf',
+    relatedTools: ['sign-pdf', 'organize-pdf'],
+    summary:
+      'Use the Folio editor in your phone’s browser, choose a PDF, and add text or a visual signature. Swipe the toolbar to reveal more tools and close Properties when you need more page space. Save the draft, then download the finished PDF. Large documents and precise original-text changes are easier on a desktop.',
+    sections: [
+      {
+        title: 'Can I edit a PDF on my phone without installing an app?',
+        text: 'You can open Folio in a browser on iPhone or Android and begin as a guest. Choose a PDF with your device’s file picker; if it is attached to a message or email, save a copy where the picker can find it first. Adding text, highlights and visual signatures includes free downloads. An internet connection is needed for the editor’s private cloud saving, and guest files expire after 24 hours. This browser workflow does not install a native phone app.',
+        links: [{ label: 'Open the online PDF editor', href: '/edit-pdf' }],
+      },
+      {
+        title: 'How do I add text or sign a PDF on mobile?',
+        text: 'Work on one page at a time and zoom before positioning a small addition. The toolbar can scroll horizontally, so a tool may be off the visible edge rather than missing.',
+        steps: [
+          'Open Edit PDF, choose your document, and wait for the page preview.',
+          'Swipe the toolbar to find Add Text or Sign. Tap Add Text and then the page to create a text box.',
+          'Type your text. For a signature, choose Sign, then draw, upload an image or type your name in the signature dialog.',
+          'Use the Properties and forms toggle when you need appearance controls. Close the panel to uncover the page again.',
+          'Review each changed page, wait for All changes saved, and use Download PDF to save your finished copy.',
+        ],
+        links: [
+          { label: 'Detailed steps for adding text', href: '/guides/how-to-add-text-to-a-pdf' },
+          { label: 'Choose a signature method', href: '/guides/how-to-sign-a-pdf' },
+        ],
+      },
+      {
+        title: 'How can I see more of the document?',
+        text: 'Close the Properties and forms panel after making an adjustment. Use the zoom controls at the bottom to enlarge small areas, and use Move when navigating around the page. Rotating your phone can make a wide document easier to inspect, although the on-screen keyboard still reduces the available space. Avoid placing a text box while the page is so small that you cannot see the intended line. Check the position again after closing the keyboard.',
+      },
+      {
+        title: 'Where is the PDF saved after downloading?',
+        text: 'The destination depends on your browser and phone settings. Open the browser’s downloads list or the device’s file manager and look for the downloaded PDF. Check that the copy contains your changes before sending it. Save now stores the editable workspace in Folio; Download PDF creates a file you can share. If a save fails, keep the editor tab open and retry. A guest workspace belongs to that browser session, so signing in is the way to access saved documents from another device.',
+      },
+      {
+        title: 'When should I switch to a desktop PDF editor?',
+        text: 'A phone is useful for a short note or signature, but long, image-heavy PDFs can exceed its available memory. Detailed page rearrangement and precise changes to original text are easier on a larger screen. Folio’s Edit Text feature supports many original text blocks, but it does not provide OCR for scans or automatic paragraph reflow. You can preview supported original-text edits on the page; downloading them requires a paid plan. If a file repeatedly fails on mobile, keep the original and try a desktop browser instead of repeatedly uploading it.',
+        links: [
+          {
+            label: 'Choose a PDF editor for your document',
+            href: '/guides/choose-a-free-pdf-editor',
+          },
+        ],
       },
     ],
   },

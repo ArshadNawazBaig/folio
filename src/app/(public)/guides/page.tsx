@@ -4,8 +4,8 @@ import { guides } from '@/lib/guides';
 import { pageMetadata, collectionSchema, breadcrumbSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
 export const metadata = pageMetadata(
-  'PDF Guides — Practical Help for Your Documents',
-  'Clear guides to editing PDFs, merging and splitting pages, optimizing file size, and creating fillable forms with Folio.',
+  'PDF Editor Comparisons & Practical PDF Guides',
+  'Compare free PDF editors, learn to type on a PDF or edit on your phone, and follow clear guides to signing, merging, splitting and organizing documents.',
   '/guides',
 );
 export default function Guides() {
@@ -31,7 +31,7 @@ export default function Guides() {
           <br />
           <em>A little more clarity.</em>
         </h1>
-        <p>Practical notes for the documents in your day.</p>
+        <p>Choose an editor, learn a useful technique, and finish your next PDF with confidence.</p>
       </div>
       <div className="guides-grid">
         {guides.map((g, i) => (

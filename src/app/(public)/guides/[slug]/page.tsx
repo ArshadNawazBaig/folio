@@ -6,6 +6,7 @@ import { getTool } from '@/lib/tools';
 import { pageMetadata, breadcrumbSchema, siteUrl, organizationSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
 import { relatedGuides } from '@/lib/related-content';
+import styles from '@/components/guide-content.module.css';
 export const dynamicParams = false;
 export function generateStaticParams() {
   return guides.map((g) => ({ slug: g.slug }));
@@ -80,6 +81,12 @@ export default async function Guide({ params }: { params: Promise<{ slug: string
           </span>
         </header>
         <div className="article-body">
+          {g.summary && (
+            <aside className={styles.summary} aria-label="Key takeaways">
+              <strong>Key takeaways</strong>
+              <p>{g.summary}</p>
+            </aside>
+          )}
           <nav className="article-contents" aria-label="On this page">
             <strong>On this page</strong>
             <ol>
@@ -94,6 +101,46 @@ export default async function Guide({ params }: { params: Promise<{ slug: string
             <section key={section.title} id={`section-${i + 1}`}>
               <h2>{section.title}</h2>
               <p>{section.text}</p>
+              {section.steps && (
+                <ol className={styles.steps}>
+                  {section.steps.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ol>
+              )}
+              {section.table && (
+                <div
+                  className={styles.tableScroll}
+                  role="region"
+                  aria-label={section.table.caption}
+                  tabIndex={0}
+                >
+                  <table className={styles.table}>
+                    <caption>{section.table.caption}</caption>
+                    <thead>
+                      <tr>
+                        {section.table.columns.map((column) => (
+                          <th key={column} scope="col">
+                            {column}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {section.table.rows.map((row) => (
+                        <tr key={row.name}>
+                          <th scope="row">
+                            <a href={row.href}>{row.name}</a>
+                          </th>
+                          {row.cells.map((cell, index) => (
+                            <td key={index}>{cell}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
               {section.links && (
                 <ul className="article-next-links">
                   {section.links.map((link) => (

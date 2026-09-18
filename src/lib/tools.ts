@@ -56,6 +56,14 @@ export const tools: Tool[] = [
         'Can I edit a PDF without signing in?',
         'You can start as a guest without Google sign-in. Guest editor documents are saved privately with a 100 MB storage allowance and expire after 24 hours. Sign in to keep your files and open them on another device.',
       ],
+      [
+        'Does the free PDF editor add a watermark?',
+        'No Folio watermark is added to free downloads. Added text, annotations, visual signatures, forms and page changes can be exported for free. If the document also contains replacements of original PDF text, its download requires a paid plan.',
+      ],
+      [
+        'Can I edit a PDF on Windows, Mac, iPhone or Android?',
+        'Use Folio in your browser without installing an app. On a phone, swipe the toolbar to reveal more tools and close the Properties panel to see more of the page. A desktop browser is better for large documents and precise changes. The editor uses an internet connection for private cloud saving.',
+      ],
     ],
     keywords: ['annotate', 'write', 'add text', 'highlight'],
   }),
