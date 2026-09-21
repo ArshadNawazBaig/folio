@@ -123,17 +123,17 @@ export const guides: Guide[] = [
   },
   {
     slug: 'choose-a-free-pdf-editor',
-    title: 'Best Free PDF Editor: Compare 5 Options by Task',
+    title: 'The Best Free PDF Editor for Your Task: 5 Options',
     description:
-      'Compare Folio, Sejda, PDF24, PDFgear and Adobe by free features, text editing, device support and limits. Choose a PDF editor for the work you need to finish.',
+      'Choose a free PDF editor by task, device, download limits and privacy. Compare Folio, Sejda, PDF24, PDFgear and Adobe, or find a focused merge or split tool.',
     category: 'Choosing your tools',
-    readTime: '6 min read',
+    readTime: '7 min read',
     published: '2026-09-17',
-    updated: '2026-09-18',
+    updated: '2026-09-21',
     tool: 'edit-pdf',
-    relatedTools: ['sign-pdf', 'merge-pdf', 'split-pdf', 'image-to-pdf'],
+    relatedTools: ['sign-pdf', 'merge-pdf', 'split-pdf', 'image-to-pdf', 'compress-pdf'],
     summary:
-      'Choose by the change you need: Folio for browser annotations and visual signatures, Sejda for occasional original-text edits within its free limits, PDF24 Creator for offline Windows tools, PDFgear for Mac text editing, or Adobe’s online editor for comments and markup. Check the finished download and the privacy requirements before committing to a tool.',
+      'The best free PDF tool depends on the change you need. Consider Folio for browser annotations and visual signatures, Sejda for occasional original-text edits within its free limits, PDF24 Creator for offline Windows tools, PDFgear for Mac text editing, or Adobe’s online editor for comments and markup. For merging, splitting or converting images, a focused tool may be enough. Check the finished download and the privacy requirements before committing to a tool.',
     sections: [
       {
         title: 'Which is the best PDF editor for your task?',
@@ -204,6 +204,52 @@ export const guides: Guide[] = [
       {
         title: 'Use a focused free tool when editing is unnecessary',
         text: 'Choose Merge PDF to combine separate files, Split PDF to extract selected pages, or Image to PDF to collect photos and receipts into a document. Those workflows include free downloads and do not need original-text editing. For a form, Fill & Sign lets you complete supported fields and draw, type, or upload a visual signature. This is not a certificate-based digital signature or identity verification service. For compression, check the result rather than expecting a fixed reduction: Folio optimizes PDF structure without downsampling images, so an already optimized or image-heavy file may not get smaller.',
+        table: {
+          caption: 'Choose a free PDF tool by the result you need',
+          columns: ['Your task', 'Free workflow in Folio', 'Check before downloading'],
+          rows: [
+            {
+              name: 'Add a note or highlight',
+              href: '/edit-pdf',
+              cells: [
+                'Add text or annotations in the online editor.',
+                'Annotations download free. Downloading original-text changes requires a paid plan; editor drafts use private cloud storage.',
+              ],
+            },
+            {
+              name: 'Combine PDF files',
+              href: '/merge-pdf',
+              cells: [
+                'Merge files in your browser and download one PDF.',
+                'Put the files in the right order and review the combined pages.',
+              ],
+            },
+            {
+              name: 'Keep only selected pages',
+              href: '/split-pdf',
+              cells: [
+                'Extract a page range or split a PDF in your browser.',
+                'Check the page numbers against the original document.',
+              ],
+            },
+            {
+              name: 'Turn photos into a PDF',
+              href: '/image-to-pdf',
+              cells: [
+                'Combine JPG, PNG or WEBP images into PDF pages in your browser.',
+                'Review image order, orientation and page size.',
+              ],
+            },
+            {
+              name: 'Try to reduce a PDF’s size',
+              href: '/compress-pdf',
+              cells: [
+                'Optimize the document’s structure in your browser.',
+                'Images are not downsampled. An already optimized file may not get smaller.',
+              ],
+            },
+          ],
+        },
       },
       {
         title: 'Understand guest storage and file privacy',

@@ -22,7 +22,7 @@ import { StructuredData } from '@/components/structured-data';
 import { guides } from '@/lib/guides';
 const title = 'Free Online PDF Tools — Edit, Merge, Compress & Sign';
 const description =
-  'Use Folio to add text, sign, merge, split and convert images to PDF. Download annotations free; original-text changes require a paid plan.';
+  'Add text, sign, merge, split and convert images to PDF online. Annotation downloads are free; original-text changes require a paid plan.';
 export const metadata = pageMetadata(title, description, '/', true, {
   title: 'Folio — Free Online PDF Tools',
   description: 'Free tools to add text, sign, merge and split PDFs with Folio.',
@@ -132,7 +132,7 @@ export default async function Home() {
             containing changes to original PDF text require a paid plan.
           </p>
           <Link href="/guides/choose-a-free-pdf-editor" className="text-link">
-            Compare free PDF editors <ArrowRight size={15} />
+            Choose a free PDF editor for your task <ArrowRight size={15} />
           </Link>
         </div>
       </section>
@@ -249,7 +249,7 @@ export default async function Home() {
       <section className="container" aria-labelledby="editor-guides-title">
         <div className="tool-reading">
           <span className="eyebrow">CHOOSE WELL. FINISH WITH CONFIDENCE.</span>
-          <h2 id="editor-guides-title">Which PDF editor is right for your task?</h2>
+          <h2 id="editor-guides-title">Find the best free PDF tool for your task.</h2>
           <div className="tool-reading-grid">
             {reading.map((guide) => (
               <Link key={guide.slug} href={`/guides/${guide.slug}`}>

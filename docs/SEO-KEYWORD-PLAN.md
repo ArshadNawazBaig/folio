@@ -6,24 +6,39 @@ Prepared September 18, 2026 for https://thebestfreepdf.com. Target audience: Eng
 
 Earn relevant visits for free PDF workflows and editor comparisons, then convert those visits into successful document downloads. Broader phrases such as “PDF editor” and “best PDF editor” are long-term targets, not promised positions. This plan contains no invented search volumes, difficulty scores, backlinks, or current rankings.
 
-The [keyword map](SEO-KEYWORD-MAP.csv) includes 76 searches: the original nine requested phrases, the later “online PDF” target, and 66 related variations. Each query has one preferred existing URL. Related searches can share a page; there is no need for separate “best,” “top,” and “the best” pages offering the same content. The priority labels describe the order of work, not measured competition or a ranking deadline.
+The [keyword map](SEO-KEYWORD-MAP.csv) includes 78 searches: the original nine requested phrases, the later “online PDF” and “the best free PDF” targets, and 67 related variations. Each query has one preferred existing URL. Related searches can share a page; there is no need for separate “best,” “top,” and “the best” pages offering the same content. The priority labels describe the order of work, not measured competition or a ranking deadline.
 
 A search-results spot check on September 18 found editorial comparisons among results for “best free PDF editor” and “best PDF editor,” including TechRadar and PCWorld. This is an observation about search intent, not a reproducible Google ranking report for a particular location. Google explains that its language systems can match relevant variations without repeating every phrase in the copy: [SEO Starter Guide](https://developers.google.com/search/docs/fundamentals/seo-starter-guide). Titles should describe the page clearly and avoid repeated keyword variants: [title guidance](https://developers.google.com/search/docs/appearance/title-link).
 
 ## Requested keywords and primary pages
 
-| Requested search    | Primary page                       | Approach                                                                 |
-| ------------------- | ---------------------------------- | ------------------------------------------------------------------------ |
-| free pdf            | `/`                                | Free PDF toolkit, clear task navigation, links to useful tools.          |
-| pdf editor          | `/edit-pdf`                        | Immediate access to the editor, instructions, free-download boundaries.  |
-| best free pdf       | `/guides/choose-a-free-pdf-editor` | Compare free features and the task each option serves.                   |
-| best pdf editor     | `/guides/choose-a-free-pdf-editor` | Help readers choose using actual features, limits and platforms.         |
-| the best pdf editor | `/guides/choose-a-free-pdf-editor` | Same intent as “best PDF editor”; no duplicate landing page.             |
-| top pdf editor      | `/guides/choose-a-free-pdf-editor` | Source-linked comparison and a repeatable evaluation checklist.          |
-| best pdf            | `/guides/choose-a-free-pdf-editor` | Exploratory broad query; verify the intended task from real traffic.     |
-| the best pdf        | `/guides/choose-a-free-pdf-editor` | Exploratory; some searchers may be looking for another brand.            |
-| top pdf             | `/guides/choose-a-free-pdf-editor` | Exploratory; prioritize more specific editor or tool searches first.     |
-| online pdf          | `/`                                | Online toolkit discovery, useful task links, clear free and paid limits. |
+| Requested search    | Primary page                       | Approach                                                                        |
+| ------------------- | ---------------------------------- | ------------------------------------------------------------------------------- |
+| free pdf            | `/`                                | Free PDF toolkit, clear task navigation, links to useful tools.                 |
+| pdf editor          | `/edit-pdf`                        | Immediate access to the editor, instructions, free-download boundaries.         |
+| best free pdf       | `/guides/choose-a-free-pdf-editor` | Compare free features and the task each option serves.                          |
+| the best free pdf   | `/guides/choose-a-free-pdf-editor` | Help visitors choose by task; measure separately from queries containing Folio. |
+| best pdf editor     | `/guides/choose-a-free-pdf-editor` | Help readers choose using actual features, limits and platforms.                |
+| the best pdf editor | `/guides/choose-a-free-pdf-editor` | Same intent as “best PDF editor”; no duplicate landing page.                    |
+| top pdf editor      | `/guides/choose-a-free-pdf-editor` | Source-linked comparison and a repeatable evaluation checklist.                 |
+| best pdf            | `/guides/choose-a-free-pdf-editor` | Exploratory broad query; verify the intended task from real traffic.            |
+| the best pdf        | `/guides/choose-a-free-pdf-editor` | Exploratory; some searchers may be looking for another brand.                   |
+| top pdf             | `/guides/choose-a-free-pdf-editor` | Exploratory; prioritize more specific editor or tool searches first.            |
+| online pdf          | `/`                                | Online toolkit discovery, useful task links, clear free and paid limits.        |
+
+## Target without Folio: the best free PDF — September 21, 2026
+
+The owner reports a top Google result for **folio the best free pdf** and wants visibility for **the best free pdf** without the product name. The reported position has not been independently measured. Removing a brand from a search changes the query; removing it from every page title does not establish a ranking for the broader phrase. Google recommends concise branding alongside descriptive titles: [title guidance](https://developers.google.com/search/docs/appearance/title-link).
+
+Use the existing `/guides/choose-a-free-pdf-editor` as the primary comparison destination. Its title is now “The Best Free PDF Editor for Your Task: 5 Options.” The introduction explains how the task determines the choice, and a new table connects common tasks to working free tools with their actual export and privacy limits. The homepage introduces these guides under “Find the best free PDF tool for your task,” with descriptive links. Its search description leads with the available tasks. Folio remains the product and publisher name, and the homepage retains its online-toolkit title and canonical URL. There is no additional keyword-only landing page or unsupported claim that Folio is the best product overall. Competitor feature checks remain dated September 18; this update adds task guidance, not a new competitor benchmark.
+
+After publication, inspect the homepage and comparison guide in Search Console and request indexing once for each if appropriate. In **Performance → Search results**, compare the exact queries `the best free pdf` and `folio the best free pdf` separately. Enable clicks, impressions, CTR and average position, and review the **Pages** tab to see which URL Google selects. Record the same country, device and date filters for both; start with the last 28 days, and compare successive periods as data accumulates. Do not filter this target out just because it resembles the domain. Searches without “Folio” can still be navigational, so review them separately from clearly branded and clearly generic editor searches.
+
+No Search Console export or country/device baseline was available for this change. Indexing requests and content changes do not guarantee a position or a date. Beyond the page changes, prioritize relevant editorial mentions and useful original demonstrations, then refine the guide using actual query and page data. No outreach is part of this update.
+
+Local validation passed: lint, TypeScript, formatting, three SEO unit checks and eight existing SEO/blog browser checks. The homepage and comparison guide also rendered with JavaScript disabled at 1440 px and 390 px without document overflow. Their canonical URLs, index directives, guide heading and Article modification date were checked in the rendered HTML. These checks verify the implementation, not a Google ranking improvement.
+
+Published September 21, 2026 to https://thebestfreepdf.com in Vercel deployment `dpl_3gwU7pxAfVnJq1SDhYiE2DV71ZKb`. The production build passed. The live SEO audit checked 58 public pages with no reported issues; the updated homepage text, guide title, task table, Article date, sitemap modification date and feed title were verified on the public domain. Audit report: `/tmp/folio-seo-without-folio-2026-09-21.json`. Google recrawling and query-performance measurement remain external follow-up steps.
 
 ## First-page target: online PDF
 
@@ -83,10 +98,12 @@ Export Search performance for the last 28 days by **query and page**, with click
 Suggested Search Console query groups (custom regular-expression filter):
 
 ```text
-Broad PDF discovery: ^(online pdf|online pdf tools|free online pdf|free online pdf tools|free pdf|best free pdf|best pdf|the best pdf|top pdf)$
+Requested phrase without Folio: ^the best free pdf$
+Reported phrase with Folio: ^folio the best free pdf$
+Broad PDF discovery: ^(online pdf|online pdf tools|free online pdf|free online pdf tools|free pdf|best free pdf|the best free pdf|best pdf|the best pdf|top pdf)$
 Editor discovery: ^(best |the best |top |free |online )*pdf editor( online| free| no watermark| without signup)?$
 Task searches: (add text|type on|write on|merge|combine|split|extract pages|compress|sign|signature|rotate|reorder|iphone|android)
-Brand review: (folio|thebestfreepdf|the best free pdf)
+Brand review: (folio|thebestfreepdf)
 ```
 
 Run groups separately; they can overlap. Review brand queries manually because other products also use “Folio.” Do not infer traffic to this app from another product's AI Overview or branded result.
