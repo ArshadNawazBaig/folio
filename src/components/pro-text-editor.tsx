@@ -369,10 +369,16 @@ export function ProTextEditor() {
       const output = await renderChanges();
       if (!output) return;
       if (shouldDownload) {
-        download(output, `${baseName(file.name)}-text-edited.pdf`);
-        setDownloadedRevision(revision);
-        if (!demo) void clearProDraft().catch(() => {});
-        setNotice('Your PDF has been downloaded with the changed text.');
+        const delivery = download(output, `${baseName(file.name)}-text-edited.pdf`);
+        if (delivery === 'started') {
+          setDownloadedRevision(revision);
+          if (!demo) void clearProDraft().catch(() => {});
+        }
+        setNotice(
+          delivery === 'ready'
+            ? 'Your PDF with the changed text is ready. Choose how to save it.'
+            : 'Download started. Check your browser’s downloads.',
+        );
       } else setNotice('Preview updated. Your changes are now in the PDF.');
     } catch (e) {
       if (e instanceof AccountRequestError && [401, 402].includes(e.status)) {

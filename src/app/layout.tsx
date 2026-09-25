@@ -3,6 +3,7 @@ import { Manrope, DM_Serif_Display } from 'next/font/google';
 import './globals.css';
 import { siteUrl, isIndexable } from '@/lib/seo';
 import { AccountProvider } from '@/components/account-provider';
+import { DownloadReady } from '@/components/download-ready';
 const sans = Manrope({ subsets: ['latin'], variable: '--font-manrope', display: 'swap' });
 const serif = DM_Serif_Display({
   subsets: ['latin'],
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           Skip to content
         </a>
         <AccountProvider>{children}</AccountProvider>
+        <DownloadReady />
       </body>
     </html>
   );

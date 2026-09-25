@@ -8,16 +8,29 @@ export function formatBytes(bytes: number) {
 export function baseName(name: string) {
   return name.replace(/\.[^.]+$/, '');
 }
+export const DOWNLOAD_READY_EVENT = 'folio:download-ready';
+export type PreparedDownload = { blob: Blob; name: string };
+
 export function download(bytes: Uint8Array | Blob, name: string, type = 'application/pdf') {
   const blob = bytes instanceof Blob ? bytes : new Blob([new Uint8Array(bytes)], { type });
+  // Mobile browsers may lose the original tap while a worker/network prepares
+  // the file. The shared dialog provides a fresh, direct save/share gesture.
+  const request = new CustomEvent<PreparedDownload>(DOWNLOAD_READY_EVENT, {
+    detail: { blob, name },
+    cancelable: true,
+  });
+  if (!window.dispatchEvent(request)) return 'ready';
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = name;
+  a.target = '_blank';
+  a.rel = 'noopener';
   document.body.appendChild(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  return 'started';
 }
 export function parsePages(input: string, total: number): number[] {
   if (!input.trim()) return Array.from({ length: total }, (_, i) => i);

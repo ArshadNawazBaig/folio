@@ -181,7 +181,7 @@ export function ProtectPdf() {
         )}
         {done && (
           <p role="status" className="pro-notice">
-            Your protected PDF has been downloaded.
+            Your protected PDF is ready. Keep your password safe to open it later.
           </p>
         )}
       </form>

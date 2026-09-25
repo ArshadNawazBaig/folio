@@ -729,8 +729,12 @@ export function Editor() {
         setDirty(false);
         router.push(`/${nextTool}`);
       } else {
-        download(result.bytes, `${baseName(name)}-edited.pdf`);
-        setNotice('Your edited PDF has been downloaded.');
+        const delivery = download(result.bytes, `${baseName(name)}-edited.pdf`);
+        setNotice(
+          delivery === 'ready'
+            ? 'Your edited PDF is ready. Choose how to save it.'
+            : 'Download started. Check your browser’s downloads.',
+        );
       }
     } catch (e) {
       if (

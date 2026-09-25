@@ -237,9 +237,13 @@ export function RemotePdfWorkspace({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ artifact: result.artifact }),
       });
-      download(new Uint8Array(await response.arrayBuffer()), result.filename);
-      void clearRemoteDraft(tool).catch(() => {});
-      setNotice('Your finished document has been downloaded.');
+      const delivery = download(new Uint8Array(await response.arrayBuffer()), result.filename);
+      if (delivery === 'started') void clearRemoteDraft(tool).catch(() => {});
+      setNotice(
+        delivery === 'ready'
+          ? 'Your finished document is ready. Choose how to save it.'
+          : 'Download started. Check your browser’s downloads.',
+      );
     } catch (e) {
       if (e instanceof AccountRequestError && [401, 402].includes(e.status)) await askForDownload();
       else setError(e instanceof Error ? e.message : 'Your document could not be downloaded.');
