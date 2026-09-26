@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Manrope, DM_Serif_Display } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import { siteUrl, isIndexable } from '@/lib/seo';
 import { AccountProvider } from '@/components/account-provider';
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </a>
         <AccountProvider>{children}</AccountProvider>
         <DownloadReady />
+        <Analytics />
       </body>
     </html>
   );

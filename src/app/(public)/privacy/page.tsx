@@ -92,9 +92,10 @@ export default function Privacy() {
       <p>
         Your browser requests the website, fonts, scripts, and PDF viewer assets from the site’s
         host. Hosting infrastructure may handle ordinary request information such as IP addresses
-        and browser details. The application currently includes no advertising trackers, analytics
-        integration. Local processing does not send document contents. Automatic editor uploads,
-        dashboard uploads, and text processing send documents to the services described above.
+        and browser details. Folio uses Vercel Web Analytics to collect page views and aggregated
+        website usage statistics. The application includes no advertising trackers. Local processing
+        does not send document contents. Automatic editor uploads, dashboard uploads, and text
+        processing send documents to the services described above.
       </p>
       <h2>Translation and Office conversion use document services.</h2>
       <p>

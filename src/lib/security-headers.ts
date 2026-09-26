@@ -10,7 +10,7 @@ export function contentSecurityPolicy(env: Record<string, string | undefined>) {
   if (development) connect.push('ws:', 'wss:');
   return [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${development ? " 'unsafe-eval'" : ''}`,
+    `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${development ? " 'unsafe-eval' https://va.vercel-scripts.com" : ''}`,
     "script-src-attr 'none'",
     "style-src 'self' 'unsafe-inline'",
     // Published blog images may be hosted on external HTTPS origins.
