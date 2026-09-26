@@ -171,6 +171,10 @@ export const tools: Tool[] = [
         'Yes. Use the move up and move down controls beside each file before merging.',
       ],
       [
+        'Can I merge PDFs with different page sizes and orientations?',
+        'Yes. A4, Letter, portrait and landscape pages can share one PDF. Each page keeps its original dimensions and rotation. Merging does not resize every page to the same paper size.',
+      ],
+      [
         'Is there a file limit?',
         'Each file can be up to 50 MB. A batch is limited to 20 files and 150 MB total to protect browser memory.',
       ],
@@ -229,6 +233,10 @@ export const tools: Tool[] = [
       [
         'Can I select nonconsecutive pages?',
         'Yes. Separate page numbers or ranges with commas, for example 1, 4-6, 9.',
+      ],
+      [
+        'Can I extract PDF pages in a custom order?',
+        'Yes. Choose Selected pages in one PDF and enter 6, 2-3 to place page 6 before pages 2 and 3. Use file positions, not printed page labels. Repeated selections are included only once.',
       ],
       [
         'What do I get when splitting every page?',
@@ -409,7 +417,7 @@ export const tools: Tool[] = [
     name: 'PDF to PNG',
     short: 'Every line, beautifully clear.',
     description:
-      'Export PDF pages as PNG images with lossless image encoding. Select your page range and download the results.',
+      'Convert PDF pages to PNG images at up to 300 DPI. Choose specific pages, preview the result, and download one image or a ZIP for free.',
     icon: 'image',
     category: 'Convert',
     color: 'sage',
@@ -430,6 +438,10 @@ export const tools: Tool[] = [
       [
         'Is PNG better than JPG?',
         'PNG avoids lossy compression artifacts; JPG often produces smaller files for photographs.',
+      ],
+      [
+        'How do I convert a PDF to PNG at 300 DPI?',
+        'Set Resolution to Print — 300 DPI before converting. A US Letter portrait page exports at 2550 by 3300 pixels. One selected page downloads as a PNG; multiple pages download in a ZIP. Higher resolution cannot restore detail missing from the source.',
       ],
     ],
     keywords: ['image', 'picture', 'convert'],
@@ -461,6 +473,10 @@ export const tools: Tool[] = [
       [
         'Can I combine multiple images?',
         'Yes. Add up to 20 images and arrange the file list before creating your PDF.',
+      ],
+      [
+        'Can I combine receipt photos into one PDF?',
+        'Yes. Add supported receipt pictures, arrange them by date or another useful order, and choose fitted or A4 pages. Each receipt becomes one page. HEIC files need converting first, and photographed text does not become searchable text.',
       ],
     ],
     keywords: ['jpg to pdf', 'png to pdf', 'photos', 'pictures'],

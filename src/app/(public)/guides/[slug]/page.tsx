@@ -130,7 +130,7 @@ export default async function Guide({ params }: { params: Promise<{ slug: string
                       {section.table.rows.map((row) => (
                         <tr key={row.name}>
                           <th scope="row">
-                            <a href={row.href}>{row.name}</a>
+                            {row.href ? <a href={row.href}>{row.name}</a> : row.name}
                           </th>
                           {row.cells.map((cell, index) => (
                             <td key={index}>{cell}</td>

@@ -100,6 +100,9 @@ const config: NextConfig = {
         ],
       })),
       { source: '/api/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
+      // Keep fictional practice documents accessible through the guides without
+      // offering their sample contents as standalone search results.
+      { source: '/samples/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex' }] },
       {
         source: '/pdfium/:file.wasm.gz',
         headers: [

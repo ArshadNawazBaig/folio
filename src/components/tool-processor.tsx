@@ -292,8 +292,11 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                 'This page is too large at this resolution. Choose standard resolution or fewer pages.',
               );
             const canvas = document.createElement('canvas');
-            canvas.width = Math.ceil(viewport.width);
-            canvas.height = Math.ceil(viewport.height);
+            // Fractional DPI scales can turn an exact pixel size into e.g.
+            // 3300.0000000000005. Keep real partial pixels without adding a
+            // blank edge solely because of floating-point arithmetic.
+            canvas.width = Math.ceil(viewport.width - 1e-6);
+            canvas.height = Math.ceil(viewport.height - 1e-6);
             const task = p.render({ canvas, viewport, background: '#ffffff' });
             const cancel = () => task.cancel();
             controller.signal.addEventListener('abort', cancel, { once: true });

@@ -16,7 +16,7 @@ export type Guide = {
     table?: {
       caption: string;
       columns: string[];
-      rows: { name: string; href: string; cells: string[] }[];
+      rows: { name: string; href?: string; cells: string[] }[];
     };
     links?: { label: string; href: string }[];
   }[];
@@ -468,6 +468,152 @@ export const guides: Guide[] = [
     ],
   },
   {
+    slug: 'extract-nonconsecutive-pdf-pages',
+    title: 'Extract Nonconsecutive PDF Pages in Any Order',
+    description:
+      'Extract separate PDF pages or reorder a selection using page ranges. Try a six-page sample, compare the expected result, and choose one PDF or a ZIP.',
+    category: 'Organization',
+    readTime: '5 min read',
+    published: '2026-09-26',
+    updated: '2026-09-26',
+    tool: 'split-pdf',
+    relatedTools: ['organize-pdf', 'merge-pdf'],
+    summary:
+      'To extract pages that are not next to each other, enter their file positions separated by commas. In Folio, 6, 2-3 creates one PDF containing page 6, then pages 2 and 3. Choose a ZIP instead when you need a separate PDF for each selected page. This standalone tool processes the document locally and downloads for free without an account.',
+    sections: [
+      {
+        title: 'How do I extract pages that are not next to each other?',
+        text: 'Use Split PDF when you need a few pages from one document, such as an appendix followed by a summary and budget. You do not need to delete every unwanted page individually. The original file remains unchanged, and the page range controls both which pages appear and their order in the combined output. Start with the fictional six-page practice packet below if you want to check the behavior before using your own file.',
+        steps: [
+          'Save the six-page practice PDF below, then open Split PDF and choose that file.',
+          'In Pages, enter 6, 2-3. The tool should report 3 pages selected.',
+          'Set Output to Selected pages in one PDF, then choose Split PDF.',
+          'Preview the result and choose Download PDF. Open the downloaded copy and check that it contains Appendix, Summary, then Budget.',
+        ],
+        links: [
+          { label: 'Open the six-page practice PDF', href: '/samples/page-selection-practice.pdf' },
+          { label: 'Try the selection in Split PDF', href: '/split-pdf' },
+        ],
+      },
+      {
+        title: 'Which page numbers should I enter?',
+        text: 'Use each page’s position in the file, starting at 1. A printed page number can differ from that position: our sample cover is file position 1, while the Summary has a printed 1 but is file position 2. Covers, contents pages and Roman-numeral introductions commonly create this mismatch. The following selections all refer to file positions in the downloadable sample.',
+        table: {
+          caption: 'Page selections and expected results for the six-page practice packet',
+          columns: ['Page range', 'Output order', 'Page count'],
+          rows: [
+            { name: '1, 3, 6', cells: ['Cover, Budget, Appendix', '3'] },
+            { name: '6, 2-3', cells: ['Appendix, Summary, Budget', '3'] },
+            {
+              name: '2-3, 3, 6',
+              cells: ['Summary, Budget, Appendix; the repeated 3 is included once', '3'],
+            },
+            { name: 'Leave blank', cells: ['All pages in their original order', '6'] },
+          ],
+        },
+      },
+      {
+        title: 'Can I split selected pages into separate PDF files?',
+        text: 'Yes. Keep the same page range and change Output to One PDF per selected page (ZIP), then choose Split PDF and Download ZIP. With 6, 2-3, the archive contains three one-page PDFs whose filenames end in page-006.pdf, page-002.pdf and page-003.pdf. Extract the ZIP in your device’s file manager to access them. A file manager may sort those files by name, so use Selected pages in one PDF when you need the reading order 6, 2, 3 to remain part of one document. To split every page, leave Pages blank and choose the ZIP output.',
+      },
+      {
+        title: 'Why is my page range rejected or shorter than expected?',
+        text: 'Use commas between selections and a hyphen inside an ascending range. For this sample, 7 is outside the document and 6-2 is not a valid range. Enter 6, 5, 4, 3, 2 if you want those pages in reverse order. Repeated pages are removed after their first occurrence: 2, 2, 3 produces two pages. Page ranges cannot duplicate a page; use Manage pages in the editor if you need a copy. If your file is password protected, open it with its password in a trusted reader and save an unlocked copy first.',
+      },
+      {
+        title: 'What should I check before sharing the extracted PDF?',
+        text: 'Check the page count, first and last pages, orientation, and whether every selected page belongs in the copy you intend to share. Extraction copies pages; it is not secure redaction of content that remains on those pages. Keep digitally signed originals separately, because copying pages can invalidate a certificate-based signature or change interactive form behavior. Folio’s standalone Split PDF accepts a PDF up to 50 MB and processes its contents in your browser. Choosing to continue in the main editor starts a separate workflow with private cloud saving.',
+        links: [
+          {
+            label: 'How Folio handles local processing and cloud saving',
+            href: '/guides/does-folio-upload-pdf-files',
+          },
+          {
+            label: 'Merge extracted pages with another document',
+            href: '/guides/merge-pdfs-different-page-sizes',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'merge-pdfs-different-page-sizes',
+    title: 'Merge PDFs with Different Page Sizes and Orientations',
+    description:
+      'Combine A4, Letter, portrait and landscape PDFs while preserving their page sizes. Try two sample files and learn why merged pages can look different.',
+    category: 'Organization',
+    readTime: '5 min read',
+    published: '2026-09-26',
+    updated: '2026-09-26',
+    tool: 'merge-pdf',
+    relatedTools: ['split-pdf', 'rotate-pdf', 'image-to-pdf'],
+    summary:
+      'A PDF can contain pages of different sizes and orientations. Folio’s Merge PDF copies each source page with its dimensions and rotation intact, so an A4 portrait report can be followed by a US Letter landscape appendix. It does not resize everything to A4 or stretch the page content.',
+    sections: [
+      {
+        title: 'How do I combine portrait and landscape PDFs?',
+        text: 'Use the two original sample files below to try a mixed-size merge. The first is an A4 portrait report; the second is a US Letter landscape appendix. Their page labels and dimensions are printed on the page, so you can recognize the result without relying only on its filename. Both are fictional practice documents and contain no customer information.',
+        steps: [
+          'Save both sample PDFs below. Open Merge PDF and add the two files.',
+          'Use the move controls beside the filenames to put a4-portrait-practice.pdf first and letter-landscape-practice.pdf second.',
+          'Choose Merge PDFs and inspect both pages in the result preview.',
+          'Choose Download PDF. Open the copy and confirm the portrait report appears before the landscape appendix, with no clipped text or stretched page content.',
+        ],
+        links: [
+          { label: 'Open the A4 portrait practice PDF', href: '/samples/a4-portrait-practice.pdf' },
+          {
+            label: 'Open the US Letter landscape practice PDF',
+            href: '/samples/letter-landscape-practice.pdf',
+          },
+          { label: 'Combine the samples in Merge PDF', href: '/merge-pdf' },
+        ],
+      },
+      {
+        title: 'What page sizes should the merged PDF contain?',
+        text: 'The output should have two pages with the dimensions shown below. PDF page dimensions use points, with 72 points per inch. These are the dimensions of our generated samples; other A4 exports may differ slightly because of rounding. A landscape page can also be stored as a portrait-sized page with a rotation setting. Preserving that setting keeps its displayed orientation.',
+        table: {
+          caption: 'Expected page dimensions when merging the supplied practice PDFs',
+          columns: ['Output page', 'Paper and orientation', 'PDF width × height'],
+          rows: [
+            {
+              name: '1 — Portrait report',
+              cells: ['A4 portrait: approximately 210 × 297 mm', '595.28 × 841.89 points'],
+            },
+            {
+              name: '2 — Landscape appendix',
+              cells: ['US Letter landscape: 11 × 8.5 inches', '792 × 612 points'],
+            },
+          ],
+        },
+      },
+      {
+        title: 'Why do the pages look different after merging?',
+        text: 'A PDF viewer can fit each page to the available screen width, making two different paper sizes appear equally wide at different zoom levels. A continuous-page viewer may instead show the landscape page extending farther sideways. Neither appearance by itself proves that content was resized. Inspect the page dimensions in a reader that exposes them and compare the text at the same zoom. If a page is genuinely sideways in the source, correct it with Rotate PDF before merging. Rotation changes orientation; it does not convert Letter paper into A4.',
+        links: [{ label: 'Correct sideways pages with Rotate PDF', href: '/rotate-pdf' }],
+      },
+      {
+        title: 'What if every page must be A4?',
+        text: 'Merging and resizing are separate tasks. Folio’s PDF merger preserves the original sizes and does not offer an A4 normalization setting. If a recipient requires uniform pages, exporting each source document to A4 in the application that created it is usually the clearest starting point. When your source files are images, Image to PDF has an A4 option that centers each picture on a portrait sheet with margins. Avoid converting an existing text PDF into images merely to make the page sizes match: that replaces selectable text with pixels.',
+        links: [
+          {
+            label: 'Choose fitted or A4 pages for image files',
+            href: '/guides/how-to-combine-images-into-pdf',
+          },
+        ],
+      },
+      {
+        title: 'What else should I check before sending a merged file?',
+        text: 'Check document order, duplicate cover sheets, cropped page edges and the total page count. Merge PDF adds every page from each input; use Split PDF first if you only need a selection. Keep certificate-signed documents and interactive forms in their original files when verification or form behavior matters, because copying pages can change those properties. This standalone merge workflow is free, requires no sign-in, and processes document contents in your browser. It accepts up to 20 files, 50 MB per file and 150 MB per batch; opening the result in the editor uses private cloud saving.',
+        links: [
+          {
+            label: 'Extract only the pages you need before merging',
+            href: '/guides/extract-nonconsecutive-pdf-pages',
+          },
+        ],
+      },
+    ],
+  },
+  {
     slug: 'how-to-merge-and-split-pdfs',
     title: 'How to Merge and Split PDF Files Without Losing Pages',
     description:
@@ -475,13 +621,19 @@ export const guides: Guide[] = [
     category: 'Organization',
     readTime: '3 min read',
     published: '2026-09-13',
-    updated: '2026-09-15',
+    updated: '2026-09-26',
     tool: 'merge-pdf',
     relatedTools: ['split-pdf', 'organize-pdf'],
     sections: [
       {
         title: 'Build one useful document',
         text: 'Merging works well when the recipient needs several pieces of information together: a proposal with its appendix, a portfolio with a cover, or a group of receipts for one project. Add at least two PDFs to Merge PDF. Use the up and down controls to set the file order before processing. Folio preserves each page’s dimensions, so a landscape chart can sit beside a portrait report.',
+        links: [
+          {
+            label: 'Try a mixed-size merge with A4 and Letter sample files',
+            href: '/guides/merge-pdfs-different-page-sizes',
+          },
+        ],
       },
       {
         title: 'Check the details before combining',
@@ -490,6 +642,12 @@ export const guides: Guide[] = [
       {
         title: 'Extract a useful section',
         text: 'Split PDF can export a range to one new PDF or put each selected page in a separate PDF inside a ZIP. Enter a range such as 1-3, 5, 8-10. Page numbers refer to the position in the file, not necessarily a number printed on the page. A report with an unnumbered cover may have printed page 1 at file position 2. Preview the document to make sure your selection matches what you intend to share.',
+        links: [
+          {
+            label: 'Practice nonconsecutive page selection and custom order',
+            href: '/guides/extract-nonconsecutive-pdf-pages',
+          },
+        ],
       },
       {
         title: 'Make the final copy easy to recognize',
@@ -499,15 +657,17 @@ export const guides: Guide[] = [
   },
   {
     slug: 'why-your-pdf-wont-get-smaller',
-    title: 'Why Your PDF Won’t Get Smaller — and What to Try',
+    title: 'Why Your PDF Won’t Get Smaller (or Gets Bigger)',
     description:
-      'Understand PDF file size, lossless optimization, image-heavy documents, and why compression results vary.',
+      'PDF bigger after compression? Learn why optimization can increase file size, when to keep the original, and how to handle an upload limit.',
     category: 'File size',
     readTime: '3 min read',
     published: '2026-09-13',
-    updated: '2026-09-15',
+    updated: '2026-09-26',
     tool: 'compress-pdf',
     relatedTools: ['split-pdf', 'compress-images'],
+    summary:
+      'A compressed PDF can be larger when the new file structure costs more space than the optimizer saves. Folio compares the result with the original and keeps the original available when it is smaller. Its compressor preserves image resolution; it cannot promise a 100 KB or 200 KB output.',
     sections: [
       {
         title: 'A PDF is more than its page count',
@@ -518,12 +678,24 @@ export const guides: Guide[] = [
         text: 'Folio’s Compress PDF tool rewrites the document with compressed object streams. This can reduce structural overhead while retaining the existing text and image resolution. It does not downsample photographs or rasterize pages. The benefit depends on how the original PDF was produced. A file that was already saved efficiently may show little or no reduction.',
       },
       {
-        title: 'When the original is the better result',
-        text: 'If optimization produces a larger file, Folio says so and makes your original available instead. That is an honest outcome rather than a processing failure. Running the same file through the same optimization repeatedly is unlikely to keep reducing it. For an image-heavy document, exporting a smaller version from the original application may be more effective. Check its image-resolution settings and preview fine text carefully.',
+        title: 'Why did my PDF get bigger after compression?',
+        text: 'Rewriting a PDF creates a new file structure, and that structure can take more space than the original. Already compressed image data may offer little saving to offset that overhead. If optimization produces a larger file, Folio says so and makes your original available instead. That is an honest outcome rather than a processing failure. Running the same file through the same optimization repeatedly is unlikely to keep reducing it. For an image-heavy document, exporting a smaller version from the original application may be more effective. Check its image-resolution settings and preview fine text carefully.',
       },
       {
-        title: 'Choose readability over a target percentage',
+        title: 'How can I meet an upload limit without unreadable pages?',
         text: 'Before sharing, open the result at a normal reading size and zoom in on small text, charts, and signatures. Keep links and selectable text useful whenever possible. If an upload service sets a strict size limit, splitting a long document into useful sections may be more appropriate than making each page hard to read. Keep a full-quality original so you can produce a different version later.',
+        steps: [
+          'Check the receiving service’s exact file-size limit and whether it accepts multiple files.',
+          'Try one optimization and compare the actual before and after sizes. Keep the original if it is smaller.',
+          'If multiple files are accepted, extract the required pages or split the document into useful sections.',
+          'If one smaller file is required, return to the source application and adjust its PDF export or image settings, then review small text in the new copy.',
+        ],
+        links: [
+          {
+            label: 'Extract selected pages instead of sending the whole PDF',
+            href: '/guides/extract-nonconsecutive-pdf-pages',
+          },
+        ],
       },
     ],
   },
@@ -593,11 +765,13 @@ export const guides: Guide[] = [
     description:
       'Choose JPG or PNG, select PDF pages, and set export resolution. Learn how to keep small text clear without making image files unnecessarily large.',
     category: 'Conversion',
-    readTime: '3 min read',
+    readTime: '4 min read',
     published: '2026-09-15',
-    updated: '2026-09-15',
+    updated: '2026-09-26',
     tool: 'pdf-to-png',
     relatedTools: ['pdf-to-jpg', 'pdf-to-text', 'compress-images'],
+    summary:
+      'For a 300 DPI PNG, choose PDF to PNG, select the pages, and set Resolution to Print — 300 DPI. A US Letter portrait page becomes 2550 × 3300 pixels. One page downloads as an image; multiple pages download in a ZIP. Higher resolution increases pixel dimensions but cannot repair a blurred source scan.',
     sections: [
       {
         title: 'Choose a format for the content',
@@ -606,6 +780,27 @@ export const guides: Guide[] = [
       {
         title: 'Select just the pages you need',
         text: 'Open PDF to PNG or PDF to JPG and choose a PDF. Enter the required page range, such as 1-3, 5, to export the first three pages and page five. Use positions in the file rather than printed page labels; a cover sheet can shift the numbering. Convert the selection and inspect the result preview. Exporting one page makes an image file, while several pages are packaged in a ZIP. The preview navigation lets you check each page before downloading.',
+      },
+      {
+        title: 'How do I export a PDF to PNG at 300 DPI?',
+        text: 'Open PDF to PNG and choose your PDF. Set Pages if you only need a selection, then set Resolution to Print — 300 DPI and choose Convert to PNG. Folio writes the chosen resolution into the exported image metadata as well as rendering the corresponding pixel dimensions. The table shows the output for an 8.5 × 11 inch US Letter portrait page. A page with a different physical size produces different dimensions at the same DPI.',
+        table: {
+          caption: 'Resolution choices for a US Letter portrait page',
+          columns: ['Resolution setting', 'Output width × height', 'Typical use'],
+          rows: [
+            { name: 'Standard — 108 DPI', cells: ['918 × 1188 pixels', 'Smaller previews'] },
+            { name: 'High — 144 DPI', cells: ['1224 × 1584 pixels', 'Reading on screen'] },
+            {
+              name: 'Extra high — 216 DPI',
+              cells: ['1836 × 2376 pixels', 'Larger previews and fine detail'],
+            },
+            {
+              name: 'Print — 300 DPI',
+              cells: ['2550 × 3300 pixels', 'Printing at the original page size'],
+            },
+          ],
+        },
+        links: [{ label: 'Export selected PDF pages as PNG images', href: '/pdf-to-png' }],
       },
       {
         title: 'Match resolution to the intended size',
@@ -623,15 +818,26 @@ export const guides: Guide[] = [
     description:
       'Turn receipts, photos, or screenshots into an ordered PDF. Choose image-sized or A4 pages, check orientation, and preview every page before export.',
     category: 'Conversion',
-    readTime: '3 min read',
+    readTime: '4 min read',
     published: '2026-09-15',
-    updated: '2026-09-15',
+    updated: '2026-09-26',
     tool: 'image-to-pdf',
     relatedTools: ['jpg-to-pdf', 'png-to-pdf', 'merge-images', 'compress-images'],
     sections: [
       {
         title: 'Prepare pictures that belong together',
         text: 'Combining images into one PDF is useful for a set of receipts, project photographs, or screenshots that someone should read in order. Open Image to PDF for a mixed group of JPG, PNG, and WEBP files, or choose a format-specific tool for JPG or PNG. Each image becomes a separate page. Check that every picture is readable before adding it; packaging a blurred receipt inside a PDF will not make its details clearer.',
+      },
+      {
+        title: 'How do I combine receipt photos into one PDF?',
+        text: 'For an expense packet, collect clear pictures of the receipts and put them in the order the reviewer expects, such as purchase date. Keep totals, dates and merchant names visible; crop empty desk space in your device’s image editor before importing. Folio combines the pictures but does not verify expenses, automatically crop receipts, or recognize their text.',
+        steps: [
+          'Save each receipt as JPG, PNG or WEBP. If your phone saved HEIC files, convert them to a supported format first.',
+          'Open Image to PDF, add the receipt pictures, and move them into the required order.',
+          'Choose A4 — centered with margins for consistent portrait paper, or Fit each image to preserve each picture’s proportions.',
+          'Choose Create PDF, check that every amount and date is readable, then download the finished packet.',
+        ],
+        links: [{ label: 'Combine receipt photos with Image to PDF', href: '/image-to-pdf' }],
       },
       {
         title: 'Arrange the reading order',

@@ -6,7 +6,7 @@ Prepared September 18, 2026 for https://thebestfreepdf.com. Target audience: Eng
 
 Earn relevant visits for free PDF workflows and editor comparisons, then convert those visits into successful document downloads. Broader phrases such as “PDF editor” and “best PDF editor” are long-term targets, not promised positions. This plan contains no invented search volumes, difficulty scores, backlinks, or current rankings.
 
-The [keyword map](SEO-KEYWORD-MAP.csv) includes 78 searches: the original nine requested phrases, the later “online PDF” and “the best free PDF” targets, and 67 related variations. Each query has one preferred existing URL. Related searches can share a page; there is no need for separate “best,” “top,” and “the best” pages offering the same content. The priority labels describe the order of work, not measured competition or a ranking deadline.
+The [keyword map](SEO-KEYWORD-MAP.csv) includes 100 searches: the original requested phrases and related variations, including 22 task-specific candidates added on September 26, 2026. Each query has one preferred URL. The [September 26 research and measurement plan](SEO-RESEARCH-2026-09-26.md) records the latest evidence and priorities. Related searches can share a page; there is no need for separate “best,” “top,” and “the best” pages offering the same content. The priority labels describe the order of work, not measured competition or a ranking deadline.
 
 A search-results spot check on September 18 found editorial comparisons among results for “best free PDF editor” and “best PDF editor,” including TechRadar and PCWorld. This is an observation about search intent, not a reproducible Google ranking report for a particular location. Google explains that its language systems can match relevant variations without repeating every phrase in the copy: [SEO Starter Guide](https://developers.google.com/search/docs/fundamentals/seo-starter-guide). Titles should describe the page clearly and avoid repeated keyword variants: [title guidance](https://developers.google.com/search/docs/appearance/title-link).
 
@@ -64,6 +64,8 @@ No Search Console export, target-country baseline or live ranking measurement wa
 Folio must not imply every original-text edit exports for free. Free editor searches lead to free additions, annotations, signatures, forms and page changes; the paid download boundary is stated before use. Scanned-text searches lead to troubleshooting, not an unavailable OCR service. Compression content describes structural optimization without guaranteeing a percentage, a target file size or image downsampling.
 
 ## Publication and validation
+
+Latest update: September 26, 2026. Published two task-specific guides, three practice PDFs, expanded supporting content and four tool FAQs. The [research follow-up](SEO-RESEARCH-2026-09-26.md) records the 9-click/45-impression baseline, 22 new keyword candidates, validation and deployment. The post-deployment audit passed for 60 public pages; Google ranking changes have not been measured.
 
 Published September 18, 2026 to https://thebestfreepdf.com in Vercel deployment `dpl_EnMHokh7j9YBESxqq2Liw88EuE1p`.
 
@@ -135,7 +137,7 @@ Compare successive 28-day periods using consistent filters:
 | Completed document tasks             | Whether acquired visitors actually receive a useful result; configure first-party measurement before reporting a rate. |
 | Support and failed-download patterns | Whether a promise in the search snippet mismatches the product.                                                        |
 
-No Search Console performance export or document-conversion analytics was available for this plan. These are measurement instructions, not claims of improvements already achieved. Country targeting and additional content should follow the resulting evidence.
+No Search Console performance export or document-conversion analytics was available for this plan. On September 26, the owner reported 9 clicks and 45 impressions over seven days and confirmed a worldwide English-speaking audience. Query, page, country and device breakdowns remain unavailable. These are measurement instructions, not claims of improvements already achieved.
 
 ## Comparison sources
 

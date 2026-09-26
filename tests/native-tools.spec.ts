@@ -203,6 +203,32 @@ test('PDF image export produces 300 DPI JPG and ordered multi-page ZIP previews'
   expect(Object.keys(zip.files)).toHaveLength(2);
   await expect(page.locator('.preview-heading')).toContainText('1 / 2');
 });
+test('US Letter PNG export at 300 DPI has exact dimensions without a rounding edge', async ({
+  page,
+}) => {
+  const pdf = await PDFDocument.create();
+  pdf.addPage([612, 792]);
+  await page.goto('/pdf-to-png');
+  await page
+    .locator('input[type=file]')
+    .first()
+    .setInputFiles({
+      name: 'letter.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from(await pdf.save()),
+    });
+  await expect(page.getByRole('button', { name: 'Convert to PNG', exact: true })).toBeEnabled();
+  await choose(page, 'Resolution', 'Print — 300 DPI');
+  await page.getByRole('button', { name: 'Convert to PNG', exact: true }).click();
+  const { bytes } = await exported(page, 'Download PNG');
+  const metadata = await sharp(bytes).metadata();
+  expect([metadata.width, metadata.height, metadata.format, metadata.density]).toEqual([
+    2550,
+    3300,
+    'png',
+    300,
+  ]);
+});
 test('QR exports scan correctly, invalidate after edits and fit mobile and desktop', async ({
   page,
 }) => {
