@@ -39,6 +39,10 @@ Public page introductions use `page-heading` inside a `with-page-heading` main. 
 
 The empty PDF workspace uses `EditorWelcome`: a charcoal introduction, a primary upload card, a separate sample-document card, and a short overview of the editing tools. Stack the cards on mobile and scroll the content below the persistent header. Show tools and file navigation until a document opens, then show the document name, save, and download controls. Keep the existing upload validation, sample generation, and cloud-file sign-in route.
 
+The pricing page uses aligned Free and Pro cards, with a charcoal Pro header, orange action, storage/link summaries, and grouped feature lists. Keep prices, renewal details, and actions aligned on desktop; stack the complete cards on mobile. Show full billing terms beneath the comparison. Page styles live in `pricing.module.css`. The download dialog uses `pricing-compact.module.css` for the same charcoal Pro summary, storage/link allowances, and visible billing terms in a compact layout. Its header and footer stay visible while the body scrolls; sign-in and checkout still open separately from the document.
+
+The account sign-in page pairs a neutral workspace overview with a white form panel. Put sign-in first on mobile, give the guest option its own inset panel with the storage and expiry details, and keep Google and email actions equally easy to read. The dashboard's guest billing and settings cards follow the same split layout and show the 100 MB allowance and 24-hour expiry. These surfaces share the `panel` variant in `sign-in-form.module.css`; other embedded forms keep their existing layouts. Retain the shared form's loading, error, email confirmation, and redirect behavior.
+
 ## Verification
 
 Run `npm run test:design` for the isolated visual and interaction checks. The test server uses fixture accounts on port 3001 and does not contact real billing or private storage. Screenshots are written to the ignored `test-results-design/` directory.

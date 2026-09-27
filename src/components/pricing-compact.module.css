@@ -1,0 +1,179 @@
+.pricing {
+  min-width: 0;
+}
+.selection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.selection > span {
+  font-size: var(--text-label);
+  font-weight: 600;
+}
+.pricing :global(.pricing-switch) {
+  margin: 0;
+  max-width: 100%;
+  border-radius: 10px;
+}
+.pricing :global(.pricing-switch) button {
+  min-width: 0;
+  min-height: 44px;
+  padding: 9px 16px;
+}
+.pricing .card:global(.price-card) {
+  padding: 0;
+  border: 1px solid #292929;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px #19191906;
+}
+.overview {
+  padding: 22px 24px;
+  background: var(--charcoal);
+  color: #fff;
+}
+.planHeading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #5b3c2e;
+  border-radius: 10px;
+  color: var(--accent);
+  background: #322820;
+}
+.planHeading h3 {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: -0.7px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.badge {
+  margin-left: auto;
+  padding: 4px 7px;
+  border: 1px solid #5b3c2e;
+  border-radius: 5px;
+  color: #ffab87;
+  background: #322820;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.35px;
+}
+.priceLine {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin-top: 18px;
+}
+.pricing .card .amount {
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 0;
+  margin: 0;
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.amount > span {
+  color: #bfbfbb;
+  font-size: var(--text-label);
+}
+.renewal {
+  flex: 0 1 180px;
+  margin: 0 0 3px;
+  color: #bfbfbb;
+  font-size: var(--text-small);
+  line-height: 1.7;
+}
+.allowances {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding: 20px 24px;
+}
+.allowances > div {
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+}
+.allowances svg {
+  flex-shrink: 0;
+  color: var(--accent-text);
+  margin-top: 3px;
+}
+.allowances strong,
+.allowances span {
+  display: block;
+  font-size: var(--text-label);
+  line-height: 1.6;
+}
+.allowances span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+.action {
+  padding: 0 24px 22px;
+}
+.terms {
+  padding: 18px 2px 0;
+  font-size: var(--text-small);
+  color: var(--muted);
+  line-height: 1.7;
+}
+.terms h4 {
+  margin: 0 0 5px;
+  font-size: var(--text-small);
+  font-weight: 700;
+  color: var(--ink);
+}
+.terms p {
+  margin: 6px 0 0;
+}
+@media (max-width: 540px) {
+  .selection {
+    align-items: stretch;
+  }
+  .pricing :global(.pricing-switch) {
+    width: 100%;
+  }
+  .pricing :global(.pricing-switch) button {
+    flex: 1;
+  }
+  .overview {
+    padding: 20px;
+  }
+  .badge {
+    margin-left: 0;
+  }
+  .priceLine {
+    display: block;
+  }
+  .renewal {
+    margin: 10px 0 0;
+  }
+  .allowances {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 20px;
+    gap: 16px;
+  }
+  .action {
+    padding: 0 20px 20px;
+  }
+}

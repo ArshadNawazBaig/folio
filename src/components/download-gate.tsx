@@ -1,10 +1,11 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { Download, X, RefreshCw, Loader2 } from 'lucide-react';
+import { Download, X, RefreshCw, Loader2, ShieldCheck } from 'lucide-react';
 import { googleSignInUrl } from '@/lib/auth-client';
 import { Pricing } from './pricing';
 import { useAccount } from './account-provider';
 import { premiumDownloads, type PremiumDownloadTool } from '@/lib/tool-access';
+import s from './download-gate.module.css';
 export function DownloadGate({
   open,
   onClose,
@@ -91,29 +92,43 @@ export function DownloadGate({
   return (
     <dialog
       ref={dialog}
-      className="download-gate"
+      className={`download-gate ${s.dialog}`}
       onCancel={onClose}
       onClose={onClose}
       aria-labelledby="download-gate-title"
+      aria-describedby="download-gate-description"
     >
       <header className="download-gate-header">
         <span className="account-symbol" aria-hidden="true">
           <Download size={25} />
         </span>
-        <h2 id="download-gate-title">Your edits are ready to take with you.</h2>
+        <div className={s.heading}>
+          <span>FOLIO PRO DOWNLOAD</span>
+          <h2 id="download-gate-title">Take your work with you.</h2>
+        </div>
         <button className="icon-button gate-close" aria-label="Keep editing" onClick={onClose}>
           <X size={20} />
         </button>
       </header>
       <div className="download-gate-body" role="region" aria-label="Download options" tabIndex={0}>
-        <p>{download.reason} You can keep editing and previewing for free.</p>
-        <p className="gate-preserve">
-          {saved
-            ? 'Your recovery draft is saved in cloud storage. '
-            : 'Keep this tab open until your work is saved to your account or downloaded. '}
-          Sign-in and checkout open in a new tab, so your document stays here.
+        <p id="download-gate-description">
+          Unlock your {download.format} download with Folio Pro. Keep editing and previewing for
+          free.
         </p>
         {open && <Pricing compact checkoutInNewTab signInInFooter />}
+        <details className={s.explanation}>
+          <summary>About this Pro download</summary>
+          <p>{download.reason}</p>
+        </details>
+        <div className={`gate-preserve ${s.preserve}`}>
+          <ShieldCheck size={18} aria-hidden="true" />
+          <p>
+            {saved
+              ? 'Your recovery draft is saved in cloud storage. '
+              : 'Keep this tab open until your work is saved to your account or downloaded. '}
+            Sign-in and checkout open in a new tab, so your document stays here.
+          </p>
+        </div>
       </div>
       <footer className="download-gate-footer">
         {notice && !message && (
@@ -146,7 +161,7 @@ export function DownloadGate({
               ) : (
                 <img src="/google-g.png" width={18} height={18} alt="" />
               )}
-              {signingIn ? 'Opening Google…' : 'Continue with Google'}
+              <span>{signingIn ? 'Opening Google…' : 'Continue with Google'}</span>
             </button>
           ) : (
             <button className="button primary" disabled={checking || loading} onClick={check}>

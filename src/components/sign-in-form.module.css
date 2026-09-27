@@ -1,0 +1,85 @@
+.panel:global(.sign-in-form) {
+  margin-top: 24px;
+}
+.panel :global(.google-sign-in) {
+  min-height: 48px;
+  border-color: var(--border-strong);
+  border-radius: 9px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.panel :global(.google-sign-in) > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.panel :global(.google-sign-in):hover:not(:disabled) {
+  background: var(--paper);
+  box-shadow: 0 2px 6px #19191908;
+}
+.panel :global(.sign-in-divider) {
+  margin: 20px 0;
+  font-size: var(--text-small);
+}
+.panel:global(.sign-in-form) input {
+  min-height: 48px;
+  padding: 12px 14px;
+  border-radius: 9px;
+  background: #fcfcfb;
+  font-size: var(--text-input);
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.panel:global(.sign-in-form) input:focus-visible {
+  border-color: var(--accent-text);
+  background: var(--surface);
+}
+.panel :global(.button) {
+  min-height: 48px;
+  border-radius: 9px;
+}
+.panel :global(.guest-sign-in-option) {
+  margin-top: 24px;
+  padding: 16px;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f8f8f6;
+}
+.panel :global(.guest-sign-in-option) p {
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+.panel:global(.sign-in-form) > small {
+  margin-top: 20px;
+  font-size: var(--text-small);
+  line-height: 1.7;
+  text-align: center;
+}
+.panel > small a:hover {
+  color: var(--accent-text);
+}
+.panel :global(.sign-in-sent) {
+  padding: 22px;
+  border: 1px solid #c9dece;
+  border-radius: 12px;
+  background: var(--success-soft);
+  overflow-wrap: anywhere;
+}
+.panel :global(.sign-in-sent) > svg {
+  color: var(--success);
+}
+.panel :global(.sign-in-sent) h2 {
+  font-size: 21px;
+}
+.panel :global(.sign-in-sent) p {
+  font-size: var(--text-label);
+  line-height: 1.7;
+}
+@media (max-width: 480px) {
+  .panel :global(.guest-sign-in-option) {
+    padding: 12px;
+  }
+}

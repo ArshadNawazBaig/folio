@@ -6,12 +6,15 @@ import { ArrowRight, Loader2, Mail, UserRound } from 'lucide-react';
 import { authClient, googleSignInUrl } from '@/lib/auth-client';
 import { authCallbackUrl, safeAuthDestination } from '@/lib/auth-navigation';
 import { useAccount } from './account-provider';
+import s from './sign-in-form.module.css';
 export function SignInForm({
   destination = '/account',
   allowGuest = true,
+  variant = 'default',
 }: {
   destination?: string;
   allowGuest?: boolean;
+  variant?: 'default' | 'panel';
 }) {
   const { configured, continueAsGuest } = useAccount();
   const router = useRouter();
@@ -64,7 +67,7 @@ export function SignInForm({
     }
   }
   return (
-    <div className="sign-in-form">
+    <div className={`sign-in-form${variant === 'panel' ? ` ${s.panel}` : ''}`}>
       <button
         type="button"
         className="google-sign-in"

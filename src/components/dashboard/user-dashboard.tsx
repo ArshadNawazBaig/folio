@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { useAccount } from '../account-provider';
 import { Logo } from '../logo';
-import { SignInForm } from '../sign-in-form';
+import { GuestAccount } from './guest-account';
 import { ShortLinks } from '../short-links';
 import { SupportPanel } from '../support-panel';
 import { accountFetch, authClient } from '@/lib/auth-client';
@@ -592,24 +592,5 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
         </main>
       </div>
     </div>
-  );
-}
-function GuestAccount({ view }: { view: 'billing' | 'settings' }) {
-  return (
-    <section className={`${s.card} ${s.guestAccount}`}>
-      <span className="account-symbol">
-        {view === 'billing' ? <CreditCard size={25} /> : <ShieldCheck size={25} />}
-      </span>
-      <h2>{view === 'billing' ? 'Your free guest account.' : 'Make this workspace yours.'}</h2>
-      <p>
-        {view === 'billing'
-          ? 'You have 100 MB of private storage and access to free PDF tools. Sign in to choose a paid plan or manage an existing subscription.'
-          : 'Guest files belong to this browser session. Sign in to keep them beyond 24 hours, access them on other devices, and manage your profile.'}
-      </p>
-      <SignInForm
-        allowGuest={false}
-        destination={view === 'billing' ? '/dashboard?view=billing' : '/dashboard?view=settings'}
-      />
-    </section>
   );
 }

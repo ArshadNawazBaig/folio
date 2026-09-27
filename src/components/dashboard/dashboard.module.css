@@ -217,9 +217,6 @@
 .guestNotice a {
   flex-shrink: 0;
 }
-.guestAccount {
-  max-width: 620px;
-}
 @media (max-width: 600px) {
   .guestNotice {
     align-items: stretch;
