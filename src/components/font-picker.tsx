@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { Combobox } from '@base-ui/react/combobox';
 import { Check, ChevronDown, Loader2, Search } from 'lucide-react';
 import { Pagination } from './pagination';
+import { Skeleton } from './skeleton';
 import { PAGE_SIZE } from '@/lib/pagination.mjs';
 import { Dropdown } from './dropdown';
 import { loadBrowserDocumentFont } from '@/lib/document-font-client';
@@ -259,7 +260,7 @@ export function FontPicker({
               {busy && (
                 <div className="font-library-loading" role="status" aria-label="Loading fonts">
                   {[0, 1, 2, 3].map((i) => (
-                    <span key={i} className="skeleton" />
+                    <Skeleton key={i} width="70%" height={22} />
                   ))}
                 </div>
               )}

@@ -7,6 +7,11 @@
   background: var(--paper);
   color: var(--ink);
 }
+.sidebar,
+.topbar {
+  --skeleton-base: var(--skeleton-dark-base);
+  --skeleton-highlight: var(--skeleton-dark-highlight);
+}
 .sidebar {
   position: sticky;
   top: 0;

@@ -145,6 +145,8 @@
   border-radius: 9px;
 }
 .pro .overview {
+  --skeleton-base: var(--skeleton-dark-base);
+  --skeleton-highlight: var(--skeleton-dark-highlight);
   background: var(--charcoal);
   color: #fff;
 }

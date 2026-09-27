@@ -164,17 +164,12 @@
 }
 .listFooter {
   border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 24px;
-  font-size: var(--text-small);
-  color: var(--muted);
+  padding: 18px 26px;
 }
-.listFooter > div {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.listFooter > nav {
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 .empty {
   padding: 65px 25px;
@@ -205,6 +200,8 @@
   color: var(--ink);
 }
 .editorHeader {
+  --skeleton-base: var(--skeleton-dark-base);
+  --skeleton-highlight: var(--skeleton-dark-highlight);
   --muted: #bdbdbd;
   --border: #454545;
   display: flex;
@@ -903,6 +900,9 @@
   }
 }
 @media (max-width: 900px) {
+  .listFooter {
+    padding-inline: 20px;
+  }
   .documentIdentity {
     display: none;
   }
@@ -954,6 +954,9 @@
   }
 }
 @media (max-width: 600px) {
+  .listFooter {
+    padding: 18px;
+  }
   .managerToolbar {
     padding: 18px;
     gap: 10px;

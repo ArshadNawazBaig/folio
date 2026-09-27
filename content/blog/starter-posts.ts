@@ -9,9 +9,9 @@ const p = (...parts: (string | RichNode)[]): RichNode => ({
   type: 'paragraph',
   content: parts.map((part) => (typeof part === 'string' ? text(part) : part)),
 });
-const h = (title: string): RichNode => ({
+const h = (title: string, level: 2 | 3 = 2): RichNode => ({
   type: 'heading',
-  attrs: { level: 2 },
+  attrs: { level },
   content: [text(title)],
 });
 const list = (items: string[], ordered = false): RichNode => ({
@@ -628,6 +628,320 @@ export const starterPosts: EditorialPost[] = [
         ' where needed, then visit ',
         link('Translate PDF', '/translate-pdf'),
         ' to check availability and begin your review workflow.',
+      ),
+    ],
+  ),
+  article(
+    'fa48b3ab-2458-4da1-b98b-517e8bbde107',
+    {
+      title: 'How to Create a QR Code for a Link That People Can Actually Use',
+      slug: 'how-to-create-a-qr-code-for-a-link',
+      excerpt:
+        'Turn a website, menu, or PDF link into a free QR code. Learn when to use a static code, how to keep a destination editable, and what to check before you print.',
+      category: 'QR codes',
+      tags: [
+        'QR code generator',
+        'Free QR code',
+        'WiFi QR code',
+        'Static QR codes',
+        'Dynamic QR codes',
+      ],
+      cover:
+        'https://images.unsplash.com/photo-1706759755832-47e53579cc0d?auto=format&fit=crop&w=1600&q=85',
+      coverAlt:
+        'A person holds a phone in front of a QR code displayed on a laptop at a coffee table.',
+      seoTitle: 'How to Create a QR Code for a Link: Free, Practical Guide',
+      seoDescription:
+        'Create a free QR code for a website, PDF link, or Wi-Fi network. Compare static and editable links, choose PNG or SVG, and fix common scanning problems.',
+      featured: false,
+    },
+    {
+      id: 'v9bLIYP20xw',
+      photographer: 'Marielle Ursua',
+      page: 'https://unsplash.com/photos/a-person-using-a-laptop-computer-with-a-qr-code-on-the-screen-v9bLIYP20xw',
+    },
+    [
+      p(
+        'A café prints a QR code on its menus. It scans perfectly, opens the right page, and looks good beside the logo. A month later, the menu moves to a new web address. The printed code still points to the old one.',
+      ),
+      p(
+        'Making a QR code takes very little time. Choosing the right link is the part worth slowing down for. Before you download anything, decide whether the destination will stay put, whether visitors can open it without signing in, and where they will scan the finished code.',
+      ),
+      p(
+        'For a quick start, open Folio’s ',
+        link('free QR code generator', '/create-qr-code'),
+        ', select Website address, paste your link, and choose Generate QR code. Download PNG or SVG, then scan the downloaded file with your phone. You do not need an account for this standalone tool.',
+      ),
+      h('Start with the page you want someone to reach'),
+      p(
+        'Send people straight to the useful thing: the menu, booking form, event details, or document. A code on a workshop poster should open the registration page, not leave someone hunting through your homepage. Check the destination on a phone before turning it into a QR code.',
+      ),
+      p(
+        'Open that link in a private browser window or on a device where you are signed out. A page that works in your own account may ask everyone else to request access. Shortening the address or encoding it in a QR code will not change those permissions.',
+      ),
+      h('Static vs. dynamic QR codes: what actually changes?'),
+      p(
+        'A static QR code contains fixed information. If it encodes a website address, that address is part of the pattern. You can update the page at the same address, but changing the encoded address means making a new QR image.',
+      ),
+      p(
+        'What is often called a dynamic QR code usually contains a redirect link. The printed pattern stays the same while a service changes where that link sends visitors. The flexibility comes from managing the redirect, so the code depends on that service and the saved link remaining available.',
+      ),
+      table(
+        ['Your situation', 'A sensible starting point'],
+        [
+          ['A stable website page you control', 'A static QR code pointing directly to that page.'],
+          [
+            'A printed menu whose web address might change',
+            'A QR code for a saved short link with an editable destination.',
+          ],
+          [
+            'Guest Wi-Fi details or a short text message',
+            'A static code containing the details themselves.',
+          ],
+          [
+            'A one-off event registration page',
+            'A direct code if the address is final; an editable short link if it may move.',
+          ],
+        ],
+      ),
+      p(
+        'Folio’s standalone generator makes static codes. For an editable destination, create a link with the ',
+        link('URL Shortener', '/url-shortener'),
+        ' and use its Generate QR option. Folio Pro lets you update that saved link’s destination while keeping the same short address and QR image. Free accounts can also generate short-link QR codes, but destination editing requires Pro.',
+      ),
+      h('How to create a QR code for a website link'),
+      list(
+        [
+          'Copy the final website address and open it in a fresh browser tab to check it.',
+          'Open Create QR Code in Folio. Under QR content, choose Website address and paste the URL.',
+          'Choose Code color and Background. A dark code on a plain, light background is a dependable starting point.',
+          'If you want a PNG, select 512, 1024, or 2048 pixels under PNG dimensions. You can also download an SVG after generating.',
+          'Select Generate QR code, then Download PNG or Download SVG.',
+          'Scan the downloaded image and follow the link all the way to the page. Confirm that it is the exact destination you intended.',
+        ],
+        true,
+      ),
+      p(
+        'Put a short instruction beside the finished code. “View the lunch menu” gives someone a reason to scan. “Scan me” leaves them guessing. Include a readable web address nearby when space allows, so someone can still reach the page if their camera struggles.',
+      ),
+      h('Can you create a QR code for a PDF?'),
+      p(
+        'Yes. The QR code should contain a web link to the PDF or a page where people can open it. First place the document somewhere that supports the access you intend, then test its sharing link while signed out. Pasting a filename such as menu.pdf will not upload the file or make it available online.',
+      ),
+      p(
+        'Files in your private Folio workspace are not public PDF hosting. For a public handout, use a suitable public document link or a page on your website. If you will replace the PDF regularly, keep a stable page address or use a short link whose destination you can edit.',
+      ),
+      h('How to make a Wi-Fi QR code'),
+      p(
+        'For a guest network, choose Wi-Fi network under QR content. Enter the network name exactly as it appears in your Wi-Fi settings, select the matching security option, and enter the password. Mark Hidden network only if that applies. Generate the code and try joining with a compatible phone.',
+      ),
+      p(
+        'A Wi-Fi QR code stores connection details; it does not keep the password secret. Anyone who can read the code may be able to recover those details. Use credentials you are comfortable sharing with that audience, such as a separate guest network. Changing the network name or password means replacing the code.',
+      ),
+      h('PNG or SVG: which should you download?'),
+      p(
+        'PNG is convenient for documents, slides, and apps that accept ordinary image uploads. Download enough pixels for the size you plan to use, and avoid enlarging a small image until its edges blur. Folio offers three PNG sizes so you can choose the one that fits your layout.',
+      ),
+      p(
+        'SVG is a vector format, so its edges remain sharp when scaled. It is a useful choice for print layouts when your design software or printer accepts it. Either format can work well; the final printed size, surrounding space, contrast, and viewing conditions still matter.',
+      ),
+      h('Why a QR code will not scan—and what to check'),
+      p(
+        'Start with the white space around it. That clear margin is called the quiet zone. ',
+        link('DENSO WAVE’s QR code guidance', 'https://www.qrcode.com/en/howto/code.html'),
+        ' specifies a margin four modules wide on every side. A module is one of the small squares that make up the code. Folio includes that margin in its download; keep it when placing the image in your design.',
+      ),
+      list([
+        'The camera does not recognize a code: check for a cropped margin, blurry edges, low contrast, glare, or a code that is too small at the scanning distance.',
+        'The camera recognizes it but the page fails: open the encoded address directly. Check for a typo, a deleted page, a sign-in requirement, or a missing internet connection.',
+        'It works on screen but fails in print: scan a proof at the actual printed size and under the lighting where people will use it.',
+        'It works on one phone only: try another device, adjust distance and lighting, and simplify the design before printing more copies.',
+      ]),
+      p(
+        'Do not place a logo, label, or decorative shape over the downloaded pattern and assume it will still work. Folio does not provide a logo-overlay feature. Put your branding beside the code and test the complete layout, including any border or background you add.',
+      ),
+      h('Questions to settle before sharing'),
+      h('Do QR codes expire?', 3),
+      p(
+        'The static codes created by Folio’s standalone generator have no Folio expiry. The destination can still disappear, change permissions, or stop loading. A code pointing to a short link also depends on that saved link and its redirect service. Deleting a Folio short link stops its QR code from reaching the destination.',
+      ),
+      h('Can I change a QR code after printing it?', 3),
+      p(
+        'You cannot change the information in a printed pattern. You can update a webpage at the same address, or change the destination behind an editable redirect. If your code points directly to the wrong address, you will need a replacement image and new printed copies.',
+      ),
+      h('Does a QR code work without internet?', 3),
+      p(
+        'A compatible reader can decode the pattern without an internet connection. Opening the website it contains normally needs one. Plain-text codes contain the message itself; Wi-Fi codes contain network details, though joining still depends on a compatible device and an available network.',
+      ),
+      h('Can I see how many people scanned my code?', 3),
+      p(
+        'Folio does not currently provide scan counts or short-link click analytics. If you manage a website with analytics, you can use campaign parameters on the destination URL to help identify resulting visits. Those visits are not the same measurement as every scan.',
+      ),
+      p(
+        'Before ordering a stack of signs, print one. Scan it with two phones, open the destination while signed out, and ask someone unfamiliar with the layout to try it. That small rehearsal is far cheaper than replacing a batch of menus. When the link is ready, ',
+        link('create your QR code', '/create-qr-code'),
+        ' or read ',
+        link('how to shorten a URL and manage its destination', '/blog/how-to-shorten-a-url'),
+        ' if you need more flexibility.',
+      ),
+    ],
+  ),
+  article(
+    'fa48b3ab-2458-4da1-b98b-517e8bbde108',
+    {
+      title: 'How to Shorten a URL: Free Links, Custom Aliases, and QR Codes',
+      slug: 'how-to-shorten-a-url',
+      excerpt:
+        'Make long links easier to share and find again. A practical guide to free URL shortening, choosing a useful custom alias, saving links, and updating QR destinations.',
+      category: 'URL shortener',
+      tags: [
+        'URL shortener',
+        'Free URL shortener',
+        'Link shortener',
+        'Custom short links',
+        'QR codes',
+      ],
+      cover:
+        'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=1600&q=85',
+      coverAlt: 'A person in a mustard sweater works on a laptop at a wooden table.',
+      seoTitle: 'How to Shorten a URL: Free Links, Custom Aliases & QR Codes',
+      seoDescription:
+        'Learn how to shorten a URL, save links, and download QR codes. See Folio’s free limits, Pro custom aliases, editable destinations, and practical sharing tips.',
+      featured: false,
+    },
+    {
+      id: 'Hcfwew744z4',
+      photographer: 'Christin Hume',
+      page: 'https://unsplash.com/photos/person-using-laptop-computer-Hcfwew744z4',
+    },
+    [
+      p(
+        'You paste an event registration link into an invitation and it takes up three lines. The address contains a form ID, several parameters, and nothing a guest could comfortably type from a poster. A short link can give that address a tidier way to travel.',
+      ),
+      p(
+        'To shorten a URL in Folio, sign in, open the URL Shortener, paste your destination, and select Shorten link. The result is saved to your account, ready to copy or turn into a QR code. Free accounts can keep up to 10 saved links; Pro adds custom aliases, editable destinations, and room for 1,000.',
+      ),
+      p(
+        'The useful question is what happens after you share it. Can you find the link next month? Will you need to change where it goes? Is the address clear enough for someone reading it off a slide? Those choices determine whether a basic free link is enough.',
+      ),
+      h('What is a URL shortener, and how does it work?'),
+      p(
+        'A URL shortener saves a destination address and gives it another address on the shortening service. When someone opens the new link, the service redirects their browser to the destination. The original page stays where it is; the shortener keeps the connection between the two addresses.',
+      ),
+      p(
+        'For example, a Pro custom alias might give a Folio link the ending /s/autumn-workshop. That is an illustrative alias, subject to availability. The actual link includes Folio’s full domain before that path. It can be easier to read than a long registration URL, although an already brief original address may be shorter than the generated link.',
+      ),
+      p(
+        'A short link is useful in a message, presentation, handout, or QR code. In an ordinary website paragraph, a descriptive text link such as “Register for the workshop” may already solve the presentation problem. Shortening is most useful when you also want a saved link, a recognizable alias, or a destination you can update.',
+      ),
+      h('How to shorten a URL for free in Folio'),
+      p('Open the ', link('URL Shortener', '/url-shortener'), ' and follow these steps:'),
+      list(
+        [
+          'Sign in to your Folio account. The shortener saves links to accounts, including free accounts; guest access does not create saved short links.',
+          'Paste the original address into Destination URL. Open it separately first to check that it reaches the intended page.',
+          'Add an optional Title, such as “October workshop registration,” so you can recognize it in your list later.',
+          'Leave Custom alias blank for a generated alias. If you have Pro, you can choose an available custom alias instead.',
+          'Select Shorten link, then Copy link. Open the copied address in a fresh tab and check the destination.',
+          'Use Open My links to return to your saved collection. You can search by title, alias, or destination.',
+        ],
+        true,
+      ),
+      p(
+        'Use the original destination rather than a link that has already been shortened. Extra redirects make it harder to work out where a failure happens. Folio also prevents you from using another Folio short-link address as the destination.',
+      ),
+      p(
+        'For public sharing, check the destination while signed out of its website. A short link to a private form or file still leads to a private form or file. Your Folio link list belongs to your account, but anyone who receives an active short link can follow it; the destination’s own access rules then apply.',
+      ),
+      h('Free URL shortener vs. Pro: what do you need?'),
+      table(
+        ['Feature', 'Folio Free', 'Folio Pro'],
+        [
+          ['Saved short links', 'Up to 10', 'Up to 1,000'],
+          ['Automatically generated aliases', 'Included', 'Included'],
+          ['Choose a custom alias', 'Not included', 'Included'],
+          ['Edit the destination of an existing link', 'Not included', 'Included'],
+          ['Edit titles and search saved links', 'Included', 'Included'],
+          ['Download a short link’s QR code as PNG or SVG', 'Included', 'Included'],
+        ],
+      ),
+      p(
+        'The limits refer to saved links, not a new monthly allowance. A free account is a useful fit for a small collection of stable destinations. Pro becomes useful when you manage more links, want a readable alias, or need to change a destination after sharing. See the ',
+        link('current pricing plans', '/pricing'),
+        ' for subscription details.',
+      ),
+      h('Choose a custom alias you can live with'),
+      p(
+        'An alias is the ending of your short link. Your optional title helps you organize the link inside Folio; changing that title does not change the shared address. A custom alias gives the address itself a name you choose.',
+      ),
+      p(
+        'Folio Pro aliases use 3–48 lowercase letters, numbers, or hyphens, and must start and end with a letter or number. They must also be available. Once created, an alias cannot be changed or reused, even after you delete the link, so check the spelling before saving.',
+      ),
+      list([
+        'Use a clear purpose: team-handbook tells someone more than document-final-2.',
+        'Include a date when the link belongs to one event: workshop-october-2026 can distinguish it from next year’s registration.',
+        'Leave dates out when the link should stay useful: lunch-menu suits a destination you plan to update regularly.',
+        'Keep sensitive details out of the alias. The short address is visible to anyone who receives it.',
+      ]),
+      p(
+        'A custom alias uses Folio’s domain. It does not give you a custom domain owned by your business. If using your own domain is a requirement, account for that when choosing a service; Folio does not currently offer a custom-domain setting.',
+      ),
+      h('Turn a short link into a QR code'),
+      p(
+        'After creating a link, choose Generate QR beside its details. Download PNG for a layout that accepts ordinary images, or SVG for a design workflow that supports vector graphics. Both options are available for free and Pro short links.',
+      ),
+      p(
+        'This QR code contains the saved short address. With Pro, you can edit the destination in My links and keep using the same QR image. Imagine a printed workshop poster whose registration form needs replacing: update the saved link, then scan the original poster to confirm that it opens the new form.',
+      ),
+      p(
+        'For a direct website, plain-text, or Wi-Fi code, you can also use the separate ',
+        link('free QR code generator', '/create-qr-code'),
+        ' without signing in. Read our ',
+        link('guide to creating a QR code for a link', '/blog/how-to-create-a-qr-code-for-a-link'),
+        ' for the static-versus-editable decision and checks before printing.',
+      ),
+      h('Keep campaign tracking on the destination URL'),
+      p(
+        'If you use website analytics, prepare the complete campaign URL before shortening it. For a workshop flyer, you might add utm_source=flyer, utm_medium=print, and utm_campaign=autumn_workshop to the destination. Paste that complete address into Folio so those parameters remain part of the saved destination.',
+      ),
+      p(
+        link(
+          'Google Analytics’ campaign URL guide',
+          'https://support.google.com/analytics/answer/10917952?hl=en',
+        ),
+        ' explains how campaign parameters identify referring sources and campaigns in reporting. They require the appropriate analytics setup on the destination. Keep your naming consistent so that two spellings of the same campaign do not split your reports.',
+      ),
+      p(
+        'Folio does not currently show click counts or QR scan analytics, and shortening a link does not install tracking on another website. Destination analytics can help you understand resulting visits; it should not be presented as a complete count of scans or clicks on the short link.',
+      ),
+      h('Keep your saved links useful after launch'),
+      p(
+        'Give each link a title you will recognize later. “Workshop registration — October 2026” is easier to find than “New link.” My links lets you search titles, aliases, and destinations, which helps when you remember the form service but not the name you gave the link.',
+      ),
+      p(
+        'When a campaign ends, check where its address still appears before removing it. Old emails, printed cards, and downloaded PDFs can keep circulating. Deleting a saved link permanently stops that short address and its QR code from working, and its alias stays reserved. With Pro, updating the destination to a useful follow-up page may be a better choice.',
+      ),
+      h('Questions about short links'),
+      h('Do Folio short links expire?', 3),
+      p(
+        'Folio does not assign an automatic expiry date to saved short links. That is not a promise that a link will work forever: deletion, account availability, the redirect service, and the destination website can all affect it. Recheck links attached to materials you continue distributing.',
+      ),
+      h('Can I change the destination after sharing?', 3),
+      p(
+        'Yes, with Folio Pro. Edit the saved link in My links, update Destination URL, and save. The short address and its QR code remain the same. Free accounts can edit the organizational title, but changing an existing destination requires Pro.',
+      ),
+      h('Does the person opening my link need a Folio account?', 3),
+      p(
+        'No. An active short link redirects visitors without a Folio sign-in. The page it leads to may still require its own account or access permission. Test that part from the recipient’s perspective before sharing.',
+      ),
+      h('Can I shorten a Google Form, PDF link, or social profile?', 3),
+      p(
+        'You can use a valid HTTP or HTTPS destination, including a form, a publicly shared document, or a social profile. Check its sharing settings first. A shortener cannot make a file stored only on your computer accessible online, or remove a website’s login requirement.',
+      ),
+      p(
+        'Start with one real link: the page you already send people most often. Give it a useful title, check it while signed out, and decide whether its destination is likely to change. Then ',
+        link('create your short link in Folio', '/url-shortener'),
+        ' and save the address you will actually share.',
       ),
     ],
   ),

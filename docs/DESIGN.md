@@ -35,6 +35,10 @@ Search controls use rounded outlines and an obvious focus state. Buttons size to
 
 Public footer copy, links, headings, and copyright text use `--text-control`, matching navbar link text at every viewport size.
 
+Shared pagination responds to its own container width. Use numbered pages when there is room, a separate navigation row with “Page X of Y” below 640px, and stacked record details below 360px. Keep controls at least 44px tall, allow long counts to wrap, and inset pagination inside cards; the blog manager footer has padding on every side.
+
+Skeletons use `--skeleton-base` and `--skeleton-highlight` for a muted neutral shimmer. Charcoal navigation, page headers, dashboard chrome, and the blog editor header inherit the dark skeleton tokens; orange primary actions use a subtle orange-and-charcoal mix. Use the shared `Skeleton` component for placeholders, including font results. Admin loading fields use the same color tokens, and all skeleton animation stops when reduced motion is requested.
+
 Public page introductions use `page-heading` inside a `with-page-heading` main. Match the landing page's full-width charcoal background, left-aligned bold Manrope title, orange eyebrow and title emphasis, and muted description. Keep breadcrumbs and article metadata inside the dark introduction. Use `page-heading--article` for long editorial titles and `page-heading--workspace` for compact dashboard and admin introductions. Working editor headers keep their compact charcoal controls. Preserve the existing logo.
 
 The empty PDF workspace uses `EditorWelcome`: a charcoal introduction, a primary upload card, a separate sample-document card, and a short overview of the editing tools. Stack the cards on mobile and scroll the content below the persistent header. Show tools and file navigation until a document opens, then show the document name, save, and download controls. Keep the existing upload validation, sample generation, and cloud-file sign-in route.
@@ -42,6 +46,8 @@ The empty PDF workspace uses `EditorWelcome`: a charcoal introduction, a primary
 The pricing page uses aligned Free and Pro cards, with a charcoal Pro header, orange action, storage/link summaries, and grouped feature lists. Keep prices, renewal details, and actions aligned on desktop; stack the complete cards on mobile. Show full billing terms beneath the comparison. Page styles live in `pricing.module.css`. The download dialog uses `pricing-compact.module.css` for the same charcoal Pro summary, storage/link allowances, and visible billing terms in a compact layout. Its header and footer stay visible while the body scrolls; sign-in and checkout still open separately from the document.
 
 The account sign-in page pairs a neutral workspace overview with a white form panel. Put sign-in first on mobile, give the guest option its own inset panel with the storage and expiry details, and keep Google and email actions equally easy to read. The dashboard's guest billing and settings cards follow the same split layout and show the 100 MB allowance and 24-hour expiry. These surfaces share the `panel` variant in `sign-in-form.module.css`; other embedded forms keep their existing layouts. Retain the shared form's loading, error, email confirmation, and redirect behavior.
+
+Blog cards use inset landscape covers, a category label and reading time, full article titles, and a three-line excerpt. Keep author, publication date, and likes in an aligned footer with an arrow to open the article. Each card is one keyboard-accessible link named by its title. Loading cards follow the same proportions, and hover effects respect reduced motion.
 
 ## Verification
 

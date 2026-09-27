@@ -1,4 +1,5 @@
 .pagination {
+  container-name: pagination;
   container-type: inline-size;
   display: flex;
   flex-wrap: wrap;
@@ -26,32 +27,42 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+  max-width: 100%;
 }
 .pageSize {
-  width: 132px;
+  width: 148px;
+  max-width: 100%;
+  flex-shrink: 0;
 }
 .pageSize :global(.dropdown-field) {
   margin: 0;
 }
 .pageSize :global(.dropdown-trigger) {
-  min-height: 36px;
-  height: 36px;
-  padding: 0 10px;
+  min-height: 44px;
+  height: 44px;
+  padding: 0 12px;
   font-size: var(--text-label);
 }
 .controls,
 .number {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+}
+.controls {
+  flex-wrap: wrap;
+  max-width: 100%;
+  margin-inline-start: auto;
 }
 .pagination .control {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  width: 36px;
-  height: 36px;
-  padding: 0;
+  min-width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  padding: 0 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
@@ -79,13 +90,33 @@
 .compact {
   display: none;
 }
-@container (max-width: 520px) {
+@container pagination (max-width: 640px) {
+  .details,
+  .controls {
+    width: 100%;
+    justify-content: space-between;
+  }
   .number {
     display: none;
   }
   .compact {
-    display: inline;
+    display: block;
+    flex: 1;
+    min-width: 0;
     padding: 0 6px;
-    white-space: nowrap;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+}
+@container pagination (max-width: 360px) {
+  .details {
+    justify-content: center;
+  }
+  .summary,
+  .pageSize {
+    width: 100%;
+  }
+  .summary {
+    text-align: center;
   }
 }

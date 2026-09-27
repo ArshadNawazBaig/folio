@@ -325,18 +325,20 @@ function PostManager() {
             </div>
           )}
           {!error && (
-            <Pagination
-              page={page}
-              pageSize={pageSize}
-              onPageSizeChange={(size) => {
-                setPageSize(size);
-                setPage(1);
-              }}
-              total={total}
-              onChange={setPage}
-              disabled={loading || busy}
-              label="Posts pagination"
-            />
+            <div className={s.listFooter}>
+              <Pagination
+                page={page}
+                pageSize={pageSize}
+                onPageSizeChange={(size) => {
+                  setPageSize(size);
+                  setPage(1);
+                }}
+                total={total}
+                onChange={setPage}
+                disabled={loading || busy}
+                label="Posts pagination"
+              />
+            </div>
           )}
         </section>
       </main>

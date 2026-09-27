@@ -16,6 +16,7 @@ if (args.some((arg) => !['--check', '--drafts', '--publish'].includes(arg)) || a
 
 const allowedPaths = new Set([
   '/convert',
+  '/pricing',
   ...tools.map((tool) => `/${tool.slug}`),
   ...starterPosts.map((post) => `/blog/${post.draft.slug}`),
 ]);

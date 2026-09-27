@@ -19,6 +19,10 @@
   --radius: 9px;
   --surface: #fff;
   --surface-muted: #eeeeec;
+  --skeleton-base: #e3e3df;
+  --skeleton-highlight: #f1f1ee;
+  --skeleton-dark-base: #353535;
+  --skeleton-dark-highlight: #484848;
   --notice-background: #f7f7f6;
   --notice-border: #dededb;
   --dialog-radius: 12px;
@@ -198,6 +202,8 @@ img {
   transform: translateY(-1px);
 }
 .button.primary {
+  --skeleton-base: color-mix(in srgb, var(--accent) 82%, var(--ink));
+  --skeleton-highlight: color-mix(in srgb, var(--accent) 94%, var(--ink));
   background: var(--accent);
   color: var(--charcoal);
   font-weight: 800;
@@ -2001,6 +2007,14 @@ dialog::backdrop {
 .pdf-canvas canvas {
   display: block;
 }
+.site-header,
+.editor-header,
+.admin-sidebar,
+.page-heading,
+.button.dark {
+  --skeleton-base: var(--skeleton-dark-base);
+  --skeleton-highlight: var(--skeleton-dark-highlight);
+}
 .pdf-page-skeleton {
   position: absolute;
   inset: 0;
@@ -2062,11 +2076,12 @@ dialog::backdrop {
   fieldset
   :is(input:not([type='checkbox']), textarea, .dropdown-trigger) {
   color: transparent;
-  background: linear-gradient(
+  background-color: var(--skeleton-base);
+  background-image: linear-gradient(
     100deg,
-    var(--surface-muted) 20%,
-    var(--paper) 48%,
-    var(--surface-muted) 76%
+    var(--skeleton-base) 20%,
+    var(--skeleton-highlight) 48%,
+    var(--skeleton-base) 76%
   );
   background-size: 240% 100%;
   animation: skeleton-field-shimmer 1.8s ease-in-out infinite;
@@ -4044,12 +4059,6 @@ dialog::backdrop {
   display: grid;
   gap: 24px;
   padding: 18px 12px;
-}
-.font-library-loading span {
-  height: 22px;
-  width: 70%;
-  border-radius: 4px;
-  background: var(--surface-muted);
 }
 .canvas-bottom-space {
   height: 40px;

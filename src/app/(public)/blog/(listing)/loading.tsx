@@ -21,15 +21,28 @@ export default function Loading() {
       <div className={s.postGrid}>
         {Array.from({ length: PAGE_SIZE }, (_, i) => (
           <article key={i} className={s.postCard}>
-            <Skeleton height={220} />
+            <div className={s.cardCover}>
+              <Skeleton height="100%" />
+            </div>
             <div className={s.cardBody}>
-              <Skeleton width="50%" height={10} />
+              <div className={s.cardDetails}>
+                <Skeleton width={105} height={27} radius={5} />
+                <Skeleton width={85} height={13} />
+              </div>
               <h2>
                 <Skeleton height={60} />
               </h2>
               <p>
-                <Skeleton height={36} />
+                <Skeleton height={78} />
               </p>
+              <div className={s.cardMeta}>
+                <div className={s.cardByline}>
+                  <Skeleton width={110} height={13} />
+                  <Skeleton width={85} height={12} />
+                </div>
+                <Skeleton width={30} height={13} />
+                <Skeleton width={36} height={36} radius="50%" />
+              </div>
             </div>
           </article>
         ))}
