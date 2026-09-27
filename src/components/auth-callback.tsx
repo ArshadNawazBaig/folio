@@ -72,8 +72,12 @@ export function AuthCallback() {
     );
   }, []);
   return (
-    <div className="account-card">
-      <h1>{signedIn ? 'You’re signed in.' : 'Welcome back.'}</h1>
+    <>
+      <header className="page-heading">
+        <span className="eyebrow">YOUR FOLIO ACCOUNT</span>
+        <h1>{signedIn ? <>You’re <em>signed in.</em></> : <>Welcome <em>back.</em></>}</h1>
+      </header>
+      <div className="account-card">
       {signedIn ? (
         <>
           <p role="status">Return to your document tab to continue. Your edits have stayed open.</p>
@@ -105,6 +109,7 @@ export function AuthCallback() {
       ) : (
         <p role="status">Finishing your sign-in…</p>
       )}
-    </div>
+      </div>
+    </>
   );
 }

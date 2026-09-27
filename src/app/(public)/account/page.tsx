@@ -14,7 +14,7 @@ export default async function Account({
 }) {
   const query = await searchParams;
   return (
-    <main id="main" className="container account-page">
+    <main id="main" className="container account-page with-page-heading">
       <AccountPanel
         destination={safeAuthDestination(query.next)}
         adminRequired={query.notice === 'admin-required'}

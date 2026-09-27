@@ -10,8 +10,8 @@ export const metadata = pageMetadata(
 );
 export default function FormsPage() {
   return (
-    <main id="main" className="container forms-page">
-      <div className="directory-heading">
+    <main id="main" className="container forms-page with-page-heading">
+      <div className="directory-heading page-heading">
         <span className="eyebrow">LET’S FILL IN THE BLANKS</span>
         <h1>
           A better way

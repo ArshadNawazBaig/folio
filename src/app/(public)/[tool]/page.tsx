@@ -38,7 +38,7 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
   const related = relatedTools(t, catalog);
   const reading = guidesForTool(t.slug);
   return (
-    <main id="main" className="tool-page container">
+    <main id="main" className="tool-page container with-page-heading">
       <StructuredData
         data={breadcrumbSchema([
           { name: 'Home', path: '/' },
@@ -64,6 +64,8 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           }}
         />
       )}
+
+      <div className="tool-page-heading page-heading">
       <nav className="breadcrumbs" aria-label="Breadcrumb">
         <Link href="/">Home</Link>
         <ChevronRight size={12} />
@@ -71,7 +73,6 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
         <ChevronRight size={12} />
         <span aria-current="page">{t.name}</span>
       </nav>
-      <div className="tool-page-heading">
         <span className={`tool-icon ${t.color}`}>
           <ToolIcon name={t.icon} size={28} />
         </span>

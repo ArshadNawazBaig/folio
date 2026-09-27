@@ -110,7 +110,7 @@ function LoadEditor({ id }: { id: string }) {
       <main id="main" className={s.editor} aria-busy="true">
         <LoadingLabel>Opening your post…</LoadingLabel>
         <header className={s.editorHeader}>
-          <Logo />
+          <Logo light />
           <Skeleton width={180} height={16} />
         </header>
         <div className={s.toolbar}>
@@ -408,7 +408,7 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
       <h1 className="sr-only">Post editor</h1>
       <header className={s.editorHeader}>
         <div className={s.editorBrand}>
-          <Logo />
+          <Logo light />
           <span />
           <Link
             href="/admin/blog"

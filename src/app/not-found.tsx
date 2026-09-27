@@ -6,7 +6,8 @@ export default function NotFound() {
   return (
     <>
       <Header />
-      <main id="main" className="not-found">
+      <main id="main" className="container with-page-heading">
+        <header className="page-heading">
         <span className="eyebrow">404 / A PAGE OUT OF PLACE</span>
         <h1>
           Let’s find
@@ -17,6 +18,7 @@ export default function NotFound() {
         <Link href="/tools" className="button primary">
           Explore the tools <ArrowRight size={17} />
         </Link>
+        </header>
       </main>
       <Footer />
     </>

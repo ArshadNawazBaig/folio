@@ -226,7 +226,7 @@ test('guest dashboard uploads, restores edited files, downloads, renames and exp
   await page.goto('/');
   await page.reload();
   await expect(header.getByRole('link', { name: 'Dashboard', exact: true })).toBeVisible();
-  await expect(header.locator('a')).toHaveCount(1);
+  await expect(header.locator('a.header-account')).toHaveCount(1);
   await expect(header.getByRole('link', { name: 'Sign in', exact: true })).toHaveCount(0);
   for (const width of [1440, 1150, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 960 });

@@ -13,13 +13,16 @@ export const metadata = pageMetadata(
 export default async function Maintenance() {
   const { settings } = await getPlatform().catch(() => ({ settings: DEFAULT_SETTINGS }));
   return (
-    <main id="main" className="container account-page">
+    <main id="main" className="container account-page with-page-heading">
+      <header className="page-heading">
+        <span className="eyebrow">A LITTLE MAINTENANCE</span>
+        <h1>A little care <em>behind the scenes.</em></h1>
+        <p>{settings.maintenanceMessage}</p>
+      </header>
       <div className="account-card">
         <span className="account-symbol">
           <Wrench size={28} />
         </span>
-        <h1>A little care behind the scenes.</h1>
-        <p>{settings.maintenanceMessage}</p>
         <Link className="button primary" href="/support">
           Contact support <ArrowRight size={16} />
         </Link>

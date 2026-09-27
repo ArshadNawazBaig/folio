@@ -8,9 +8,9 @@
   padding: 0;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: #fffdf9;
+  background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 28px 100px #20252230;
+  box-shadow: 0 28px 100px #19191930;
   overflow: hidden;
 }
 .dialog[open] {
@@ -18,7 +18,7 @@
   flex-direction: column;
 }
 .dialog::backdrop {
-  background: #20252280;
+  background: #19191980;
   backdrop-filter: blur(5px);
 }
 .header {
@@ -33,12 +33,12 @@
   min-width: 0;
 }
 .header h2 {
-  font: 400 30px/1.2 var(--serif);
+  font: 750 28px/1.2 var(--sans);
   letter-spacing: -0.035em;
   margin: 0 0 6px;
 }
 .header p {
-  font-size: 12px;
+  font-size: var(--text-body);
   margin: 0;
 }
 .header > button {
@@ -51,8 +51,8 @@
   height: 48px;
   flex-shrink: 0;
   border-radius: 13px;
-  background: #eaf0e1;
-  color: #587346;
+  background: var(--accent-soft);
+  color: var(--accent-text);
 }
 .tabs {
   display: flex;
@@ -70,13 +70,13 @@
   padding: 13px 20px;
   color: var(--muted);
   border-bottom: 3px solid transparent;
-  font-size: 13px;
+  font-size: var(--text-control);
   font-weight: 600;
 }
 .tabs > button[aria-selected='true'] {
-  color: #47613a;
-  background: linear-gradient(transparent, #eaf0e170);
-  border-bottom-color: #809567;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  border-bottom-color: var(--accent);
 }
 .tabs > button:hover {
   color: var(--ink);
@@ -106,7 +106,7 @@
 }
 .options p {
   margin: 0;
-  font-size: 11px;
+  font-size: var(--text-body);
 }
 .colors {
   display: flex;
@@ -119,14 +119,14 @@
   place-items: center;
   width: 30px;
   height: 30px;
-  border: 3px solid #fffdf9;
+  border: 3px solid var(--surface);
   border-radius: 50%;
   outline: 1px solid var(--border);
   background: var(--signature-color);
   color: white;
 }
 .colors > button[aria-pressed='true'] {
-  outline: 2px solid #839767;
+  outline: 2px solid var(--accent-text);
 }
 .colors > button:focus-visible {
   outline: 2px solid var(--accent);
@@ -135,7 +135,7 @@
 .pad {
   position: relative;
   width: 100%;
-  border: 1px dashed #bfc7b4;
+  border: 1px dashed var(--border-strong);
   border-radius: 12px;
   background: white;
   overflow: hidden;
@@ -165,17 +165,17 @@
   justify-content: center;
   gap: 12px;
   pointer-events: none;
-  color: #758268;
+  color: #737373;
 }
 .empty span {
-  font-size: 13px;
+  font-size: var(--text-control);
 }
 .baseline {
   position: absolute;
   left: 9%;
   right: 9%;
   bottom: 24%;
-  border-bottom: 1px solid #e7e9e2;
+  border-bottom: 1px solid var(--surface-muted);
   pointer-events: none;
 }
 .padActions {
@@ -190,16 +190,16 @@
   align-items: center;
   gap: 7px;
   padding: 7px 0;
-  color: #47613a;
-  font-size: 12px;
+  color: var(--muted);
+  font-size: var(--text-label);
   font-weight: 600;
   min-height: 36px;
 }
 .textButton:hover:not(:disabled) {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 .hint {
-  font-size: 10px;
+  font-size: var(--text-caption);
   margin: 0;
 }
 .uploadPad {
@@ -210,10 +210,10 @@
 }
 .uploadPad:has(img) {
   background-image:
-    linear-gradient(45deg, #f1f2ed 25%, transparent 25%),
-    linear-gradient(-45deg, #f1f2ed 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #f1f2ed 75%),
-    linear-gradient(-45deg, transparent 75%, #f1f2ed 75%);
+    linear-gradient(45deg, var(--surface-muted) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--surface-muted) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--surface-muted) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--surface-muted) 75%);
   background-size: 16px 16px;
   background-position:
     0 0,
@@ -227,8 +227,8 @@
   object-fit: contain;
 }
 .dragging {
-  border-color: #809567;
-  background-color: #f2f6eb;
+  border-color: #737373;
+  background-color: var(--paper);
 }
 .uploadEmpty {
   display: flex;
@@ -243,16 +243,16 @@
   display: grid;
   place-items: center;
   border-radius: 12px;
-  background: #edf1e7;
-  color: #587346;
+  background: var(--surface-muted);
+  color: var(--muted);
   margin-bottom: 6px;
 }
 .uploadEmpty strong {
-  font-size: 14px;
+  font-size: var(--text-body);
   font-weight: 600;
 }
 .uploadEmpty > span:not(.uploadIcon) {
-  font-size: 11px;
+  font-size: var(--text-small);
   color: var(--muted);
 }
 .uploadEmpty > button {
@@ -269,16 +269,16 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--text-label);
   cursor: pointer;
 }
 .imageActions input {
   width: 16px;
   height: 16px;
-  accent-color: #587346;
+  accent-color: var(--muted);
 }
 .fileName {
-  font-size: 11px;
+  font-size: var(--text-small);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -287,21 +287,21 @@
 .nameInput {
   display: grid;
   gap: 7px;
-  font-size: 12px;
+  font-size: var(--text-label);
   font-weight: 600;
 }
 .nameInput input {
   width: 100%;
-  border: 1px solid #d7ddcd;
+  border: 1px solid var(--border);
   background: white;
   border-radius: 8px;
   padding: 12px 14px;
-  font-size: 15px;
+  font-size: var(--text-input);
   font-weight: 400;
   color: var(--ink);
 }
 .nameInput input::placeholder {
-  color: #858b7e;
+  color: #737373;
 }
 .styles {
   display: flex;
@@ -317,13 +317,13 @@
   border: 1px solid var(--border);
   border-radius: 7px;
   padding: 8px 14px;
-  font-size: 12px;
+  font-size: var(--text-label);
   min-height: 38px;
 }
 .styles > button[aria-pressed='true'] {
-  border-color: #a5b58f;
-  background: #edf2e6;
-  color: #47613a;
+  border-color: #737373;
+  background: var(--surface-muted);
+  color: var(--muted);
 }
 .typePad {
   display: grid;
@@ -343,7 +343,7 @@
   border: 1px solid #efc6b9;
   padding: 11px 13px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: var(--text-label);
   margin: 16px 0 0;
 }
 .footer {
@@ -356,7 +356,7 @@
   border-top: 1px solid var(--border);
 }
 .footer p {
-  font-size: 11px;
+  font-size: var(--text-body);
   margin: 0;
 }
 .footer > div {
@@ -366,7 +366,7 @@
 .dialog :global(.button) {
   min-height: 43px;
   padding: 10px 18px;
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 @media (max-width: 600px) {
   .dialog {
@@ -382,7 +382,7 @@
     font-size: 24px;
   }
   .header p {
-    font-size: 10px;
+    font-size: var(--text-body);
   }
   .symbol {
     width: 39px;
@@ -407,7 +407,7 @@
     margin-bottom: 16px;
   }
   .options p {
-    font-size: 11px;
+    font-size: var(--text-body);
   }
   .drawPad {
     height: 220px;
@@ -426,7 +426,7 @@
   .styles > button {
     flex: 1;
     padding: 8px;
-    font-size: 11px;
+    font-size: var(--text-small);
   }
   .typePad {
     min-height: 150px;

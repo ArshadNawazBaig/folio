@@ -3,9 +3,9 @@ import { Skeleton, LoadingLabel } from '@/components/skeleton';
 import s from '@/components/blog/blog.module.css';
 export default function Loading() {
   return (
-    <main id="main" className={s.journal} aria-busy="true">
+    <main id="main" className={`${s.journal} with-page-heading`} aria-busy="true">
       <LoadingLabel>Loading the journal…</LoadingLabel>
-      <header className={s.journalHero}>
+      <header className={`${s.journalHero} page-heading`}>
         <Skeleton width={150} height={10} />
         <div className={s.heroPlaceholder} aria-hidden="true">
           <Skeleton width="45%" height={76} />

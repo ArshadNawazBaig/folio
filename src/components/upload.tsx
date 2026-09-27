@@ -1,6 +1,6 @@
 'use client';
 import { useRef, useState } from 'react';
-import { Upload, ArrowUpRight, Loader2, ShieldCheck, FileUp } from 'lucide-react';
+import { Upload, ArrowUpRight, Loader2, FileUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { setPendingDocument } from '@/lib/storage';
 import { MAX_FILE_SIZE, friendlyError } from '@/lib/utils';
@@ -74,6 +74,8 @@ export function HomeUpload() {
   const router = useRouter();
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [over, setOver] = useState(false);
+  const input = useRef<HTMLInputElement>(null);
   async function open(files: File[]) {
     const f = files[0];
     if (!f) return;
@@ -90,19 +92,54 @@ export function HomeUpload() {
     }
   }
   return (
-    <div className="hero-upload">
-      <UploadArea onFiles={open} compact busy={busy} />
+    <div className="home-upload">
+      <div
+        className={`home-upload-bar ${over ? 'drag-over' : ''}`}
+        onDragOver={(event) => {
+          event.preventDefault();
+          if (!busy) setOver(true);
+        }}
+        onDragLeave={() => setOver(false)}
+        onDrop={(event) => {
+          event.preventDefault();
+          setOver(false);
+          if (!busy) void open(Array.from(event.dataTransfer.files));
+        }}
+        aria-busy={busy}
+      >
+        <FileUp size={36} className="home-upload-icon" strokeWidth={1.5} aria-hidden="true" />
+        <div className="home-upload-copy">
+          <strong>Drop your PDF and get started</strong>
+          <span>Drag a file here, or choose one from your device. Up to 50 MB.</span>
+        </div>
+        <button
+          type="button"
+          className="button primary"
+          disabled={busy}
+          onClick={() => input.current?.click()}
+        >
+          {busy ? <Loader2 size={18} className="spin" aria-hidden="true" /> : null}
+          {busy ? 'Opening document…' : 'Choose a PDF'}
+          {!busy && <ArrowUpRight size={18} aria-hidden="true" />}
+        </button>
+        <input
+          ref={input}
+          type="file"
+          accept="application/pdf,.pdf"
+          disabled={busy}
+          hidden
+          aria-label="Choose document files"
+          onChange={(event) => {
+            if (!busy && event.target.files) void open(Array.from(event.target.files));
+            event.target.value = '';
+          }}
+        />
+      </div>
       {error && (
         <p className="error-message" role="alert">
           {error}
         </p>
       )}
-      <div className="upload-assurance">
-        <ShieldCheck size={14} />
-        <span>Private upload. Your work saves automatically.</span>
-        <span className="small-dot">·</span>
-        <span>No sign-up needed.</span>
-      </div>
     </div>
   );
 }

@@ -17,7 +17,7 @@
 }
 .intro p,
 .rows dd {
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 1.8;
   color: var(--muted);
 }
@@ -25,7 +25,7 @@
   margin: 0 0 18px;
 }
 .facts a {
-  font-size: 13px;
+  font-size: var(--text-control);
   text-decoration: underline;
   text-underline-offset: 4px;
 }
@@ -44,7 +44,7 @@
 }
 .rows dt {
   padding-top: 3px;
-  font-size: 12px;
+  font-size: var(--text-label);
   font-weight: 600;
 }
 .rows dd {

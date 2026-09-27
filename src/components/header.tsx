@@ -10,13 +10,17 @@ import { SiteAnnouncement } from './site-announcement';
 import { useAccount } from './account-provider';
 import { Skeleton, LoadingLabel } from './skeleton';
 const nav = [
+  ['PDF tools', '/tools'],
+  ['Pricing', '/pricing'],
+  ['Guides', '/guides'],
+  ['Blog', '/blog'],
+];
+const mobileNav = [
+  ...nav,
   ['Edit PDF', '/edit-pdf'],
   ['Convert', '/convert'],
   ['Forms', '/forms'],
   ['Translate PDF', '/translate-pdf'],
-  ['All tools', '/tools'],
-  ['Pricing', '/pricing'],
-  ['Blog', '/blog'],
 ];
 export function Header() {
   const { user, guest, loading, guestLoading } = useAccount();
@@ -62,7 +66,7 @@ export function Header() {
       <SiteAnnouncement />
       <header className="site-header">
         <div className="header-inner">
-          <Logo />
+          <Logo light />
           <nav aria-label="Main navigation" className="desktop-nav">
             {nav.map(([label, href]) => (
               <Link
@@ -104,6 +108,9 @@ export function Header() {
                 <ArrowUpRight size={15} aria-hidden="true" />
               </Link>
             )}
+            <Link prefetch={false} href="/workspace" className="button header-editor-link">
+              Open editor <ArrowUpRight size={15} aria-hidden="true" />
+            </Link>
             <button
               className="icon-button mobile-menu"
               aria-label={menu ? 'Close navigation' : 'Open navigation'}
@@ -116,7 +123,7 @@ export function Header() {
         </div>
         {menu && (
           <nav className="mobile-nav" aria-label="Mobile navigation">
-            {nav.map(([label, href]) => (
+            {mobileNav.map(([label, href]) => (
               <Link prefetch={false} key={href} href={href} onClick={() => setMenu(false)}>
                 {label}
                 <ChevronRight size={17} />

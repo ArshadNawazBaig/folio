@@ -25,18 +25,23 @@ export function AccountPanel({
       );
   }, [user, loading, access.admin, adminRequired, destination, router]);
   return (
-    <div className="account-card">
+    <>
+      <header className="page-heading">
+        <span className="eyebrow">YOUR FOLIO ACCOUNT</span>
+        <h1>{destination === '/admin' ? 'Your control room awaits.' : <>Welcome to <em>Folio.</em></>}</h1>
+        <p>Your files, billing, and settings, together in one place.</p>
+      </header>
+      <div className="account-card">
       <span className="account-symbol">
         <Mail size={25} />
       </span>
-      <h1>{destination === '/admin' ? 'Your control room awaits.' : 'Welcome to Folio.'}</h1>
       {loading || user ? (
         <SignInSkeleton description />
       ) : (
         <>
           <p>
             {configured
-              ? 'Your files, billing, and settings, together in one place. Sign in or create an account.'
+              ? 'Sign in or create an account.'
               : 'Accounts and purchases are not connected yet. You can still explore the text editor sample and use the available tools.'}
           </p>
           {destination === '/admin' && (
@@ -57,6 +62,7 @@ export function AccountPanel({
           {error}
         </p>
       )}
-    </div>
+      </div>
+    </>
   );
 }

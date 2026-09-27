@@ -53,14 +53,14 @@ for (const width of [1440, 390]) {
       await expect(page.locator('.header-account[aria-busy="true"]')).toHaveCount(0);
       await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
       await fitsPage(page);
-      if (['/support', '/pricing', '/account', '/protect-pdf'].includes(path)) {
+      if (['/', '/tools', '/support', '/pricing', '/account', '/protect-pdf'].includes(path)) {
         expect(
           (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
             .violations,
           path,
         ).toEqual([]);
         await page.screenshot({
-          path: info.outputPath(`${path.slice(1)}-${width}.png`),
+          path: info.outputPath(`${path.slice(1) || 'home'}-${width}.png`),
           fullPage: true,
         });
       }
@@ -85,6 +85,36 @@ for (const width of [1440, 390]) {
     await expect(dialog).toBeHidden();
   });
 }
+
+test('design: home toolkit search, task filters and upload validation work on mobile', async ({
+  page,
+}) => {
+  await mockGoogle(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const toolkit = page.getByRole('region', { name: 'What would you like to do?' });
+  const search = toolkit.getByRole('searchbox', { name: 'Find a PDF tool' });
+  await search.fill('smaller');
+  await expect(toolkit.getByRole('link', { name: /^Compress PDF/ })).toBeVisible();
+  await expect(toolkit.getByRole('link', { name: /^Merge PDF/ })).toHaveCount(0);
+  await search.fill('a tool that does not exist');
+  await expect(toolkit.getByText('No tools found.', { exact: true })).toBeVisible();
+  await toolkit.getByRole('button', { name: 'Reset filters' }).click();
+  await expect(search).toHaveValue('');
+  await toolkit.getByRole('button', { name: 'Organize', exact: true }).click();
+  await expect(toolkit.getByRole('link', { name: /^Rotate PDF/ })).toBeVisible();
+  await expect(toolkit.getByRole('link', { name: /^Image to PDF/ })).toHaveCount(0);
+  await toolkit.getByRole('button', { name: 'Convert', exact: true }).click();
+  await expect(toolkit.getByRole('link', { name: /^Image to PDF/ })).toBeVisible();
+  await expect(toolkit.getByRole('link', { name: /^Merge PDF/ })).toHaveCount(0);
+  await page
+    .locator('.home-upload input[type="file"]')
+    .setInputFiles({ name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('Not a PDF') });
+  await expect(page.locator('.home-upload').getByRole('alert')).toContainText('Choose a PDF');
+  await fitsPage(page);
+  await toolkit.getByRole('link', { name: /^Image to PDF/ }).click();
+  await expect(page).toHaveURL(/\/image-to-pdf$/);
+});
 
 test('design: admin form notices, navigation and long confirmation dialogs remain consistent', async ({
   page,

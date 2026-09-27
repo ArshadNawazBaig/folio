@@ -48,7 +48,7 @@ export default async function BlogPost({ params }: Props) {
     .filter((tool) => tool.available && linkedTools.includes(tool.slug))
     .slice(0, 3);
   return (
-    <main id="main" className={s.article}>
+    <main id="main" className={`${s.article} with-page-heading`}>
       <StructuredData
         data={breadcrumbSchema([
           { name: 'Home', path: '/' },
@@ -74,13 +74,14 @@ export default async function BlogPost({ params }: Props) {
           keywords: post.tags.join(', '),
         }}
       />
-      <Link className={s.back} href="/blog">
+
+      <article>
+        <header className={`${s.articleHero} page-heading page-heading--article`}>
+      <Link className={`${s.back} page-heading-back`} href="/blog">
         <ArrowLeft size={16} />
         Back to the journal
       </Link>
-      <article>
-        <header className={s.articleHero}>
-          <Link className={s.eyebrow} href={`/blog?category=${encodeURIComponent(post.category)}`}>
+          <Link className={`${s.eyebrow} eyebrow`} href={`/blog?category=${encodeURIComponent(post.category)}`}>
             {post.category}
           </Link>
           <h1>{post.title}</h1>
@@ -164,7 +165,7 @@ export default async function BlogPost({ params }: Props) {
           )}
           <div className={s.readingCta}>
             <div>
-              <span className={s.eyebrow}>PUT IT INTO PRACTICE</span>
+              <span className={`${s.eyebrow} eyebrow`}>PUT IT INTO PRACTICE</span>
               <h2>Your next document starts here.</h2>
             </div>
             <Link prefetch={false} className="button primary" href="/edit-pdf">

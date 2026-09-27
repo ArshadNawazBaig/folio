@@ -10,7 +10,7 @@ export const metadata = pageMetadata(
 );
 export default function Guides() {
   return (
-    <main id="main" className="container guides-page">
+    <main id="main" className="container guides-page with-page-heading">
       <StructuredData
         data={breadcrumbSchema([
           { name: 'Home', path: '/' },
@@ -24,7 +24,7 @@ export default function Guides() {
           guides.map((g) => ({ name: g.title, path: `/guides/${g.slug}` })),
         )}
       />
-      <div className="directory-heading">
+      <div className="directory-heading page-heading">
         <span className="eyebrow">A LITTLE KNOW-HOW GOES A LONG WAY</span>
         <h1>
           Practical PDF guides.

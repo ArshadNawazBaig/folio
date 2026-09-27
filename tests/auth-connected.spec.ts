@@ -164,7 +164,7 @@ test('Google creates a PKCE session, uses the customer account, and signs out', 
   await page.goto('/');
   const header = page.locator('.header-actions');
   await expect(header.getByRole('link', { name: 'Dashboard', exact: true })).toBeVisible();
-  await expect(header.locator('a')).toHaveCount(1);
+  await expect(header.locator('a.header-account')).toHaveCount(1);
   await expect(header.getByRole('link', { name: 'Sign in', exact: true })).toHaveCount(0);
   await header.getByRole('link', { name: 'Dashboard', exact: true }).click();
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();

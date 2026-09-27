@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
         width: '100%',
         height: '100%',
         padding: '64px 76px',
-        background: '#f7f6f2',
-        color: '#202522',
+        background: '#191919',
+        color: '#f5f5f5',
         fontFamily: 'sans-serif',
       }}
     >
@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
           display: 'flex',
           maxWidth: 960,
           fontSize: title.length > 65 ? 62 : 76,
+          fontWeight: 700,
           lineHeight: 1.1,
           letterSpacing: '-3px',
         }}
@@ -37,13 +38,13 @@ export async function GET(request: NextRequest) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderTop: '1px solid #d9dcd3',
+          borderTop: '1px solid #454545',
           paddingTop: 26,
           fontSize: 22,
         }}
       >
         <span>Less paperwork. More possibility.</span>
-        <span style={{ color: '#c44934' }}>PDF tools, thoughtfully put together. ↗</span>
+        <span style={{ color: '#ff773d' }}>PDF tools, thoughtfully put together. ↗</span>
       </div>
     </div>,
     {

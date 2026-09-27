@@ -9,7 +9,8 @@ export const metadata = pageMetadata(
 
 export default function SecurityPage() {
   return (
-    <main id="main" className="container prose-page">
+    <main id="main" className="container prose-page with-page-heading">
+      <header className="page-heading">
       <span className="eyebrow">HELP KEEP DOCUMENTS PRIVATE</span>
       <h1>
         Report a <em>security issue.</em>
@@ -19,6 +20,7 @@ export default function SecurityPage() {
         <Link href="/support">support form</Link> and start the subject with “Security report”.
         Reports go to Folio’s administrators and are not published on the website.
       </p>
+      </header>
       <h2>What should your report include?</h2>
       <ol>
         <li>The affected page or feature and a short description of what happened.</li>

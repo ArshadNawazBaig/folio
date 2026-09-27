@@ -1,0 +1,249 @@
+.preview {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 10px 30px #1919190b;
+}
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 14px;
+  font-size: 10px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+}
+.titlebar > svg {
+  color: var(--accent-text);
+}
+.titlebar > span:first-of-type {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.saved {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.saved svg {
+  color: #386741;
+}
+.titlebar a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  background: var(--accent);
+  color: var(--ink);
+  padding: 7px 10px;
+  border-radius: 4px;
+  font-size: 9px;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  padding: 8px;
+}
+.toolbar a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 4px;
+  padding: 5px 7px;
+  font-size: 9px;
+}
+.toolbar .active,
+.toolbar a:hover {
+  background: var(--accent-soft);
+}
+.body {
+  display: flex;
+  min-height: 390px;
+  background: #ededed;
+}
+.thumbnails {
+  flex: 0 0 78px;
+  padding: 18px;
+  border-right: 1px solid var(--border);
+  background: #f6f6f6;
+}
+.thumbnails > div {
+  margin-bottom: 17px;
+  text-align: center;
+}
+.thumbnails small {
+  display: block;
+  margin-top: 7px;
+  font-size: 8px;
+  color: var(--muted);
+}
+.thumbnail {
+  aspect-ratio: 0.72;
+  padding: 8px 5px;
+  background: #fff;
+  border: 1px solid #ddd;
+}
+.thumbnail.selected {
+  outline: 1.5px solid var(--accent);
+  outline-offset: 3px;
+}
+.thumbnail b,
+.thumbnail i,
+.thumbnail span {
+  display: block;
+  height: 1px;
+  background: #d4d4d4;
+  margin-bottom: 3px;
+}
+.thumbnail b {
+  width: 65%;
+  height: 2px;
+  background: #777;
+  margin-bottom: 5px;
+}
+.thumbnail span {
+  height: 5px;
+  background: #ffe6d6;
+}
+.canvas {
+  min-width: 0;
+  flex: 1;
+  padding: 21px 30px 0;
+  max-height: 437px;
+  overflow: hidden;
+}
+.paper {
+  max-width: 360px;
+  min-height: 450px;
+  padding: 27px 28px;
+  margin: 0 auto;
+  background: #fff;
+  box-shadow: 0 2px 10px #1919190b;
+}
+.paperTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 6px;
+  letter-spacing: 1px;
+  font-weight: 700;
+  margin-bottom: 22px;
+}
+.paper h3 {
+  font-size: 23px;
+  letter-spacing: -0.045em;
+  font-weight: 800;
+  margin-bottom: 7px;
+}
+.paper p {
+  font-size: 8px;
+  line-height: 1.7;
+  color: #434343;
+  margin-bottom: 13px;
+}
+.paper .paperSubtitle {
+  color: #616161;
+  font-size: 8px;
+}
+.paper mark {
+  background: #ffe0c9;
+  padding: 2px;
+  color: #292929;
+}
+.paper h4 {
+  font-size: 9px;
+  margin: 18px 0 9px;
+}
+.scope {
+  display: grid;
+  grid-template-columns: 0.65fr 1fr;
+  font-size: 7px;
+  border: 1px solid #dedede;
+}
+.scope > * {
+  padding: 5px 6px;
+  border-bottom: 1px solid #e8e8e8;
+}
+.scope > strong {
+  background: #f3f3f3;
+  font-weight: 600;
+}
+.paper .signoff {
+  margin: 22px 0 10px;
+  font-size: 7px;
+}
+.signature {
+  display: block;
+  font-family: var(--font-dm-serif), Georgia, serif;
+  font-style: italic;
+  font-size: 24px;
+  letter-spacing: -0.8px;
+  transform: rotate(-4deg);
+  transform-origin: left center;
+}
+.signatureLine {
+  height: 1px;
+  background: #aaa;
+  width: 150px;
+  max-width: 100%;
+  margin: 7px 0;
+}
+.paper > small {
+  color: #555;
+  font-size: 6px;
+}
+@media (max-width: 1000px) {
+  .canvas {
+    padding-inline: 16px;
+  }
+  .paper {
+    padding-inline: 20px;
+  }
+  .toolbar {
+    gap: 2px;
+  }
+  .toolbar a {
+    padding-inline: 5px;
+  }
+  .saved {
+    display: none;
+  }
+  .titlebar a {
+    margin-left: auto;
+  }
+}
+@media (max-width: 400px) {
+  .thumbnails {
+    flex-basis: 53px;
+    padding: 12px;
+  }
+  .canvas {
+    padding-inline: 12px;
+  }
+  .paper {
+    padding: 20px 16px;
+  }
+  .paper h3 {
+    font-size: 20px;
+  }
+  .toolbar a span {
+    display: none;
+  }
+  .toolbar {
+    gap: 12px;
+  }
+  .titlebar {
+    padding-inline: 10px;
+    font-size: 8px;
+  }
+}

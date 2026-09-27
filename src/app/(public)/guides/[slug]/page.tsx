@@ -33,7 +33,7 @@ export default async function Guide({ params }: { params: Promise<{ slug: string
   if (!g) notFound();
   const tool = getTool(g.tool)!;
   return (
-    <main id="main" className="container article-page">
+    <main id="main" className="container article-page with-page-heading">
       <StructuredData
         data={breadcrumbSchema([
           { name: 'Home', path: '/' },
@@ -56,13 +56,14 @@ export default async function Guide({ params }: { params: Promise<{ slug: string
           mainEntityOfPage: `${siteUrl}/guides/${g.slug}`,
         }}
       />
+
+      <article>
+        <header className="article-heading page-heading page-heading--article">
       <nav className="breadcrumbs" aria-label="Breadcrumb">
         <Link href="/guides">Guides</Link>
         <ChevronRight size={13} />
         <span>{g.category}</span>
       </nav>
-      <article>
-        <header className="article-heading">
           <span className="eyebrow">
             {g.category} · {g.readTime}
           </span>

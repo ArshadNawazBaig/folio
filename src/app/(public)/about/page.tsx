@@ -8,7 +8,7 @@ export const metadata = pageMetadata(
 );
 export default function About() {
   return (
-    <main id="main" className="container prose-page">
+    <main id="main" className="container prose-page with-page-heading">
       <StructuredData
         data={{
           '@context': 'https://schema.org',
@@ -20,6 +20,7 @@ export default function About() {
           mainEntity: organizationSchema(),
         }}
       />
+      <header className="page-heading">
       <span className="eyebrow">A LITTLE LESS PAPERWORK</span>
       <h1>
         Made for the work
@@ -31,6 +32,7 @@ export default function About() {
         Folio is a place to handle those details with a little more clarity and a little less
         friction.
       </p>
+      </header>
       <h2 id="what-is-folio">What is Folio?</h2>
       <p>{productDescription}</p>
       <p>

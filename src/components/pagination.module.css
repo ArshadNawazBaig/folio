@@ -9,7 +9,7 @@
   padding-top: 18px;
   border-top: 1px solid var(--border);
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--text-label);
   width: 100%;
   min-width: 0;
 }
@@ -37,7 +37,7 @@
   min-height: 36px;
   height: 36px;
   padding: 0 10px;
-  font-size: 12px;
+  font-size: var(--text-label);
 }
 .controls,
 .number {
@@ -56,18 +56,18 @@
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--ink);
-  font-size: 12px;
+  font-size: var(--text-label);
   font-weight: 600;
   text-decoration: none;
 }
 .control:hover:not(:disabled) {
   background: var(--paper);
-  border-color: #a7b39a;
+  border-color: #737373;
 }
 .control[aria-current='page'] {
-  background: var(--sage);
-  border-color: #a7b39a;
-  color: #405733;
+  background: var(--charcoal);
+  border-color: var(--charcoal);
+  color: #fff;
 }
 .control:disabled {
   opacity: 0.4;

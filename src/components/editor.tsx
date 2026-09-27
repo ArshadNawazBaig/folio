@@ -1303,7 +1303,7 @@ export function Editor() {
     <main id="main" className="editor-app">
       <header className="editor-header">
         <div className="editor-header-left">
-          <Logo />
+          <Logo light />
           <span className="header-divider" />
           <Link href="/tools" className="icon-button" aria-label="Back to all tools">
             <ArrowLeft size={18} />

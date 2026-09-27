@@ -1,20 +1,20 @@
 .summary {
   margin-bottom: 28px;
   padding: 22px 26px;
-  border: 1px solid #d5dfc9;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: #f0f3e9;
+  background: var(--surface-muted);
 }
 .summary > strong {
-  font-size: 13px;
-  color: #405535;
+  font-size: var(--text-control);
+  color: var(--ink);
 }
 .summary > p {
   margin: 10px 0 0;
 }
 .steps {
   padding-left: 24px;
-  font-size: 14px;
+  font-size: var(--text-body);
   line-height: 1.9;
   color: var(--muted);
 }
@@ -43,13 +43,13 @@
   min-width: 600px;
   border-collapse: collapse;
   text-align: left;
-  font-size: 13px;
+  font-size: var(--text-control);
   line-height: 1.8;
 }
 .table caption {
   padding: 16px 20px;
   text-align: left;
-  font-size: 12px;
+  font-size: var(--text-label);
   color: var(--muted);
 }
 .table th,
@@ -59,7 +59,7 @@
   border-top: 1px solid var(--border);
 }
 .table thead {
-  background: #edf1e6;
+  background: var(--surface-muted);
 }
 .table th {
   font-weight: 600;
@@ -83,6 +83,6 @@
     padding: 18px;
   }
   .steps {
-    font-size: 13px;
+    font-size: var(--text-body);
   }
 }

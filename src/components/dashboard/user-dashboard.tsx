@@ -54,7 +54,7 @@ function DashboardLoading() {
   return (
     <div className={s.dashboard} aria-busy="true">
       <aside className={s.sidebar}>
-        <Logo />
+        <Logo light />
         <p className={s.navLabel}>YOUR WORKSPACE</p>
         <div className={s.navigation} aria-hidden="true">
           {navigation.map(({ id, icon: Icon }) => (
@@ -80,7 +80,7 @@ function DashboardLoading() {
         </div>
         <main id="main" className={s.content}>
           <LoadingLabel>Loading your workspace…</LoadingLabel>
-          <div className={s.heading}>
+          <div className={`${s.heading} page-heading page-heading--workspace`}>
             <div>
               <Skeleton width={110} height={10} />
               <h1>
@@ -250,7 +250,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
   return (
     <div className={s.dashboard}>
       <aside className={s.sidebar}>
-        <Logo />
+        <Logo light />
         <p className={s.navLabel}>YOUR WORKSPACE</p>
         <nav ref={navigationRef} aria-label="Dashboard navigation" className={s.navigation}>
           {navigation.map(({ id, label, icon: Icon }) => (
@@ -336,9 +336,9 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
           </Link>
         </header>
         <main id="main" className={s.content}>
-          <div className={s.heading}>
+          <div className={`${s.heading} page-heading page-heading--workspace`}>
             <div>
-              <span className={s.eyebrow}>
+              <span className={`${s.eyebrow} eyebrow`}>
                 {view === 'overview' ? 'A LITTLE MORE ORGANIZED' : 'YOUR FOLIO'}
               </span>
               <h1>{titles[view]}</h1>
@@ -446,7 +446,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
               </div>
               <section className={s.quickCard}>
                 <div>
-                  <span className={s.eyebrow}>FROM TO-DO TO DONE</span>
+                  <span className={`${s.eyebrow} eyebrow`}>FROM TO-DO TO DONE</span>
                   <h2>Good work starts with a PDF.</h2>
                   <p>Edit a proposal, fill a form, or bring a few files together.</p>
                 </div>

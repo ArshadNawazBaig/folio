@@ -6,8 +6,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Your documents. Beautifully handled.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#f7f6f2',
-    theme_color: '#f7f6f2',
+    background_color: '#f5f5f4',
+    theme_color: '#191919',
     icons: [
       { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
       { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },

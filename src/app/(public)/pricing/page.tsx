@@ -25,8 +25,8 @@ export default async function PricingPage() {
     .filter((tool) => tool.premium && !tool.available)
     .map((tool) => tool.name);
   return (
-    <main id="main" className="container pricing-page">
-      <div className="pricing-heading">
+    <main id="main" className="container pricing-page with-page-heading">
+      <div className="pricing-heading page-heading">
         <span className="eyebrow">A PLAN FOR YOUR PAPERWORK</span>
         <h1>
           Start with the essentials.

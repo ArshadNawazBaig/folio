@@ -318,7 +318,7 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
             Loading {section === 'overview' ? 'dashboard' : title.toLowerCase()}…
           </LoadingLabel>
         )}
-        <header className="admin-topbar">
+        <header className="admin-topbar page-heading page-heading--workspace">
           <div>
             <span className="eyebrow">FOLIO CONTROL ROOM</span>
             <h1>{title}</h1>

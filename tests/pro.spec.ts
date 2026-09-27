@@ -126,7 +126,7 @@ test('Pro warns before navigating away from undownloaded edits', async ({ page }
   const dialogEvent = page.waitForEvent('dialog');
   const clicking = page
     .getByRole('navigation', { name: 'Main navigation' })
-    .getByRole('link', { name: 'All tools', exact: true })
+    .getByRole('link', { name: 'PDF tools', exact: true })
     .click();
   const dialog = await dialogEvent;
   expect(dialog.message()).toContain('not been downloaded');

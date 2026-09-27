@@ -6,7 +6,7 @@ export function Footer() {
     <footer className="site-footer">
       <div className="footer-top container">
         <div className="footer-brand">
-          <Logo />
+          <Logo light />
           <p>
             A little less paperwork.
             <br />A little more possibility.

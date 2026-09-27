@@ -8,7 +8,7 @@ export const metadata = pageMetadata(
 );
 export default function CallbackPage() {
   return (
-    <main id="main" className="container account-page">
+    <main id="main" className="container account-page with-page-heading">
       <AuthCallback />
     </main>
   );

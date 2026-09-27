@@ -26,7 +26,7 @@ export function AdminNavigation({
   }, [section]);
   return (
     <aside className="admin-sidebar">
-      <Logo />
+      <Logo light />
       <span className="admin-label">
         <ShieldCheck size={13} /> SUPER ADMIN
       </span>

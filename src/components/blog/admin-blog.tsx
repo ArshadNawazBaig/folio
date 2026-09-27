@@ -127,7 +127,7 @@ function PostManager() {
     <div className="admin-shell">
       <AdminNavigation section="blog" />
       <main id="main" className="admin-main">
-        <header className="admin-topbar">
+        <header className="admin-topbar page-heading page-heading--workspace">
           <div>
             <span className="eyebrow">FOLIO EDITORIAL</span>
             <h1>Blog posts</h1>

@@ -19,7 +19,7 @@ export default async function ToolsPage({ searchParams }: Props) {
   const directory = toolDirectory(serverTools(), await searchParams);
   if (directory.outOfRange) redirect(directory.canonical);
   return (
-    <main id="main" className="container directory-page">
+    <main id="main" className="container directory-page with-page-heading">
       <StructuredData
         data={collectionSchema(
           'Online PDF tools',
@@ -34,7 +34,7 @@ export default async function ToolsPage({ searchParams }: Props) {
           { name: 'All PDF tools', path: '/tools' },
         ])}
       />
-      <div className="directory-heading">
+      <div className="directory-heading page-heading">
         <span className="eyebrow">YOUR DOCUMENT TOOLKIT</span>
         <h1>
           Online PDF tools

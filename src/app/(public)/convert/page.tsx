@@ -19,7 +19,7 @@ export default async function ConvertPage({ searchParams }: Props) {
   const directory = toolDirectory(serverTools(), await searchParams, true);
   if (directory.outOfRange) redirect(directory.canonical);
   return (
-    <main id="main" className="container directory-page">
+    <main id="main" className="container directory-page with-page-heading">
       <StructuredData
         data={collectionSchema(
           'PDF and image converters',
@@ -34,7 +34,7 @@ export default async function ConvertPage({ searchParams }: Props) {
           { name: 'PDF converter', path: '/convert' },
         ])}
       />
-      <div className="directory-heading">
+      <div className="directory-heading page-heading">
         <span className="eyebrow">A CHANGE OF FORMAT</span>
         <h1>
           Convert PDFs and images.

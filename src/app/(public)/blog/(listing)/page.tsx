@@ -44,7 +44,7 @@ export default async function Blog({ searchParams }: Props) {
     redirect(`/blog${filters.size ? `?${filters}` : ''}`);
   }
   return (
-    <main id="main" className={s.journal}>
+    <main id="main" className={`${s.journal} with-page-heading`}>
       {!unavailable && (
         <StructuredData
           data={collectionSchema(
@@ -61,8 +61,8 @@ export default async function Blog({ searchParams }: Props) {
           { name: 'Blog', path: '/blog' },
         ])}
       />
-      <header className={s.journalHero}>
-        <span className={s.eyebrow}>THE FOLIO JOURNAL</span>
+      <header className={`${s.journalHero} page-heading`}>
+        <span className={`${s.eyebrow} eyebrow`}>THE FOLIO JOURNAL</span>
         <h1>
           PDF tips.
           <br />
@@ -76,7 +76,7 @@ export default async function Blog({ searchParams }: Props) {
       </header>
       <div className={s.journalBar}>
         <div>
-          <span className={s.eyebrow}>{q ? 'SEARCH RESULTS' : category || 'THE LATEST'}</span>
+          <span className={`${s.eyebrow} eyebrow`}>{q ? 'SEARCH RESULTS' : category || 'THE LATEST'}</span>
           <span>
             {total} {total === 1 ? 'story' : 'stories'}
           </span>

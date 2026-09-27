@@ -2,8 +2,8 @@
   max-width: 1080px;
   margin: auto;
   border: 1px solid var(--border);
-  border-radius: 18px;
-  background: var(--paper, #fffdf9);
+  border-radius: 12px;
+  background: var(--surface);
   overflow: hidden;
 }
 .steps {
@@ -13,13 +13,14 @@
   padding: 20px 28px;
   gap: 28px;
   border-bottom: 1px solid var(--border);
+  background: var(--paper);
 }
 .steps li {
   display: flex;
   align-items: center;
   gap: 9px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--text-control);
 }
 .steps li span {
   display: grid;
@@ -34,8 +35,9 @@
   font-weight: 600;
 }
 .steps li[aria-current] span {
-  background: #e8eedf;
-  border-color: #9eaf88;
+  background: var(--charcoal);
+  border-color: var(--charcoal);
+  color: #fff;
 }
 .grid {
   display: grid;
@@ -60,7 +62,7 @@
   margin: 0;
 }
 .heading > span {
-  font-size: 12px;
+  font-size: var(--text-label);
   color: var(--muted);
 }
 .fileList {
@@ -76,8 +78,8 @@
   gap: 6px;
 }
 .fileRow[data-selected='true'] {
-  border-color: #859e67;
-  background: #f1f4ea;
+  border-color: #efbba1;
+  background: var(--accent-soft);
 }
 .fileSelect {
   display: flex;
@@ -106,13 +108,13 @@
 .fileSelect strong {
   display: block;
   max-width: 100%;
-  font-size: 12px;
+  font-size: var(--text-label);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .fileSelect small {
-  font-size: 11px;
+  font-size: var(--text-small);
   color: var(--muted);
 }
 .fileActions {
@@ -135,7 +137,7 @@
   border: 1px dashed var(--border);
   border-radius: 9px;
   margin-top: 12px;
-  font-size: 13px;
+  font-size: var(--text-control);
   cursor: pointer;
 }
 .add:has(input:disabled) {
@@ -152,12 +154,12 @@
 }
 .settings legend {
   font-weight: 600;
-  font-size: 14px;
+  font-size: var(--text-body);
   margin-bottom: 20px;
 }
 .settings > label {
   display: block;
-  font-size: 13px;
+  font-size: var(--text-control);
   font-weight: 500;
 }
 .settings input:not([type='range']):not([type='color']):not([type='checkbox']),
@@ -177,7 +179,7 @@
 .settings small,
 .hint {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--text-label);
   line-height: 1.7;
   font-weight: 400;
 }
@@ -191,7 +193,7 @@
 }
 .slider input {
   display: block;
-  accent-color: #7b925f;
+  accent-color: #737373;
   width: 100%;
   margin: 14px 0;
   cursor: pointer;
@@ -210,7 +212,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
+  font-size: var(--text-control);
 }
 .colors input {
   width: 38px;
@@ -227,7 +229,7 @@
 .preview {
   min-width: 0;
   border-left: 1px solid var(--border);
-  background: #e9ede3;
+  background: var(--surface-muted);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -236,14 +238,14 @@
 .previewToolbar {
   min-height: 38px;
   margin-bottom: 22px;
-  font-size: 13px;
+  font-size: var(--text-control);
 }
 .tabs {
   display: flex;
-  border: 1px solid #d5dccb;
+  border: 1px solid var(--border);
   border-radius: 9px;
   padding: 3px;
-  background: #f4f6ef;
+  background: var(--paper);
 }
 .tabs button {
   border: 0;
@@ -269,8 +271,8 @@
   min-height: 300px;
   max-height: 650px;
   overflow: auto;
-  background: repeating-conic-gradient(#fff 0% 25%, #f1f1ed 0% 50%) 50%/20px 20px;
-  border: 1px solid #dce2d3;
+  background: repeating-conic-gradient(#fff 0% 25%, var(--surface-muted) 0% 50%) 50%/20px 20px;
+  border: 1px solid var(--border);
   border-radius: 8px;
 }
 .imageStage img {
@@ -281,12 +283,12 @@
 .imageDetails {
   display: grid;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--text-label);
   margin-top: 18px;
   overflow-wrap: anywhere;
 }
 .imageDetails strong {
-  font-size: 13px;
+  font-size: var(--text-control);
 }
 .imageDetails span,
 .imageDetails p {
@@ -306,18 +308,18 @@
   width: 100%;
   max-width: 360px;
   height: auto;
-  box-shadow: 0 5px 22px #2025220d;
+  box-shadow: 0 5px 22px #1919190d;
   border-radius: 8px;
 }
 .empty {
   text-align: center;
-  color: #89967b;
+  color: #737373;
 }
 .empty svg {
   margin: auto;
 }
 .empty p {
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 .hint {
   margin: 16px 0 0;
@@ -334,7 +336,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 .downloads {
   display: flex;
@@ -343,14 +345,14 @@
 }
 .notice {
   margin: 20px 28px;
-  font-size: 13px;
+  font-size: var(--text-control);
   color: var(--muted);
 }
 .progress {
   display: grid;
   gap: 8px;
   margin-top: 20px;
-  font-size: 12px;
+  font-size: var(--text-label);
   color: var(--muted);
 }
 .progress progress {
@@ -360,16 +362,16 @@
   appearance: none;
   overflow: hidden;
   border-radius: 10px;
-  background: #e3e8dd;
+  background: var(--surface-muted);
 }
 .progress progress::-webkit-progress-bar {
-  background: #e3e8dd;
+  background: var(--surface-muted);
 }
 .progress progress::-webkit-progress-value {
-  background: #839d68;
+  background: #737373;
 }
 .progress progress::-moz-progress-bar {
-  background: #839d68;
+  background: #737373;
 }
 @media (max-width: 760px) {
   .grid {
@@ -389,7 +391,7 @@
     justify-content: space-between;
   }
   .steps li {
-    font-size: 11px;
+    font-size: var(--text-small);
     gap: 5px;
   }
   .steps li span {
@@ -429,6 +431,6 @@
     flex-wrap: wrap;
   }
   .fileSelect strong {
-    font-size: 12px;
+    font-size: var(--text-label);
   }
 }

@@ -97,7 +97,7 @@ export function EditorSkeleton() {
     <main id="main" className="editor-app editor-route-skeleton" aria-busy="true">
       <header className="editor-header">
         <div className="editor-header-left">
-          <Logo />
+          <Logo light />
           <span className="header-divider" />
           <div className="editor-file-title">
             <Skeleton width={160} height={16} />
