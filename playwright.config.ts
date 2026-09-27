@@ -6,6 +6,7 @@ export default defineConfig({
   testIgnore: [
     '**/auth-connected.spec.ts',
     '**/guest-dashboard.spec.ts',
+    '**/short-links.spec.ts',
     '**/blog-public.spec.ts',
     '**/design-consistency.spec.ts',
   ],

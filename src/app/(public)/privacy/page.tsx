@@ -15,8 +15,8 @@ export default function Privacy() {
           <em>about your privacy.</em>
         </h1>
         <p>
-          This page describes how the current version of Folio handles documents. Updated September
-          14, 2026.
+          This page describes how the current version of Folio handles documents and saved links.
+          Updated September 28, 2026.
         </p>
       </header>
       <h2>Editing can run in your browser while files save privately.</h2>
@@ -75,6 +75,21 @@ export default function Privacy() {
         passwords are never saved. Other standalone tools keep guest work in the current tab; the
         main editor uses the guest recovery described above. Clearing browser data does not remove
         cloud copies.
+      </p>
+      <h2>Short links are saved to your account.</h2>
+      <p>
+        The URL shortener stores destination URLs, titles, aliases, and creation and update dates in
+        Supabase. Only your account can list and manage its links. Anyone with a short URL or its QR
+        code can open the destination; shortening does not make a destination private. QR images are
+        generated in your browser. Folio does not record individual click analytics for short links;
+        hosting infrastructure may keep request logs. Creation counters enforce daily and per-minute
+        limits.
+      </p>
+      <p>
+        Deleting a link removes its destination and title and stops the redirect. Account deletion
+        removes saved links and creation counters. Only the alias remains reserved to prevent
+        another account from reusing an old shared address. Existing links keep working after a Pro
+        plan expires unless deleted or the account is suspended.
       </p>
       <h2>Support and administration records.</h2>
       <p>

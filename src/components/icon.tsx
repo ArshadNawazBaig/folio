@@ -19,6 +19,7 @@ import {
   LockKeyhole,
   SquareDashedText,
   QrCode,
+  Link2,
   SlidersHorizontal,
 } from 'lucide-react';
 const icons = {
@@ -41,6 +42,7 @@ const icons = {
   protect: LockKeyhole,
   'text-edit': SquareDashedText,
   qr: QrCode,
+  link: Link2,
   enhance: SlidersHorizontal,
 };
 export function ToolIcon({

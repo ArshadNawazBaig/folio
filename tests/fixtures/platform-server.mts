@@ -27,6 +27,7 @@ import { restFilters } from './rest-filters';
 import { requestedPage, filterLiteral } from '../../src/lib/server/pagination';
 import { cloudTestSchema } from './cloud-schema';
 import { proxy } from '../../src/proxy';
+import { verifyShortLinks } from './short-links-server';
 import { clearPlatformCache, getPlatform } from '../../src/lib/server/platform';
 import { DEFAULT_CATALOG, DEFAULT_SETTINGS } from '../../src/lib/platform';
 const admin = '00000000-0000-4000-8000-000000000001',
@@ -54,6 +55,7 @@ for (const name of [
   '010_lemon_squeezy.sql',
   '011_guest_dashboard.sql',
   '012_monthly_unlimited_storage.sql',
+  '013_short_links.sql',
 ])
   await db.exec(
     await readFile(new URL(`../../supabase/migrations/${name}`, import.meta.url), 'utf8'),
@@ -194,6 +196,7 @@ globalThis.fetch = async (input, init) => {
         'support_messages',
         'admin_audit',
         'cloud_documents',
+        'short_links',
         'user_deletions',
       ].includes(table),
     );
@@ -285,6 +288,7 @@ const request = (route: string, actor?: string, body?: unknown) =>
     ...(body ? { body: JSON.stringify(body) } : {}),
   });
 try {
+  await verifyShortLinks(db, request, customer, other);
   // Real anonymous ownership, expiry, idempotency, revision conflicts, and claiming an account.
   const workspaceId = '00000000-0000-4000-8000-000000000090';
   const workspaceContext = { params: Promise.resolve({ id: workspaceId }) };

@@ -9,8 +9,8 @@ export function ToolFacts({ tool }: { tool: Tool }) {
   const rows = [
     ['Input', facts.input],
     ['Output', facts.output],
-    ['Download cost', downloadFact(tool.slug)],
-    ['File handling', facts.processing],
+    [tool.slug === 'url-shortener' ? 'Plans' : 'Download cost', downloadFact(tool.slug)],
+    [tool.slug === 'url-shortener' ? 'Link handling' : 'File handling', facts.processing],
     ['Limits to know', facts.limits],
   ];
   return (
@@ -19,9 +19,11 @@ export function ToolFacts({ tool }: { tool: Tool }) {
         <span className="eyebrow">BEFORE YOU START</span>
         <h2 id="tool-facts-title">{facts.question}</h2>
         <p>{facts.answer}</p>
-        <Link href="/guides/does-folio-upload-pdf-files">
-          Compare local processing and cloud saving
-        </Link>
+        {tool.slug !== 'url-shortener' && (
+          <Link href="/guides/does-folio-upload-pdf-files">
+            Compare local processing and cloud saving
+          </Link>
+        )}
       </div>
       <div>
         <dl className={styles.rows}>

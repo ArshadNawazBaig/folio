@@ -17,6 +17,17 @@ const editorProcessing =
 // Product facts checked against the tool implementations, download policy and privacy page.
 // Keep limitations explicit; these summaries are visible to visitors as well as crawlers.
 export const toolFacts: Record<string, ToolFacts> = {
+  'url-shortener': {
+    question: 'What is included with a free short link?',
+    answer:
+      'Save up to 10 short links in your free account, copy them, and download QR codes. Folio Pro adds custom aliases, editable destinations, and up to 1,000 saved links.',
+    input: 'An HTTP or HTTPS website address, plus an optional title and Pro alias.',
+    output: 'A shareable short URL and optional PNG or SVG QR code.',
+    processing:
+      'URLs, titles, aliases, and creation dates are stored in your account. The public redirect does not require sign-in. QR images are generated in your browser.',
+    limits:
+      'Sign-in required. URLs up to 2,048 characters; aliases 3–48 letters, numbers, or hyphens. Up to 20 new links per minute, and 100 per day on Free or 1,000 on Pro. Deleted aliases remain reserved.',
+  },
   'edit-pdf': {
     question: 'What can I edit in a PDF for free?',
     answer:
@@ -112,6 +123,8 @@ export const toolFacts: Record<string, ToolFacts> = {
 };
 
 export function downloadFact(slug: string) {
+  if (slug === 'url-shortener')
+    return 'QR downloads are free. Custom aliases, destination changes, and the larger saved-link allowance require Pro.';
   const access = toolDownloadAccess(slug);
   if (access === 'premium') return 'A paid plan is required to download the processed result.';
   if (access === 'mixed')

@@ -1,4 +1,11 @@
-export const dashboardViews = ['overview', 'files', 'billing', 'settings', 'support'] as const;
+export const dashboardViews = [
+  'overview',
+  'files',
+  'links',
+  'billing',
+  'settings',
+  'support',
+] as const;
 export type DashboardView = (typeof dashboardViews)[number];
 export function dashboardView(value: unknown): DashboardView {
   return dashboardViews.includes(value as DashboardView) ? (value as DashboardView) : 'overview';

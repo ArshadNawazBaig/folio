@@ -7,7 +7,14 @@ import { popularSlugs, type Tool } from '@/lib/tools';
 import { ToolIcon } from './icon';
 import styles from './home.module.css';
 
-const filters = ['Popular', 'Edit', 'Organize', 'Convert', 'Sign & fill'] as const;
+const filters = [
+  'Popular',
+  'Edit',
+  'Organize',
+  'Convert',
+  'Sign & fill',
+  'More possibilities',
+] as const;
 type Filter = (typeof filters)[number];
 const descriptions: Record<string, string> = {
   'edit-pdf': 'Add text, notes and highlights.',
@@ -41,6 +48,7 @@ export function HomeTools({ tools }: { tools: Tool[] }) {
     if (filter === 'Edit') return editSlugs.has(tool.slug);
     if (filter === 'Organize') return organizeSlugs.has(tool.slug);
     if (filter === 'Convert') return tool.category === 'Convert';
+    if (filter === 'More possibilities') return tool.category === 'More possibilities';
     return tool.category === 'Forms & signing';
   });
   // Keep the familiar six starting points in the same order as the catalog.

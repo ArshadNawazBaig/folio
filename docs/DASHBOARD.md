@@ -1,6 +1,8 @@
 # Customer dashboard and private PDFs
 
-Everyone can open `/dashboard`. Guests receive a browser-private workspace; signed-in customers see their account library. Verified super admins still land at `/admin`; they can open their personal workspace at `/dashboard`. A requested billing or file tab survives Google/email sign-in. Dashboard pages and APIs are private, uncached, and marked `noindex`.
+Everyone can open `/dashboard`. Guests receive a browser-private workspace; signed-in customers see their account library. Verified super admins still land at `/admin`; they can open their personal workspace at `/dashboard`. A requested billing, files, or links tab survives Google/email sign-in. Dashboard pages and APIs are private, uncached, and marked `noindex`.
+
+**My links** (`/dashboard?view=links`) stores account-owned short URLs alongside the file library. It supports creation, search, pagination, copying, QR downloads, renaming, and deletion. Pro adds custom aliases and destination editing. Guests can open the screen and sign in to create links. Link limits are separate from file-storage limits: 10 on Free and 1,000 on Pro. Apply migration 013 after the earlier migrations; see [SHORT-LINKS.md](SHORT-LINKS.md).
 
 ## Enable cloud storage
 

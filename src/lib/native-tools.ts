@@ -120,6 +120,45 @@ export const nativeTools: Tool[] = [
     keywords: ['photos', 'pictures', 'combine images', 'jpg', 'png', 'webp'],
   })),
   {
+    slug: 'url-shortener',
+    name: 'URL shortener',
+    short: 'Short links. Ready to share.',
+    description:
+      'Turn long URLs into short links, save them in your account, and generate QR codes. Go Pro for custom aliases and editable destinations.',
+    category: 'More possibilities',
+    icon: 'link',
+    color: 'orange',
+    available: true,
+    action: 'Shorten link',
+    processor: 'shortener',
+    steps: [
+      'Sign in and paste the destination URL.',
+      'Create a random short link or choose a custom alias with Pro.',
+      'Copy your link, download its QR code, or manage it in My links.',
+    ],
+    detail:
+      'Free accounts can save 10 links. Pro includes 1,000 saved links, custom aliases, and destination changes that keep your short link and QR code working. Both plans include PNG and SVG QR downloads. Your list is private; shared links are public. Deleting a link disables its redirect and QR code. Aliases are permanent and cannot be reused after deletion.',
+    faq: [
+      [
+        'Do I need an account?',
+        'Yes. Sign in for free so your links are saved in My links and available across your devices.',
+      ],
+      [
+        'What happens when my Pro plan ends?',
+        'Existing links and QR codes keep working, including custom aliases. You can rename or delete links. Creating links above the Free limit, choosing custom aliases, or changing destinations requires Pro.',
+      ],
+      [
+        'Can I change a link after sharing it?',
+        'With Pro, edit its destination from My links. The short URL and QR code stay the same. Titles can be changed on either plan. Aliases cannot be changed.',
+      ],
+      [
+        'Are links private or password protected?',
+        'Your dashboard list is private, but anyone with a short URL or QR code can open its destination. Do not use a short link to protect private content.',
+      ],
+    ],
+    keywords: ['url', 'link', 'shorten', 'shortener', 'alias', 'qr', 'share'],
+  },
+  {
     slug: 'create-qr-code',
     name: 'Create QR code',
     short: 'A small square. A useful connection.',

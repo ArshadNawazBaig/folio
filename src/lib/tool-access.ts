@@ -62,6 +62,7 @@ const freeTools = [
   'png-to-pdf',
   'merge-images',
   'create-qr-code',
+  'url-shortener', // QR downloads are free; account features have separate server-enforced entitlements.
 ] as const;
 
 const downloadAccess = new Map<string, ToolDownloadAccess>([

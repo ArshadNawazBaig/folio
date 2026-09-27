@@ -10,7 +10,7 @@ export async function generateMetadata() {
   const { catalog } = await getPlatform();
   return pageMetadata(
     `${catalog.name} Pricing — ${money(catalog.monthlyAmount)}/Month`,
-    `${offerTerms(catalog, catalog.trialEnabled ? 'trial' : 'month')} Edit and preview for free; Pro downloads require a subscription.`,
+    `${offerTerms(catalog, catalog.trialEnabled ? 'trial' : 'month')} Free PDF tools, saved short links, and QR codes. Pro adds custom aliases and advanced downloads.`,
     '/pricing',
   );
 }
@@ -34,8 +34,8 @@ export default async function PricingPage() {
           <em>Make room for more.</em>
         </h1>
         <p>
-          Everyday PDF tools are free. Edit and preview with Pro tools at no charge, then choose a
-          plan when you download your finished file.
+          Everyday PDF tools, 10 saved short links, and QR downloads are free. Pro adds advanced PDF
+          downloads, custom link aliases, and more room for your work.
         </p>
       </div>
       <Pricing initialCatalog={catalog} additionalPremiumTools={additionalPremiumTools} />
@@ -43,6 +43,10 @@ export default async function PricingPage() {
         <h2>A few things, made clear.</h2>
         <Faq
           items={[
+            [
+              'What is included with the URL shortener?',
+              'Sign in to save 10 links on Free or 1,000 on Pro. Both plans include random aliases and PNG/SVG QR downloads. Pro adds custom aliases and destination editing. Existing links keep working when Pro ends; new links must fit the Free limit. You can rename or delete saved links on either plan. Deleted aliases cannot be reused.',
+            ],
             [
               'Which downloads are free?',
               'Added text, annotations, signatures, fillable forms, merging, splitting, compression, cropping, page organization, watermarks, and page numbers are free. PDF-to-image conversion, selectable-text extraction, image-to-PDF conversion, JPG/WEBP conversion, image compression, basic photo adjustments, and static QR codes are also free. Free downloads do not receive a Folio watermark.',

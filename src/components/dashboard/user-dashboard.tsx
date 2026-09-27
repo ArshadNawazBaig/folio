@@ -12,6 +12,7 @@ import {
   FileText,
   FolderOpen,
   LayoutDashboard,
+  Link2,
   LogOut,
   MessageSquare,
   Plus,
@@ -22,6 +23,7 @@ import {
 import { useAccount } from '../account-provider';
 import { Logo } from '../logo';
 import { SignInForm } from '../sign-in-form';
+import { ShortLinks } from '../short-links';
 import { SupportPanel } from '../support-panel';
 import { accountFetch, authClient } from '@/lib/auth-client';
 import { claimGuestWorkspaces, workspaceRequest } from '@/lib/workspace-client';
@@ -42,6 +44,7 @@ import s from './dashboard.module.css';
 const navigation = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'files', label: 'My files', icon: FolderOpen },
+  { id: 'links', label: 'My links', icon: Link2 },
   { id: 'billing', label: 'Billing & plan', icon: CreditCard },
   { id: 'settings', label: 'Account settings', icon: Settings },
   { id: 'support', label: 'Help & support', icon: MessageSquare },
@@ -246,6 +249,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
       ? 'Your guest workspace.'
       : `Welcome back${name === 'Your account' ? '' : `, ${name.split(' ')[0]}`}.`,
     files: 'A home for your documents.',
+    links: 'Good links. All together.',
     billing: 'Your plan, your choice.',
     settings: 'Make yourself at home.',
     support: 'A little help, right here.',
@@ -253,6 +257,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
   const descriptions = {
     overview: 'Pick up where you left off, or start something new.',
     files: 'Private PDFs, ready whenever you need them.',
+    links: 'Shorten a URL, share a QR code, and keep every link in one place.',
     billing: 'Manage your subscription, payments, and invoices.',
     settings: 'Keep your profile up to date and manage your sessions.',
     support: 'Ask a question and follow your conversations with our team.',
@@ -409,7 +414,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
               </Link>
             )}
           </div>
-          {guest && (
+          {guest && view !== 'links' && (
             <div className={s.guestNotice}>
               <div>
                 <strong>100 MB, ready to use.</strong>
@@ -519,6 +524,9 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                   <Link href="/merge-pdf">
                     Merge PDFs <ArrowUpRight size={16} />
                   </Link>
+                  <Link href="/dashboard?view=links">
+                    Shorten a link <ArrowUpRight size={16} />
+                  </Link>
                 </div>
               </section>
             </>
@@ -561,6 +569,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
               guest={guest}
             />
           )}
+          {view === 'links' && <ShortLinks manage />}
           {view === 'billing' &&
             (guest ? (
               <GuestAccount view="billing" />

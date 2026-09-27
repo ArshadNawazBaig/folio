@@ -121,6 +121,8 @@ export function Pricing({
                 'Compress images, adjust photos, and create QR codes',
                 'Fill forms and create fillable fields',
                 '100 MB of private cloud storage',
+                '10 saved short links with random aliases',
+                'Short-link QR downloads in PNG and SVG',
               ].map((item) => (
                 <li key={item}>
                   <Check size={17} />
@@ -191,6 +193,8 @@ export function Pricing({
             <ul>
               {[
                 'Everything in Folio Free',
+                '1,000 saved short links with custom aliases',
+                'Edit destinations without changing links or QR codes',
                 plan === 'trial'
                   ? '1 GB during your trial, then unlimited storage with monthly billing'
                   : 'Unlimited private cloud storage',
@@ -232,10 +236,11 @@ export function Pricing({
       {!compact && (
         <>
           <p className="pricing-note">
-            Editing and previews are free. A plan is required only when you download a result that
-            uses a premium feature. The editor saves PDFs and changes to private cloud storage;
-            opening passwords are never saved. Premium downloads allow up to 20 requests per minute
-            and 500 per day. Each tool’s file and page limits still apply.
+            PDF editing and previews are free; premium file downloads require a plan. Pro also
+            includes custom short-link aliases, editable destinations, and 1,000 saved links. Short
+            links require sign-in on both plans. The editor saves PDFs and changes to private cloud
+            storage; opening passwords are never saved. Premium downloads allow up to 20 requests
+            per minute and 500 per day. Each tool’s file and page limits still apply.
           </p>
           <Link className="text-link pricing-demo-link" href="/edit-pdf-text?demo=1">
             Try original text editing with our sample <ArrowRight size={16} />

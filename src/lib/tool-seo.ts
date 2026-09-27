@@ -25,6 +25,7 @@ export const toolSearchTitles: Record<string, string> = {
   'png-to-pdf': 'PNG to PDF Converter — Turn Images into PDF Pages',
   'merge-images': 'Merge Images into One PDF — Arrange & Combine',
   'create-qr-code': 'Free QR Code Generator — Download PNG or SVG',
+  'url-shortener': 'URL Shortener — Saved Links, Custom Aliases & QR Codes',
   'translate-pdf': 'Translate PDF Online — Preview Translated Pages',
   'pdf-to-word': 'PDF to Word Converter — Convert PDF to DOCX',
   'pdf-to-excel': 'PDF to Excel Converter — Convert PDF to XLSX',

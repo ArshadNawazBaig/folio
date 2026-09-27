@@ -13,7 +13,7 @@ export async function proxy(request: NextRequest) {
       response.headers.set('X-Robots-Tag', 'noindex, nofollow');
     return response;
   };
-  if (['/robots.txt', '/sitemap.xml'].includes(pathname)) return next();
+  if (['/robots.txt', '/sitemap.xml'].includes(pathname) || pathname.startsWith('/s/')) return next();
   // Admin recovery, support, sign-in, cancellation, and signed payment events stay reachable.
   if (
     /^\/(admin|account|dashboard|auth|maintenance|support|security|terms|privacy)(\/|$)/.test(

@@ -74,6 +74,8 @@ Guests and signed-in customers can open [localhost:3000/dashboard](http://localh
 
 Open [localhost:3000/support](http://localhost:3000/support) for customer inquiries and replies. Messages are stored in Supabase and replies appear in the app; email notifications are not implemented.
 
+The [URL shortener](http://localhost:3000/url-shortener) saves links in My links alongside the dashboard file library. Free accounts get 10 saved links and PNG/SVG QR downloads; Pro includes 1,000 links, custom aliases, and editable destinations. Apply [migration 013](supabase/migrations/013_short_links.sql) after 001–012 and configure the stable `NEXT_PUBLIC_SITE_URL` before deployment. See [SHORT-LINKS.md](docs/SHORT-LINKS.md) for setup, entitlements, and redirect behavior.
+
 Follow [docs/ADMIN.md](docs/ADMIN.md) to apply migration 003 and provision your first super admin. No default admin password or client-side role switch is provided.
 
 The super admin **Blog posts** workspace at `/admin/blog` includes a rich post editor, cloud autosave, previews, revisions, publishing/scheduling, and Trash. Readers can find published articles at `/blog` and sign in to like them. Apply [migration 009](supabase/migrations/009_blog.sql) after the earlier migrations; see [docs/BLOG.md](docs/BLOG.md) for setup and editorial workflows.

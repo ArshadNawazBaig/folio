@@ -3,7 +3,7 @@ import { dashboardView } from '@/lib/dashboard';
 import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata(
   'Your dashboard',
-  'Your private Folio files, billing, account settings, and support.',
+  'Your private Folio files and saved links, billing, account settings, and support.',
   '/dashboard',
   false,
 );

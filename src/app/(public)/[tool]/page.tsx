@@ -12,6 +12,7 @@ import { ProTextEditor } from '@/components/pro-text-editor';
 import { ProtectPdf } from '@/components/protect-pdf';
 import { ImageWorkbench } from '@/components/image-workbench';
 import { QrWorkbench } from '@/components/qr-workbench';
+import { ShortLinks } from '@/components/short-links';
 import { Faq } from '@/components/faq';
 import { ToolFacts } from '@/components/tool-facts';
 import { StructuredData } from '@/components/structured-data';
@@ -81,7 +82,18 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           <span className="accent-dot">.</span>
         </h1>
         <p>{t.description}</p>
-        {t.premium && t.available ? (
+        {t.processor === 'shortener' ? (
+          <div className="tool-benefits">
+            <span>
+              <ShieldCheck size={14} />
+              Saved to your account
+            </span>
+            <i />
+            Free & Pro plans
+            <i />
+            QR downloads included
+          </div>
+        ) : t.premium && t.available ? (
           <div className="tool-benefits">
             <span>
               <ShieldCheck size={14} />
@@ -111,6 +123,8 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
         <ImageWorkbench key={t.slug} tool={t} />
       ) : t.processor === 'qr' ? (
         <QrWorkbench />
+      ) : t.processor === 'shortener' ? (
+        <ShortLinks />
       ) : t.slug === 'edit-pdf-text' ? (
         <ProTextEditor />
       ) : t.slug === 'protect-pdf' ? (
@@ -162,7 +176,7 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
         <div>
           <span className="eyebrow">A FEW HELPFUL DETAILS</span>
           <h2>
-            Know your document.
+            {t.processor === 'shortener' ? 'Make every link count.' : 'Know your document.'}
             <br />
             <em>Get a better result.</em>
           </h2>

@@ -394,6 +394,7 @@ img {
 }
 .desktop-nav a {
   font-size: var(--text-control);
+  white-space: nowrap;
   font-weight: 600;
   position: relative;
   padding: 26px 0;
@@ -4676,13 +4677,15 @@ dialog::backdrop {
     max-width: 520px;
   }
 }
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .desktop-nav {
     display: none;
   }
   .mobile-menu {
     display: inline-flex;
   }
+}
+@media (max-width: 900px) {
   .container {
     padding-left: 28px;
     padding-right: 28px;

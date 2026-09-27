@@ -10,6 +10,7 @@ const destinations = new Set([
   '/documents',
   '/edit-pdf-text',
   '/protect-pdf',
+  '/url-shortener',
 ]);
 export function safeAuthDestination(value: unknown) {
   if (

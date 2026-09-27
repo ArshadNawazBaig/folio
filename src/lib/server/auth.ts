@@ -18,7 +18,7 @@ export function adminDb() {
 }
 export async function requireUser(request: Request, options: { allowSuspended?: boolean } = {}) {
   const token = request.headers.get('authorization')?.match(/^Bearer (\S+)$/)?.[1];
-  if (!token) throw new ApiError(401, 'Sign in to access Folio Pro.');
+  if (!token) throw new ApiError(401, 'Sign in to access your account.');
   const { data, error } = await adminDb().auth.getUser(token);
   if (error || !data.user)
     throw new ApiError(401, 'Your session has expired. Please sign in again.');

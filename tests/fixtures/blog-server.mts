@@ -36,7 +36,7 @@ const ident = (s: string) => {
 const field = (s: string) => {
   if (s.includes('->>')) {
     const [col, key] = s.split('->>');
-    assert.ok(['title', 'category'].includes(key));
+    assert.ok(['title', 'category', 'cover'].includes(key));
     return `${ident(col)}->>'${key}'`;
   }
   return ident(s);
@@ -111,7 +111,11 @@ globalThis.fetch = async (input, init) => {
     ).rows[0].n;
     const fields = (url.searchParams.get('select') || '*')
       .split(',')
-      .map((f) => (f === '*' ? f : ident(f)))
+      .map((f) => {
+        if (f === '*') return f;
+        const [alias, expression] = f.split(':');
+        return expression ? `${field(expression)} as ${ident(alias)}` : field(f);
+      })
       .join(',');
     const order = (url.searchParams.get('order') || '')
       .split(',')
