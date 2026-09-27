@@ -8,16 +8,18 @@ export default function NotFound() {
       <Header />
       <main id="main" className="container with-page-heading">
         <header className="page-heading">
-        <span className="eyebrow">404 / A PAGE OUT OF PLACE</span>
-        <h1>
-          Let’s find
-          <br />
-          <em>a better starting point.</em>
-        </h1>
-        <p>This page doesn’t seem to be here. Your next document tool is just around the corner.</p>
-        <Link href="/tools" className="button primary">
-          Explore the tools <ArrowRight size={17} />
-        </Link>
+          <span className="eyebrow">404 / A PAGE OUT OF PLACE</span>
+          <h1>
+            Let’s find
+            <br />
+            <em>a better starting point.</em>
+          </h1>
+          <p>
+            This page doesn’t seem to be here. Your next document tool is just around the corner.
+          </p>
+          <Link href="/tools" className="button primary">
+            Explore the tools <ArrowRight size={17} />
+          </Link>
         </header>
       </main>
       <Footer />

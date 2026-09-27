@@ -11,15 +11,15 @@ export default function SecurityPage() {
   return (
     <main id="main" className="container prose-page with-page-heading">
       <header className="page-heading">
-      <span className="eyebrow">HELP KEEP DOCUMENTS PRIVATE</span>
-      <h1>
-        Report a <em>security issue.</em>
-      </h1>
-      <p>
-        If you find a suspected vulnerability in Folio, use our{' '}
-        <Link href="/support">support form</Link> and start the subject with “Security report”.
-        Reports go to Folio’s administrators and are not published on the website.
-      </p>
+        <span className="eyebrow">HELP KEEP DOCUMENTS PRIVATE</span>
+        <h1>
+          Report a <em>security issue.</em>
+        </h1>
+        <p>
+          If you find a suspected vulnerability in Folio, use our{' '}
+          <Link href="/support">support form</Link> and start the subject with “Security report”.
+          Reports go to Folio’s administrators and are not published on the website.
+        </p>
       </header>
       <h2>What should your report include?</h2>
       <ol>

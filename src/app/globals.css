@@ -169,12 +169,14 @@ img {
 }
 .button {
   display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: clamp(8px, 1vw, 10px);
   border: 1px solid transparent;
   min-height: 44px;
-  padding: 11px 19px;
+  padding: 11px clamp(12px, 1.6vw, 19px);
   border-radius: var(--radius);
   font-size: var(--text-control);
   font-weight: 600;
@@ -186,6 +188,11 @@ img {
   white-space: normal;
   text-align: center;
   overflow-wrap: anywhere;
+}
+.button > span,
+.text-link > span {
+  min-width: 0;
+  overflow-wrap: inherit;
 }
 .button:hover:not(:disabled) {
   transform: translateY(-1px);
@@ -224,11 +231,16 @@ img {
 }
 .text-link {
   display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
   align-items: center;
   gap: 10px;
   font-size: var(--text-control);
   font-weight: 600;
   line-height: 1.6;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
 }
 .text-link:hover {
   color: var(--accent-text);
@@ -4350,30 +4362,6 @@ dialog::backdrop {
   font-size: var(--text-caption);
   min-width: 39px;
 }
-.editor-empty {
-  overflow: auto;
-  max-width: 680px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 65px 35px;
-  text-align: center;
-}
-.editor-empty h1 {
-  font-size: 38px;
-  line-height: 1.2;
-  margin: 22px 0 15px;
-  font-weight: 800;
-}
-.editor-empty h1 em {
-  font-size: inherit;
-  color: var(--accent-text);
-}
-.editor-empty > p {
-  font-size: var(--text-body);
-}
-.editor-empty .upload-area {
-  margin: 27px 0 21px;
-}
 .selected-heading {
   display: flex;
   justify-content: space-between;
@@ -6121,21 +6109,6 @@ dialog::backdrop {
   .editor-toast {
     font-size: var(--text-caption);
   }
-  .editor-empty {
-    padding: 45px 25px;
-  }
-  .editor-empty h1 {
-    font-size: 31px;
-  }
-  .editor-empty h1 em {
-    font-size: 35px;
-  }
-  .editor-empty > .eyebrow {
-    font-size: var(--text-caption);
-  }
-  .editor-app .upload-area {
-    padding: 30px 18px;
-  }
   .annotation .resize-handle {
     width: 12px;
     height: 12px;
@@ -6365,8 +6338,8 @@ dialog::backdrop {
   justify-content: center;
   flex-shrink: 0;
   gap: 8px;
-  min-height: 42px;
-  padding: 0 6px;
+  min-height: 44px;
+  padding: 8px 10px;
   border: 1px solid transparent;
   border-radius: 7px;
   background: transparent;
@@ -7459,7 +7432,6 @@ dialog::backdrop {
   background: #333;
   color: var(--accent);
   font-weight: 700;
-  box-shadow: inset 3px 0 var(--accent);
 }
 .admin-back {
   padding: 12px;
@@ -7485,10 +7457,13 @@ dialog::backdrop {
 }
 .admin-topbar-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   margin-left: auto;
-  flex-shrink: 0;
+  min-width: 0;
+  max-width: 100%;
 }
 .admin-topbar h1 {
   font-family: var(--sans);
@@ -8101,7 +8076,7 @@ dialog::backdrop {
     font-size: 32px;
   }
   .admin-topbar .button {
-    font-size: var(--text-caption);
+    font-size: var(--text-control);
     padding: 10px 12px;
   }
   .admin-setup {
@@ -8334,11 +8309,20 @@ dialog::backdrop {
 
 .editor-statusbar .guest-keep-file {
   font-size: var(--text-caption);
+  flex-shrink: 0;
   white-space: nowrap;
 }
 @media (max-width: 600px) {
+  .editor-statusbar {
+    height: auto;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    padding-block: 6px;
+  }
   .editor-statusbar .guest-keep-file {
-    font-size: var(--text-caption);
+    flex-basis: 100%;
+    justify-content: center;
+    min-height: 36px;
   }
 }
 
@@ -8421,8 +8405,7 @@ dialog::backdrop {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
-.directory-heading h1 em,
-.editor-empty h1 em {
+.directory-heading h1 em {
   font-size: inherit;
 }
 .editor-header .header-divider {
@@ -8485,5 +8468,170 @@ progress {
   .home-upload-bar .button {
     grid-column: 1 / -1;
     width: 100%;
+  }
+}
+
+/* Page introductions share the landing page's charcoal hero treatment. */
+main.with-page-heading {
+  max-width: 1280px;
+  padding-top: 0;
+  padding-inline: 40px;
+}
+.page-heading {
+  --muted: #bcbcbc;
+  --accent-text: var(--accent);
+  --border: #454545;
+  color: #fff;
+  background: var(--charcoal);
+  text-align: left;
+}
+.with-page-heading .page-heading {
+  max-width: none;
+  margin: 0 0 40px;
+  padding: 64px 0 40px;
+  text-align: left;
+  /* Extend the background through the container gutters without page overflow. */
+  box-shadow: 0 0 0 100vmax var(--charcoal);
+  clip-path: inset(0 -100vmax);
+}
+.with-page-heading .page-heading h1 {
+  max-width: 1050px;
+  margin: 0 0 22px;
+  color: #fff;
+  font-family: var(--sans);
+  font-size: clamp(42px, 5.8vw, 78px);
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.065em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+.page-heading h1 em {
+  color: var(--accent);
+  font-family: inherit;
+  font-size: inherit;
+  font-style: normal;
+  font-weight: inherit;
+}
+.page-heading .eyebrow {
+  display: block;
+  max-width: none;
+  margin: 0 0 16px;
+  color: var(--accent);
+  font-size: var(--text-small);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+.with-page-heading .page-heading > p {
+  max-width: 740px;
+  margin: 0 0 24px;
+  color: var(--muted);
+  font-size: clamp(var(--text-body), 1.4vw, 17px);
+  line-height: 1.8;
+}
+.with-page-heading .page-heading > :last-child {
+  margin-bottom: 0;
+}
+.page-heading .breadcrumbs,
+.page-heading .page-heading-back {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 28px;
+  padding: 0;
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+.page-heading .breadcrumbs a:hover,
+.page-heading .page-heading-back:hover {
+  color: #fff;
+}
+.page-heading > .tool-icon {
+  color: var(--accent);
+  background: #292929;
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.page-heading .tool-benefits {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+.page-heading > .status-label {
+  color: #e0e0e0;
+  background: #333;
+}
+.with-page-heading .page-heading--article h1 {
+  max-width: 950px;
+  font-size: clamp(36px, 4.5vw, 60px);
+  line-height: 1.12;
+}
+.prose-page.with-page-heading > :not(.page-heading, script) {
+  max-width: 770px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.page-heading .button.secondary {
+  color: #eee;
+  background: #292929;
+  border-color: #575757;
+}
+.page-heading .button.secondary:hover {
+  background: #3c3c3c;
+}
+.page-heading.page-heading--workspace {
+  gap: 24px;
+  padding: 32px;
+  border: 1px solid #383838;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+.page-heading.page-heading--workspace h1 {
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+}
+.page-heading.page-heading--workspace p {
+  color: var(--muted);
+  margin-bottom: 0;
+}
+.page-heading--workspace > div:first-child {
+  min-width: 0;
+}
+@media (min-width: 1440px) {
+  main.with-page-heading {
+    max-width: 1340px;
+    padding-inline: 50px;
+  }
+}
+@media (max-width: 900px) {
+  main.with-page-heading {
+    padding-inline: 28px;
+  }
+}
+@media (max-width: 700px) {
+  .with-page-heading .page-heading {
+    padding: 42px 0 32px;
+    margin-bottom: 32px;
+  }
+  .with-page-heading .page-heading h1 {
+    font-size: clamp(37px, 8vw, 54px);
+    letter-spacing: -0.055em;
+  }
+  .with-page-heading .page-heading--article h1 {
+    font-size: clamp(32px, 7.5vw, 48px);
+  }
+  .with-page-heading .page-heading > p {
+    font-size: var(--text-body);
+  }
+  .page-heading.page-heading--workspace {
+    padding: 24px 20px;
+  }
+}
+@media (max-width: 380px) {
+  main.with-page-heading {
+    padding-inline: 21px;
   }
 }

@@ -8,16 +8,16 @@ export default function Privacy() {
   return (
     <main id="main" className="container prose-page with-page-heading">
       <header className="page-heading">
-      <span className="eyebrow">YOUR DOCUMENTS. YOUR BUSINESS.</span>
-      <h1>
-        A little clarity
-        <br />
-        <em>about your privacy.</em>
-      </h1>
-      <p>
-        This page describes how the current version of Folio handles documents. Updated September
-        14, 2026.
-      </p>
+        <span className="eyebrow">YOUR DOCUMENTS. YOUR BUSINESS.</span>
+        <h1>
+          A little clarity
+          <br />
+          <em>about your privacy.</em>
+        </h1>
+        <p>
+          This page describes how the current version of Folio handles documents. Updated September
+          14, 2026.
+        </p>
       </header>
       <h2>Editing can run in your browser while files save privately.</h2>
       <p>

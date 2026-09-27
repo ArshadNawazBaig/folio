@@ -37,7 +37,7 @@ import {
 } from 'lucide-react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { Logo } from './logo';
-import { UploadArea } from './upload';
+import { EditorWelcome, EditorWelcomeHeader } from './editor-welcome';
 import { PdfCanvas } from './pdf-canvas';
 import { EditorContentSkeleton } from './editor-skeleton';
 import { Dropdown } from './dropdown';
@@ -1299,62 +1299,67 @@ export function Editor() {
       readonly: false,
     }));
   const allFields = [...fields, ...customFields];
+  const showWelcome = (!bytes || !doc || !pageModel) && !busy;
   return (
     <main id="main" className="editor-app">
-      <header className="editor-header">
-        <div className="editor-header-left">
-          <Logo light />
-          <span className="header-divider" />
-          <Link href="/tools" className="icon-button" aria-label="Back to all tools">
-            <ArrowLeft size={18} />
-          </Link>
-          <div className="editor-file-title">
-            <input
-              aria-label="Document name"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                editVersion.current++;
-                setDirty(true);
-              }}
-            />
-            <span>
-              {busy ||
-                (!bytes
-                  ? 'Your next document starts here'
-                  : autosave.phase === 'saved'
-                    ? 'All changes saved'
-                    : autosave.phase === 'uploading'
-                      ? 'Uploading PDF…'
-                      : autosave.phase === 'error'
-                        ? 'Not saved — retry'
-                        : 'Saving changes…')}
-            </span>
+      {showWelcome ? (
+        <EditorWelcomeHeader />
+      ) : (
+        <header className="editor-header">
+          <div className="editor-header-left">
+            <Logo light />
+            <span className="header-divider" />
+            <Link href="/tools" className="icon-button" aria-label="Back to all tools">
+              <ArrowLeft size={18} />
+            </Link>
+            <div className="editor-file-title">
+              <input
+                aria-label="Document name"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  editVersion.current++;
+                  setDirty(true);
+                }}
+              />
+              <span>
+                {busy ||
+                  (!bytes
+                    ? 'Your next document starts here'
+                    : autosave.phase === 'saved'
+                      ? 'All changes saved'
+                      : autosave.phase === 'uploading'
+                        ? 'Uploading PDF…'
+                        : autosave.phase === 'error'
+                          ? 'Not saved — retry'
+                          : 'Saving changes…')}
+              </span>
+            </div>
           </div>
-        </div>
-        <div className="editor-header-right">
-          <button
-            className="button secondary cloud-save-button"
-            aria-label="Save to cloud"
-            title="Save your workspace now"
-            disabled={!bytes || !!busy || savingNow}
-            onClick={() => void save()}
-          >
-            {savingNow ? <Loader2 size={16} className="spin" /> : <CloudUpload size={16} />}
-            <span>
-              {savingNow ? 'Saving…' : autosave.phase === 'error' ? 'Retry saving' : 'Save now'}
-            </span>
-          </button>
-          <button
-            className="button primary"
-            disabled={!bytes || !!busy}
-            onClick={() => exportFile()}
-          >
-            {busy ? <Loader2 size={16} className="spin" /> : <Download size={16} />}
-            <span>Download PDF</span>
-          </button>
-        </div>
-      </header>
+          <div className="editor-header-right">
+            <button
+              className="button secondary cloud-save-button"
+              aria-label="Save to cloud"
+              title="Save your workspace now"
+              disabled={!bytes || !!busy || savingNow}
+              onClick={() => void save()}
+            >
+              {savingNow ? <Loader2 size={16} className="spin" /> : <CloudUpload size={16} />}
+              <span>
+                {savingNow ? 'Saving…' : autosave.phase === 'error' ? 'Retry saving' : 'Save now'}
+              </span>
+            </button>
+            <button
+              className="button primary"
+              disabled={!bytes || !!busy}
+              onClick={() => exportFile()}
+            >
+              {busy ? <Loader2 size={16} className="spin" /> : <Download size={16} />}
+              <span>Download PDF</span>
+            </button>
+          </div>
+        </header>
+      )}
       {editorExit.dialog}
       <dialog ref={signInDialog} className="confirm-dialog" aria-labelledby="cloud-signin-heading">
         <header className="dialog-header">
@@ -1398,53 +1403,30 @@ export function Editor() {
       {(!bytes || !doc || !pageModel) && busy ? (
         <EditorContentSkeleton sidebar={sidebar} properties={properties} />
       ) : !bytes || !doc || !pageModel ? (
-        <div className="editor-empty">
-          <span className="eyebrow">A LITTLE SPACE TO MAKE IT YOURS</span>
-          <h1>
-            Your next great document
-            <br />
-            <em>starts right here.</em>
-          </h1>
-          <p>Add a PDF to open your workspace.</p>
-          {params.get('cloud') && !user && (
-            <Link className="text-link" href="/account?next=%2Fdashboard%3Fview%3Dfiles">
-              Sign in to open your cloud files <ArrowRight size={16} />
-            </Link>
-          )}
-          <UploadArea
-            onFiles={async (files) => {
-              const f = files[0];
-              if (!f) return;
-              if (f.size > MAX_FILE_SIZE || !/\.pdf$/i.test(f.name)) {
-                setError('Choose a PDF smaller than 50 MB.');
-                return;
-              }
-              await openBytes(new Uint8Array(await f.arrayBuffer()), f.name);
-            }}
-            busy={!!busy}
-          />
-          <button
-            className="text-link"
-            disabled={!!busy}
-            onClick={async () => {
-              setBusy('Preparing your sample…');
-              try {
-                const { createSample } = await import('@/lib/sample');
-                await openBytes(await createSample(), 'Studio North — Proposal.pdf');
-              } catch (e) {
-                setError(friendlyError(e));
-                setBusy('');
-              }
-            }}
-          >
-            Try a sample document <ArrowRight size={16} />
-          </button>
-          {error && (
-            <p className="error-message" role="alert">
-              {error}
-            </p>
-          )}
-        </div>
+        <EditorWelcome
+          signedIn={!!user}
+          cloudRequested={!!params.get('cloud')}
+          error={error}
+          onFiles={async (files) => {
+            const f = files[0];
+            if (!f) return;
+            if (f.size > MAX_FILE_SIZE || !/\.pdf$/i.test(f.name)) {
+              setError('Choose a PDF smaller than 50 MB.');
+              return;
+            }
+            await openBytes(new Uint8Array(await f.arrayBuffer()), f.name);
+          }}
+          onSample={async () => {
+            setBusy('Preparing your sample…');
+            try {
+              const { createSample } = await import('@/lib/sample');
+              await openBytes(await createSample(), 'Studio North — Proposal.pdf');
+            } catch (e) {
+              setError(friendlyError(e));
+              setBusy('');
+            }
+          }}
+        />
       ) : (
         <>
           {signatureTab && (

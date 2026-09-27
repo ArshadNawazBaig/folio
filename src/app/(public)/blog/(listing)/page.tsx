@@ -76,7 +76,9 @@ export default async function Blog({ searchParams }: Props) {
       </header>
       <div className={s.journalBar}>
         <div>
-          <span className={`${s.eyebrow} eyebrow`}>{q ? 'SEARCH RESULTS' : category || 'THE LATEST'}</span>
+          <span className={`${s.eyebrow} eyebrow`}>
+            {q ? 'SEARCH RESULTS' : category || 'THE LATEST'}
+          </span>
           <span>
             {total} {total === 1 ? 'story' : 'stories'}
           </span>

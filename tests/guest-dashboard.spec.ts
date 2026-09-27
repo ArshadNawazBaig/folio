@@ -63,10 +63,25 @@ test('guest sign-out retries on failure, clears the session and updates other op
   const other = await context.newPage();
   await other.goto('/dashboard?view=files');
   await expect(other.getByRole('button', { name: 'Upload PDF', exact: true })).toBeEnabled();
-  const signOut = page.getByRole('button', { name: 'Sign out', exact: true });
+  const navbar = page.getByRole('banner', { name: 'Workspace navigation' });
+  const profile = navbar.getByRole('button', { name: 'Guest account — account menu' });
+  const menu = page.getByRole('menu', { name: 'Account menu' });
+  const signOut = menu.getByRole('menuitem', { name: 'Sign out', exact: true });
+  await expect(signOut).toBeHidden();
   for (const width of [1440, 390, 320]) {
     await page.setViewportSize({ width, height: 960 });
+    await page.evaluate(() =>
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }),
+    );
+    await expect(profile).toBeInViewport();
+    await profile.click();
+    await expect(profile).toHaveAttribute('aria-expanded', 'true');
+    await expect(menu.getByRole('menuitem', { name: 'Profile settings' })).toBeInViewport();
     await expect(signOut).toBeInViewport();
+    expect((await navbar.boundingBox())!.y).toBe(0);
+    const bounds = (await menu.boundingBox())!;
+    expect(bounds.x).toBeGreaterThanOrEqual(0);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
@@ -74,13 +89,23 @@ test('guest sign-out retries on failure, clears the session and updates other op
       .getByRole('link', { name: 'Folio home', exact: true })
       .first()
       .boundingBox();
-    const button = await signOut.boundingBox();
+    const button = await profile.boundingBox();
     if (width <= 900) expect(button!.x).toBeGreaterThan(logo!.x + logo!.width);
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
     await page.screenshot({ path: testInfo.outputPath(`guest-sign-out-${width}.png`) });
+    await page.keyboard.press('Escape');
+    await expect(menu).toBeHidden();
+    await expect(profile).toBeFocused();
   }
+  await profile.click();
+  // Base UI's hidden guards redirect focus, as covered by the account-menu keyboard test.
   expect(
-    (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
-      .violations,
+    (
+      await new AxeBuilder({ page })
+        .exclude('[data-base-ui-focus-guard]')
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+        .analyze()
+    ).violations,
   ).toEqual([]);
   let fail = true;
   await page.route('**/api/workspaces/session', async (route) => {
@@ -446,7 +471,7 @@ test('sign-in retains every guest file even when the account is full and claims 
   });
   await page.goto('/dashboard?view=settings');
   await page.getByRole('button', { name: 'Continue with Google' }).click();
-  await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Fixture User — account menu' })).toBeVisible();
   await page.goto('/dashboard?view=files');
   await expect(
     page.getByRole('status').filter({ hasText: 'Some guest files could not fit' }),

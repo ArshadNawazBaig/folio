@@ -11,13 +11,13 @@ export default function TermsPage() {
   return (
     <main id="main" className="container prose-page with-page-heading">
       <header className="page-heading">
-      <span className="eyebrow">CLEAR EXPECTATIONS</span>
-      <h1>
-        Terms for <em>using Folio.</em>
-      </h1>
-      <p>
-        Updated <time dateTime="2026-09-18">September 18, 2026</time>.
-      </p>
+        <span className="eyebrow">CLEAR EXPECTATIONS</span>
+        <h1>
+          Terms for <em>using Folio.</em>
+        </h1>
+        <p>
+          Updated <time dateTime="2026-09-18">September 18, 2026</time>.
+        </p>
       </header>
       <p>
         These terms describe use of Folio at thebestfreepdf.com, including its PDF tools, accounts,

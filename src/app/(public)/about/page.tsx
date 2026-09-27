@@ -21,17 +21,17 @@ export default function About() {
         }}
       />
       <header className="page-heading">
-      <span className="eyebrow">A LITTLE LESS PAPERWORK</span>
-      <h1>
-        Made for the work
-        <br />
-        <em>between the big ideas.</em>
-      </h1>
-      <p>
-        A document can be a beginning, a decision, a small detail that moves something forward.
-        Folio is a place to handle those details with a little more clarity and a little less
-        friction.
-      </p>
+        <span className="eyebrow">A LITTLE LESS PAPERWORK</span>
+        <h1>
+          Made for the work
+          <br />
+          <em>between the big ideas.</em>
+        </h1>
+        <p>
+          A document can be a beginning, a decision, a small detail that moves something forward.
+          Folio is a place to handle those details with a little more clarity and a little less
+          friction.
+        </p>
       </header>
       <h2 id="what-is-folio">What is Folio?</h2>
       <p>{productDescription}</p>

@@ -2,9 +2,11 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Menu } from '@base-ui/react/menu';
 import {
   ArrowRight,
   ArrowUpRight,
+  ChevronDown,
   Cloud,
   CreditCard,
   FileText,
@@ -15,6 +17,7 @@ import {
   Plus,
   Settings,
   ShieldCheck,
+  UserRound,
 } from 'lucide-react';
 import { useAccount } from '../account-provider';
 import { Logo } from '../logo';
@@ -74,10 +77,17 @@ function DashboardLoading() {
         </div>
       </aside>
       <div className={s.mainColumn}>
-        <div className={s.topbar}>
-          <Skeleton width={170} height={12} />
-          <Skeleton width={90} height={12} />
-        </div>
+        <header className={s.topbar} aria-label="Workspace navigation">
+          <div className={s.topbarLogo}>
+            <Logo light />
+          </div>
+          <div className={s.breadcrumb}>
+            <Skeleton width={170} height={12} />
+          </div>
+          <div className={s.topbarActions} aria-hidden="true">
+            <Skeleton width={36} height={36} radius="50%" />
+          </div>
+        </header>
         <main id="main" className={s.content}>
           <LoadingLabel>Loading your workspace…</LoadingLabel>
           <div className={`${s.heading} page-heading page-heading--workspace`}>
@@ -297,43 +307,92 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
               Manage files <ArrowRight size={14} />
             </Link>
           </div>
-          {access.admin && (
-            <Link href="/admin" className={s.adminLink}>
-              <ShieldCheck size={17} /> Super admin dashboard
-            </Link>
-          )}
-          <div className={s.sidebarProfile}>
-            <span className={s.avatar}>{name.slice(0, 1).toUpperCase()}</span>
-            <div>
-              <strong>{name}</strong>
-              <small>{access.pro ? 'Folio Pro' : 'Folio Free'}</small>
-            </div>
-          </div>
           {guest && (
-            <Link className={`${s.signOut} ${s.guestSignIn}`} href="/account?next=%2Fdashboard">
+            <Link className={s.guestSignIn} href="/account?next=%2Fdashboard">
               <ArrowUpRight size={16} /> Sign in to keep your files
             </Link>
           )}
-          <button
-            className={s.signOut}
-            disabled={signingOut}
-            aria-describedby={guest ? 'guest-session-details' : undefined}
-            onClick={() => void signOut()}
-          >
-            <LogOut size={16} />
-            {signingOut ? 'Signing out…' : 'Sign out'}
-          </button>
         </div>
       </aside>
       <div className={s.mainColumn}>
-        <header className={s.topbar}>
-          <span>
+        <header className={s.topbar} aria-label="Workspace navigation">
+          <div className={s.topbarLogo}>
+            <Logo light />
+          </div>
+          <span className={s.breadcrumb}>
             My workspace <span className={s.crumb}>/</span>{' '}
             <strong>{navigation.find((n) => n.id === view)?.label}</strong>
           </span>
-          <Link href="/tools">
-            All PDF tools <ArrowUpRight size={16} />
-          </Link>
+          <nav className={s.topbarActions} aria-label="Account navigation">
+            <Link
+              href="/tools"
+              className={s.toolsLink}
+              aria-label="All PDF tools"
+              title="All PDF tools"
+            >
+              <FileText size={18} aria-hidden="true" />
+              <span>All PDF tools</span>
+            </Link>
+            {access.admin && (
+              <Link
+                href="/admin"
+                className={s.adminLink}
+                aria-label="Super admin dashboard"
+                title="Super admin dashboard"
+              >
+                <ShieldCheck size={18} aria-hidden="true" />
+                <span>Admin</span>
+              </Link>
+            )}
+            <Menu.Root modal={false}>
+              <Menu.Trigger className={s.profile} aria-label={`${name} — account menu`}>
+                <span className={s.avatar} aria-hidden="true">
+                  {guest ? <UserRound size={19} /> : name.slice(0, 1).toUpperCase()}
+                </span>
+                <span className={s.profileCopy}>
+                  <strong>{name}</strong>
+                  <small>{access.pro ? 'Folio Pro' : 'Folio Free'}</small>
+                </span>
+                <ChevronDown size={16} className={s.profileChevron} aria-hidden="true" />
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner
+                  className={s.accountMenuPositioner}
+                  align="end"
+                  sideOffset={10}
+                  collisionPadding={12}
+                >
+                  <Menu.Popup className={s.accountMenu} aria-label="Account menu">
+                    <div className={s.accountMenuIdentity}>
+                      <strong>{name}</strong>
+                      <small>{access.pro ? 'Folio Pro' : 'Folio Free'}</small>
+                    </div>
+                    <Menu.LinkItem
+                      className={s.accountMenuItem}
+                      render={<Link href="/dashboard?view=settings" />}
+                      closeOnClick
+                    >
+                      <Settings size={18} aria-hidden="true" />
+                      Profile settings
+                    </Menu.LinkItem>
+                    <Menu.Separator className={s.accountMenuSeparator} />
+                    <Menu.Item
+                      className={s.accountMenuItem}
+                      render={<button type="button" />}
+                      nativeButton
+                      closeOnClick={false}
+                      disabled={signingOut}
+                      aria-describedby={guest ? 'guest-session-details' : undefined}
+                      onClick={() => void signOut()}
+                    >
+                      <LogOut size={18} aria-hidden="true" />
+                      {signingOut ? 'Signing out…' : 'Sign out'}
+                    </Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </nav>
         </header>
         <main id="main" className={s.content}>
           <div className={`${s.heading} page-heading page-heading--workspace`}>

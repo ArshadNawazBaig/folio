@@ -16,7 +16,9 @@ export default async function Maintenance() {
     <main id="main" className="container account-page with-page-heading">
       <header className="page-heading">
         <span className="eyebrow">A LITTLE MAINTENANCE</span>
-        <h1>A little care <em>behind the scenes.</em></h1>
+        <h1>
+          A little care <em>behind the scenes.</em>
+        </h1>
         <p>{settings.maintenanceMessage}</p>
       </header>
       <div className="account-card">

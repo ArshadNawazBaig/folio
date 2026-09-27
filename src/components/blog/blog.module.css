@@ -442,17 +442,23 @@
 }
 .engagementActions {
   display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
   gap: 10px;
 }
 .likeButton,
 .shareButton {
   display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
   align-items: center;
   gap: 8px;
   justify-content: center;
   font-size: var(--text-small);
   padding: 11px 15px;
-  min-height: 43px;
+  min-height: 44px;
+  overflow-wrap: anywhere;
   border: 1px solid var(--border);
   border-radius: 30px;
   background: var(--surface);
@@ -467,6 +473,7 @@
 }
 .readingCta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
@@ -477,7 +484,6 @@
   margin: 12px 0 0;
 }
 .readingCta :global(.button) {
-  white-space: nowrap;
   font-size: var(--text-small);
 }
 @media (max-width: 950px) {

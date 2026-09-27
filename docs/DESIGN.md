@@ -29,9 +29,15 @@ The download, signature, and blog dialogs have specialized content but follow th
 
 `AdminNavigation` is shared by administration and blog management. Its destinations are defined in `src/lib/admin-navigation.ts`. Admin views use `?view=` URLs, so links from blog management and refreshes return to the selected screen. Dashboard and admin navigation bring the active item into view on narrow screens.
 
-Search controls use rounded outlines and an obvious focus state. Long button labels wrap. Mobile admin forms stack paired fields and use 16px input text to avoid browser zoom when focusing a field. Data tables retain horizontal scrolling inside their cards.
+The dashboard navbar stays fixed at the top, beside the desktop sidebar. Put the account avatar on its right; clicking it opens a dropdown with Profile settings and Sign out. The dropdown supports keyboard navigation, Escape, and outside-click dismissal. On mobile, show the original logo in the navbar and keep the horizontally scrolling section navigation just below it. Reserve space for the fixed bar so it never covers the start of the content. Icon-only actions retain accessible names.
+
+Search controls use rounded outlines and an obvious focus state. Buttons size to their content within their container, keep padding around both icons and labels, and wrap long labels without shrinking icons. Action groups wrap or stack when space runs out. Main buttons and dashboard navbar actions have a minimum height of 44px; compact navbar actions switch to named icon controls on small screens. Mobile admin forms stack paired fields and use 16px input text to avoid browser zoom when focusing a field. Data tables retain horizontal scrolling inside their cards.
 
 Public footer copy, links, headings, and copyright text use `--text-control`, matching navbar link text at every viewport size.
+
+Public page introductions use `page-heading` inside a `with-page-heading` main. Match the landing page's full-width charcoal background, left-aligned bold Manrope title, orange eyebrow and title emphasis, and muted description. Keep breadcrumbs and article metadata inside the dark introduction. Use `page-heading--article` for long editorial titles and `page-heading--workspace` for compact dashboard and admin introductions. Working editor headers keep their compact charcoal controls. Preserve the existing logo.
+
+The empty PDF workspace uses `EditorWelcome`: a charcoal introduction, a primary upload card, a separate sample-document card, and a short overview of the editing tools. Stack the cards on mobile and scroll the content below the persistent header. Show tools and file navigation until a document opens, then show the document name, save, and download controls. Keep the existing upload validation, sample generation, and cloud-file sign-in route.
 
 ## Verification
 

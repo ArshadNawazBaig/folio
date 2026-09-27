@@ -77,11 +77,14 @@ export default async function BlogPost({ params }: Props) {
 
       <article>
         <header className={`${s.articleHero} page-heading page-heading--article`}>
-      <Link className={`${s.back} page-heading-back`} href="/blog">
-        <ArrowLeft size={16} />
-        Back to the journal
-      </Link>
-          <Link className={`${s.eyebrow} eyebrow`} href={`/blog?category=${encodeURIComponent(post.category)}`}>
+          <Link className={`${s.back} page-heading-back`} href="/blog">
+            <ArrowLeft size={16} />
+            Back to the journal
+          </Link>
+          <Link
+            className={`${s.eyebrow} eyebrow`}
+            href={`/blog?category=${encodeURIComponent(post.category)}`}
+          >
             {post.category}
           </Link>
           <h1>{post.title}</h1>

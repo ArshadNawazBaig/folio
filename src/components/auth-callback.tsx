@@ -75,40 +75,52 @@ export function AuthCallback() {
     <>
       <header className="page-heading">
         <span className="eyebrow">YOUR FOLIO ACCOUNT</span>
-        <h1>{signedIn ? <>You’re <em>signed in.</em></> : <>Welcome <em>back.</em></>}</h1>
-      </header>
-      <div className="account-card">
-      {signedIn ? (
-        <>
-          <p role="status">Return to your document tab to continue. Your edits have stayed open.</p>
-          <button className="button primary" onClick={() => window.close()}>
-            Close this tab
-          </button>
-        </>
-      ) : error ? (
-        <>
-          <p role="alert" className="error-message">
-            {error}
-          </p>
-          {returnToEditor ? (
+        <h1>
+          {signedIn ? (
             <>
-              <p>
-                Your edits are still in the editor. Close this tab and try Google sign-in again from
-                your document.
-              </p>
-              <button className="button primary" onClick={() => window.close()}>
-                Close this tab
-              </button>
+              You’re <em>signed in.</em>
             </>
           ) : (
-            <Link className="button primary" href={signInHref(destination)}>
-              Back to sign in
-            </Link>
+            <>
+              Welcome <em>back.</em>
+            </>
           )}
-        </>
-      ) : (
-        <p role="status">Finishing your sign-in…</p>
-      )}
+        </h1>
+      </header>
+      <div className="account-card">
+        {signedIn ? (
+          <>
+            <p role="status">
+              Return to your document tab to continue. Your edits have stayed open.
+            </p>
+            <button className="button primary" onClick={() => window.close()}>
+              Close this tab
+            </button>
+          </>
+        ) : error ? (
+          <>
+            <p role="alert" className="error-message">
+              {error}
+            </p>
+            {returnToEditor ? (
+              <>
+                <p>
+                  Your edits are still in the editor. Close this tab and try Google sign-in again
+                  from your document.
+                </p>
+                <button className="button primary" onClick={() => window.close()}>
+                  Close this tab
+                </button>
+              </>
+            ) : (
+              <Link className="button primary" href={signInHref(destination)}>
+                Back to sign in
+              </Link>
+            )}
+          </>
+        ) : (
+          <p role="status">Finishing your sign-in…</p>
+        )}
       </div>
     </>
   );

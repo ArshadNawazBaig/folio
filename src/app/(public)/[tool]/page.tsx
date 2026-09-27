@@ -66,13 +66,13 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
       )}
 
       <div className="tool-page-heading page-heading">
-      <nav className="breadcrumbs" aria-label="Breadcrumb">
-        <Link href="/">Home</Link>
-        <ChevronRight size={12} />
-        <Link href="/tools">All tools</Link>
-        <ChevronRight size={12} />
-        <span aria-current="page">{t.name}</span>
-      </nav>
+        <nav className="breadcrumbs" aria-label="Breadcrumb">
+          <Link href="/">Home</Link>
+          <ChevronRight size={12} />
+          <Link href="/tools">All tools</Link>
+          <ChevronRight size={12} />
+          <span aria-current="page">{t.name}</span>
+        </nav>
         <span className={`tool-icon ${t.color}`}>
           <ToolIcon name={t.icon} size={28} />
         </span>

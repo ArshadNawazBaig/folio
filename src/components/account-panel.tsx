@@ -28,40 +28,48 @@ export function AccountPanel({
     <>
       <header className="page-heading">
         <span className="eyebrow">YOUR FOLIO ACCOUNT</span>
-        <h1>{destination === '/admin' ? 'Your control room awaits.' : <>Welcome to <em>Folio.</em></>}</h1>
+        <h1>
+          {destination === '/admin' ? (
+            'Your control room awaits.'
+          ) : (
+            <>
+              Welcome to <em>Folio.</em>
+            </>
+          )}
+        </h1>
         <p>Your files, billing, and settings, together in one place.</p>
       </header>
       <div className="account-card">
-      <span className="account-symbol">
-        <Mail size={25} />
-      </span>
-      {loading || user ? (
-        <SignInSkeleton description />
-      ) : (
-        <>
-          <p>
-            {configured
-              ? 'Sign in or create an account.'
-              : 'Accounts and purchases are not connected yet. You can still explore the text editor sample and use the available tools.'}
-          </p>
-          {destination === '/admin' && (
-            <p className="service-note">
-              Use the account assigned as super admin. Your access is checked after sign-in.
+        <span className="account-symbol">
+          <Mail size={25} />
+        </span>
+        {loading || user ? (
+          <SignInSkeleton description />
+        ) : (
+          <>
+            <p>
+              {configured
+                ? 'Sign in or create an account.'
+                : 'Accounts and purchases are not connected yet. You can still explore the text editor sample and use the available tools.'}
             </p>
-          )}
-          <SignInForm destination={destination} />
-          {!configured && (
-            <Link className="text-link" href="/edit-pdf-text?demo=1">
-              Explore the sample <ArrowRight size={16} />
-            </Link>
-          )}
-        </>
-      )}
-      {error && (
-        <p className="error-message" role="alert">
-          {error}
-        </p>
-      )}
+            {destination === '/admin' && (
+              <p className="service-note">
+                Use the account assigned as super admin. Your access is checked after sign-in.
+              </p>
+            )}
+            <SignInForm destination={destination} />
+            {!configured && (
+              <Link className="text-link" href="/edit-pdf-text?demo=1">
+                Explore the sample <ArrowRight size={16} />
+              </Link>
+            )}
+          </>
+        )}
+        {error && (
+          <p className="error-message" role="alert">
+            {error}
+          </p>
+        )}
       </div>
     </>
   );

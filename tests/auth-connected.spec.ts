@@ -167,7 +167,8 @@ test('Google creates a PKCE session, uses the customer account, and signs out', 
   await expect(header.locator('a.header-account')).toHaveCount(1);
   await expect(header.getByRole('link', { name: 'Sign in', exact: true })).toHaveCount(0);
   await header.getByRole('link', { name: 'Dashboard', exact: true }).click();
-  await page.getByRole('button', { name: 'Sign out', exact: true }).click();
+  await page.getByRole('button', { name: 'Fixture User — account menu' }).click();
+  await page.getByRole('menuitem', { name: 'Sign out', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeEnabled();
   await page.setViewportSize({ width: 320, height: 740 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -1065,21 +1066,66 @@ test('dashboard profile persists, billing is reachable, and layouts stay accessi
   await page.goto('/account');
   await page.getByRole('button', { name: 'Continue with Google' }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
+  const navbar = page.getByRole('banner', { name: 'Workspace navigation' });
+  const profile = navbar.getByRole('button', { name: 'Fixture User — account menu' });
+  const menu = page.getByRole('menu', { name: 'Account menu' });
+  const settings = menu.getByRole('menuitem', { name: 'Profile settings' });
+  const signOut = menu.getByRole('menuitem', { name: 'Sign out', exact: true });
+  await expect(menu).toBeHidden();
+  await expect(navbar.getByRole('button', { name: 'Sign out', exact: true })).toHaveCount(0);
+  await profile.focus();
+  await profile.press('ArrowDown');
+  await expect(settings).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(signOut).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeHidden();
+  await expect(profile).toBeFocused();
+  await profile.press('Enter');
+  await expect(settings).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(menu).toBeHidden();
+  await expect(page.getByRole('link', { name: 'Edit a PDF', exact: true })).toBeFocused();
   for (const width of [1440, 1024, 768, 390, 320]) {
     await page.setViewportSize({ width, height: 960 });
     await expect(page.getByRole('heading', { name: 'Welcome back, Fixture.' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
+    await page.evaluate(() =>
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'instant' }),
+    );
+    expect((await navbar.boundingBox())!.y).toBe(0);
+    await expect(profile).toBeInViewport();
+    await profile.click();
+    await expect(profile).toHaveAttribute('aria-expanded', 'true');
+    await expect(settings).toBeInViewport();
+    await expect(signOut).toBeInViewport();
+    const bounds = (await menu.boundingBox())!;
+    expect(bounds.x).toBeGreaterThanOrEqual(0);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
     if (width === 1440 || width === 320) {
+      // Base UI's hidden guards redirect focus; the keyboard checks above cover them.
       expect(
-        (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
-          .violations,
+        (
+          await new AxeBuilder({ page })
+            .exclude('[data-base-ui-focus-guard]')
+            .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+            .analyze()
+        ).violations,
       ).toEqual([]);
       await page.screenshot({ path: `/tmp/folio-dashboard-${width}.png`, fullPage: true });
     }
+    // The dropdown overlaps the heading on mobile; click the page gutter outside it.
+    await page.mouse.click(8, 300);
+    await expect(menu).toBeHidden();
+    await expect(profile).toHaveAttribute('aria-expanded', 'false');
   }
-  await page.getByRole('link', { name: 'Account settings', exact: true }).click();
+  await profile.click();
+  await settings.click();
+  await expect(page).toHaveURL(/\/dashboard\?view=settings$/);
+  await expect(menu).toBeHidden();
   await page.getByRole('textbox', { name: 'Full name', exact: true }).fill('Arshad Nawaz');
   await page.getByRole('textbox', { name: 'Company' }).fill('North Studio');
   await page.getByRole('button', { name: 'Save profile' }).click();

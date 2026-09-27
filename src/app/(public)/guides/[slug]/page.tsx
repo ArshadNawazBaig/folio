@@ -59,11 +59,11 @@ export default async function Guide({ params }: { params: Promise<{ slug: string
 
       <article>
         <header className="article-heading page-heading page-heading--article">
-      <nav className="breadcrumbs" aria-label="Breadcrumb">
-        <Link href="/guides">Guides</Link>
-        <ChevronRight size={13} />
-        <span>{g.category}</span>
-      </nav>
+          <nav className="breadcrumbs" aria-label="Breadcrumb">
+            <Link href="/guides">Guides</Link>
+            <ChevronRight size={13} />
+            <span>{g.category}</span>
+          </nav>
           <span className="eyebrow">
             {g.category} · {g.readTime}
           </span>
