@@ -3,7 +3,7 @@ import type { WorkspaceSnapshot } from './workspace-types';
 import { accountFetch, authClient } from './auth-client';
 import { CLOUD_BUCKET, CLOUD_FILE_LIMIT } from './cloud-types';
 export async function uploadCloudPdf(blob: Blob, name: string) {
-  const client = authClient();
+  const client = await authClient();
   if (!client) throw new Error('Sign in to save a PDF to your account.');
   if (!blob.size || blob.size > CLOUD_FILE_LIMIT || !/\.pdf$/i.test(name))
     throw new Error('Choose a PDF of up to 50 MB.');
@@ -38,7 +38,7 @@ export async function finishCloudUpload(id: string) {
   });
 }
 export async function readCloudPdf(id: string) {
-  const client = authClient();
+  const client = await authClient();
   if (!client) throw new Error('Sign in to open your cloud files.');
   const { name, path, workspace } = await (
     await accountFetch(`/api/account/files/${encodeURIComponent(id)}`)

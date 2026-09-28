@@ -135,6 +135,29 @@ test('design: home toolkit search, task filters and upload validation work on mo
   await expect(page).toHaveURL(/\/image-to-pdf$/);
 });
 
+test('design: tool search opens on demand, restores focus and navigates after reopening', async ({
+  page,
+}) => {
+  await mockGoogle(page);
+  await page.goto('/');
+  const dialog = page.getByRole('dialog', { name: 'Find a PDF tool', exact: true });
+  await expect(dialog).toBeHidden();
+  await page.keyboard.press('ControlOrMeta+k');
+  const input = dialog.getByRole('textbox', { name: 'Search PDF tools' });
+  await expect(input).toBeFocused();
+  await input.fill('signature');
+  await expect(dialog.getByRole('link', { name: /^Signature generator/ })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await page.getByRole('button', { name: 'Search tools', exact: true }).click();
+  await expect(input).toBeFocused();
+  await expect(input).toHaveValue('signature');
+  await dialog.getByRole('link', { name: /^Signature generator/ }).click();
+  await expect(page).toHaveURL(/\/signature-generator$/);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Signature generator');
+  await expect(dialog).toBeHidden();
+});
+
 test('design: admin form notices, navigation and long confirmation dialogs remain consistent', async ({
   page,
 }, info) => {

@@ -1,5 +1,5 @@
 'use client';
-import { authClient, AccountRequestError } from './auth-client';
+import { existingAuthClient, AccountRequestError } from './auth-client';
 
 export const WORKSPACE_SESSION_EVENT = 'folio-workspace-session-changed';
 
@@ -7,7 +7,7 @@ export const WORKSPACE_SESSION_EVENT = 'folio-workspace-session-changed';
 export async function workspaceRequest(path: string, init: RequestInit = {}) {
   const headers = new Headers(init.headers);
   headers.set('x-folio-workspace', '1');
-  const session = await authClient()?.auth.getSession();
+  const session = await (await existingAuthClient())?.auth.getSession();
   if (session?.data.session)
     headers.set('authorization', `Bearer ${session.data.session.access_token}`);
   const send = () =>

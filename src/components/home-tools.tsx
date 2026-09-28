@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { ArrowRight, ArrowUpRight, Search, X } from 'lucide-react';
-import { popularSlugs, type Tool } from '@/lib/tools';
+import type { ToolSummary } from '@/lib/tool-summary';
 import { ToolIcon } from './icon';
 import styles from './home.module.css';
 
@@ -34,7 +34,13 @@ const organizeSlugs = new Set([
   'page-numbers',
 ]);
 
-export function HomeTools({ tools }: { tools: Tool[] }) {
+export function HomeTools({
+  tools,
+  popularSlugs,
+}: {
+  tools: ToolSummary[];
+  popularSlugs: string[];
+}) {
   const [filter, setFilter] = useState<Filter>('Popular');
   const [query, setQuery] = useState('');
   const search = query.trim().toLowerCase();

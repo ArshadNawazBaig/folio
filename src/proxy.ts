@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getPlatform } from '@/lib/server/platform';
+import { getServiceSettings } from '@/lib/server/platform';
 import { siteUrl } from '@/lib/seo';
 import { legacyPublicRedirect } from '@/lib/site-config';
 export async function proxy(request: NextRequest) {
@@ -13,7 +13,8 @@ export async function proxy(request: NextRequest) {
       response.headers.set('X-Robots-Tag', 'noindex, nofollow');
     return response;
   };
-  if (['/robots.txt', '/sitemap.xml'].includes(pathname) || pathname.startsWith('/s/')) return next();
+  if (['/robots.txt', '/sitemap.xml'].includes(pathname) || pathname.startsWith('/s/'))
+    return next();
   // Admin recovery, support, sign-in, cancellation, and signed payment events stay reachable.
   if (
     /^\/(admin|account|dashboard|auth|maintenance|support|security|terms|privacy)(\/|$)/.test(
@@ -24,7 +25,7 @@ export async function proxy(request: NextRequest) {
   )
     return next();
   try {
-    const { settings } = await getPlatform();
+    const settings = await getServiceSettings();
     if (!settings.maintenance) return next();
   } catch {
     if (!pathname.startsWith('/api/'))

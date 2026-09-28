@@ -7,7 +7,7 @@ const bucket = 'folio-recovery';
 const limit = 40 * 1024 * 1024;
 const writes = new Map<string, Promise<unknown>>();
 async function identity() {
-  const client = authClient();
+  const client = await authClient();
   if (!client) return null;
   const {
     data: { session },

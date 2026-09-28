@@ -12,6 +12,7 @@ const serif = DM_Serif_Display({
   style: ['normal', 'italic'],
   variable: '--font-dm-serif',
   display: 'swap',
+  preload: false,
 });
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -48,7 +49,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </a>
         <AccountProvider>{children}</AccountProvider>
         <DownloadReady />
-        <Analytics />
+        {process.env.VERCEL === '1' && <Analytics />}
       </body>
     </html>
   );

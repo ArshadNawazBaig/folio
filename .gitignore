@@ -34,6 +34,7 @@ dist-ssr
 *.sw?
 
 .next-auth-tests
+.next-performance
 .vercel
 test-results-auth
 test-results-blog

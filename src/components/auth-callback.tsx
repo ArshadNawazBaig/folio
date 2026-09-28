@@ -31,16 +31,16 @@ export function AuthCallback() {
       );
       return;
     }
-    const client = authClient();
-    if (!client) {
-      setError('Accounts are not connected yet. Please try again once sign-in is available.');
-      return;
-    }
     if (!code) {
       setError('This sign-in link is incomplete or has expired. Please start sign-in again.');
       return;
     }
     void (async () => {
+      const client = await authClient();
+      if (!client) {
+        setError('Accounts are not connected yet. Please try again once sign-in is available.');
+        return;
+      }
       const { data, error } = await client.auth.exchangeCodeForSession(code);
       if (error || !data.session) {
         setError(

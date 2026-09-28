@@ -2,9 +2,18 @@ import type { NextConfig } from 'next';
 import { contentSecurityPolicy } from './src/lib/security-headers';
 
 const config: NextConfig = {
-  distDir: process.env.FOLIO_TEST_OUTPUT === 'auth' ? '.next-auth-tests' : '.next',
+  distDir:
+    process.env.FOLIO_TEST_OUTPUT === 'auth'
+      ? '.next-auth-tests'
+      : process.env.FOLIO_TEST_OUTPUT === 'performance'
+        ? '.next-performance'
+        : '.next',
   poweredByHeader: false,
   reactStrictMode: true,
+  // Keep workspace-only CSS out of the public landing page's critical requests.
+  experimental: {
+    cssChunking: 'graph',
+  },
   // Resolve public metadata in the head; late streamed listing metadata can survive article navigation.
   htmlLimitedBots: /.*/,
   images: {

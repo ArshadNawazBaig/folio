@@ -80,8 +80,10 @@ export async function requireAdmin(request: Request) {
   if (!data) throw new ApiError(403, 'Super admin access is required.');
   return user;
 }
-export async function assertServiceAvailable() {
-  if (!authReady()) return;
+// The public request gate needs only the maintenance switch, not the pricing
+// catalogue. Keep its existing three-second freshness and fail-closed behavior.
+export async function getServiceSettings() {
+  if (!authReady()) return DEFAULT_SETTINGS;
   const now = Date.now();
   const settings = cached && cached.expires > now ? cached.value.settings : undefined;
   if (!settings) {
@@ -101,9 +103,12 @@ export async function assertServiceAvailable() {
         maintenanceMessage: data.maintenance_message,
       };
     }
-    if (serviceSettings.maintenance) throw new ApiError(503, serviceSettings.maintenanceMessage);
-    return;
+    return serviceSettings;
   }
+  return settings;
+}
+export async function assertServiceAvailable() {
+  const settings = await getServiceSettings();
   if (settings.maintenance) throw new ApiError(503, settings.maintenanceMessage);
 }
 export function databaseError(error: { message?: string } | null) {

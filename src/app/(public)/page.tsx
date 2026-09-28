@@ -1,4 +1,3 @@
-import { connection } from 'next/server';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -10,7 +9,8 @@ import {
   Signature,
   Type,
 } from 'lucide-react';
-import { serverTools } from '@/lib/server/tool-catalog';
+import { serverToolSummaries } from '@/lib/server/tool-catalog';
+import { popularSlugs } from '@/lib/tools';
 import { HomeUpload } from '@/components/upload';
 import { HomeTools } from '@/components/home-tools';
 import { EditorPreview } from '@/components/document-preview';
@@ -28,9 +28,11 @@ export const metadata = pageMetadata(title, description, '/', true, {
   twitterDescription:
     'Add text, sign, merge, split and convert images to PDF with Folio in your browser. Download annotations free without a Folio watermark. Original-text changes require a paid plan.',
 });
-export default async function Home() {
-  await connection();
-  const tools = serverTools();
+// Public copy and provider availability are shared across visitors. Regenerate
+// periodically; account state and the maintenance gate remain request-specific.
+export const revalidate = 300;
+export default function Home() {
+  const tools = serverToolSummaries();
   const reading = [
     'choose-a-free-pdf-editor',
     'how-to-add-text-to-a-pdf',
@@ -94,7 +96,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
-      <HomeTools tools={tools} />
+      <HomeTools tools={tools} popularSlugs={popularSlugs} />
       <section className={`container ${styles.feature}`} aria-labelledby="workspace-title">
         <div>
           <span className={styles.eyebrow}>A WORKSPACE THAT GETS OUT OF YOUR WAY</span>

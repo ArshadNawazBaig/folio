@@ -1,7 +1,30 @@
 'use client';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { authCallbackUrl } from './auth-navigation';
 let client: SupabaseClient | undefined;
+let pending: Promise<SupabaseClient> | undefined;
+export const AUTH_CLIENT_READY = 'folio-auth-client-ready';
+
+function sessionKey() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  return url ? `sb-${new URL(url).hostname.split('.')[0]}-auth-token` : null;
+}
+
+/** Restore accounts immediately, but do not load the account SDK for new guests. */
+export function hasStoredAuthSession() {
+  const key = sessionKey();
+  if (!key || typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem(key) !== null;
+  } catch {
+    // Let the SDK handle restricted storage rather than treating an account as signed out.
+    return true;
+  }
+}
+
+export async function existingAuthClient() {
+  return client || pending || hasStoredAuthSession() ? authClient() : null;
+}
 export class AccountRequestError extends Error {
   constructor(
     public status: number,
@@ -10,22 +33,33 @@ export class AccountRequestError extends Error {
     super(message);
   }
 }
-export function authClient() {
+export async function authClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL,
     key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) return null;
-  client ??= createClient(url, key, {
-    auth: {
-      flowType: 'pkce',
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: false,
-    },
-  });
-  return client;
+  if (client) return client;
+  pending ??= import('@supabase/supabase-js')
+    .then(({ createClient }) => {
+      client = createClient(url, key, {
+        auth: {
+          flowType: 'pkce',
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: false,
+          storageKey: sessionKey()!,
+        },
+      });
+      window.dispatchEvent(new Event(AUTH_CLIENT_READY));
+      return client;
+    })
+    .catch((error) => {
+      pending = undefined;
+      throw error;
+    });
+  return pending;
 }
 export async function googleSignInUrl(destination: string, returnToEditor = false) {
-  const client = authClient();
+  const client = await authClient();
   if (!client) throw new Error('Google sign-in is not connected yet.');
   const { data, error } = await client.auth.signInWithOAuth({
     provider: 'google',
@@ -47,7 +81,7 @@ export async function googleSignInUrl(destination: string, returnToEditor = fals
   return url.href;
 }
 export async function accountFetch(url: string, init: RequestInit = {}) {
-  const client = authClient();
+  const client = await authClient();
   if (!client) throw new Error('Accounts are not connected yet.');
   const {
     data: { session },

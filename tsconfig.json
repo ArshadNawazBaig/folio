@@ -30,7 +30,9 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     ".next-auth-tests/types/**/*.ts",
-    ".next-auth-tests/dev/types/**/*.ts"
+    ".next-auth-tests/dev/types/**/*.ts",
+    ".next-performance/types/**/*.ts",
+    ".next-performance/dev/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

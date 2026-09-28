@@ -217,7 +217,7 @@ export function DashboardSettings() {
     setError('');
     setNotice('');
     try {
-      const client = authClient();
+      const client = await authClient();
       if (!client) throw new Error('Sign in to update your profile.');
       const result = await client.auth.updateUser({
         data: { full_name: name.trim(), company: company.trim() },
@@ -235,7 +235,7 @@ export function DashboardSettings() {
     setError('');
     setNotice('');
     try {
-      const result = await authClient()!.auth.signOut({ scope: 'others' });
+      const result = await (await authClient())!.auth.signOut({ scope: 'others' });
       if (result.error)
         throw new Error('Other sessions could not be signed out. Please try again.');
       dialog.current?.close();

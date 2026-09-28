@@ -84,10 +84,9 @@ export function CloudFiles({
     setHasWorkspace(false);
     if (userId && !loading)
       void authClient()
-        ?.storage.from('folio-recovery')
-        .info(`${userId}/pro-text.json`)
+        .then((client) => client?.storage.from('folio-recovery').info(`${userId}/pro-text.json`))
         .then((result) => {
-          if (active) setHasWorkspace(!result.error);
+          if (active) setHasWorkspace(!!result && !result.error);
         })
         .catch(() => {});
     return () => {

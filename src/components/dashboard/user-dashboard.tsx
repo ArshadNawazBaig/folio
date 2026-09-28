@@ -233,7 +233,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
         await signOutGuest();
         return;
       }
-      const result = await authClient()!.auth.signOut({ scope: 'local' });
+      const result = await (await authClient())!.auth.signOut({ scope: 'local' });
       if (result.error) throw result.error;
       router.replace('/account');
     } catch {

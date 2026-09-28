@@ -140,7 +140,7 @@ function PostManager() {
               onClick={async () => {
                 setBusy(true);
                 try {
-                  const result = await authClient()!.auth.signOut({ scope: 'local' });
+                  const result = await (await authClient())!.auth.signOut({ scope: 'local' });
                   if (result.error) throw result.error;
                   router.replace('/account');
                 } catch {

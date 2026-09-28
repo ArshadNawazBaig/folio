@@ -390,6 +390,9 @@ test('file skeletons match rows, respect reduced motion and settle on success or
   try {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto('/dashboard?view=files');
+    // Account restoration has its own placeholder. Measure the file list only
+    // once the account has resolved and its files request is held by our gate.
+    await expect(page.getByRole('heading', { name: 'Your files', exact: true })).toBeVisible();
     const placeholders = page.locator('[data-loading-files]');
     await expect(placeholders).toBeVisible();
     await expect(
@@ -406,7 +409,7 @@ test('file skeletons match rows, respect reduced motion and settle on success or
       await placeholders
         .locator('[data-skeleton]')
         .first()
-        .evaluate((el) => getComputedStyle(el).animationName),
+        .evaluate((el) => getComputedStyle(el, '::after').animationName),
     ).toBe('none');
     for (const width of [390, 320]) {
       await page.setViewportSize({ width, height: 900 });

@@ -5,15 +5,21 @@
   flex-shrink: 0;
   border-radius: 4px;
   background-color: var(--skeleton-base);
+  position: relative;
+  overflow: hidden;
+  pointer-events: none;
+}
+.shape::after {
+  content: '';
+  position: absolute;
+  inset: 0;
   background-image: linear-gradient(
     100deg,
     var(--skeleton-base) 20%,
     var(--skeleton-highlight) 48%,
     var(--skeleton-base) 76%
   );
-  background-size: 240% 100%;
   animation: skeleton-shimmer 1.8s ease-in-out infinite;
-  pointer-events: none;
 }
 .lines {
   display: grid;
@@ -45,14 +51,14 @@
 }
 @keyframes skeleton-shimmer {
   from {
-    background-position: 120% 0;
+    transform: translateX(-100%);
   }
   to {
-    background-position: -120% 0;
+    transform: translateX(100%);
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .shape {
+  .shape::after {
     animation: none;
   }
 }

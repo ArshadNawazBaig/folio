@@ -269,7 +269,7 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
     setSigningOut(true);
     setError('');
     try {
-      const client = authClient();
+      const client = await authClient();
       if (!client) throw new Error('Accounts are not connected.');
       const result = await client.auth.signOut({ scope: 'local' });
       if (result.error) throw result.error;

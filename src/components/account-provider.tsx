@@ -1,7 +1,7 @@
 'use client';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { accountFetch, authClient } from '@/lib/auth-client';
+import { accountFetch, existingAuthClient, AUTH_CLIENT_READY } from '@/lib/auth-client';
 import type { AccountAccess } from '@/lib/pro-types';
 import { workspaceRequest, WORKSPACE_SESSION_EVENT } from '@/lib/workspace-request';
 const freeAccess: AccountAccess = {
@@ -110,7 +110,7 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
   }, [token, refreshGuest]);
   const refresh = useCallback(async () => {
     const current = ++generation.current;
-    if (!authClient()) {
+    if (!(await existingAuthClient())) {
       setLoading(false);
       return freeAccess;
     }
@@ -131,29 +131,54 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
   useEffect(() => {
-    const client = authClient();
-    if (!client) {
-      setLoading(false);
-      return;
-    }
-    const {
-      data: { subscription },
-    } = client.auth.onAuthStateChange((_event, session) => {
-      if (lastToken.current !== (session?.access_token || '')) {
-        generation.current++;
-        setLoading(!!session);
-        setAccess(freeAccess);
-        lastToken.current = session?.access_token || '';
-      }
-      setUser(session?.user || null);
-      setToken(session?.access_token || '');
-      if (!session) {
-        setAccess(freeAccess);
+    let active = true;
+    let unsubscribe: (() => void) | undefined;
+    const connect = async () => {
+      if (unsubscribe) return;
+      try {
+        const client = await existingAuthClient();
+        if (!active || unsubscribe) return;
+        if (!client) {
+          setLoading(false);
+          return;
+        }
+        const {
+          data: { subscription },
+        } = client.auth.onAuthStateChange((_event, session) => {
+          if (lastToken.current !== (session?.access_token || '')) {
+            generation.current++;
+            setLoading(!!session);
+            setAccess(freeAccess);
+            lastToken.current = session?.access_token || '';
+          }
+          setUser(session?.user || null);
+          setToken(session?.access_token || '');
+          if (!session) {
+            setAccess(freeAccess);
+            setLoading(false);
+            setError('');
+          }
+        });
+        unsubscribe = () => subscription.unsubscribe();
+      } catch {
+        if (!active) return;
         setLoading(false);
-        setError('');
+        setError('Your account could not be checked. Please retry.');
       }
-    });
-    return () => subscription.unsubscribe();
+    };
+    const update = () => void connect();
+    // Sign-in may begin in this tab or complete in another tab while a guest is editing.
+    window.addEventListener(AUTH_CLIENT_READY, update);
+    window.addEventListener('storage', update);
+    window.addEventListener('focus', update);
+    void connect();
+    return () => {
+      active = false;
+      unsubscribe?.();
+      window.removeEventListener(AUTH_CLIENT_READY, update);
+      window.removeEventListener('storage', update);
+      window.removeEventListener('focus', update);
+    };
   }, []);
   useEffect(() => {
     if (token) void refresh();

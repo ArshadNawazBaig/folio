@@ -36,8 +36,7 @@ export function SignInForm({
     }
   }
   async function google() {
-    const client = authClient();
-    if (!client || busy) return;
+    if (!configured || busy) return;
     setBusy('google');
     setError('');
     try {
@@ -49,11 +48,12 @@ export function SignInForm({
   }
   async function emailSignIn(event: React.FormEvent) {
     event.preventDefault();
-    const client = authClient();
-    if (!client || busy) return;
+    if (!configured || busy) return;
     setBusy('email');
     setError('');
     try {
+      const client = await authClient();
+      if (!client) throw new Error('Accounts are not connected yet.');
       const { error } = await client.auth.signInWithOtp({
         email: email.trim(),
         options: { emailRedirectTo: authCallbackUrl(window.location.origin, target) },
