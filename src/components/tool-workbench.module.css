@@ -152,6 +152,24 @@
   gap: 20px;
   min-width: 0;
 }
+.settings[hidden] {
+  display: none;
+}
+.privacy {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 16px 28px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--text-small);
+  color: var(--muted);
+}
+.privacy svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
 .settings legend {
   font-weight: 600;
   font-size: var(--text-body);
@@ -225,6 +243,7 @@
 .actions {
   display: grid;
   gap: 10px;
+  margin-top: 20px;
 }
 .preview {
   min-width: 0;

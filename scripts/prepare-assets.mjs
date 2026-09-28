@@ -18,3 +18,9 @@ const hash = createHash('sha256').update(engine).digest('hex').slice(0, 16);
 const browserAsset = `/pdfium/pdfium-${hash}.wasm.gz`;
 await writeFile(`public${browserAsset}`, gzipSync(engine, { level: 9 }));
 await writeFile('src/lib/pdfium-asset.json', `${JSON.stringify({ browserAsset }, null, 2)}\n`);
+
+// Local fallback for browsers without a native WebP encoder. No CDN or image upload.
+await mkdir('public/codecs/webp', { recursive: true });
+for (const name of ['webp_enc.wasm', 'webp_enc_simd.wasm'])
+  await copyFile(`node_modules/@jsquash/webp/codec/enc/${name}`, `public/codecs/webp/${name}`);
+await copyFile('node_modules/@jsquash/webp/LICENSE', 'public/codecs/webp/LICENSE');

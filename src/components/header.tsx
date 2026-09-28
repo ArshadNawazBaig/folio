@@ -10,8 +10,9 @@ import { SiteAnnouncement } from './site-announcement';
 import { useAccount } from './account-provider';
 import { Skeleton, LoadingLabel } from './skeleton';
 const nav = [
-  ['PDF tools', '/tools'],
+  ['Tools', '/tools'],
   ['Signature', '/signature-generator'],
+  ['Compressor', '/compress-images'],
   ['URL Shortener', '/url-shortener'],
   ['Pricing', '/pricing'],
   ['Guides', '/guides'],

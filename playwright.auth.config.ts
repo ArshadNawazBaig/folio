@@ -2,7 +2,12 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   outputDir: 'test-results-auth',
-  testMatch: ['auth-connected.spec.ts', 'guest-dashboard.spec.ts', 'short-links.spec.ts'],
+  testMatch: [
+    'auth-connected.spec.ts',
+    'guest-dashboard.spec.ts',
+    'short-links.spec.ts',
+    'admin-activity.spec.ts',
+  ],
   workers: 1,
   timeout: 60_000,
   expect: { timeout: 20_000 },

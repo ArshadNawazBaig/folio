@@ -98,7 +98,7 @@ export type AdminSubscription = {
 };
 export type AuditEntry = {
   id: string;
-  actor_id: string;
+  actor_id: string | null;
   action: string;
   target: string;
   detail: Record<string, unknown>;

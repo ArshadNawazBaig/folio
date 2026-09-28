@@ -17,6 +17,18 @@ const editorProcessing =
 // Product facts checked against the tool implementations, download policy and privacy page.
 // Keep limitations explicit; these summaries are visible to visitors as well as crawlers.
 export const toolFacts: Record<string, ToolFacts> = {
+  'compress-images': {
+    question: 'How can I compress images to a file-size limit without uploading them?',
+    answer:
+      'Choose a preset or custom KB limit in Folio’s image compressor, add your images, and select Compress images. It adjusts quality and dimensions in your browser. Review the actual size and pixel dimensions, then download individual files or a ZIP for free.',
+    input: 'JPG/JPEG, PNG, or WebP images. Up to 20 per batch.',
+    output:
+      'JPG, PNG, or WebP files, individually or in a ZIP. A size limit applies to each image, not the ZIP.',
+    processing:
+      'Images and results stay in the current browser tab. Folio does not upload them or save them in browser storage. Clear all or refresh to discard the batch. Downloads remain on your device.',
+    limits:
+      '35 MB per file, 150 MB per batch, and 25 million pixels per image. Presets from 10 KB to 1 MB; custom targets from 1 to 35,000 KB. Target mode may resize images. Manual mode does not enforce a size limit. Re-encoded animations become still images.',
+  },
   'signature-generator': {
     question: 'How can I create a signature PNG without saving it online?',
     answer:
@@ -135,6 +147,8 @@ export const toolFacts: Record<string, ToolFacts> = {
 };
 
 export function downloadFact(slug: string) {
+  if (slug === 'compress-images')
+    return 'Free individual downloads and batch ZIPs. No account or watermark.';
   if (slug === 'signature-generator')
     return 'Free PNG download. No sign-in, subscription, or watermark.';
   if (slug === 'url-shortener')

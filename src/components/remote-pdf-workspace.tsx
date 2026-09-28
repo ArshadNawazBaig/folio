@@ -237,7 +237,7 @@ export function RemotePdfWorkspace({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ artifact: result.artifact }),
       });
-      const delivery = download(new Uint8Array(await response.arrayBuffer()), result.filename);
+      const delivery = download(await response.blob(), result.filename);
       if (delivery === 'started') void clearRemoteDraft(tool).catch(() => {});
       setNotice(
         delivery === 'ready'

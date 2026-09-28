@@ -8,6 +8,7 @@ import {
   ImageIcon,
   Loader2,
   Plus,
+  ShieldCheck,
   Trash2,
 } from 'lucide-react';
 import type { Tool } from '@/lib/tools';
@@ -20,6 +21,9 @@ import {
 } from '@/lib/image-tools';
 import { baseName, download, formatBytes, friendlyError } from '@/lib/utils';
 import { UploadArea } from './upload';
+import { ImageCompressionControls } from './image-compression-controls';
+import { ImageEnhancementControls } from './image-enhancement-controls';
+import { compressionFileLimit, compressionSize } from '@/lib/image-compression';
 import { Dropdown } from './dropdown';
 import { Pagination } from './pagination';
 import { useRecordPagination } from './use-record-pagination';
@@ -29,6 +33,8 @@ type Source = { id: string; file: File };
 type Result = ImageResult & { id: string; name: string };
 export function ImageWorkbench({ tool }: { tool: Tool }) {
   const enhancement = tool.slug === 'enhance-image';
+  const compression = tool.slug === 'compress-images';
+  const sizeLabel = compression ? compressionSize : formatBytes;
   const [files, setFiles] = useState<Source[]>([]),
     [results, setResults] = useState<Result[]>([]);
   const [settings, setSettings] = useState<ImageSettings>({
@@ -39,7 +45,10 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
         ? 'image/webp'
         : tool.slug === 'webp-to-jpg'
           ? 'image/jpeg'
-          : 'original',
+          : compression
+            ? 'auto'
+            : 'original',
+    targetBytes: compression ? 100_000 : 0,
   });
   const [selected, setSelected] = useState(''),
     [tab, setTab] = useState('result'),
@@ -50,6 +59,8 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
   const [sources, setSources] = useState<Record<string, string>>({}),
     [outputs, setOutputs] = useState<Record<string, string>>({});
   const abort = useRef<AbortController | null>(null);
+  const [fileErrors, setFileErrors] = useState<Record<string, string>>({});
+  const [exporting, setExporting] = useState(false);
   const pagination = useRecordPagination(files.length);
   useEffect(() => {
     const urls = Object.fromEntries(files.map(({ id, file }) => [id, URL.createObjectURL(file)]));
@@ -65,12 +76,28 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
   const current = files.find((f) => f.id === selected) || files[0];
   const result = results.find((r) => r.id === current?.id);
   function change<K extends keyof ImageSettings>(key: K, value: ImageSettings[K]) {
-    setSettings((s) => ({ ...s, [key]: value }));
+    updateSettings({ ...settings, [key]: value });
+  }
+  function updateSettings(next: ImageSettings) {
+    setSettings(next);
     setResults([]);
+    setFileErrors({});
+    setNotice('');
+    setError('');
+  }
+  function clearAll() {
+    abort.current?.abort();
+    abort.current = null;
+    setBusy(false);
+    setFiles([]);
+    setResults([]);
+    setFileErrors({});
+    setSelected('');
+    setError('');
     setNotice('');
   }
   function add(incoming: File[]) {
-    if (busy) return;
+    if (busy || exporting || !incoming.length) return;
     setError('');
     const accepted = (tool.accept || '').split(',');
     if (files.length + incoming.length > 20) {
@@ -79,20 +106,24 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
     }
     if (
       files.reduce((n, f) => n + f.file.size, 0) + incoming.reduce((n, f) => n + f.size, 0) >
-      150 * 1024 * 1024
+      (compression ? 150_000_000 : 150 * 1024 * 1024)
     ) {
       setError('Keep the batch under 150 MB.');
       return;
     }
     const invalid = incoming.find(
-      (f) => !accepted.includes(f.type) || !f.size || f.size > 50 * 1024 * 1024,
+      (f) =>
+        !accepted.includes(f.type) ||
+        !f.size ||
+        f.size > (compression ? compressionFileLimit : 50 * 1024 * 1024),
     );
     if (invalid) {
-      setError(`${invalid.name}: choose a supported image of up to 50 MB.`);
+      setError(`${invalid.name}: choose a supported image of up to ${compression ? 35 : 50} MB.`);
       return;
     }
     const next = incoming.map((file) => ({ id: crypto.randomUUID(), file }));
     setFiles((old) => [...old, ...next]);
+    setFileErrors({});
     setSelected(next[0]?.id || '');
     setResults([]);
     setNotice('');
@@ -105,6 +136,7 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
     });
   }
   async function run() {
+    if (busy || exporting || !files.length) return;
     const controller = new AbortController();
     abort.current = controller;
     setBusy(true);
@@ -112,41 +144,63 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
     setNotice('');
     setResults([]);
     setProgress(0);
+    setFileErrors({});
     try {
       const next: Result[] = [];
+      const failures: Record<string, string> = {};
       for (const [index, { id, file }] of files.entries()) {
-        const output = await processImage(file, settings, controller.signal);
-        next.push({
-          ...output,
-          id,
-          name: `${baseName(file.name)}-${enhancement ? 'adjusted' : 'optimized'}.${imageExtension(output.blob.type)}`,
-        });
+        try {
+          const output = await processImage(file, settings, controller.signal);
+          next.push({
+            ...output,
+            id,
+            name: `${baseName(file.name)}-${enhancement ? 'adjusted' : 'optimized'}.${imageExtension(output.blob.type)}`,
+          });
+        } catch (error) {
+          if (controller.signal.aborted || !compression) throw error;
+          failures[id] = friendlyError(error);
+        }
+        if (controller.signal.aborted) return;
         setProgress(index + 1);
       }
       if (controller.signal.aborted) return;
+      setFileErrors(failures);
       setResults(next);
+      if (Object.keys(failures).length)
+        setError(
+          `${Object.keys(failures).length} image(s) could not be processed. Select each image to see its error.${next.length ? ' Successful results are available to download.' : ''}`,
+        );
       setTab('result');
       setNotice(
-        `${next.length} ${next.length === 1 ? 'image is' : 'images are'} ready. Review the result before downloading.`,
+        next.length
+          ? `${next.length} ${next.length === 1 ? 'image is' : 'images are'} ready. Review the result before downloading.`
+          : '',
       );
     } catch (e) {
+      if (abort.current !== controller) return;
       if (!controller.signal.aborted) setError(friendlyError(e));
       else setNotice('Processing cancelled. You can adjust the settings and try again.');
     } finally {
-      if (!controller.signal.aborted) setBusy(false);
+      if (abort.current === controller) {
+        setBusy(false);
+        abort.current = null;
+      }
     }
   }
   async function exportAll() {
+    if (exporting) return;
+    setExporting(true);
     try {
       if (results.length === 1) {
         const r = results[0];
-        download(new Uint8Array(await r.blob.arrayBuffer()), r.name, r.blob.type);
+        download(r.blob, r.name);
         return;
       }
       const { default: JSZip } = await import('jszip');
       const zip = new JSZip();
       for (const [i, file] of files.entries()) {
-        const r = results.find((r) => r.id === file.id)!;
+        const r = results.find((r) => r.id === file.id);
+        if (!r) continue;
         zip.file(`${String(i + 1).padStart(2, '0')}-${r.name}`, await r.blob.arrayBuffer());
       }
       download(
@@ -156,6 +210,8 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
       );
     } catch (e) {
       setError(friendlyError(e));
+    } finally {
+      setExporting(false);
     }
   }
   return (
@@ -171,11 +227,33 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
           </li>
         ))}
       </ol>
+      {compression && (
+        <ImageCompressionControls
+          settings={settings}
+          onChange={updateSettings}
+          disabled={busy || exporting}
+        />
+      )}
+      {enhancement && (
+        <ImageEnhancementControls
+          settings={settings}
+          onChange={updateSettings}
+          disabled={busy || exporting}
+        />
+      )}
+      {(compression || enhancement) && (
+        <p className={s.privacy}>
+          <ShieldCheck size={17} aria-hidden="true" />
+          Processed on your device. Images are not uploaded or saved by Folio. Up to 20 files per
+          batch.
+        </p>
+      )}
       {!files.length ? (
         <UploadArea
           onFiles={add}
           multiple
           accept={tool.accept}
+          maxSizeLabel={compression ? '35 MB' : '50 MB'}
           formatsLabel={
             tool.slug === 'jpg-to-webp'
               ? 'JPG images'
@@ -189,13 +267,14 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
           <div className={s.controls}>
             <div className={s.heading}>
               <h2>Your images</h2>
-              <span>
-                {files.length} {files.length === 1 ? 'file' : 'files'}
-              </span>
+              <button className="button secondary" onClick={clearAll} disabled={exporting}>
+                Clear all
+              </button>
             </div>
             <div className={s.fileList}>
               {files.slice(pagination.start, pagination.end).map(({ id, file }, offset) => {
                 const i = pagination.start + offset;
+                const output = results.find((result) => result.id === id);
                 return (
                   <div className={s.fileRow} key={id} data-selected={current?.id === id}>
                     <button
@@ -206,14 +285,21 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                       <img src={sources[id]} alt="" />
                       <span>
                         <strong>{file.name}</strong>
-                        <small>{formatBytes(file.size)}</small>
+                        <small>
+                          {sizeLabel(file.size)}
+                          {output
+                            ? ` → ${sizeLabel(output.blob.size)}`
+                            : fileErrors[id]
+                              ? ' · Needs attention'
+                              : ''}
+                        </small>
                       </span>
                     </button>
                     <div className={s.fileActions}>
                       <button
                         className="icon-button"
                         aria-label={`Move ${file.name} up`}
-                        disabled={i === 0 || busy}
+                        disabled={i === 0 || busy || exporting}
                         onClick={() => move(i, -1)}
                       >
                         <ArrowUp size={15} />
@@ -221,7 +307,7 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                       <button
                         className="icon-button"
                         aria-label={`Move ${file.name} down`}
-                        disabled={i === files.length - 1 || busy}
+                        disabled={i === files.length - 1 || busy || exporting}
                         onClick={() => move(i, 1)}
                       >
                         <ArrowDown size={15} />
@@ -229,10 +315,13 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                       <button
                         className="icon-button"
                         aria-label={`Remove ${file.name}`}
-                        disabled={busy}
+                        disabled={busy || exporting}
                         onClick={() => {
                           setFiles(files.filter((f) => f.id !== id));
                           setResults([]);
+                          setFileErrors({});
+                          setNotice('');
+                          setError('');
                         }}
                       >
                         <Trash2 size={15} />
@@ -243,7 +332,11 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
               })}
             </div>
             {files.length > 1 && (
-              <Pagination {...pagination} disabled={busy} label="Image files pagination" />
+              <Pagination
+                {...pagination}
+                disabled={busy || exporting}
+                label="Image files pagination"
+              />
             )}
             <label className={s.add}>
               <Plus size={16} />
@@ -252,7 +345,7 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                 type="file"
                 accept={tool.accept}
                 multiple
-                disabled={busy}
+                disabled={busy || exporting}
                 hidden
                 onChange={(e) => {
                   add(Array.from(e.target.files || []));
@@ -260,89 +353,57 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                 }}
               />
             </label>
-            <fieldset className={s.settings} disabled={busy}>
-              <legend>Output settings</legend>
-              <Dropdown
-                label="File format"
-                value={settings.format}
-                onValueChange={(v) => change('format', v as ImageSettings['format'])}
-                disabled={busy || ['jpg-to-webp', 'webp-to-jpg'].includes(tool.slug)}
-                options={[
-                  { value: 'original', label: 'Keep source format' },
-                  { value: 'image/jpeg', label: 'JPG — compatible, white background' },
-                  { value: 'image/png', label: 'PNG — lossless, transparency' },
-                  { value: 'image/webp', label: 'WEBP — efficient, transparency' },
-                ]}
-              />
-              <Dropdown
-                label="Image dimensions"
-                value={String(settings.maxDimension)}
-                onValueChange={(v) => change('maxDimension', Number(v))}
-                disabled={busy}
-                options={[
-                  { value: '0', label: 'Keep original dimensions' },
-                  { value: '2560', label: 'Fit within 2560 pixels' },
-                  { value: '1920', label: 'Fit within 1920 pixels' },
-                  { value: '1280', label: 'Fit within 1280 pixels' },
-                ]}
-              />
-              <label className={s.slider}>
-                JPG / WEBP quality <output>{Math.round(settings.quality * 100)}%</output>
-                <input
-                  type="range"
-                  aria-label="JPG / WEBP quality"
-                  min="40"
-                  max="100"
-                  value={Math.round(settings.quality * 100)}
-                  onChange={(e) => change('quality', Number(e.target.value) / 100)}
+            {!enhancement && (
+              <fieldset
+                className={s.settings}
+                disabled={busy || exporting}
+                hidden={compression && !!settings.targetBytes}
+              >
+                <legend>Output settings</legend>
+                {!compression && (
+                  <Dropdown
+                    label="File format"
+                    value={settings.format}
+                    onValueChange={(v) => change('format', v as ImageSettings['format'])}
+                    disabled={
+                      busy || exporting || ['jpg-to-webp', 'webp-to-jpg'].includes(tool.slug)
+                    }
+                    options={[
+                      { value: 'original', label: 'Keep source format' },
+                      { value: 'image/jpeg', label: 'JPG — compatible, white background' },
+                      { value: 'image/png', label: 'PNG — lossless, transparency' },
+                      { value: 'image/webp', label: 'WEBP — efficient, transparency' },
+                    ]}
+                  />
+                )}
+                <Dropdown
+                  label="Image dimensions"
+                  value={String(settings.maxDimension)}
+                  onValueChange={(v) => change('maxDimension', Number(v))}
+                  disabled={busy || exporting}
+                  options={[
+                    { value: '0', label: 'Keep original dimensions' },
+                    { value: '2560', label: 'Fit within 2560 pixels' },
+                    { value: '1920', label: 'Fit within 1920 pixels' },
+                    { value: '1280', label: 'Fit within 1280 pixels' },
+                  ]}
                 />
-                <small>PNG uses lossless encoding.</small>
-              </label>
-              {enhancement && (
-                <>
-                  {(
-                    [
-                      ['brightness', 'Brightness', -50, 50, 1],
-                      ['contrast', 'Contrast', -50, 50, 1],
-                      ['saturation', 'Saturation', 0, 2, 0.05],
-                      ['sharpness', 'Sharpness', 0, 1, 0.05],
-                    ] as const
-                  ).map(([key, label, min, max, step]) => (
-                    <label key={key} className={s.slider}>
-                      {label}
-                      <output>{settings[key]}</output>
-                      <input
-                        type="range"
-                        aria-label={label}
-                        min={min}
-                        max={max}
-                        step={step}
-                        value={settings[key]}
-                        onChange={(e) => change(key, Number(e.target.value))}
-                      />
-                    </label>
-                  ))}
-                  <button
-                    className="button secondary full"
-                    type="button"
-                    onClick={() => {
-                      setSettings({
-                        ...settings,
-                        brightness: 0,
-                        contrast: 0,
-                        saturation: 1,
-                        sharpness: 0,
-                      });
-                      setResults([]);
-                    }}
-                  >
-                    Reset adjustments
-                  </button>
-                </>
-              )}
-            </fieldset>
+                <label className={s.slider}>
+                  JPG / WEBP quality <output>{Math.round(settings.quality * 100)}%</output>
+                  <input
+                    type="range"
+                    aria-label="JPG / WEBP quality"
+                    min="40"
+                    max="100"
+                    value={Math.round(settings.quality * 100)}
+                    onChange={(e) => change('quality', Number(e.target.value) / 100)}
+                  />
+                  <small>PNG uses lossless encoding.</small>
+                </label>
+              </fieldset>
+            )}
             <div className={s.actions}>
-              <button className="button primary full" onClick={run} disabled={busy}>
+              <button className="button primary full" onClick={run} disabled={busy || exporting}>
                 {busy ? <Loader2 size={18} className="spin" /> : <ImageIcon size={18} />}{' '}
                 {busy ? 'Processing…' : tool.action}
               </button>
@@ -404,23 +465,31 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                       {result.height} pixels
                     </span>
                     <span>
-                      {formatBytes(current.file.size)} → {formatBytes(result.blob.size)}
+                      {sizeLabel(current.file.size)} → {sizeLabel(result.blob.size)}
                       {result.blob.size < current.file.size
                         ? ` · ${Math.round((1 - result.blob.size / current.file.size) * 100)}% smaller`
                         : ''}
                     </span>
+                    {compression && (
+                      <span>
+                        {imageExtension(result.blob.type).toUpperCase()} ·{' '}
+                        {result.blob.size.toLocaleString()} bytes
+                        {result.targetBytes
+                          ? ` · Within ${compressionSize(result.targetBytes)} limit`
+                          : ''}
+                      </span>
+                    )}
                     {result.keptOriginal && (
-                      <p>Your original was already smaller. We kept it at its original quality.</p>
+                      <p>
+                        Your original already meets these settings. We kept it at its original
+                        quality.
+                      </p>
                     )}
                     <button
                       className="button secondary"
-                      onClick={async () => {
+                      onClick={() => {
                         try {
-                          download(
-                            new Uint8Array(await result.blob.arrayBuffer()),
-                            result.name,
-                            result.blob.type,
-                          );
+                          download(result.blob, result.name);
                         } catch (e) {
                           setError(friendlyError(e));
                         }
@@ -431,7 +500,10 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                     </button>
                   </>
                 ) : (
-                  <span>Apply settings to compare the actual exported image.</span>
+                  <span>
+                    {fileErrors[current.id] ||
+                      'Apply settings to compare the actual exported image.'}
+                  </span>
                 )}
               </div>
             )}
@@ -453,7 +525,7 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
           <span>
             <Check size={18} /> {results.length} {results.length === 1 ? 'image' : 'images'} ready
           </span>
-          <button className="button primary" onClick={exportAll}>
+          <button className="button primary" onClick={exportAll} disabled={exporting}>
             <Download size={17} />
             {results.length > 1 ? 'Download all (ZIP)' : 'Download image'}
           </button>

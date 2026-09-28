@@ -13,7 +13,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. The dependency installation copies the matching PDF.js worker, fonts, CMaps, and WASM assets into `public/pdfjs`. `npm run assets` repeats this step if needed.
+Open http://localhost:3000. The dependency installation copies the matching PDF.js worker, fonts, CMaps, and WASM assets into `public/pdfjs`, the PDFium engine into `public/pdfium`, and the WebP fallback encoder into `public/codecs`. `npm run assets` repeats this step if needed. WebP encoding runs locally in the image worker, including on Safari; its fallback assets are served by this site.
 
 For the production server:
 
@@ -115,6 +115,7 @@ npm test
 npx playwright install chromium
 npm run build
 npm run test:tools
+npm run test:downloads
 npm run test:e2e
 npm run test:auth
 npm run test:design
@@ -124,6 +125,8 @@ npm run test:blog
 See [docs/DESIGN.md](docs/DESIGN.md) for shared interface patterns and the desktop/mobile design checks.
 
 For repeatable tool checks without production credentials, use `npm run test:tools`.
+
+`npm run test:downloads` checks saved file contents, names, and MIME types in emulated iPhone WebKit, Android Chromium, and desktop Chromium. It covers the shared mobile save/share dialog, standalone tools, signatures, QR codes, image ZIPs, text, PDFs, and account downloads. Account and document-provider responses use fixtures; browser processing and downloads run normally. Install Chromium and WebKit with `npx playwright install chromium webkit` first. Emulation does not replace checking the operating system's Files/Share sheet on physical phones.
 It runs the real PDF/image engines with local service fixtures on port 3001, using
 `.next-auth-tests` and leaving the normal dev server alone. Run it sequentially
 with the auth, design and blog suites, which share that port/build directory.

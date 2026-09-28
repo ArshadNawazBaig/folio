@@ -6,6 +6,8 @@ import { download, friendlyError } from '@/lib/utils';
 import { Dropdown } from './dropdown';
 import s from './tool-workbench.module.css';
 export function QrWorkbench() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   const [content, setContent] = useState<QrContent>({
     kind: 'url',
     value: '',
@@ -61,7 +63,7 @@ export function QrWorkbench() {
           'image/png',
         ),
       );
-      download(new Uint8Array(await blob.arrayBuffer()), 'folio-qr-code.png', 'image/png');
+      download(blob, 'folio-qr-code.png');
     } catch (e) {
       setError(friendlyError(e));
     }
@@ -73,7 +75,7 @@ export function QrWorkbench() {
           <div className={s.heading}>
             <h2>Create your QR code</h2>
           </div>
-          <fieldset className={s.settings} disabled={busy}>
+          <fieldset className={s.settings} disabled={!ready || busy}>
             <Dropdown
               label="QR content"
               value={content.kind}
@@ -162,7 +164,7 @@ export function QrWorkbench() {
               }))}
             />
           </fieldset>
-          <button className="button primary full" onClick={generate} disabled={busy}>
+          <button className="button primary full" onClick={generate} disabled={!ready || busy}>
             <QrCode size={18} />
             {busy ? 'Generating…' : 'Generate QR code'}
           </button>

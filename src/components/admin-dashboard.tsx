@@ -7,7 +7,6 @@ import {
   CreditCard,
   Tag,
   Inbox,
-  History,
   ArrowUpRight,
   RefreshCw,
   ShieldCheck,
@@ -20,6 +19,7 @@ import {
 import { Pagination } from './pagination';
 import { PAGE_SIZE, pageCount } from '@/lib/pagination.mjs';
 import { AdminNavigation } from './admin-navigation';
+import { AdminActivity } from './admin-activity';
 import { adminNavigation as navigation } from '@/lib/admin-navigation';
 import { Dropdown } from './dropdown';
 import { SignInForm } from './sign-in-form';
@@ -46,7 +46,6 @@ import {
   Skeleton,
   LoadingLabel,
   AdminTableSkeleton,
-  AuditSkeleton,
   TicketListSkeleton,
   ThreadSkeleton,
 } from './skeleton';
@@ -497,7 +496,12 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
                 <small>Integration configuration does not confirm a completed live payment.</small>
               </section>
             </div>
-            <AuditList rows={data.audit || []} loading={dataPending} count={pageSize} />
+            <AdminActivity
+              rows={data.audit || []}
+              loading={dataPending}
+              count={pageSize}
+              currentUserId={user?.id}
+            />
             <Pagination
               page={page}
               pageSize={pageSize}
@@ -1179,7 +1183,12 @@ export function AdminDashboard({ initialSection = 'overview' }: { initialSection
         )}
         {section === 'audit' && (
           <>
-            <AuditList rows={data.audit || []} loading={dataPending} count={pageSize} />
+            <AdminActivity
+              rows={data.audit || []}
+              loading={dataPending}
+              count={pageSize}
+              currentUserId={user?.id}
+            />
             <Pagination
               page={page}
               pageSize={pageSize}
@@ -1331,45 +1340,5 @@ function EmptyState({ text }: { text: string }) {
       <Inbox size={25} />
       <p>{text}</p>
     </div>
-  );
-}
-function AuditList({
-  rows,
-  loading = false,
-  count = PAGE_SIZE,
-}: {
-  rows: AuditEntry[];
-  loading?: boolean;
-  count?: number;
-}) {
-  return (
-    <section className="admin-card">
-      <h2>Recorded activity</h2>
-      <p>Pricing, account access, subscription changes, and support updates leave a record.</p>
-      {loading ? (
-        <AuditSkeleton count={count} />
-      ) : rows.length ? (
-        <ul className="admin-audit-list">
-          {rows.map((row) => (
-            <li key={row.id}>
-              <History size={17} />
-              <div>
-                <strong>{row.action.replaceAll('.', ' · ').replaceAll('_', ' ')}</strong>
-                <p>{row.target}</p>
-                <small>
-                  {new Date(row.created_at).toLocaleString()} · Admin {row.actor_id?.slice(0, 8)}
-                </small>
-                <details>
-                  <summary>Change details</summary>
-                  <pre>{JSON.stringify(row.detail, null, 2)}</pre>
-                </details>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <EmptyState text="Administrative activity will appear here." />
-      )}
-    </section>
   );
 }

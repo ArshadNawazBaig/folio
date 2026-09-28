@@ -19,9 +19,9 @@ const imageTools = [
   ],
   [
     'compress-images',
-    'Compress images',
+    'Image compressor',
     'Keep the detail. Lighten the file.',
-    'Reduce JPG, PNG and WEBP file sizes with adjustable quality and optional resizing. Compare the result before downloading.',
+    'Compress JPG, PNG and WebP images to 20 KB, 50 KB, 100 KB or a custom size. Free batch downloads, with images processed locally and never saved by Folio.',
     'image/jpeg,image/png,image/webp',
     'Compress images',
   ],
@@ -48,26 +48,81 @@ export const nativeTools: Tool[] = [
     icon: slug === 'enhance-image' ? 'enhance' : 'image',
     color: 'sage',
     available: true,
-    steps: [
-      'Choose your images.',
-      'Adjust the settings and review the result.',
-      'Download individual images or the complete batch.',
-    ],
+    steps:
+      slug === 'compress-images'
+        ? [
+            'Choose a target file size and output format.',
+            'Add your images and select Compress images. Review sizes, dimensions, and previews.',
+            'Download individual images or the batch as a ZIP, then clear the tool.',
+          ]
+        : [
+            'Choose your images.',
+            'Adjust the settings and review the result.',
+            'Download individual images or the complete batch.',
+          ],
     detail:
-      slug === 'enhance-image'
-        ? 'Make tonal and sharpening adjustments to an image at its original resolution. These controls do not reconstruct missing details or perform AI super-resolution. Your preview uses the actual exported pixels.'
-        : 'Process up to 20 JPG, PNG or WEBP images in one batch. Choose output dimensions and compare the file sizes. JPG uses a white background for transparent areas. PNG encoding is lossless; JPG and WEBP quality settings use lossy compression.',
-    faq: [
-      [
-        'Can I check the result first?',
-        'Yes. Switch between the original and result, inspect the dimensions and file size, and change settings before downloading.',
-      ],
-      [
-        'Will compression always make a smaller file?',
-        'No. Already optimized images may not shrink. When the format and dimensions are unchanged, the compression tool keeps the smaller original instead of increasing its size.',
-      ],
+      slug === 'compress-images'
+        ? 'Choose 10, 15, 20, 30, 40, 50, 100, 200 or 500 KB, 1 MB, or apply a custom KB limit. The compressor adjusts quality and, when needed, dimensions to meet the target. Auto compares supported formats while preserving transparency; choose JPG, PNG, or WebP when a website requires it. Images stay in your current tab, with no uploads, account requirement, or saved library. Review small text and required dimensions before using the result.'
+        : slug === 'enhance-image'
+          ? 'Make tonal and sharpening adjustments to an image at its original resolution. These controls do not reconstruct missing details or perform AI super-resolution. Your preview uses the actual exported pixels.'
+          : 'Process up to 20 JPG, PNG or WEBP images in one batch. Choose output dimensions and compare the file sizes. JPG uses a white background for transparent areas. PNG encoding is lossless; JPG and WEBP quality settings use lossy compression.',
+    faq:
+      slug === 'compress-images'
+        ? [
+            [
+              'How do I compress an image to 20 KB, 50 KB or 100 KB?',
+              'Select that preset, choose an output format, add your images, then select Compress images. Each successful result is at or below the selected limit; the tool may reduce dimensions to get there. Check the final pixel size if an upload form has dimension requirements.',
+            ],
+            [
+              'Can I set a custom image size in KB?',
+              'Yes. Enter a number from 1 to 35,000 in Custom size (KB) and select Apply. The current limit updates below the controls. Each KB means 1,000 bytes. A file can be smaller than your limit; it is not padded to match an exact size.',
+            ],
+            [
+              'Does Folio upload or store my images?',
+              'No. Compression and previews run in the browser. Images and results remain in the current page’s memory and are not uploaded or written to browser storage. Clear all or refresh to discard the batch. Files you download remain on your device.',
+            ],
+            [
+              'What does Auto output do?',
+              'Auto compares supported JPG, PNG, and WebP results at each tested image size and chooses a smaller result that fits the limit. It avoids JPG when the source contains transparency. Select a specific format if an upload form only accepts it.',
+            ],
+            [
+              'Does compression keep image quality and transparency?',
+              'A smaller file can involve lower quality or fewer pixels. PNG encoding is lossless, but a smaller target can still reduce its dimensions. PNG and WebP preserve transparency; JPG fills transparent pixels with white. Use Manual settings to keep dimensions and choose quality yourself.',
+            ],
+            [
+              'Which files can I compress?',
+              'Add up to 20 JPG/JPEG, PNG, or WebP images, up to 35 MB each and 150 MB for the batch. Decoded images must have no more than 25 million pixels. This tool is for still images; re-encoding an animated file produces a still image.',
+            ],
+          ]
+        : [
+            [
+              'Can I check the result first?',
+              'Yes. Switch between the original and result, inspect the dimensions and file size, and change settings before downloading.',
+            ],
+            [
+              'Will compression always make a smaller file?',
+              'No. Already optimized images may not shrink. When the format and dimensions are unchanged, the compression tool keeps the smaller original instead of increasing its size.',
+            ],
+          ],
+    keywords: [
+      slug,
+      'image',
+      'photo',
+      'picture',
+      'resize',
+      'quality',
+      ...(slug === 'compress-images'
+        ? [
+            'image compressor',
+            'compress to 20kb',
+            '50kb',
+            '100kb',
+            '200kb',
+            'target size',
+            'reduce image size',
+          ]
+        : []),
     ],
-    keywords: [slug, 'image', 'photo', 'picture', 'resize', 'quality'],
   })),
   ...[
     [

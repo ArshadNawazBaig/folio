@@ -18,7 +18,7 @@ export function DownloadReady() {
 
   useEffect(() => {
     const prepare = (event: Event) => {
-      if (!window.matchMedia('(pointer: coarse), (max-width: 760px)').matches) return;
+      if (!window.matchMedia('(any-pointer: coarse), (max-width: 760px)').matches) return;
       const { blob, name } = (event as CustomEvent<PreparedDownload>).detail;
       const file = new File([blob], name, { type: blob.type });
       const url = URL.createObjectURL(file);
@@ -80,6 +80,13 @@ export function DownloadReady() {
     }
   }
 
+  const preview =
+    ready?.file.type === 'application/pdf'
+      ? 'PDF'
+      : ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'].includes(ready?.file.type || '')
+        ? 'image'
+        : null;
+
   return (
     <dialog
       ref={dialog}
@@ -111,11 +118,11 @@ export function DownloadReady() {
               Download a copy to your device. Your workspace stays open.
             </p>
             {ready.shareable && <p>Use Share file to save to Files or send it to another app.</p>}
-            {ready.file.type === 'application/pdf' && (
+            {preview && (
               <p>
-                If your browser opens the PDF, use its Share or Save option. You can also{' '}
+                If your browser opens the {preview}, use its Share or Save option. You can also{' '}
                 <a href={ready.url} target="_blank" rel="noopener" className="text-link">
-                  open the PDF <ExternalLink size={13} aria-hidden="true" />
+                  open the {preview} <ExternalLink size={13} aria-hidden="true" />
                 </a>
                 .
               </p>
@@ -142,7 +149,7 @@ export function DownloadReady() {
               rel="noopener"
               onClick={() => {
                 setError('');
-                setNotice('Download requested. Check your browser’s downloads or PDF preview.');
+                setNotice('Download requested. Check your browser’s downloads or file preview.');
               }}
             >
               <Download size={16} /> Download file

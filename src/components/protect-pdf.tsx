@@ -63,10 +63,7 @@ export function ProtectPdf() {
       form.append('file', file);
       form.append('job', JSON.stringify({ operation: 'protect', password }));
       const response = await accountFetch('/api/pro/pdf', { method: 'POST', body: form });
-      download(
-        new Uint8Array(await response.arrayBuffer()),
-        `${baseName(file.name)}-protected.pdf`,
-      );
+      download(await response.blob(), `${baseName(file.name)}-protected.pdf`);
       setPassword('');
       setConfirm('');
       setDone(true);
@@ -122,7 +119,7 @@ export function ProtectPdf() {
               className="text-link"
               type="button"
               disabled={busy}
-              onClick={async () => download(new Uint8Array(await file.arrayBuffer()), file.name)}
+              onClick={() => download(file, file.name)}
             >
               Download current copy <Download size={14} />
             </button>

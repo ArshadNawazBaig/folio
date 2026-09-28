@@ -12,7 +12,12 @@ export const DOWNLOAD_READY_EVENT = 'folio:download-ready';
 export type PreparedDownload = { blob: Blob; name: string };
 
 export function download(bytes: Uint8Array | Blob, name: string, type = 'application/pdf') {
-  const blob = bytes instanceof Blob ? bytes : new Blob([new Uint8Array(bytes)], { type });
+  const blob =
+    bytes instanceof Blob
+      ? bytes.type
+        ? bytes
+        : bytes.slice(0, bytes.size, type)
+      : new Blob([new Uint8Array(bytes)], { type });
   // Mobile browsers may lose the original tap while a worker/network prepares
   // the file. The shared dialog provides a fresh, direct save/share gesture.
   const request = new CustomEvent<PreparedDownload>(DOWNLOAD_READY_EVENT, {

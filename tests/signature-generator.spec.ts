@@ -25,6 +25,11 @@ async function draw(page: Page) {
 async function pngDownload(page: Page) {
   const event = page.waitForEvent('download');
   await downloadButton(page).click();
+  if (await page.evaluate(() => matchMedia('(any-pointer: coarse), (max-width: 760px)').matches)) {
+    const ready = page.getByRole('dialog', { name: 'Your file is ready.' });
+    await ready.getByRole('link', { name: 'Download file', exact: true }).click();
+    await ready.getByRole('button', { name: 'Close download options' }).click();
+  }
   const file = await event;
   expect(file.suggestedFilename()).toBe('signature.png');
   return PNG.sync.read(await readFile((await file.path())!));

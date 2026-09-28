@@ -20,7 +20,7 @@ export const toolSearchTitles: Record<string, string> = {
   'create-pdf-form': 'Create Fillable PDF Forms Online for Free',
   'jpg-to-webp': 'JPG to WEBP Converter — Adjust Quality & Dimensions',
   'webp-to-jpg': 'WEBP to JPG Converter — Convert Images for Free',
-  'compress-images': 'Compress Images Online — JPG, PNG & WEBP',
+  'compress-images': 'Free Image Compressor — Compress JPG, PNG & WebP to KB',
   'enhance-image': 'Enhance Images — Adjust Brightness, Color & Sharpness',
   'jpg-to-pdf': 'JPG to PDF Converter — Combine Photos into a PDF',
   'png-to-pdf': 'PNG to PDF Converter — Turn Images into PDF Pages',

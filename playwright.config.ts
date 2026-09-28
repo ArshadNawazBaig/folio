@@ -5,8 +5,10 @@ export default defineConfig({
   testMatch: '**/*.spec.ts',
   testIgnore: [
     '**/auth-connected.spec.ts',
+    '**/admin-activity.spec.ts',
     '**/guest-dashboard.spec.ts',
     '**/short-links.spec.ts',
+    '**/mobile-account-download.spec.ts',
     '**/blog-public.spec.ts',
     '**/design-consistency.spec.ts',
   ],

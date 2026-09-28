@@ -39,6 +39,9 @@ export function Footer() {
         </div>
         <div>
           <h3>Find your format</h3>
+          <Link prefetch={false} href="/compress-images">
+            Image compressor
+          </Link>
           <Link prefetch={false} href="/pdf-to-jpg">
             PDF to JPG
           </Link>

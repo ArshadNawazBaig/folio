@@ -17,6 +17,7 @@ playwright-report
 test-results
 public/pdfjs
 public/pdfium
+public/codecs
 dist
 dist-ssr
 *.local
@@ -37,3 +38,4 @@ dist-ssr
 test-results-auth
 test-results-blog
 test-results-design
+test-results-downloads

@@ -46,7 +46,12 @@ export async function mockGoogle(page: Page | BrowserContext, admin = false, fai
       expect(callback.origin).toBe('http://127.0.0.1:3001');
       expect(callback.pathname).toBe('/auth/callback');
       callback.searchParams.set('code', 'fixture-code');
-      await route.fulfill({ status: 302, headers: { location: callback.href } });
+      // Playwright WebKit cannot fulfill an intercepted navigation with a 302.
+      // Navigate from the fixture page so the same PKCE callback runs in every browser.
+      await route.fulfill({
+        contentType: 'text/html',
+        body: `<script>location.replace(${JSON.stringify(callback.href).replaceAll('<', '\\u003c')})</script>`,
+      });
       return;
     }
     if (url.pathname === '/auth/v1/token') {

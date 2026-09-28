@@ -1,10 +1,12 @@
 # Folio editorial articles
 
-`starter-posts.ts` contains nine original, complete articles for the public blog. Each has a title, excerpt, category, tags, SEO metadata, rich editor content, descriptive cover alt text, and a linked Unsplash photograph credit. Tool instructions were checked against this application. Translation and Office conversion sections explain that their services must be connected before processing is available.
+`starter-posts.ts` contains ten original, complete articles for the public blog. Each has a title, excerpt, category, tags, SEO metadata, rich editor content, descriptive cover alt text, and a linked Unsplash photograph credit. Tool instructions were checked against this application. Translation and Office conversion sections explain that their services must be connected before processing is available.
 
 The QR code and URL shortener guides include practical examples, FAQs, links to the relevant tools, and primary-source references. Their search intent and product checks are recorded in [the editorial research notes](qr-and-url-research.md). They are prepared for draft review; publishing remains an explicit editorial action. Review and publish both together if retaining their cross-links.
 
 The signature generator article covers choosing a signature method, creating a transparent PNG, sizing it for a document, using it in PDFs, Word and Google Docs, troubleshooting, and privacy. Read the complete [article preview](signature-generator-article.md) and [editorial notes](signature-research.md). The Markdown preview is a review copy; the rich content in `starter-posts.ts` is the import source. Its blog slug is `how-to-make-a-signature-online`. The existing `/guides/create-transparent-signature-png` page remains a separate tool walkthrough.
+
+The image compressor article explains target KB limits, pixel dimensions, JPG/PNG/WebP choices, quality checks, batch downloads, troubleshooting, and local processing. Read the complete [article preview](image-compressor-article.md) and [editorial notes](image-compressor-research.md). Its blog slug is `how-to-compress-images-to-target-size`; its tool is `/compress-images`.
 
 The source is a backup for an explicit import, not a runtime fallback. After import, manage the live posts through `/admin/blog`; edits there remain authoritative. Existing posts, edited drafts, and trashed posts are never overwritten by the importer.
 
@@ -15,6 +17,10 @@ npx tsx scripts/seed-blog-posts.ts --check
 npx tsx scripts/seed-blog-posts.ts --drafts
 # Publish all eligible, unchanged imported drafts when ready:
 npx tsx scripts/seed-blog-posts.ts --publish
+
+# Work only with the image compressor article:
+npx tsx scripts/seed-blog-posts.ts --check --only how-to-compress-images-to-target-size
+npx tsx scripts/seed-blog-posts.ts --drafts --only how-to-compress-images-to-target-size
 
 # Work only with the signature article:
 npx tsx scripts/seed-blog-posts.ts --check --only how-to-make-a-signature-online
@@ -38,3 +44,4 @@ Covers come from the free Unsplash photo pages linked inside the articles, not U
 | How to Create a QR Code for a Link That People Can Actually Use    | Marielle Ursua     | [Phone scanning a QR code](https://unsplash.com/photos/a-person-using-a-laptop-computer-with-a-qr-code-on-the-screen-v9bLIYP20xw) |
 | How to Shorten a URL: Free Links, Custom Aliases, and QR Codes     | Christin Hume      | [Working on a laptop](https://unsplash.com/photos/person-using-laptop-computer-Hcfwew744z4)                                       |
 | How to Make a Signature Online That Looks Right in Your Documents  | Kelly Sikkema      | [Notebook and pen](https://unsplash.com/photos/photo-of-a-paper-and-pen-Hrh1E3T8nQc)                                              |
+| How to Compress Images to a File Size Limit Without Guessing       | Christin Hume      | [Working on a laptop](https://unsplash.com/photos/person-using-laptop-computer-Hcfwew744z4)                                       |

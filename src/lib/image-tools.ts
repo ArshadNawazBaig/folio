@@ -1,6 +1,7 @@
 export type ImageSettings = {
   mode: 'convert' | 'compress' | 'enhance';
-  format: 'original' | 'image/jpeg' | 'image/png' | 'image/webp';
+  format: 'auto' | 'original' | 'image/jpeg' | 'image/png' | 'image/webp';
+  targetBytes?: number;
   quality: number;
   maxDimension: number;
   brightness: number;
@@ -15,6 +16,7 @@ export type ImageResult = {
   originalWidth: number;
   originalHeight: number;
   keptOriginal: boolean;
+  targetBytes?: number;
 };
 export const defaultImageSettings: ImageSettings = {
   mode: 'convert',

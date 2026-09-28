@@ -28,6 +28,13 @@ export default function Privacy() {
         signature to a PDF in the editor, that document uses the private cloud saving described
         below.
       </p>
+      <h2>Image compression does not upload or save your images.</h2>
+      <p>
+        The image compressor reads and processes selected images in the current browser tab. Source
+        images, previews, and compressed results are not uploaded to Folio or written to browser
+        storage. Clear all or refresh to discard the batch. Images or ZIPs you download remain on
+        your device. The website still loads its scripts and other assets over the network.
+      </p>
       <h2>Editing can run in your browser while files save privately.</h2>
       <p>
         The free PDF annotation, organizing, form, image conversion, and text extraction tools

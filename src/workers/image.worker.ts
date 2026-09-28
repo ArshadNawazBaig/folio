@@ -1,4 +1,10 @@
 import type { ImageSettings } from '../lib/image-tools';
+import { encodeImage } from '../lib/encode-image';
+import {
+  compressToTarget,
+  compressionFileLimit,
+  type CompressionFormat,
+} from '../lib/image-compression';
 
 self.onmessage = async ({ data }: MessageEvent<{ file: File; settings: ImageSettings }>) => {
   let bitmap: ImageBitmap | undefined;
@@ -7,18 +13,86 @@ self.onmessage = async ({ data }: MessageEvent<{ file: File; settings: ImageSett
     if (
       !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
       !file.size ||
-      file.size > 50 * 1024 * 1024
+      file.size > (s.mode === 'compress' ? compressionFileLimit : 50 * 1024 * 1024)
     )
-      throw new Error('Choose a JPG, PNG or WEBP image of up to 50 MB.');
+      throw new Error(
+        `Choose a JPG, PNG or WebP image of up to ${s.mode === 'compress' ? 35 : 50} MB.`,
+      );
     bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
     if (bitmap.width * bitmap.height > 25_000_000)
       throw new Error('Use images with up to 25 million pixels. Resize this image first.');
+    if (s.mode === 'compress' && s.targetBytes) {
+      const original = { originalWidth: bitmap.width, originalHeight: bitmap.height };
+      if (
+        (s.format === 'auto' || s.format === 'original' || s.format === file.type) &&
+        file.size <= s.targetBytes
+      ) {
+        self.postMessage({
+          result: {
+            blob: file,
+            width: bitmap.width,
+            height: bitmap.height,
+            ...original,
+            keptOriginal: true,
+            targetBytes: s.targetBytes,
+          },
+        });
+        return;
+      }
+      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+      const ctx = canvas.getContext('2d', { willReadFrequently: s.format === 'auto' });
+      if (!ctx) throw new Error('Your browser could not prepare this image.');
+      let transparent = false;
+      if (s.format === 'auto' && file.type !== 'image/jpeg') {
+        ctx.drawImage(bitmap, 0, 0);
+        const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        for (let i = 3; i < pixels.length; i += 4) {
+          if (pixels[i] < 255) {
+            transparent = true;
+            break;
+          }
+        }
+      }
+      const formats: CompressionFormat[] =
+        s.format === 'auto'
+          ? transparent
+            ? ['image/webp', 'image/png']
+            : ['image/webp', 'image/jpeg', 'image/png']
+          : [(s.format === 'original' ? file.type : s.format) as CompressionFormat];
+      let painted = '';
+      const output = await compressToTarget({
+        width: bitmap.width,
+        height: bitmap.height,
+        targetBytes: s.targetBytes,
+        formats,
+        encode: async (width, height, type, quality) => {
+          const key = `${width}:${height}:${type}`;
+          if (key !== painted) {
+            canvas.width = width;
+            canvas.height = height;
+            if (type === 'image/jpeg') {
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, width, height);
+            }
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(bitmap!, 0, 0, width, height);
+            painted = key;
+          }
+          return encodeImage(canvas, ctx, type, quality);
+        },
+      });
+      self.postMessage({
+        result: { ...output, ...original, keptOriginal: false, targetBytes: s.targetBytes },
+      });
+      return;
+    }
     const scale = s.maxDimension
       ? Math.min(1, s.maxDimension / Math.max(bitmap.width, bitmap.height))
       : 1;
     const width = Math.max(1, Math.round(bitmap.width * scale)),
       height = Math.max(1, Math.round(bitmap.height * scale));
-    const type = s.format === 'original' ? file.type : s.format;
+    const type = s.format === 'original' || s.format === 'auto' ? file.type : s.format;
     const canvas = new OffscreenCanvas(width, height);
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Your browser could not prepare this image.');
@@ -57,9 +131,7 @@ self.onmessage = async ({ data }: MessageEvent<{ file: File; settings: ImageSett
       }
       ctx.putImageData(pixels, 0, 0);
     }
-    let blob = await canvas.convertToBlob({ type, quality: s.quality });
-    if (blob.type !== type)
-      throw new Error('Your browser cannot export this format. Try PNG or JPG.');
+    let blob = await encodeImage(canvas, ctx, type, s.quality);
     const keptOriginal =
       s.mode === 'compress' && type === file.type && scale === 1 && blob.size >= file.size;
     if (keptOriginal) blob = file;

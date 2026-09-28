@@ -49,7 +49,7 @@ export function ShortLinkQr({ url, alias }: { url: string; alias: string }) {
           'image/png',
         ),
       );
-      download(new Uint8Array(await blob.arrayBuffer()), `folio-${alias}.png`, 'image/png');
+      download(blob, `folio-${alias}.png`);
     } catch (err) {
       setError(friendlyError(err));
     } finally {

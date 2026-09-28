@@ -25,6 +25,7 @@ import {
 import type { DocumentFont } from '@/lib/pro-types';
 import { documentFontStyle } from '@/lib/document-fonts.mjs';
 import { loadBrowserDocumentFont } from '@/lib/document-font-client';
+import { download } from '@/lib/utils';
 import {
   paintSignature,
   readSignatureImage,
@@ -277,13 +278,13 @@ function SignatureComposer({
                 ? typedSignatureImage(name, font, color)
                 : null;
         if (!result) return;
-        const link = document.createElement('a');
-        link.href = result.dataUrl;
-        link.download = 'signature.png';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setDownloadStatus(`PNG download started · ${result.width} × ${result.height} pixels`);
+        const bytes = Uint8Array.from(atob(result.dataUrl.split(',')[1]), (char) =>
+          char.charCodeAt(0),
+        );
+        const delivery = download(bytes, 'signature.png', 'image/png');
+        setDownloadStatus(
+          `${delivery === 'ready' ? 'PNG ready to save' : 'PNG download started'} · ${result.width} × ${result.height} pixels`,
+        );
         return;
       }
       if (!onAdd) return;
