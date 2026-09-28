@@ -1397,4 +1397,240 @@ export const starterPosts: EditorialPost[] = [
       ),
     ],
   ),
+  article(
+    'fa48b3ab-2458-4da1-b98b-517e8bbde111',
+    {
+      title: 'How to Edit a PDF on Your Phone: iPhone and Android',
+      slug: 'how-to-edit-pdf-on-phone',
+      excerpt:
+        'Need to fill a form, change a date, or sign a PDF from your phone? Follow practical steps for iPhone and Android, understand which edits need a PDF editor, and find the finished file before sending it.',
+      category: 'PDF editing',
+      tags: ['Edit PDF on phone', 'Mobile PDF editing', 'iPhone', 'Android', 'PDF forms'],
+      cover:
+        'https://images.unsplash.com/photo-1488509082528-cefbba5ad692?auto=format&fit=crop&w=1600&q=85',
+      coverAlt:
+        'Close-up of hands holding and using a smartphone against a softly blurred background.',
+      seoTitle: 'How to Edit a PDF on Your Phone: iPhone & Android',
+      seoDescription:
+        'Learn how to edit a PDF on your phone, add text, fill forms, sign, and save the finished file. Practical iPhone and Android steps, costs, and fixes.',
+      featured: false,
+    },
+    {
+      id: 'BjhUu6BpUZA',
+      photographer: 'Priscilla Du Preez',
+      page: 'https://unsplash.com/photos/person-using-smartphone-BjhUu6BpUZA',
+    },
+    [
+      p(
+        'To edit a PDF on your phone, save the document where you can find it, open it in a PDF editor, make your changes, and download the finished copy. Before sending it, open that downloaded file once to check that your changes are there.',
+      ),
+      p(
+        'The part that causes confusion is the word “edit.” Writing your name in an empty space is different from replacing a name already printed on the page. A phone’s PDF viewer may handle the first task while offering no way to do the second. Choosing the right tool at the start saves a lot of tapping.',
+      ),
+      h('Choose the right way to edit your PDF'),
+      table(
+        ['What you need to do', 'What to use', 'What to check'],
+        [
+          [
+            'Type into an empty form field',
+            'A form-filling tool, or Add Text for a flat form',
+            'Can you tap the field and place a cursor inside it?',
+          ],
+          [
+            'Correct words already on the page',
+            'An editor that supports original PDF text',
+            'Can it select the existing words as editable text?',
+          ],
+          [
+            'Add a signature or handwritten note',
+            'A signature or annotation tool',
+            'Is it positioned clearly without covering nearby text?',
+          ],
+          [
+            'Highlight a passage',
+            'A highlight or markup tool',
+            'Will the mark remain visible in the saved PDF?',
+          ],
+          [
+            'Change words in a photographed document',
+            'OCR followed by a suitable editor, or the source document',
+            'Are the words actually pixels in a scan?',
+          ],
+        ],
+      ),
+      p(
+        'Keep the original PDF until the edited copy has been checked. A screenshot is a poor substitute: it can leave out other pages and turn readable document text into an image.',
+      ),
+      h('How to edit a PDF on your phone with Folio'),
+      p(
+        'Open the ',
+        link('Folio PDF editor', '/edit-pdf'),
+        ' in your phone’s browser. You do not need to install a separate Folio app. The same basic workflow applies on iPhone and Android; the file picker and final save options depend on your phone.',
+      ),
+      list(
+        [
+          'Save the PDF attachment from your email or messaging app. Choose a folder you can recognize, and keep the .pdf filename.',
+          'In Folio, tap Choose a file. Use the phone’s file picker to select the saved PDF, then wait for the page preview.',
+          'Go to the page you need. Zoom in with the editor controls so you can place text accurately. If a toolbar option is off-screen, scroll the toolbar sideways.',
+          'Choose Add Text to type in an empty area. Choose Edit Text to change supported original words. Use Sign when you need to place a signature.',
+          'Check the changed area and the rest of that page. Dismiss the keyboard to see whether your text overlaps a line, label, or signature box.',
+          'Tap Download PDF. When Your file is ready appears, tap Download file, or use Share file if your browser offers it. Save the copy, then reopen it before attaching it to a message.',
+        ],
+        true,
+      ),
+      p(
+        'For example, a school form might have a blank line for an emergency contact. Add Text is enough for that blank line. If the school has already printed the wrong contact number, use Edit Text to replace the supported original number. Placing a second number over the first can leave an untidy page and does not reliably remove the old information.',
+      ),
+      h('Changing existing PDF text', 3),
+      p(
+        'With Edit Text active, select the text block you want to change and enter the replacement. Keep a short correction close to the original length where possible. A PDF often stores lines as separate objects, so a longer sentence may run into the next line instead of pushing it down automatically.',
+      ),
+      p(
+        'Check names, dates, spacing, and line endings after each change. If you need to rewrite several paragraphs, ask for the original Word or other editable source file. Making the changes there and exporting a new PDF is usually easier than rebuilding the layout on a small screen.',
+      ),
+      p(
+        'Folio’s added text, annotations, visual signatures, and form tools have free downloads. Downloading a PDF with changes to its original text requires premium access. Editing and previewing come before that download check; opening Edit Text alone does not make an otherwise free export paid. See ',
+        link('the current plans', '/pricing'),
+        ' before starting work that depends on a paid export.',
+      ),
+      h('How to edit a PDF on iPhone'),
+      p(
+        'For a quick form entry or signature, you may already have what you need. If Preview is available on your iPhone, open the PDF there and use its form or annotation controls. Apple describes those options in its ',
+        link(
+          'Preview guide for iPhone',
+          'https://support.apple.com/en-euro/guide/iphone/iph7239ea3b5/ios',
+        ),
+        '. Use a PDF text editor when you need to replace existing wording rather than add a mark or fill a field.',
+      ),
+      p(
+        'If you use Folio, save the attachment to Files first when it is difficult to locate from the browser’s file picker. Choose a file opens that picker; navigate to the folder where you saved the document. The PDF does not need to be in Photos.',
+      ),
+      h('Save and find the edited file on iPhone', 3),
+      p(
+        'After Folio prepares the PDF, tap Download file. If Safari shows a PDF preview instead of a save prompt, use the preview’s Share control and choose Save to Files when available. Folio’s Share file option can also open your device’s share sheet. Finish the save action there; simply opening the sheet does not save a copy.',
+      ),
+      p(
+        'For a Safari download, check the Downloads folder in Files or Safari’s downloads list. If you selected a different folder through Save to Files, look there instead. ',
+        link('Apple’s guide to finding downloads', 'https://support.apple.com/en-au/102440'),
+        ' shows the Files and Safari routes. A downloaded PDF normally belongs in a file location, not your photo library.',
+      ),
+      h('How to edit a PDF on Android'),
+      p(
+        'Save the attachment, open Folio in Chrome, and tap Choose a file. Your file manager may be called Files, My Files, or something similar. Look in Downloads or the folder used by the app that saved the attachment. If you can only see pictures, return to the document browser rather than selecting the photo picker.',
+      ),
+      p(
+        'Make your changes, tap Download PDF, and use Download file in the ready dialog. Check the downloaded copy through Chrome’s Downloads list or your file manager. ',
+        link(
+          'Google’s Android download instructions',
+          'https://support.google.com/chrome/answer/95759?co=GENIE.Platform%3DAndroid&hl=en',
+        ),
+        ' explain where Chrome exposes downloaded files and sharing controls.',
+      ),
+      p(
+        'If you only need freehand notes or highlights and already use Google Drive, its Android app offers PDF annotation. Open the PDF preview, tap the annotation control, make your marks, and save a new copy if you want to preserve the original. This is an annotation workflow, not a way to rewrite the PDF’s existing text. See ',
+        link(
+          'Google’s PDF annotation guide',
+          'https://support.google.com/drive/answer/13207179?hl=en',
+        ),
+        ' for the available tools.',
+      ),
+      h('Fill a form or add a signature without printing'),
+      p(
+        'First tap a blank field. If the PDF has interactive fields, enter the information into those fields with a compatible form tool. If nothing happens, the page may be a flat form: its boxes are part of the page artwork. You can use Add Text to position an answer above a blank line.',
+      ),
+      p(
+        'Use ',
+        link('Folio’s Fill & sign tool', '/sign-pdf'),
+        ' for a form workflow, or Sign in the editor to draw, type, or add a signature image. Resize the signature to fit its space, then check the date and any nearby labels. If you only need a reusable transparent image, the separate ',
+        link('signature generator', '/signature-generator'),
+        ' downloads a PNG; that image still needs to be inserted into the document.',
+      ),
+      p(
+        'Follow any signing instructions supplied with the form. A placed signature image does not add identity verification or a certificate-based digital signature. If the sender requires a particular signing service, complete that process rather than assuming any visible signature is sufficient.',
+      ),
+      h('Why some PDFs will not let you change the words'),
+      p(
+        'A PDF can look like a normal document while containing only a photograph of the page. If the words are part of an image, a text editor cannot select them as original PDF text. Selectable text is a useful clue, but even selectable text may use fonts or structures an editor cannot safely change.',
+      ),
+      p(
+        'For a scan, ask for the editable original or use a suitable OCR tool to recognize the text. OCR results need checking, especially names, amounts, and reference numbers. Folio does not currently provide standalone OCR, so uploading a scan will not automatically turn its printed words into editable text. You can still add a note or fill blank space on top of a readable scan.',
+      ),
+      p(
+        'A password, restricted document, or unsupported PDF structure can also block editing. Get an editable copy from the sender when needed. Avoid treating a white rectangle as secure redaction: covering something visually can leave the underlying information in the PDF.',
+      ),
+      h('Fix common mobile PDF problems'),
+      table(
+        ['Problem', 'What to try'],
+        [
+          [
+            'The PDF opens, but there is no editing toolbar',
+            'You may be in an attachment preview. Save the file, then open it from the PDF editor’s file picker.',
+          ],
+          [
+            'I cannot find the PDF to open',
+            'Save it from the original email or message first. Check the saved folder, recent files, and the filename rather than searching only Photos.',
+          ],
+          [
+            'The keyboard hides the part I am editing',
+            'Dismiss the keyboard to review placement, or try landscape orientation. Zoom in before selecting a small text block.',
+          ],
+          [
+            'Download opens a preview',
+            'Use the preview’s Save or Share control and finish saving to a folder. Return to the editor tab if you still need to make changes.',
+          ],
+          [
+            'I canceled the Share sheet',
+            'Your prepared file remains in Folio’s ready dialog. Tap Download file or try Share file again.',
+          ],
+          [
+            'The attachment still shows the old version',
+            'Open the newest downloaded copy and check it. Remove the old email attachment, then attach that verified file.',
+          ],
+          [
+            'A large document stalls',
+            'Keep the tab open, close unnecessary apps, and check your connection. If appropriate, work with a smaller selection of pages.',
+          ],
+        ],
+      ),
+      h('Check the finished PDF before sending it'),
+      list([
+        'Open the saved file outside the editor and check the actual changed page.',
+        'Confirm that every required page is present and in the correct order.',
+        'Check spelling, contact details, dates, and signature placement at a readable zoom.',
+        'Use a clear filename, such as School-form-completed.pdf, so you can distinguish it from the original.',
+        'Attach the PDF itself and verify the attachment, especially if your email draft already contained an earlier version.',
+      ]),
+      h('What happens to a PDF you open in Folio?'),
+      p(
+        'Folio’s main PDF editor uploads opened documents to private cloud storage for workspace recovery, even though free annotation processing runs in the browser. Guest workspaces expire after 24 hours. Some operations, including original-text processing, also send the document to Folio’s server. This is a different workflow from the standalone signature generator and image compressor.',
+      ),
+      p(
+        'Keep a downloaded copy of anything you need to retain, and do not treat the editor’s All changes saved message as confirmation that a PDF is in your phone’s Downloads folder. For a work or confidential document, check that the upload and storage workflow fits your requirements before opening it. The ',
+        link('privacy page', '/privacy'),
+        ' explains storage and deletion.',
+      ),
+      h('Questions about editing files on a phone'),
+      h('How do I edit a PDF on my phone for free?', 3),
+      p(
+        'For an empty field, note, highlight, or visual signature, use a suitable free annotation or form tool. Folio offers free downloads for those changes without adding a Folio watermark. Replacing the document’s original text is a different operation and requires premium access for the finished Folio export.',
+      ),
+      h('Can I edit a PDF document on my phone without an app?', 3),
+      p(
+        'You can use Folio in your browser without installing a separate PDF app. You still need a connection for the website, private workspace saving, and any server processing. Browser-based does not mean the PDF necessarily stays only on your device.',
+      ),
+      h('How do I edit a file on my phone if it is not a PDF?', 3),
+      p(
+        'Check the extension first. A .docx document needs an editor that supports Word documents; a spreadsheet needs a compatible spreadsheet app. Folio’s PDF editor expects a PDF, so renaming another file to end in .pdf will not make it compatible. If you have the editable source, change it in the appropriate app and export a PDF when you are finished.',
+      ),
+      h('Can I keep the PDF’s formatting exactly the same?', 3),
+      p(
+        'Small additions are easier to review than a rewritten page, but no single workflow guarantees an identical result for every PDF. Original fonts, text blocks, and page structure can affect editing. Preview the changed area, then inspect the downloaded file before relying on its layout.',
+      ),
+      p(
+        'For a straightforward correction or form entry, start with the ',
+        link('PDF editor', '/edit-pdf'),
+        ', make the specific change you need, and check the saved copy before sending it. That last check is what separates an edit you can see on your screen from a finished document the recipient will receive.',
+      ),
+    ],
+  ),
 ];
