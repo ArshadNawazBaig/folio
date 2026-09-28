@@ -11,6 +11,7 @@ import { useAccount } from './account-provider';
 import { Skeleton, LoadingLabel } from './skeleton';
 const nav = [
   ['PDF tools', '/tools'],
+  ['Signature', '/signature-generator'],
   ['URL Shortener', '/url-shortener'],
   ['Pricing', '/pricing'],
   ['Guides', '/guides'],

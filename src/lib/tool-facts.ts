@@ -17,6 +17,18 @@ const editorProcessing =
 // Product facts checked against the tool implementations, download policy and privacy page.
 // Keep limitations explicit; these summaries are visible to visitors as well as crawlers.
 export const toolFacts: Record<string, ToolFacts> = {
+  'signature-generator': {
+    question: 'How can I create a signature PNG without saving it online?',
+    answer:
+      'Draw, type, or choose a signature image in Folio’s free signature generator, then download a PNG. Drawn and typed signatures have transparent backgrounds. Everything is prepared in the current browser tab, with no account and no saved signature library.',
+    input: 'A drawing, a typed name up to 80 characters, or a PNG, JPG, or WebP signature image.',
+    output:
+      'A cropped PNG image. Draw and Type are transparent; Image offers white background removal.',
+    processing:
+      'Your name, drawing, and chosen image are not uploaded or saved in browser storage. Refreshing or clearing the tool discards the working signature. Website and font requests still use the network. Downloaded copies remain on your device.',
+    limits:
+      'Image files up to 5 MB and 25 megapixels, resized to at most 1,400 pixels on the longest edge before cropping. White removal does not remove dark shadows or colored paper. This is a visual signature image, with no certificate or identity verification.',
+  },
   'url-shortener': {
     question: 'What is included with a free short link?',
     answer:
@@ -123,6 +135,8 @@ export const toolFacts: Record<string, ToolFacts> = {
 };
 
 export function downloadFact(slug: string) {
+  if (slug === 'signature-generator')
+    return 'Free PNG download. No sign-in, subscription, or watermark.';
   if (slug === 'url-shortener')
     return 'QR downloads are free. Custom aliases, destination changes, and the larger saved-link allowance require Pro.';
   const access = toolDownloadAccess(slug);

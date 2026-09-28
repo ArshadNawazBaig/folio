@@ -1,4 +1,5 @@
 import type { DocumentFont } from './pro-types';
+import { documentFontStyle } from './document-fonts.mjs';
 
 export type SignatureTab = 'draw' | 'image' | 'type';
 export type SignaturePoint = { x: number; y: number };
@@ -97,6 +98,34 @@ export function signatureImage(canvas: HTMLCanvasElement, removeWhite = false) {
   if (dataUrl.length > 2 * 1024 * 1024)
     throw new Error('This image is too detailed. Choose a smaller image of just your signature.');
   return { dataUrl, width: output.width, height: output.height };
+}
+
+/** Render the loaded signature font on transparent pixels, including italic overhangs. */
+export function typedSignatureImage(text: string, font: DocumentFont, color: string) {
+  const name = text.trim();
+  if (!name) throw new Error('Type your name to create a signature.');
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('Your signature could not be prepared.');
+  const style = documentFontStyle(font);
+  const fontSize = 160;
+  const fontValue = `${style.fontStyle} ${style.fontWeight} ${fontSize}px ${style.fontFamily}`;
+  context.font = fontValue;
+  context.fontKerning = 'none';
+  const metrics = context.measureText(name);
+  const left = Math.max(0, metrics.actualBoundingBoxLeft);
+  const right = Math.max(metrics.width, metrics.actualBoundingBoxRight);
+  const ascent = Math.max(fontSize, metrics.actualBoundingBoxAscent);
+  const descent = Math.max(fontSize / 2, metrics.actualBoundingBoxDescent);
+  const scale = Math.min(1, 2400 / (left + right + 48));
+  canvas.width = Math.ceil((left + right + 48) * scale);
+  canvas.height = Math.ceil((ascent + descent + 48) * scale);
+  context.scale(scale, scale);
+  context.font = fontValue;
+  context.fontKerning = 'none';
+  context.fillStyle = color;
+  context.fillText(name, left + 24, ascent + 24);
+  return signatureImage(canvas);
 }
 
 export async function readSignatureImage(file: File) {

@@ -10,6 +10,8 @@ import {
 } from 'react';
 import {
   Check,
+  Download,
+  ShieldCheck,
   ImagePlus,
   Loader2,
   Pencil,
@@ -27,6 +29,7 @@ import {
   paintSignature,
   readSignatureImage,
   signatureImage,
+  typedSignatureImage,
   type SignaturePoint,
   type SignatureResult,
   type SignatureTab,
@@ -49,18 +52,87 @@ const fonts: { value: DocumentFont; label: string }[] = [
   { value: 'google:dancing-script:500:normal', label: 'Flowing' },
 ];
 
-export function SignatureDialog({
-  initialTab = 'draw',
-  onClose,
-  onAdd,
-}: {
+type EditorSignatureProps = {
   initialTab?: SignatureTab;
   onClose: () => void;
   onAdd: (signature: SignatureResult) => void;
+};
+
+export function SignatureDialog(props: EditorSignatureProps) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const id = useId();
+  useEffect(() => {
+    const element = dialog.current!;
+    const previousFocus =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    element.showModal();
+    return () => {
+      element.close();
+      const target =
+        previousFocus?.isConnected && previousFocus !== document.body
+          ? previousFocus
+          : document.querySelector<HTMLButtonElement>('.editor-toolbar button[aria-label="Sign"]');
+      target?.focus({ preventScroll: true });
+    };
+  }, []);
+  return (
+    <dialog
+      ref={dialog}
+      className={s.dialog}
+      aria-labelledby={`${id}-title`}
+      aria-describedby={`${id}-description`}
+      onCancel={(event) => {
+        event.preventDefault();
+        props.onClose();
+      }}
+    >
+      <SignatureComposer {...props} id={id} />
+    </dialog>
+  );
+}
+
+export function SignatureWorkbench() {
+  const [version, setVersion] = useState(0);
+  const id = useId();
+  // Discard the working signature before the browser puts this page in its back/forward cache.
+  useEffect(() => {
+    const reset = () => setVersion((value) => value + 1);
+    window.addEventListener('pagehide', reset);
+    return () => window.removeEventListener('pagehide', reset);
+  }, []);
+  return (
+    <section className={s.workbench} aria-labelledby={`${id}-title`}>
+      <SignatureComposer
+        key={version}
+        id={id}
+        downloadMode
+        onClose={() => setVersion((value) => value + 1)}
+      />
+      <p className={s.privacy}>
+        <ShieldCheck size={17} aria-hidden="true" />
+        Your signature stays in this tab. Folio does not upload or save it. Download it before
+        leaving.
+      </p>
+    </section>
+  );
+}
+
+function SignatureComposer({
+  id,
+  initialTab = 'draw',
+  onClose,
+  onAdd,
+  downloadMode = false,
+}: {
+  id: string;
+  initialTab?: SignatureTab;
+  onClose: () => void;
+  onAdd?: (signature: SignatureResult) => void;
+  downloadMode?: boolean;
 }) {
-  const id = useId(),
-    dialog = useRef<HTMLDialogElement>(null),
-    canvas = useRef<HTMLCanvasElement>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const [downloadStatus, setDownloadStatus] = useState('');
   const input = useRef<HTMLInputElement>(null),
     originalImage = useRef<HTMLCanvasElement | null>(null);
   const strokes = useRef<SignaturePoint[][]>([]),
@@ -82,18 +154,8 @@ export function SignatureDialog({
     colorRef = useRef(color);
   useEffect(() => {
     mounted.current = true;
-    const element = dialog.current!;
-    const previousFocus =
-      document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    element.showModal();
     return () => {
       mounted.current = false;
-      element.close();
-      const target =
-        previousFocus?.isConnected && previousFocus !== document.body
-          ? previousFocus
-          : document.querySelector<HTMLButtonElement>('.editor-toolbar button[aria-label="Sign"]');
-      target?.focus({ preventScroll: true });
     };
   }, []);
   useEffect(() => {
@@ -136,6 +198,7 @@ export function SignatureDialog({
   function changeTab(next: SignatureTab) {
     pointer.current = null;
     setTab(next);
+    setDownloadStatus('');
     setError('');
   }
   function point(event: PointerEvent<HTMLCanvasElement>) {
@@ -172,6 +235,9 @@ export function SignatureDialog({
     if (!file) return;
     const version = ++uploadVersion.current;
     setLoading(true);
+    setImage(null);
+    originalImage.current = null;
+    setFileName('');
     setError('');
     try {
       const original = await readSignatureImage(file);
@@ -201,6 +267,26 @@ export function SignatureDialog({
   function add() {
     setError('');
     try {
+      if (downloadMode) {
+        const result =
+          tab === 'draw' && canvas.current && strokeCount
+            ? signatureImage(canvas.current)
+            : tab === 'image' && image
+              ? image
+              : tab === 'type' && name.trim() && fontReady
+                ? typedSignatureImage(name, font, color)
+                : null;
+        if (!result) return;
+        const link = document.createElement('a');
+        link.href = result.dataUrl;
+        link.download = 'signature.png';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setDownloadStatus(`PNG download started · ${result.width} × ${result.height} pixels`);
+        return;
+      }
+      if (!onAdd) return;
       if (tab === 'draw' && canvas.current && strokeCount)
         onAdd({ source: 'draw', ...signatureImage(canvas.current) });
       else if (tab === 'image' && image) onAdd({ source: 'image', ...image });
@@ -229,15 +315,9 @@ export function SignatureDialog({
     !loading &&
     (tab === 'draw' ? strokeCount > 0 : tab === 'image' ? !!image : !!name.trim() && fontReady);
   return (
-    <dialog
-      ref={dialog}
-      className={s.dialog}
-      aria-labelledby={`${id}-title`}
-      aria-describedby={`${id}-description`}
-      onCancel={(e) => {
-        e.preventDefault();
-        onClose();
-      }}
+    <div
+      ref={root}
+      className={s.composer}
       onKeyDown={(e) => {
         if (tab === 'draw' && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
           e.preventDefault();
@@ -251,12 +331,20 @@ export function SignatureDialog({
           <Signature size={25} strokeWidth={1.6} />
         </span>
         <div>
-          <h2 id={`${id}-title`}>Add your signature</h2>
-          <p id={`${id}-description`}>A personal touch, in your own style.</p>
+          <h2 id={`${id}-title`}>
+            {downloadMode ? 'Create your signature' : 'Add your signature'}
+          </h2>
+          <p id={`${id}-description`}>
+            {downloadMode
+              ? 'Draw, type, or choose an image. Download your PNG for free.'
+              : 'A personal touch, in your own style.'}
+          </p>
         </div>
-        <button className="icon-button" aria-label="Close signature dialog" onClick={onClose}>
-          <X size={21} />
-        </button>
+        {!downloadMode && (
+          <button className="icon-button" aria-label="Close signature dialog" onClick={onClose}>
+            <X size={21} />
+          </button>
+        )}
       </header>
       <div
         className={s.tabs}
@@ -277,7 +365,7 @@ export function SignatureDialog({
           if (next < 0) return;
           e.preventDefault();
           changeTab(tabs[next].id);
-          dialog.current
+          root.current
             ?.querySelector<HTMLButtonElement>(`#${CSS.escape(id)}-${tabs[next].id}-tab`)
             ?.focus();
         }}
@@ -457,6 +545,12 @@ export function SignatureDialog({
                   </button>
                 )}
               </div>
+              {downloadMode && (
+                <p className={s.hint}>
+                  White removal works best on plain white paper. Shadows and colored backgrounds may
+                  remain.
+                </p>
+              )}
               {fileName && (
                 <p className={s.fileName} title={fileName}>
                   {fileName}
@@ -469,7 +563,7 @@ export function SignatureDialog({
               <label className={s.nameInput}>
                 Your signature
                 <input
-                  autoComplete="name"
+                  autoComplete={downloadMode ? 'off' : 'name'}
                   value={name}
                   maxLength={80}
                   placeholder="Enter your full name"
@@ -481,7 +575,10 @@ export function SignatureDialog({
                   <button
                     key={item.value}
                     aria-pressed={font === item.value}
-                    onClick={() => setFont(item.value)}
+                    onClick={() => {
+                      if (font !== item.value) setFontReady(false);
+                      setFont(item.value);
+                    }}
                   >
                     {item.label}
                     {font === item.value && <Check size={14} />}
@@ -511,19 +608,30 @@ export function SignatureDialog({
           </p>
         )}
       </div>
+      {downloadMode && (
+        <p className={s.downloadStatus} role="status">
+          {downloadStatus}
+        </p>
+      )}
       <footer className={s.footer}>
-        <p>Drag and resize after adding.</p>
+        <p>
+          {downloadMode
+            ? tab === 'image' && !removeWhite
+              ? 'PNG · original background retained'
+              : 'PNG · transparent background'
+            : 'Drag and resize after adding.'}
+        </p>
         <div>
           <button className="button secondary" onClick={onClose}>
-            Cancel
+            {downloadMode ? 'Clear all' : 'Cancel'}
           </button>
           <button className="button primary" onClick={add} disabled={!ready}>
-            <Check size={16} />
-            Add signature
+            {downloadMode ? <Download size={16} /> : <Check size={16} />}
+            {downloadMode ? 'Download PNG' : 'Add signature'}
           </button>
         </div>
       </footer>
-    </dialog>
+    </div>
   );
 }
 

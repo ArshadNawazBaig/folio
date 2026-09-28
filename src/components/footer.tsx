@@ -33,6 +33,9 @@ export function Footer() {
           <Link prefetch={false} href="/sign-pdf">
             Fill & sign
           </Link>
+          <Link prefetch={false} href="/signature-generator">
+            Signature generator
+          </Link>
         </div>
         <div>
           <h3>Find your format</h3>

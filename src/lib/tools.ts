@@ -542,6 +542,62 @@ export const tools: Tool[] = [
     keywords: ['signature', 'fill a form', 'esign', 'signing'],
   }),
   tool({
+    slug: 'signature-generator',
+    name: 'Signature generator',
+    short: 'Your signature. Ready as a transparent PNG.',
+    description:
+      'Create a signature online for free. Draw, type your name, or remove a white image background, then download a transparent PNG. No account or saved signatures.',
+    icon: 'sign',
+    category: 'Forms & signing',
+    color: 'sage',
+    available: true,
+    action: 'Download PNG',
+    processor: 'signature',
+    steps: [
+      'Draw your signature, type your name, or choose a signature image.',
+      'Choose an ink color or style, or remove the white image background.',
+      'Download your signature as a PNG to your device.',
+    ],
+    detail:
+      'Make a signature image without opening a PDF. Draw with a mouse, finger, or stylus; type a name in one of three styles; or choose an existing image. Drawn and typed signatures have transparent backgrounds. Image mode can remove white paper, but shadows and colored backgrounds may remain. Folio does not upload or save signatures from this tool. Only the PNG you choose to download is saved to your device.',
+    faq: [
+      [
+        'How do I make a signature with a transparent background?',
+        'Choose Draw or Type, create your signature, then select Download PNG. These modes export only the ink on transparent pixels. For a photo, choose Image and leave Remove white background checked. The checkerboard is a preview aid and is not included in your download.',
+      ],
+      [
+        'Is the signature generator free without signing in?',
+        'Yes. Create and download a PNG for free without an account, subscription, watermark, or PDF upload.',
+      ],
+      [
+        'Does Folio save my signature or typed name?',
+        'No. This tool keeps the name, drawing, and chosen image in the current page memory. It does not send them to a server or save them in browser storage. Clear all discards the working signature; refreshing starts over. Files you download remain on your device.',
+      ],
+      [
+        'Why does my downloaded signature look like it has a white background?',
+        'Some image viewers display transparent pixels on white. Insert the original PNG on a colored background to check. If a white rectangle remains, you may have kept the image background, used a screenshot, or converted the file to JPG. Download the PNG again with white removal enabled, or use Draw or Type.',
+      ],
+      [
+        'Can I create a signature on my phone?',
+        'Yes. Draw with your finger or a compatible stylus, or choose Type to avoid handwriting on a small screen. Use your browser’s downloads list or your device’s Files app to find signature.png.',
+      ],
+      [
+        'Is this a certificate-based digital signature?',
+        'No. The download is a visual image of a signature. It does not verify identity, certify a document, or provide an audit trail. Check the recipient’s requirements before using an image to sign a document.',
+      ],
+    ],
+    keywords: [
+      'sign',
+      'signature maker',
+      'handwritten signature',
+      'signature png',
+      'transparent background',
+      'draw signature',
+      'type signature',
+      'name signature',
+    ],
+  }),
+  tool({
     slug: 'create-pdf-form',
     name: 'Create a PDF form',
     short: 'Good questions. Clear answers.',

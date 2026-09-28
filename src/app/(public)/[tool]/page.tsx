@@ -13,6 +13,7 @@ import { ProtectPdf } from '@/components/protect-pdf';
 import { ImageWorkbench } from '@/components/image-workbench';
 import { QrWorkbench } from '@/components/qr-workbench';
 import { ShortLinks } from '@/components/short-links';
+import { SignatureWorkbench } from '@/components/signature-dialog';
 import { Faq } from '@/components/faq';
 import { ToolFacts } from '@/components/tool-facts';
 import { StructuredData } from '@/components/structured-data';
@@ -82,6 +83,11 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           <span className="accent-dot">.</span>
         </h1>
         <p>{t.description}</p>
+        {t.slug === 'sign-pdf' && (
+          <Link href="/signature-generator" className="text-link">
+            Just need a signature image? Create a transparent PNG <ArrowUpRight size={15} />
+          </Link>
+        )}
         {t.processor === 'shortener' ? (
           <div className="tool-benefits">
             <span>
@@ -119,7 +125,9 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           <span className="status-label">COMING SOON</span>
         )}
       </div>
-      {t.processor === 'image' ? (
+      {t.processor === 'signature' ? (
+        <SignatureWorkbench />
+      ) : t.processor === 'image' ? (
         <ImageWorkbench key={t.slug} tool={t} />
       ) : t.processor === 'qr' ? (
         <QrWorkbench />
@@ -176,7 +184,11 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
         <div>
           <span className="eyebrow">A FEW HELPFUL DETAILS</span>
           <h2>
-            {t.processor === 'shortener' ? 'Make every link count.' : 'Know your document.'}
+            {t.processor === 'signature'
+              ? 'Make your mark.'
+              : t.processor === 'shortener'
+                ? 'Make every link count.'
+                : 'Know your document.'}
             <br />
             <em>Get a better result.</em>
           </h2>

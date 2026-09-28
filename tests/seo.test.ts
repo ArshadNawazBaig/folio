@@ -30,14 +30,16 @@ test('directory pages expose every tool once with real URLs and normalized canon
   assert.equal(first.tools.length, 10);
   assert.equal(first.canonical, '/tools');
   const second = toolDirectory(tools, { page: '2' });
-  const third = toolDirectory(tools, { page: '3' });
+  const pages = Array.from({ length: Math.ceil(tools.length / first.pageSize) }, (_, i) =>
+    toolDirectory(tools, { page: String(i + 1) }),
+  );
   assert.equal(second.canonical, '/tools?page=2');
   assert.ok(second.index);
   assert.deepEqual(
-    [...first.tools, ...second.tools, ...third.tools].map((tool) => tool.slug),
+    pages.flatMap((page) => page.tools.map((tool) => tool.slug)),
     tools.map((tool) => tool.slug),
   );
-  assert.equal(toolDirectory(tools, { page: '9999' }).canonical, third.canonical);
+  assert.equal(toolDirectory(tools, { page: '9999' }).canonical, pages.at(-1)!.canonical);
   assert.ok(toolDirectory(tools, { page: '9999' }).outOfRange);
   assert.equal(toolDirectory(tools, { page: 'bad', pageSize: 'bad' }).canonical, '/tools');
   for (const params of [{ q: 'PDF' }, { category: 'Convert' }, { pageSize: '25' }])

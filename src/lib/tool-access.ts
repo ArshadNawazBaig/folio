@@ -53,6 +53,7 @@ const freeTools = [
   'image-to-pdf',
   'pdf-to-text',
   'sign-pdf',
+  'signature-generator',
   'create-pdf-form',
   'jpg-to-webp',
   'webp-to-jpg',

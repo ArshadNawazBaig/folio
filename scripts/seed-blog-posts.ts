@@ -1,23 +1,38 @@
 import nextEnv from '@next/env';
 import { createClient } from '@supabase/supabase-js';
 import sharp from 'sharp';
-import { isDeepStrictEqual } from 'node:util';
+import { isDeepStrictEqual, parseArgs } from 'node:util';
 import { starterPosts } from '../content/blog/starter-posts';
 import { blogDraftSchema, blogText, publicationError } from '../src/lib/blog';
 import { tools } from '../src/lib/tools';
+import { guides } from '../src/lib/guides';
 
 // This is an explicit editorial import, never an application-startup seed.
 // Default: validate locally. --drafts saves private drafts; --publish makes them public.
-const args = process.argv.slice(2);
-const publish = args.includes('--publish');
-const write = publish || args.includes('--drafts');
-if (args.some((arg) => !['--check', '--drafts', '--publish'].includes(arg)) || args.length > 1)
-  throw new Error('Use --check (default), --drafts, or --publish.');
+const { values } = parseArgs({
+  options: {
+    check: { type: 'boolean' },
+    drafts: { type: 'boolean' },
+    publish: { type: 'boolean' },
+    only: { type: 'string' },
+  },
+});
+if ([values.check, values.drafts, values.publish].filter(Boolean).length > 1)
+  throw new Error('Use --check (default), --drafts, or --publish, optionally with --only <slug>.');
+const publish = values.publish === true;
+const write = publish || values.drafts === true;
+const selectedPosts =
+  values.only === undefined
+    ? starterPosts
+    : starterPosts.filter((post) => post.draft.slug === values.only);
+if (!selectedPosts.length) throw new Error('The --only slug must match an editorial article.');
 
 const allowedPaths = new Set([
   '/convert',
   '/pricing',
+  '/privacy',
   ...tools.map((tool) => `/${tool.slug}`),
+  ...guides.map((guide) => `/guides/${guide.slug}`),
   ...starterPosts.map((post) => `/blog/${post.draft.slug}`),
 ]);
 const ids = new Set<string>();
@@ -61,7 +76,7 @@ async function importPosts() {
   const { data: bucket, error: bucketError } = await db.storage.getBucket('folio-blog');
   if (bucketError || !bucket?.public) throw new Error('Apply 009_blog.sql before importing posts.');
 
-  for (const post of starterPosts) {
+  for (const post of selectedPosts) {
     const { data: matches, error: lookupError } = await db
       .from('blog_posts')
       .select('id,status,version,draft')
@@ -133,7 +148,10 @@ async function importPosts() {
   const { data: result, error } = await db
     .from('blog_posts')
     .select('id,status,public_slug,published_at')
-    .in('id', [...ids]);
+    .in(
+      'id',
+      selectedPosts.map((post) => post.id),
+    );
   if (error) throw new Error('Could not verify the imported posts.');
   console.log(`Verified ${result?.length || 0} editorial posts in Supabase.`);
 }

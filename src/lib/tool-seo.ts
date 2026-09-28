@@ -16,6 +16,7 @@ export const toolSearchTitles: Record<string, string> = {
   'image-to-pdf': 'Free Image to PDF Converter — Combine JPG, PNG & WEBP',
   'pdf-to-text': 'PDF to Text Converter — Extract Selectable Text',
   'sign-pdf': 'Sign PDF Online for Free — Draw, Type or Upload',
+  'signature-generator': 'Free Signature Generator — Download a Transparent PNG',
   'create-pdf-form': 'Create Fillable PDF Forms Online for Free',
   'jpg-to-webp': 'JPG to WEBP Converter — Adjust Quality & Dimensions',
   'webp-to-jpg': 'WEBP to JPG Converter — Convert Images for Free',

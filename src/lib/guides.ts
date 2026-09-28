@@ -23,6 +23,180 @@ export type Guide = {
 };
 export const guides: Guide[] = [
   {
+    slug: 'create-transparent-signature-png',
+    title: 'How to Create a Signature PNG With a Transparent Background',
+    description:
+      'Draw or type a signature, remove white paper from a photo, and download a transparent PNG. Learn how to use it in documents and fix common image problems.',
+    category: 'Forms & signing',
+    readTime: '7 min read',
+    published: '2026-09-28',
+    updated: '2026-09-28',
+    tool: 'signature-generator',
+    relatedTools: ['sign-pdf', 'edit-pdf', 'create-pdf-form'],
+    summary:
+      'For a quick signature image, open the signature generator, choose Draw or Type, and download the PNG. Both modes create a transparent background automatically. If you already have a paper signature, Image mode can remove its white background. No PDF or account is needed, and this standalone tool does not upload or save your signature. Download a copy before leaving the page.',
+    sections: [
+      {
+        title: 'Start with the file you actually need',
+        text: 'You have a document ready to send, but the signature you pasted into it sits inside a white rectangle. That rectangle is part of the image, so it covers the line or colored paper underneath. A transparent signature PNG solves that particular problem: the letters remain visible while the page shows through around them. Use Folio’s signature generator when you need a separate image file. If you only need to sign one PDF, Fill & sign lets you create the signature directly inside the document.',
+        links: [
+          { label: 'Create a signature PNG', href: '/signature-generator' },
+          { label: 'Sign a PDF instead', href: '/sign-pdf' },
+        ],
+      },
+      {
+        title: 'Choose between drawing, typing, and a paper signature',
+        text: 'Choose the method that matches the result you want. Drawing gives you control over the shape of every stroke. Typing is convenient if a mouse makes your handwriting awkward, but it uses a font; it does not learn or reproduce your handwriting. An existing image is useful when you want to keep a signature you wrote on paper. You can try another tab without losing your current work while the page stays open.',
+        table: {
+          caption: 'Which signature method fits your task?',
+          columns: ['Method', 'A good choice when', 'What to check'],
+          rows: [
+            {
+              name: 'Draw',
+              cells: [
+                'You want your own handwriting and have a mouse, touch screen, or stylus.',
+                'Leave room for loops and long strokes so they do not touch the edge.',
+              ],
+            },
+            {
+              name: 'Type',
+              cells: [
+                'You want a neat name or initials without drawing.',
+                'Compare Classic, Handwritten, and Flowing; check every character before downloading.',
+              ],
+            },
+            {
+              name: 'Image',
+              cells: [
+                'You already have a clear signature on plain white paper.',
+                'Watch for shadows, ruled lines, and paper texture that white removal may leave behind.',
+              ],
+            },
+          ],
+        },
+      },
+      {
+        title: 'Draw a signature and download it as a transparent PNG',
+        text: 'Sign at a comfortable size instead of squeezing your name into one corner. The tool crops empty space around the ink, so you do not need to fill the whole pad. The pale guide line and checkerboard are only there to help you; neither is included in the exported image. If you make a mistake near the end, Undo stroke removes the most recent stroke without erasing the rest of your signature.',
+        steps: [
+          'Open Signature generator and select Draw.',
+          'Choose black, blue, or green ink. Black is a useful starting point for a document that may be printed.',
+          'Write your signature with a mouse, finger, or stylus. Keep it away from the pad edges.',
+          'Use Undo stroke to correct a mark, or Clear signature to redraw. Changing the ink color updates the whole drawing.',
+          'Select Download PNG. The file is named signature.png and contains your ink with transparent space around it.',
+        ],
+      },
+      {
+        title: 'Make a typed signature when drawing feels awkward',
+        text: 'Select Type, enter your name or initials, and compare the three styles. Classic gives you an italic look; Handwritten and Flowing offer more informal lettering. You can enter up to 80 characters. The preview fits the available space, while the PNG is rendered separately for download. A very long name will be reduced to fit the export width, so inspect it at the size you plan to use. If a style cannot load, choose Classic and check the preview before downloading. Typed signatures also export with a transparent background.',
+      },
+      {
+        title: 'Remove white paper from an existing signature image',
+        text: 'Start with dark ink on clean, unlined white paper. Photograph it straight on in even light, keeping your phone’s shadow off the signature. Crop out the desk, fingers, and unrelated writing before choosing the image. Folio accepts PNG, JPG, and WebP files up to 5 MB and 25 megapixels. It resizes large images to at most 1,400 pixels on the longest edge before cropping the signature, so selecting just the signature area helps preserve useful detail.',
+        steps: [
+          'Select Image, then Choose image, or drop the image onto the upload area.',
+          'Leave Remove white background checked and inspect the checkerboard preview.',
+          'Check between loops and beneath long strokes for leftover paper or shadows.',
+          'If the result looks gray or patchy, try a brighter, cleaner original. White removal does not isolate handwriting from a busy or colored background.',
+          'Download the PNG when the preview looks right. If you uncheck white removal, the original background remains in the image.',
+        ],
+      },
+      {
+        title: 'Why PNG matters, and how to check transparency',
+        text: 'PNG supports an alpha channel, which describes how transparent each pixel is. That lets the document show through around your signature, including the spaces inside letters. A checkerboard is a common way to display those empty areas, but it is not part of your downloaded file. Some viewers show transparency against white, so appearance in a viewer alone is not a reliable check. Place the original PNG over a colored shape in a document: the color should show through the empty areas.',
+        links: [
+          {
+            label: 'W3C: PNG transparency and the alpha channel',
+            href: 'https://www.w3.org/TR/png-3/#3alpha',
+          },
+        ],
+      },
+      {
+        title: 'Place the signature in a PDF or Word document',
+        text: 'For a PDF in Folio, open Fill & sign, choose your PDF, select Sign, and use Image to choose the PNG. Place it on the signature line, resize it using a corner handle, and inspect the exported document. In Word, insert the downloaded PNG through Insert > Pictures, then adjust its size and position. Keep the original proportions so your handwriting does not look stretched. Always review the finished file, especially if the signature sits close to a date, name, or checkbox.',
+        links: [
+          { label: 'Open Fill & sign', href: '/sign-pdf' },
+          {
+            label: 'Microsoft: insert a signature image in Word',
+            href: 'https://support.microsoft.com/en-us/office/insert-a-signature-f3b3f74c-2355-4d53-be89-ae9c50022730',
+          },
+        ],
+      },
+      {
+        title: 'Fix a white box, fuzzy edges, or a missing download',
+        text: 'Troubleshoot the downloaded file before redrawing your signature. A screenshot can capture the preview background, and saving through another app may change the image. Start with the original signature.png from the tool, then compare it with what appears in your document. The checks below help identify whether the issue comes from the source image, the download, or the way the document displays it.',
+        table: {
+          caption: 'Common signature PNG problems and practical fixes',
+          columns: ['Problem', 'Likely cause', 'What to try'],
+          rows: [
+            {
+              name: 'A white rectangle covers the page',
+              cells: [
+                'The image retained its paper background, or a later copy lost transparency.',
+                'Use the original PNG. In Image mode, enable white removal and download again. Draw and Type create transparency automatically.',
+              ],
+            },
+            {
+              name: 'A gray patch surrounds the ink',
+              cells: [
+                'The photo contains a shadow or off-white paper.',
+                'Retake the photo in even light on plain white paper, or draw the signature directly.',
+              ],
+            },
+            {
+              name: 'The signature looks blurry',
+              cells: [
+                'A small image was enlarged too much, or the original photo was out of focus.',
+                'Reduce its size in the document or create a clearer source. Enlarging a PNG does not add missing detail.',
+              ],
+            },
+            {
+              name: 'Loops or flourishes are cut off',
+              cells: [
+                'The drawing reached the edge of the pad or the original photo was cropped too tightly.',
+                'Redraw with extra room around the ink, or choose an image that includes every stroke.',
+              ],
+            },
+            {
+              name: 'Download PNG is disabled',
+              cells: [
+                'The active tab is empty, an image is processing, or a font has not loaded.',
+                'Add a signature in the selected tab, wait for processing, or choose Classic if a font failed.',
+              ],
+            },
+            {
+              name: 'The PNG is hard to find on a phone',
+              cells: [
+                'The browser saved it to Downloads rather than Photos.',
+                'Check the browser’s downloads list and your device’s Files app for signature.png. Repeated downloads may have a number added to the name.',
+              ],
+            },
+          ],
+        },
+      },
+      {
+        title: 'What happens to your signature after you leave?',
+        text: 'The standalone signature generator keeps your typed name, drawing, and selected image in the current page’s memory. It does not upload that content, create a saved signature library, or write it to browser storage. Clear all discards the working signature, and refreshing starts a new one. Website assets and signature fonts still load over the network. Downloaded PNGs remain wherever your browser saves them; clearing the tool does not delete those files. On a shared device, remove downloaded copies you no longer need.',
+      },
+      {
+        title: 'Using the PDF editor is a separate saving choice',
+        text: 'Downloading a signature image does not open a document workspace. If you later put that image into a PDF in Folio’s editor, the PDF and its changes use the editor’s private cloud saving. Guest workspaces expire after 24 hours; signed-in workspaces are kept in the account until deleted. That distinction matters if you only wanted to create an image without saving it online. Stay in the standalone generator for that task, and choose how to store or use the downloaded file yourself.',
+        links: [{ label: 'Read how Folio handles files and cloud saving', href: '/privacy' }],
+      },
+      {
+        title: 'A signature image does not certify a document',
+        text: 'This tool produces a picture of your signature. It does not verify your identity, record a signing audit trail, or attach a cryptographic certificate to a document. Check what the recipient asks for before using a PNG. If they sent a signing link or require a particular service, follow that process. A handwritten-looking font cannot add those capabilities. Keep the reusable image private and share the completed document when that is what the recipient needs.',
+      },
+      {
+        title: 'Check the final result at its actual size',
+        text: 'Before sending a document, open the exported copy and look at the signature at normal reading size. Check that all strokes are present, the background blends into the page, and nearby words remain readable. Make sure the signature is on the intended page and line. For a printed document, a quick test print can reveal ink that is too faint or lettering that is too small. Keep the PNG only if you expect to reuse it, and keep it somewhere you control.',
+        links: [
+          { label: 'Make your signature with the free generator', href: '/signature-generator' },
+        ],
+      },
+    ],
+  },
+  {
     slug: 'does-folio-upload-pdf-files',
     title: 'Does Folio Upload Your PDF? Local Tools vs. Cloud Saving',
     description:

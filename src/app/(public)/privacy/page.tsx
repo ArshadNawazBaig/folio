@@ -19,6 +19,15 @@ export default function Privacy() {
           Updated September 28, 2026.
         </p>
       </header>
+      <h2>Standalone signature images stay in your tab.</h2>
+      <p>
+        The signature generator processes your typed name, drawing, and chosen image in the current
+        browser tab. It does not upload or save signature content to Folio or browser storage.
+        Clearing the tool or refreshing discards the working signature. PNG files you download
+        remain on your device. Website and font requests still use the network. If you later add a
+        signature to a PDF in the editor, that document uses the private cloud saving described
+        below.
+      </p>
       <h2>Editing can run in your browser while files save privately.</h2>
       <p>
         The free PDF annotation, organizing, form, image conversion, and text extraction tools

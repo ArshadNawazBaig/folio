@@ -26,6 +26,12 @@ export default function FormsPage() {
       </div>
       <div className="form-entry-grid">
         {[
+          [
+            'signature-generator',
+            'sign',
+            'Create a signature PNG',
+            'Draw or type. Download with a transparent background.',
+          ],
           ['sign-pdf', 'sign', 'Fill & sign a PDF', 'A few details and your finishing touch.'],
           [
             'create-pdf-form',
