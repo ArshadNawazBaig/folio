@@ -1633,4 +1633,569 @@ export const starterPosts: EditorialPost[] = [
       ),
     ],
   ),
+  article(
+    'fa48b3ab-2458-4da1-b98b-517e8bbde112',
+    {
+      title: 'Free PDF Tool Online: Choose the Right Tool for Your Task',
+      slug: 'free-pdf-tool-online-guide',
+      excerpt:
+        'Need to merge documents, remove a page, reduce a file size, or turn photos into a PDF? Choose a free tool by the result you need, understand its limits, and avoid unnecessary conversions.',
+      category: 'PDF tools',
+      tags: ['Free PDF tool', 'Free PDF tool online', 'Merge PDF', 'Split PDF', 'PDF workflow'],
+      cover:
+        'https://images.unsplash.com/photo-1518081963661-980bed44215c?auto=format&fit=crop&w=1600&q=85',
+      coverAlt: 'An open weekly planner with pens and small wrapped chocolates on a desk.',
+      seoTitle: 'Free PDF Tool Online: Find the Right Tool for Your Task',
+      seoDescription:
+        'Choose a free PDF tool online for merging, splitting, compression, conversion, or annotations. Compare outputs, limits, privacy, and download checks.',
+      featured: false,
+    },
+    {
+      id: 'NzukYmIQOps',
+      photographer: 'Estée Janssens',
+      page: 'https://unsplash.com/photos/white-printing-paper-and-blue-pen-NzukYmIQOps',
+    },
+    [
+      p(
+        'The most useful free PDF tool is the one that produces the file you actually need. Combining three attachments calls for a merger. Sending only two pages calls for a page extractor. Adding your name to a blank line calls for an editor. Starting with that distinction makes the rest of the job much simpler.',
+      ),
+      p(
+        'A long list of features can make a straightforward task feel complicated. This guide helps you choose a free PDF tool online by its output, work through a document in a sensible order, and check the result before handing it to someone else.',
+      ),
+      h('Start with a one-sentence description of the finished file'),
+      p(
+        'Before selecting a tool, finish this sentence: “I need one file that…” For example, “I need one PDF containing my application and its two supporting documents.” That tells you more than a vague request to edit or convert a PDF.',
+      ),
+      table(
+        ['Your intended result', 'Tool to choose', 'What you get'],
+        [
+          ['Several PDFs in one attachment', 'Merge PDF', 'One PDF in your chosen file order.'],
+          [
+            'Only selected pages from a larger document',
+            'Split PDF in selected-page mode',
+            'One PDF containing the pages you keep.',
+          ],
+          [
+            'A separate PDF for every page',
+            'Split PDF in individual-page mode',
+            'A ZIP containing the separate PDFs.',
+          ],
+          [
+            'Pages in a different order or orientation',
+            'Organize PDF or Rotate PDF',
+            'A PDF with the page arrangement changed.',
+          ],
+          [
+            'A potentially smaller PDF',
+            'Compress PDF',
+            'An optimized PDF; the reduction depends on the source.',
+          ],
+          ['Photos grouped as a document', 'Image to PDF', 'A PDF with one image on each page.'],
+          [
+            'A page image for a presentation',
+            'PDF to JPG or PDF to PNG',
+            'An image, or a ZIP for multiple page images.',
+          ],
+          [
+            'A note, highlight, or visual signature',
+            'PDF editor or Fill & sign',
+            'A PDF with your additions.',
+          ],
+        ],
+      ),
+      p(
+        'You can find those options in ',
+        link('Folio’s tool directory', '/tools'),
+        '. Choose the output first, then the tool. Converting a PDF to an image just to delete a page adds an unnecessary step and changes what the document can do.',
+      ),
+      h('What “free” means for the task you are doing'),
+      p(
+        'Check whether the finished file can be downloaded for free, not just whether the upload or preview is free. Also check watermarks, file limits, and whether an account is required for that particular workflow. A successful preview is only useful if you can obtain the output you need.',
+      ),
+      p(
+        'In Folio, standalone merging, splitting, rotating, organizing, PDF optimization, PDF-to-image conversion, image-to-PDF conversion, and selectable-text extraction have free downloads. Added text, annotations, visual signatures, and PDF form work also download free, without a Folio watermark.',
+      ),
+      p(
+        'Replacing or otherwise changing original PDF text requires premium access when downloading the edited document. Password-protected exports are also paid. Office conversions and translation require both a connected processing service and paid export access. Those are separate capabilities; a free page-organizing tool does not imply that every operation on the site is free. ',
+        link('The pricing page', '/pricing'),
+        ' describes current access.',
+      ),
+      h('Match the tool to the part of the document that needs changing'),
+      h('Use page tools when the content is already correct', 3),
+      p(
+        'Suppose a course handout is correct, but the schedule is at the back and one page is sideways. You can fix the order and rotation without changing a sentence. Use ',
+        link('Organize PDF', '/organize-pdf'),
+        ' for the page sequence, or ',
+        link('Rotate PDF', '/rotate-pdf'),
+        ' for orientation. Review the first page after each change so you do not accidentally make another page the cover.',
+      ),
+      p(
+        'When extracting pages, use the page positions shown in the tool. Printed page numbers can differ from file positions because a document may begin with an unnumbered cover or contents page. In ',
+        link('Split PDF', '/split-pdf'),
+        ', a range such as 3-5 means the third through fifth pages of the file.',
+      ),
+      h('Use an editor for additions on the page', 3),
+      p(
+        'A meeting date in a blank box, a highlight across an instruction, and a visual signature are additions. Open the ',
+        link('PDF editor', '/edit-pdf'),
+        ' for that work. If you need to correct words already present, check original-text support and export access before starting. Typing over the old words does not reliably replace them.',
+      ),
+      h('Convert only when the next task requires another format', 3),
+      p(
+        'Use ',
+        link('Image to PDF', '/image-to-pdf'),
+        ' when you have JPG, PNG, or WebP pictures that belong in one document. Use ',
+        link('PDF to PNG', '/pdf-to-png'),
+        ' when a slide or design needs a page image. Keep a PDF version when the recipient needs a document rather than a picture of it.',
+      ),
+      p(
+        'For reusable words, ',
+        link('PDF to Text', '/pdf-to-text'),
+        ' extracts existing selectable text into a TXT file. It does not retain the page layout or read words from an image-only scan. Check extracted tables and columns carefully because their reading order can differ from the visible page.',
+      ),
+      h('A practical example: prepare one complete application PDF'),
+      p(
+        'Imagine you have a two-page application, a four-page supporting document, and two receipt photos. The recipient wants the completed application, only the first two supporting pages, and both receipts in one PDF. Your job is to assemble the right pages, not to transform every file through every available tool.',
+      ),
+      list(
+        [
+          'Make a working copy of each source and keep the originals together.',
+          'Use Split PDF to keep only pages 1-2 of the supporting document.',
+          'Use Image to PDF for the receipt photos. Check orientation and whether the small print is readable.',
+          'Merge the application, selected supporting pages, and receipt PDF in that order.',
+          'Open the merged PDF in the editor only if you still need to complete fields or add a note or signature.',
+          'Download the finished file. Open it independently and confirm that it contains six pages in the intended order.',
+        ],
+        true,
+      ),
+      p(
+        'Download each intermediate result and select it as the next tool’s input. The six-page count is a useful check: two application pages, two supporting pages, and two receipts. If you see eight pages, you may have merged the complete supporting document instead of the extracted copy. Simple checks like this catch mistakes that a quick glance at the cover will miss.',
+      ),
+      p(
+        'If the application contains interactive fields, test them after merging. Page-copying operations can change form behavior. Do not rebuild an already digitally signed document as part of this workflow; obtain the right source copy and complete any required signing process after the document is ready.',
+      ),
+      h('Use compression when size is the actual problem'),
+      p(
+        'Read an upload limit before trying to reduce a file. A portal might require a PDF below a certain size, a limited number of pages, or separate attachments for each document. A smaller file will not fix the wrong format or attachment structure.',
+      ),
+      p(
+        'Folio’s ',
+        link('PDF compressor', '/compress-pdf'),
+        ' optimizes document structure without lowering image resolution. An image-heavy scan or a file that is already optimized may shrink very little. The tool does not promise a target size or a percentage reduction, and the original remains available if optimization produces a larger result.',
+      ),
+      p(
+        'When large source photos dominate a document, prepare appropriately sized images before creating the PDF. Use the ',
+        link('image compressor', '/compress-images'),
+        ' on those source images and check small text before combining them. Avoid repeatedly reducing quality on already compressed copies.',
+      ),
+      h('Check privacy and limits at the point where you use a tool'),
+      p(
+        'Browser processing and cloud saving are different things. Folio’s standalone merge, split, optimization, PDF-to-image, image-to-PDF, and selectable-text extraction tools process document contents in your browser. Opening a result in the main editor starts a different workflow: the editor uploads the PDF for private cloud saving and recovery.',
+      ),
+      p(
+        'The main editor’s guest workspaces expire after 24 hours. Keep downloaded copies you need to retain, and read ',
+        link('the privacy details', '/privacy'),
+        ' before using a work document with storage restrictions. A tool’s location in a browser does not, by itself, tell you where the file will be stored.',
+      ),
+      p(
+        'Folio’s PDF merger accepts up to 20 files, with a 50 MB limit per file and a 150 MB batch limit. Other tools have their own limits, shown on their pages. A large scanned document can also use substantial device memory. Work in smaller batches if processing stalls, and keep the tab open until the result is ready.',
+      ),
+      h('Check the output, not just the success message'),
+      list([
+        'Confirm the downloaded file type: PDF, image, TXT, or ZIP.',
+        'Open the downloaded copy and check its page count, order, and orientation.',
+        'Inspect the smallest text you need to read, especially on receipts and scanned pages.',
+        'Test any form fields or links that the recipient needs to use.',
+        'Check the actual file size against the destination’s limit.',
+        'Attach the verified result instead of an earlier file with a similar name.',
+      ]),
+      h('Questions about free PDF tools online'),
+      h('Can one free PDF tool do everything?', 3),
+      p(
+        'An editor can combine several common tasks, but page management, text replacement, OCR, and format conversion are different capabilities. Choose the smallest set of tools that produces your required result. Folio’s tool pages identify the available input, output, and limits.',
+      ),
+      h('Will converting a photo to PDF make its words editable?', 3),
+      p(
+        'No. Putting a photograph inside a PDF keeps the words as part of the picture. OCR is a separate recognition step. The ',
+        link(
+          'W3C’s explanation of OCR for scanned PDFs',
+          'https://www.w3.org/WAI/WCAG21/Techniques/pdf/PDF7',
+        ),
+        ' describes why recognized text is different from an image of text. Folio does not currently include standalone OCR.',
+      ),
+      h('Why did I receive a ZIP instead of a PDF?', 3),
+      p(
+        'A batch operation may produce several files, which are collected in a ZIP. If you need one PDF containing selected pages, choose the selected-page extraction mode instead of splitting every page into a separate file. A website that accepts PDFs may reject the ZIP itself.',
+      ),
+      p(
+        'When the finished file is clear in your mind, the tool choice usually becomes clear too. ',
+        link('Choose your PDF tool', '/tools'),
+        ', make the changes the task needs, and keep the original until the recipient has the correct result.',
+      ),
+    ],
+  ),
+  article(
+    'fa48b3ab-2458-4da1-b98b-517e8bbde113',
+    {
+      title: 'Free PDF Editor: Add Text, Fill Forms, and Sign a PDF',
+      slug: 'free-pdf-editor-add-text-fill-sign',
+      excerpt:
+        'Complete everyday PDF edits without printing: add an answer, fill a field, place a signature, and download a usable copy. Learn what is free and when changing original text needs another workflow.',
+      category: 'PDF editing',
+      tags: ['Free PDF editor', 'Add text to PDF', 'Fill PDF', 'Sign PDF', 'PDF annotations'],
+      cover:
+        'https://images.unsplash.com/photo-1552912140-6b3c254f5214?auto=format&fit=crop&w=1600&q=85',
+      coverAlt: 'A blank notebook and black pen on a pale desk with soft leaf shadows.',
+      seoTitle: 'Free PDF Editor: Add Text, Fill Forms & Sign Online',
+      seoDescription:
+        'Use a free PDF editor to add text, fill fields, highlight, and place a signature. Follow a practical workflow and check free download limits before editing.',
+      featured: false,
+    },
+    {
+      id: 'Hrh1E3T8nQc',
+      photographer: 'Kelly Sikkema',
+      page: 'https://unsplash.com/photos/photo-of-a-paper-and-pen-Hrh1E3T8nQc',
+    },
+    [
+      p(
+        'You have a PDF to complete, a few blank spaces to fill, and no reason to print it. A free PDF editor can handle that kind of work: add your answers, mark an instruction, place a visual signature, and download the completed document.',
+      ),
+      p(
+        'There is one distinction to understand before you start. Adding information to a page is different from rewriting words already in the PDF. Folio’s additions, annotations, visual signatures, and form downloads are free. Downloading changes to original PDF text requires premium access. This guide focuses on the jobs you can finish with the free tools.',
+      ),
+      h('What can you do with a free PDF editor?'),
+      table(
+        ['Task', 'How to handle it in Folio', 'Free finished PDF?'],
+        [
+          ['Write a name or answer in a blank space', 'Add Text', 'Yes.'],
+          ['Complete supported interactive fields', 'Fill existing fields', 'Yes.'],
+          ['Highlight, draw, or add a comment', 'Annotation tools', 'Yes.'],
+          ['Place a drawn, typed, or uploaded visual signature', 'Sign', 'Yes.'],
+          ['Add text fields or checkboxes to a form', 'Form tools', 'Yes.'],
+          [
+            'Replace words that were already in the document',
+            'Edit Text',
+            'Premium access is required at download.',
+          ],
+        ],
+      ),
+      p(
+        'Free exports do not receive a Folio watermark. File and storage limits still apply, so free access should not be read as unlimited capacity. The main editor accepts a PDF up to 50 MB; some other operations have smaller limits.',
+      ),
+      h('A quick workflow for a document with blank spaces'),
+      p(
+        'Open the ',
+        link('free PDF editor', '/edit-pdf'),
+        ', choose your file, and wait for its preview. Keep a separate original so you can start again if you need to. For a simple registration form, the following sequence is usually enough.',
+      ),
+      list(
+        [
+          'Read the entire form before filling the first box. Check which sections you are supposed to complete.',
+          'Use existing form fields when the PDF provides them. For a blank printed line without a field, choose Add Text.',
+          'Place the answer in the empty area and enter your information. Adjust size and position so the answer fits without covering the question.',
+          'Add a signature only if the document requires one and the recipient accepts that signing method.',
+          'Review all pages, including any checkboxes, dates, and instructions at the end.',
+          'Choose Download PDF, save the result, and open that saved copy to verify it before sending.',
+        ],
+        true,
+      ),
+      h('Add text so it looks like it belongs on the page'),
+      p(
+        'Select Add Text and place the text box where the answer should go. Use a readable size that suits the nearby labels. On a form with ruled lines, align the answer above the line rather than through it. A little space at both ends is more useful than squeezing a long answer against the box edges.',
+      ),
+      p(
+        'Suppose a workshop form asks for “Organization” on a short line. “Northside Community Workshop” may not fit at the default size. Reduce the size modestly or use an allowed second line; do not cover the next question. If the instructions require a full registered name, do not shorten it simply to make the layout easier.',
+      ),
+      p(
+        'Review the page at a normal reading size after positioning the box. A label can look tidy while zoomed in and still be too small to read when the full page is visible. Use Undo if a change makes the placement worse, and adjust the added text box while it is still in your workspace.',
+      ),
+      h('Use the form fields when they are available'),
+      p(
+        'An interactive field stores an answer in a defined place. A drawn rectangle or printed line only looks like a field. If you cannot enter information directly into the PDF’s existing controls, check whether the page is a flat form before assuming the editor has failed.',
+      ),
+      p(
+        'In Folio, open More tools and choose Fill existing fields to work with supported fields in the Form panel. Fill the relevant text entries, checkboxes, or available choices there. For a flat form that does not offer those controls, Add Text can place a visible answer in an empty area.',
+      ),
+      p(
+        'If you are creating a reusable form for other people, use ',
+        link('Create a PDF form', '/create-pdf-form'),
+        ' to add text fields and checkboxes. Give them clear, distinct names. The ',
+        link('W3C’s PDF form guidance', 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/PDF12'),
+        ' explains why field names and control information matter to assistive technology. Adding fields alone is not a complete accessibility check.',
+      ),
+      h('Decide whether the recipient should still be able to fill the fields', 3),
+      p(
+        'Leave Flatten fields when exporting off if someone still needs to complete the form. If you need a completed copy whose fields are no longer interactive, that option can be useful. Keep an unflattened original before using it.',
+      ),
+      p(
+        'Flattening fields is not document security. It does not prevent every kind of later editing, remove hidden information, or verify who completed the form. Choose it for how the fields should behave, not as a substitute for a separate protection or signing process.',
+      ),
+      h('Place a signature without turning the whole page into a photo'),
+      p(
+        'Choose Sign to draw a signature, or use its menu to type one or upload a signature image. Select Add signature, then position and resize it in the intended space. Keep it clear of printed text, and add the date separately when the form asks for it.',
+      ),
+      p(
+        'A drawn signature does not need to be large to remain clear. If you are working with a finger on a phone, create the shape at a comfortable size first, then reduce it on the page. Inspect thin strokes after resizing so the result remains readable.',
+      ),
+      p(
+        'For a signature image to use elsewhere, the separate ',
+        link('signature generator', '/signature-generator'),
+        ' exports a transparent PNG. Inserting that PNG into a PDF and downloading the PDF is a separate step. A placed image is a visual signature; it does not add identity verification, a signing audit trail, or a digital certificate. Follow the recipient’s signing instructions.',
+      ),
+      h('Avoid two common shortcuts that cause problems'),
+      h('Typing over an existing sentence', 3),
+      p(
+        'If the address already printed on a document is wrong, placing a new text box on top does not reliably replace it. Old characters can remain visible around the new ones, and the old information may still exist beneath a cover. Use original-text editing when supported, or correct the source document and export a fresh PDF.',
+      ),
+      p(
+        'If you only need free additions, you do not need to activate Edit Text. If you make an original-text change and later decide against it, undo that change before downloading. Folio checks the actual changes in the finished document, so merely opening the Edit Text mode does not trigger paid export.',
+      ),
+      h('Treating an eraser or white box as secure redaction', 3),
+      p(
+        'Removing something you added in the current editing session is different from permanently removing content already stored in a PDF. Folio’s visual covering tools should not be used to hide information that must be deleted securely. Use a dedicated redaction workflow when permanent removal is the requirement, and verify the resulting document.',
+      ),
+      h('Understand where the working PDF is saved'),
+      p(
+        'Folio’s main editor uploads the opened PDF and saves the workspace privately for recovery. Guest workspaces expire after 24 hours. This is separate from the free annotation processing that runs in your browser, and separate again from a copy downloaded to your device.',
+      ),
+      p(
+        'Check ',
+        link('Folio’s privacy page', '/privacy'),
+        ' before opening a document that has specific storage requirements. The editor’s All changes saved message refers to the workspace; it does not mean a finished PDF has been saved in your device’s file manager. Use Download PDF for that copy.',
+      ),
+      h('Download and verify the completed document'),
+      p(
+        'On a phone, Folio can show a Your file is ready dialog after preparing the export. Choose Download file, or Share file when available, and complete the save action offered by your device. If a PDF preview opens, use its Save or Share control. The ',
+        link('phone editing guide', '/blog/how-to-edit-pdf-on-phone'),
+        ' explains the iPhone and Android file locations.',
+      ),
+      list([
+        'Open the downloaded PDF outside the editing workspace.',
+        'Read every answer and check whether it is clipped or overlaps a label.',
+        'Confirm that checkboxes and signatures appear on the intended pages.',
+        'Test whether fields remain interactive if the recipient needs to fill them.',
+        'Give the completed file a recognizable name and attach that copy.',
+      ]),
+      h('Questions about using a free PDF editor'),
+      h('Can I edit a scanned PDF for free?', 3),
+      p(
+        'You can add text, highlights, and a visual signature over a readable scan. Replacing the words inside the scanned image requires a different process, usually OCR followed by editing. Folio does not include standalone OCR, so a scanned paragraph does not become editable original text just because you open it.',
+      ),
+      h('Will my PDF look exactly the same after editing?', 3),
+      p(
+        'Your additions should be checked in the saved result. Different document structures, fonts, and PDF viewers can affect what you see. A short sample edit and download is a useful first check before completing a long form. Keep the source until the final copy has been accepted.',
+      ),
+      h('What if I need to rewrite several paragraphs?', 3),
+      p(
+        'Ask for the original editable document if it is available. A word processor can move paragraphs and adjust page flow more naturally than editing separate text objects inside a PDF. For a small supported correction in Folio, use Edit Text and review the ',
+        link('paid download terms', '/pricing'),
+        ' before relying on that export.',
+      ),
+      p(
+        'For a form entry, note, or visual signature, you can keep the task simple: ',
+        link('open the free PDF editor', '/edit-pdf'),
+        ', make the addition, and inspect the downloaded copy. You should leave with a document that is complete and easy for its next reader to use.',
+      ),
+    ],
+  ),
+  article(
+    'fa48b3ab-2458-4da1-b98b-517e8bbde114',
+    {
+      title: 'PDF Editor Online: Prepare a Document for Review and Sharing',
+      slug: 'pdf-editor-online-review-share',
+      excerpt:
+        'Make PDF feedback easier to act on. Learn how to add clear comments, organize a review copy, check the exported file, and send the right version without losing important notes.',
+      category: 'PDF workflow',
+      tags: ['PDF editor online', 'PDF review', 'PDF comments', 'Share PDF', 'PDF annotations'],
+      cover:
+        'https://images.unsplash.com/photo-1530971013997-e06bb52a2372?auto=format&fit=crop&w=1600&q=85',
+      coverAlt: 'A person writing in a notebook at a meeting table beside a laptop.',
+      seoTitle: 'PDF Editor Online: Review, Annotate & Share a PDF',
+      seoDescription:
+        'Use a PDF editor online to leave useful comments, prepare a clear review copy, and check your download before sharing. Includes examples and a handoff checklist.',
+      featured: false,
+    },
+    {
+      id: 'O3gOgPB4sRU',
+      photographer: 'Sarah Elizabeth',
+      page: 'https://unsplash.com/photos/person-holding-pen-writing-on-paper-O3gOgPB4sRU',
+    },
+    [
+      p(
+        'You open a PDF someone has sent for review. One date looks wrong, a paragraph needs a decision, and the contact link leads to an old page. You could write “please check the document” in a message, but the next person would have to find every issue again. A useful review puts each question close to the content it refers to.',
+      ),
+      p(
+        'A PDF editor online lets you add those notes in your browser, download a review copy, and share it with the person making the changes. The important part is not how many marks you leave. It is whether someone can understand each note and act on it without another round of clarification.',
+      ),
+      p(
+        'This guide uses Folio for the editing steps and a simple meeting brief as the example. The same approach works for a draft proposal, a course handout, or an instruction sheet. Keep the original, make the review readable, and check the file your recipient will actually receive.',
+      ),
+      h('Decide what you want the next reader to do'),
+      p(
+        'Before editing, finish this sentence: “After reading this PDF, the recipient should…” They might need to answer two questions, approve a layout, or correct three facts. Those are different tasks. A document full of unlabelled highlights does not explain which one you need.',
+      ),
+      p(
+        'For a meeting brief, your instruction might be: “Please confirm the start time and replace the registration link before this goes to attendees.” Now the review has a clear purpose. Small style preferences can wait if they would distract from those two decisions.',
+      ),
+      list([
+        'Identify who will act on the feedback and what decision or revision you need.',
+        'Keep an untouched copy of the PDF you received.',
+        'Use a recognizable review filename, such as meeting-brief-review-v1.pdf.',
+        'Check the page order before adding notes that refer to page numbers.',
+      ]),
+      p(
+        'If you need to reorder or remove pages, ',
+        link('organize the PDF', '/organize-pdf'),
+        ' first, download that result, and open it for review. A note about “page 3” becomes confusing when the referenced page later moves. When a document has printed page numbers that differ from its position in the file, include a section heading as well.',
+      ),
+      h('Choose the smallest mark that explains the issue'),
+      p(
+        'A highlight points to a passage. A comment explains what needs attention. An added text label can make a short instruction visible without opening a comment. Choose the combination that helps the reader; avoid covering a sentence with several overlapping marks.',
+      ),
+      table(
+        ['Review need', 'Useful tool', 'What to include'],
+        [
+          [
+            'Draw attention to a sentence',
+            'Highlight',
+            'Mark only the relevant words and explain the issue in a nearby note.',
+          ],
+          [
+            'Ask for a decision or correction',
+            'Comment',
+            'Describe the issue and the action you need.',
+          ],
+          [
+            'Make a short instruction visible on the page',
+            'Add Text',
+            'Use a brief label in clear space, without obscuring the document.',
+          ],
+          [
+            'Direct the reader to a reference',
+            'Link',
+            'Use an appropriate destination and test it in the downloaded PDF.',
+          ],
+        ],
+      ),
+      p(
+        'Do not rely on color alone to communicate meaning. If red means “must change” and yellow means “question,” write those words in the notes too. Readers may print the PDF in grayscale or have difficulty distinguishing the colors. A clear instruction works in either case.',
+      ),
+      h('Add comments that lead to a specific next step'),
+      p(
+        'Open the document in ',
+        link('Folio’s PDF editor', '/edit-pdf'),
+        '. Use Annotations to place a comment marker near the relevant content, then enter the note in the Comment field. Open More tools and choose Review annotations when you want to return to the list of annotations and inspect or remove a note.',
+      ),
+      p(
+        'A useful comment usually needs three things: a location, a short explanation, and a requested action. Include enough context that the note still makes sense if someone reads it from the annotations list instead of beside the paragraph.',
+      ),
+      table(
+        ['A note that leaves the reader guessing', 'A more useful version'],
+        [
+          [
+            'Wrong time?',
+            'Page 1, Schedule: the heading says 9:00, but the agenda starts at 10:00. Please confirm the start time and make both entries agree.',
+          ],
+          [
+            'Fix this link',
+            'Page 2, Registration: this link opens last year’s event. Please replace it with the current registration page and test the final PDF.',
+          ],
+          [
+            'Too much text',
+            'Page 3, What to bring: could we turn the equipment paragraph into a short checklist? Attendees need to see the required items quickly.',
+          ],
+        ],
+      ),
+      p(
+        'These comments give the author a defined next step. If a date or figure is uncertain, explain what you need confirmed and ask the right person to verify it. A confident guess can create more work than a clear question.',
+      ),
+      h('Separate a required correction from an optional suggestion', 3),
+      p(
+        'A factual inconsistency and a preference about wording should not look equally urgent. Start a note with “Correction needed,” “Question,” or “Suggestion” when that distinction matters. Keep each comment about one issue so the author can work through the feedback without missing a second request hidden at the end.',
+      ),
+      p(
+        'If you are proposing a replacement sentence, quote only the wording needed to locate it and then state your suggestion. Adding the proposed text in a comment does not replace the original paragraph. The person responsible for the document still needs to make and check that revision.',
+      ),
+      h('Keep the review copy separate from the revised document'),
+      p(
+        'A review copy contains questions and suggested changes. A revised copy contains the author’s response to those changes. Give them different filenames so the recipient does not accidentally distribute the marked-up draft.',
+      ),
+      list(
+        [
+          'Save the incoming document as meeting-brief-original.pdf.',
+          'Download your annotated version as meeting-brief-review-v1.pdf.',
+          'Ask the author to return the revised document as meeting-brief-v2.pdf.',
+          'Check the specific issues you raised before naming a copy meeting-brief-approved.pdf.',
+        ],
+        true,
+      ),
+      p(
+        'These filenames are a manual habit, not an automatic version-tracking feature. Folio’s annotations are also not a shared conversation with live replies or tracked changes. If several people are reviewing the same PDF, agree who will gather their feedback and which version everyone should use.',
+      ),
+      p(
+        'For a longer rewrite, the author may find it easier to revise the original word-processing or presentation file and export a fresh PDF. The annotated PDF then serves as the reference for what needs changing. It does not have to become the source document for every future revision.',
+      ),
+      h('Check how the recipient will see your comments'),
+      p(
+        'Folio saves comment notes as PDF comments. A reader that supports comments is needed to open and read those notes reliably. A quick browser preview or a messaging-app thumbnail may not show the same controls. Seeing the page does not necessarily mean the recipient has seen the feedback.',
+      ),
+      p(
+        'After choosing Download PDF, open the exported file in the reader you expect to use for the handoff. Select a comment marker and confirm that the full note is available. Check an added text label and any highlight too. If you included a link, follow it and verify the destination.',
+      ),
+      p(
+        'For an essential request, include a short summary in the message that accompanies the file: “Please confirm the start time on page 1 and update the registration link on page 2. Detailed comments are in the PDF.” This gives the recipient a useful starting point even before they open the comments.',
+      ),
+      p(
+        'If you are downloading on a phone, finish the save action in the ready-file dialog or the preview’s Save or Share menu. Find the resulting PDF in your device’s file manager and open it from there. The ',
+        link('guide to editing PDFs on a phone', '/blog/how-to-edit-pdf-on-phone'),
+        ' has more detail on iPhone and Android downloads.',
+      ),
+      h('Understand the workspace before sharing a file'),
+      p(
+        'Folio’s main editor uploads the opened PDF and saves a private workspace for recovery. Guest workspaces expire after 24 hours. A saved workspace is not the same as a downloaded file or a deliberate sharing arrangement. Send the checked PDF attachment through your usual approved channel; do not assume copying the editor’s address gives another person the file they need.',
+      ),
+      p(
+        'Review ',
+        link('Folio’s privacy information', '/privacy'),
+        ' before opening material with specific storage requirements. Browser-based editing describes where you use the interface; it does not, on its own, tell you whether a document is uploaded or retained.',
+      ),
+      p(
+        'Before sending a copy outside your review group, remove notes that were only intended for internal discussion and export again. If sensitive information inside the source PDF must be permanently removed, use a dedicated redaction process. Covering it with an annotation is not a reliable way to remove the underlying information.',
+      ),
+      h('A short checklist before you send the PDF'),
+      list([
+        'The filename identifies the document and whether it is a review or revised copy.',
+        'Page references still point to the correct sections.',
+        'Every required change has a clear instruction, not just a colored mark.',
+        'The downloaded PDF opens and its comments can be read in a suitable reader.',
+        'Any added links lead to the intended pages.',
+        'The message explains who needs to act and what response you need.',
+        'You are attaching the checked download, not the untouched original.',
+      ]),
+      h('Questions about reviewing a PDF online'),
+      h('Can I review a PDF for free?', 3),
+      p(
+        'Folio allows free annotations such as added text, highlights, and comments, with free download when the document only contains those supported free changes. Editing the original PDF text and certain other operations use paid export. Check the ',
+        link('current pricing and feature limits', '/pricing'),
+        ' if the review also requires those changes.',
+      ),
+      h('Why can the recipient see a marker but not my comment?', 3),
+      p(
+        'The PDF viewer may not expose the comment text in its current view. Ask the recipient to download the PDF and open it in a reader with comment support, then select the marker or open its comments panel. If the note is still absent, check your exported copy before resending it.',
+      ),
+      h('Can two people edit this PDF at the same time?', 3),
+      p(
+        'This workflow uses separate review files. It does not provide live coauthoring or merge simultaneous changes from different reviewers. For a group review, share one clearly identified source version, collect the returned copies, and assign one person to reconcile the feedback.',
+      ),
+      h('Do I need to install an app?', 3),
+      p(
+        'You can use Folio’s editor through a supported web browser without installing a separate editing app. You still need a connection for the site and its workspace services. The recipient may prefer a PDF reader with full comment support when reviewing the downloaded file.',
+      ),
+      p(
+        'When you are ready, ',
+        link('open your PDF for review', '/edit-pdf'),
+        ' and start with the decision the next reader needs to make. A few precise notes and a checked download are usually more useful than a page covered in unexplained marks.',
+      ),
+    ],
+  ),
 ];

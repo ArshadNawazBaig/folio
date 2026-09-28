@@ -1,6 +1,6 @@
 # Folio editorial articles
 
-`starter-posts.ts` contains eleven original, complete articles for the public blog. Each has a title, excerpt, category, tags, SEO metadata, rich editor content, descriptive cover alt text, and a linked Unsplash photograph credit. Tool instructions were checked against this application. Translation and Office conversion sections explain that their services must be connected before processing is available.
+`starter-posts.ts` contains fourteen original, complete articles for the public blog. Each has a title, excerpt, category, tags, SEO metadata, rich editor content, descriptive cover alt text, and a linked Unsplash photograph credit. Tool instructions were checked against this application. Translation and Office conversion sections explain that their services must be connected before processing is available.
 
 The QR code and URL shortener guides include practical examples, FAQs, links to the relevant tools, and primary-source references. Their search intent and product checks are recorded in [the editorial research notes](qr-and-url-research.md). They are prepared for draft review; publishing remains an explicit editorial action. Review and publish both together if retaining their cross-links.
 
@@ -9,6 +9,8 @@ The signature generator article covers choosing a signature method, creating a t
 The image compressor article explains target KB limits, pixel dimensions, JPG/PNG/WebP choices, quality checks, batch downloads, troubleshooting, and local processing. Read the complete [article preview](image-compressor-article.md) and [editorial notes](image-compressor-research.md). Its blog slug is `how-to-compress-images-to-target-size`; its tool is `/compress-images`.
 
 The mobile PDF article answers the requested phone-editing searches with iPhone and Android steps, original-text versus annotation guidance, form filling, downloads, troubleshooting, and storage details. Read the complete [article preview](mobile-pdf-editing-article.md) and [editorial notes](mobile-pdf-editing-research.md). Its blog slug is `how-to-edit-pdf-on-phone`.
+
+Three further articles cover the requested free PDF keywords with separate practical purposes: [choosing a free PDF tool online](free-pdf-tool-online-article.md), [using a free PDF editor for text, forms, and signatures](free-pdf-editor-article.md), and [reviewing and sharing with a PDF editor online](pdf-editor-online-review-article.md). The [research notes](free-pdf-articles-research.md) map the keywords to each article, document product checks, and list primary sources. These are private drafts for editorial review; each can be published independently.
 
 The source is a backup for an explicit import, not a runtime fallback. After import, manage the live posts through `/admin/blog`; edits there remain authoritative. Existing posts, edited drafts, and trashed posts are never overwritten by the importer.
 
@@ -27,6 +29,11 @@ npx tsx scripts/seed-blog-posts.ts --drafts --only how-to-compress-images-to-tar
 # Work only with the mobile PDF editing article:
 npx tsx scripts/seed-blog-posts.ts --check --only how-to-edit-pdf-on-phone
 npx tsx scripts/seed-blog-posts.ts --drafts --only how-to-edit-pdf-on-phone
+
+# Import only the three free PDF articles as private drafts:
+npx tsx scripts/seed-blog-posts.ts --drafts --only free-pdf-tool-online-guide
+npx tsx scripts/seed-blog-posts.ts --drafts --only free-pdf-editor-add-text-fill-sign
+npx tsx scripts/seed-blog-posts.ts --drafts --only pdf-editor-online-review-share
 
 # Work only with the signature article:
 npx tsx scripts/seed-blog-posts.ts --check --only how-to-make-a-signature-online
@@ -52,3 +59,6 @@ Covers come from the free Unsplash photo pages linked inside the articles, not U
 | How to Make a Signature Online That Looks Right in Your Documents  | Kelly Sikkema      | [Notebook and pen](https://unsplash.com/photos/photo-of-a-paper-and-pen-Hrh1E3T8nQc)                                              |
 | How to Compress Images to a File Size Limit Without Guessing       | Christin Hume      | [Working on a laptop](https://unsplash.com/photos/person-using-laptop-computer-Hcfwew744z4)                                       |
 | How to Edit a PDF on Your Phone: iPhone and Android                | Priscilla Du Preez | [Person using a smartphone](https://unsplash.com/photos/person-using-smartphone-BjhUu6BpUZA)                                      |
+| Free PDF Tool Online: Choose the Right Tool for Your Task          | Estée Janssens     | [Planner and pens](https://unsplash.com/photos/white-printing-paper-and-blue-pen-NzukYmIQOps)                                     |
+| Free PDF Editor: Add Text, Fill Forms, and Sign a PDF              | Kelly Sikkema      | [Notebook and pen](https://unsplash.com/photos/photo-of-a-paper-and-pen-Hrh1E3T8nQc)                                              |
+| PDF Editor Online: Prepare a Document for Review and Sharing       | Sarah Elizabeth    | [Writing at a meeting](https://unsplash.com/photos/person-holding-pen-writing-on-paper-O3gOgPB4sRU)                               |

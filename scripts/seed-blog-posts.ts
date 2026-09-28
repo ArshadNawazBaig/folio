@@ -28,6 +28,7 @@ const selectedPosts =
 if (!selectedPosts.length) throw new Error('The --only slug must match an editorial article.');
 
 const allowedPaths = new Set([
+  '/tools',
   '/convert',
   '/pricing',
   '/privacy',
