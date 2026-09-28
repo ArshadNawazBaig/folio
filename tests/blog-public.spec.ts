@@ -2,6 +2,36 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { tools } from '../src/lib/tools';
 
+test('missing public pages render one navigation shell and recover through client navigation', async ({
+  page,
+}) => {
+  for (const path of [
+    '/this-page-does-not-exist',
+    '/missing/nested/page',
+    '/guides/not-a-guide',
+    '/blog/secret-draft',
+  ]) {
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(404);
+    await expect(page.locator('.site-header')).toHaveCount(1);
+    await expect(page.locator('.site-footer')).toHaveCount(1);
+    await expect(page.getByRole('main')).toHaveCount(1);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      'Let’s get you back on track.',
+    );
+    await expect(page.locator('meta[name="robots"][content*="noindex"]').first()).toBeAttached();
+  }
+  await page.getByRole('link', { name: 'Back to home', exact: true }).click();
+  await expect(page).toHaveURL('/');
+  await page.goBack();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Let’s get you back on track.');
+  await expect(page.locator('.site-header')).toHaveCount(1);
+  await expect(page.locator('.site-footer')).toHaveCount(1);
+  await page.getByRole('main').getByRole('link', { name: 'Explore tools', exact: true }).click();
+  await expect(page).toHaveURL('/tools');
+  await expect(page.locator('.site-header')).toHaveCount(1);
+});
+
 test('tool directory uses the shared page size and resets pagination when filtering', async ({
   page,
 }) => {
