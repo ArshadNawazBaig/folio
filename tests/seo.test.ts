@@ -25,29 +25,38 @@ test('only explicitly enabled HTTPS production sites can be indexed, even with l
   assert.equal(seoConfiguration({ ...env, NEXT_PUBLIC_INDEXABLE: 'false' }).isIndexable, false);
 });
 
-test('directory pages expose every tool once with real URLs and normalized canonical metadata', () => {
-  const first = toolDirectory(tools, {});
-  assert.equal(first.tools.length, 10);
-  assert.equal(first.canonical, '/tools');
-  const second = toolDirectory(tools, { page: '2' });
-  const pages = Array.from({ length: Math.ceil(tools.length / first.pageSize) }, (_, i) =>
-    toolDirectory(tools, { page: String(i + 1) }),
-  );
-  assert.equal(second.canonical, '/tools?page=2');
-  assert.ok(second.index);
+test('directories expose every matching tool without pagination and normalize legacy URLs', () => {
+  const directory = toolDirectory(tools, {});
+  assert.equal(directory.tools.length, tools.length);
+  assert.equal(directory.canonical, '/tools');
+  assert.ok(directory.index);
+  assert.equal(directory.legacyPagination, false);
   assert.deepEqual(
-    pages.flatMap((page) => page.tools.map((tool) => tool.slug)),
+    directory.tools.map((tool) => tool.slug),
     tools.map((tool) => tool.slug),
   );
-  assert.equal(toolDirectory(tools, { page: '9999' }).canonical, pages.at(-1)!.canonical);
-  assert.ok(toolDirectory(tools, { page: '9999' }).outOfRange);
-  assert.equal(toolDirectory(tools, { page: 'bad', pageSize: 'bad' }).canonical, '/tools');
-  for (const params of [{ q: 'PDF' }, { category: 'Convert' }, { pageSize: '25' }])
+  for (const params of [
+    { page: '2' },
+    { page: '9999' },
+    { pageSize: '25' },
+    { page: 'bad', pageSize: 'bad' },
+    { page: ['1', '2'] },
+  ]) {
+    const legacy = toolDirectory(tools, params);
+    assert.ok(legacy.legacyPagination);
+    assert.equal(legacy.canonical, '/tools');
+    assert.deepEqual(legacy.tools, directory.tools);
+  }
+  for (const params of [{ q: 'PDF' }, { category: 'Convert' }])
     assert.equal(toolDirectory(tools, params).index, false);
+  const filtered = toolDirectory(tools, { q: 'webp', category: 'Convert', page: '2' });
+  assert.equal(filtered.canonical, '/tools?q=webp&category=Convert');
   const images = toolDirectory(tools, { q: 'webp', pageSize: '25' }, true);
   assert.ok(images.total > 1);
   assert.ok(images.tools.every((tool) => tool.category === 'Convert'));
-  assert.equal(images.canonical, '/convert?q=webp&pageSize=25');
+  assert.equal(images.tools.length, images.total);
+  assert.equal(images.canonical, '/convert?q=webp');
+  assert.deepEqual(images.tools, filtered.tools);
 });
 
 test('tool search titles cover the catalogue and guide dates and links describe real content', () => {

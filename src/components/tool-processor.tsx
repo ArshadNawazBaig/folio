@@ -798,7 +798,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
               </>
             ) : images ? (
               <div className="image-summary">
-                <span className="tool-icon orange">
+                <span className="tool-icon">
                   <FileText size={40} />
                 </span>
                 <h3>

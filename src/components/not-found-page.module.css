@@ -210,8 +210,6 @@
   flex-shrink: 0;
   place-items: center;
   border-radius: 10px;
-  background: var(--accent-soft);
-  color: var(--accent-text);
 }
 .cardBody {
   min-width: 0;

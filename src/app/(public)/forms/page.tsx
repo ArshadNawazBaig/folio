@@ -42,7 +42,7 @@ export default function FormsPage() {
           ['forms#templates', 'pages', 'Find a template', 'Start a little further ahead.'],
         ].map(([slug, icon, title, desc]) => (
           <Link href={`/${slug}`} key={slug}>
-            <span className="tool-icon sage">
+            <span className="tool-icon">
               <ToolIcon name={icon} size={25} />
             </span>
             <h2>

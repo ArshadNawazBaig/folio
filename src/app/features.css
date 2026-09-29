@@ -1563,35 +1563,26 @@
   padding-bottom: 90px;
 }
 .directory-controls {
+  display: grid;
+  gap: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.directory-tool-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
+  gap: 24px;
+}
+.directory-tool-heading h2 {
+  font-size: clamp(25px, 2.6vw, 34px);
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -0.055em;
 }
 .directory-search {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid var(--border);
-  background: white;
-  border-radius: 8px;
-  padding: 6px 12px;
-  min-width: 270px;
-  flex: 0 1 335px;
-  min-height: 43px;
-  color: #737373;
-}
-.directory-search input {
-  border: 0;
-  width: 100%;
+  flex: 0 0 290px;
   min-width: 0;
-  font-size: var(--text-input);
-  background: none;
-  padding: 5px 0;
-  color: var(--ink);
 }
 .category-tabs {
   display: flex;
@@ -1618,55 +1609,6 @@
   font-size: var(--text-caption);
   color: var(--muted);
   margin: 19px 0;
-}
-.directory-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-}
-.directory-card {
-  padding: 26px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  transition:
-    transform 0.18s,
-    border-color 0.18s;
-}
-.directory-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--accent-text);
-  background: white;
-}
-.directory-card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 21px;
-}
-.directory-card-top > svg {
-  color: #737373;
-}
-.directory-card h2 {
-  font-size: 20px;
-  margin: 0 0 8px;
-  font-weight: 800;
-}
-.directory-card p {
-  font-size: var(--text-body);
-  min-height: 32px;
-  line-height: 1.8;
-  margin: 0 0 23px;
-}
-.directory-card > small {
-  font-size: var(--text-small);
-  color: var(--muted);
-}
-.directory-card .status-label {
-  font-size: var(--text-caption);
-  padding: 3px 5px;
 }
 .directory-empty {
   padding: 60px 20px;
@@ -3675,9 +3617,6 @@
     left: 5px;
     width: 235px;
   }
-  .directory-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
   .editor-body {
     grid-template-columns: 120px minmax(0, 1fr) 245px;
   }
@@ -4425,9 +4364,14 @@
   .directory-controls {
     gap: 16px;
   }
+  .directory-tool-heading {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 18px;
+  }
   .directory-search {
-    flex: 1;
-    min-width: 100%;
+    flex: none;
+    width: 100%;
   }
   .category-tabs {
     gap: 4px;
@@ -4435,36 +4379,6 @@
   .category-tabs button {
     font-size: var(--text-control);
     padding: 7px 9px;
-  }
-  .directory-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-  }
-  .directory-card {
-    padding: 19px 16px;
-  }
-  .directory-card h2 {
-    font-size: 20px;
-  }
-  .directory-card p {
-    font-size: var(--text-body);
-    min-height: 34px;
-    margin-bottom: 19px;
-  }
-  .directory-card > .directory-card-top {
-    margin-bottom: 17px;
-  }
-  .directory-card .tool-icon {
-    width: 36px;
-    height: 36px;
-  }
-  .directory-card-top > .status-label {
-    font-size: var(--text-caption);
-    letter-spacing: 0;
-    padding: 2px 4px;
-  }
-  .directory-card-top > svg {
-    width: 15px;
   }
   .directory-result-count {
     font-size: var(--text-caption);
@@ -5064,19 +4978,6 @@
   }
   .language-preview > span {
     font-size: 18px;
-  }
-  .directory-card {
-    padding: 17px 12px;
-  }
-  .directory-card h2 {
-    font-size: 20px;
-  }
-  .directory-card .tool-icon {
-    width: 32px;
-    height: 32px;
-  }
-  .directory-card-top > .status-label {
-    font-size: var(--text-caption);
   }
   .editor-header-right > .button.primary > span {
     font-size: var(--text-caption);
@@ -6926,10 +6827,6 @@
     justify-content: center;
     min-height: 36px;
   }
-}
-.directory-search:focus-within {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
 }
 .pro-badge,
 .workspace-label {

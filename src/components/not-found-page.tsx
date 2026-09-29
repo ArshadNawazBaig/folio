@@ -79,7 +79,7 @@ export function NotFoundPage() {
         <div className={s.cards}>
           {destinations.map(({ href, icon: Icon, title, description }) => (
             <Link key={href} href={href} className={s.card}>
-              <span className={s.cardIcon}>
+              <span className={`tool-icon ${s.cardIcon}`}>
                 <Icon size={22} aria-hidden="true" />
               </span>
               <div className={s.cardBody}>

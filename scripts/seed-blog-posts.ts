@@ -2,6 +2,7 @@ import nextEnv from '@next/env';
 import { createClient } from '@supabase/supabase-js';
 import sharp from 'sharp';
 import { isDeepStrictEqual, parseArgs } from 'node:util';
+import { readFileSync } from 'node:fs';
 import { starterPosts } from '../content/blog/starter-posts';
 import { blogDraftSchema, blogText, publicationError } from '../src/lib/blog';
 import { tools } from '../src/lib/tools';
@@ -51,7 +52,15 @@ for (const post of starterPosts) {
   for (const match of serialized.matchAll(/"href":"(\/[^"]+)"/g)) {
     if (!allowedPaths.has(match[1])) throw new Error(`Unknown article link: ${match[1]}`);
   }
-  if (
+  if ('file' in post.image) {
+    const source = readFileSync(post.image.file);
+    if (
+      !source.length ||
+      source.length > 5 * 1024 * 1024 ||
+      !serialized.includes(post.image.credit)
+    )
+      throw new Error('Each local cover must be under 5 MB and include its editorial credit.');
+  } else if (
     new URL(post.draft.cover).hostname !== 'images.unsplash.com' ||
     new URL(post.image.page).hostname !== 'unsplash.com' ||
     !serialized.includes(post.image.page)
@@ -92,7 +101,7 @@ async function importPosts() {
       console.log(`Kept existing ${saved.status} post: ${post.draft.slug}`);
       continue;
     }
-    const path = `${post.id}/unsplash-${post.image.id}.webp`;
+    const path = `${post.id}/${'file' in post.image ? '' : 'unsplash-'}${post.image.id}.webp`;
     const cover = db.storage.from('folio-blog').getPublicUrl(path).data.publicUrl;
     const draft = blogDraftSchema.parse({ ...post.draft, cover });
     if (saved && !isDeepStrictEqual(saved.draft, draft)) {
@@ -100,10 +109,15 @@ async function importPosts() {
       continue;
     }
     if (!saved) {
-      const response = await fetch(post.draft.cover, { signal: AbortSignal.timeout(30000) });
-      if (!response.ok || !response.headers.get('content-type')?.startsWith('image/'))
-        throw new Error(`Could not download the Unsplash cover for ${post.draft.slug}.`);
-      const source = Buffer.from(await response.arrayBuffer());
+      let source: Buffer;
+      if ('file' in post.image) {
+        source = readFileSync(post.image.file);
+      } else {
+        const response = await fetch(post.draft.cover, { signal: AbortSignal.timeout(30000) });
+        if (!response.ok || !response.headers.get('content-type')?.startsWith('image/'))
+          throw new Error(`Could not download the Unsplash cover for ${post.draft.slug}.`);
+        source = Buffer.from(await response.arrayBuffer());
+      }
       if (source.byteLength > 5 * 1024 * 1024) throw new Error('Source image exceeds 5 MB.');
       const image = await sharp(source, { limitInputPixels: 40_000_000 })
         .rotate()

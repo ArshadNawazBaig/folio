@@ -76,7 +76,7 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           <ChevronRight size={12} />
           <span aria-current="page">{t.name}</span>
         </nav>
-        <span className={`tool-icon ${t.color}`}>
+        <span className="tool-icon">
           <ToolIcon name={t.icon} size={28} />
         </span>
         <h1>
@@ -159,7 +159,7 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
         <ToolProcessor key={t.slug} tool={t} />
       ) : (
         <div className="unavailable-panel">
-          <span className={`tool-icon ${t.color}`}>
+          <span className="tool-icon">
             <ToolIcon name={t.icon} size={32} />
           </span>
           <h2>A new format is on the way.</h2>
@@ -236,7 +236,7 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           <div className="related-grid">
             {related.map((r) => (
               <Link key={r.slug} href={`/${r.slug}`}>
-                <span className={`tool-icon ${r.color}`}>
+                <span className="tool-icon">
                   <ToolIcon name={r.icon} />
                 </span>
                 <span>

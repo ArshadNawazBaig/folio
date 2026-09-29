@@ -409,7 +409,7 @@ export function RemotePdfWorkspace({
               />
             ) : result ? (
               <div className="translation-empty">
-                <span className="tool-icon sage">
+                <span className="tool-icon">
                   <Check size={32} />
                 </span>
                 <h3>
@@ -430,7 +430,7 @@ export function RemotePdfWorkspace({
               </div>
             ) : (
               <div className="translation-empty">
-                <span className="tool-icon blue">
+                <span className="tool-icon">
                   <Languages size={32} />
                 </span>
                 <h3>

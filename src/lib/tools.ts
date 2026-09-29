@@ -748,12 +748,7 @@ export const tools: Tool[] = [
     }),
   ),
 ].map((entry) => ({ ...entry, premium: toolDownloadAccess(entry.slug) === 'premium' }));
-export const categories: ToolCategory[] = [
-  'Edit & organize',
-  'Convert',
-  'Forms & signing',
-  'More possibilities',
-];
+export { categories } from './tool-summary';
 export const popularSlugs = [
   'edit-pdf',
   'merge-pdf',
@@ -761,6 +756,12 @@ export const popularSlugs = [
   'split-pdf',
   'sign-pdf',
   'image-to-pdf',
+  'invoice-generator',
+  'compress-images',
+  'signature-generator',
+  'pdf-to-jpg',
+  'organize-pdf',
+  'enhance-image',
 ];
 export const getTool = (slug: string) => tools.find((t) => t.slug === slug);
 export const editorTools = ['edit-pdf', 'organize-pdf', 'sign-pdf', 'create-pdf-form'];

@@ -190,7 +190,7 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
                     key={t.slug}
                     onClick={() => dialog.current?.close()}
                   >
-                    <span className={`tool-icon ${t.color}`}>
+                    <span className="tool-icon">
                       <ToolIcon name={t.icon} />
                     </span>
                     <span>

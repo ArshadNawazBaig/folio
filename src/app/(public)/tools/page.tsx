@@ -1,23 +1,24 @@
-import { redirect } from 'next/navigation';
-import { serverTools } from '@/lib/server/tool-catalog';
+import { permanentRedirect } from 'next/navigation';
+import { serverToolSummaries } from '@/lib/server/tool-catalog';
 import { ToolDirectory } from '@/components/tool-directory';
 import { listingMetadata, breadcrumbSchema, collectionSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
 import { toolDirectory, type DirectoryParams } from '@/lib/tool-directory';
 type Props = { searchParams: Promise<DirectoryParams> };
 export async function generateMetadata({ searchParams }: Props) {
-  const directory = toolDirectory(serverTools(), await searchParams);
+  const directory = toolDirectory(serverToolSummaries(), await searchParams);
   return listingMetadata(
     'All PDF Tools — Edit, Organize, Convert & Sign',
     'Find PDF tools for existing text editing, annotations, and password protection. Merge, split, convert, fill, and sign PDFs in one place.',
     directory.canonical,
-    directory.page,
+    1,
     directory.index,
   );
 }
 export default async function ToolsPage({ searchParams }: Props) {
-  const directory = toolDirectory(serverTools(), await searchParams);
-  if (directory.outOfRange) redirect(directory.canonical);
+  const catalog = serverToolSummaries();
+  const directory = toolDirectory(catalog, await searchParams);
+  if (directory.legacyPagination) permanentRedirect(directory.canonical);
   return (
     <main id="main" className="container directory-page with-page-heading">
       <StructuredData
@@ -25,7 +26,6 @@ export default async function ToolsPage({ searchParams }: Props) {
           'Online PDF tools',
           directory.canonical,
           directory.tools.map((tool) => ({ name: tool.name, path: `/${tool.slug}` })),
-          (directory.page - 1) * directory.pageSize,
         )}
       />
       <StructuredData
@@ -37,7 +37,7 @@ export default async function ToolsPage({ searchParams }: Props) {
       <div className="directory-heading page-heading">
         <span className="eyebrow">YOUR DOCUMENT TOOLKIT</span>
         <h1>
-          Online PDF tools
+          Online tools
           <br />
           <em>for every document.</em>
         </h1>
@@ -47,7 +47,7 @@ export default async function ToolsPage({ searchParams }: Props) {
           Find what you need, and get on with your day.
         </p>
       </div>
-      <ToolDirectory directory={directory} />
+      <ToolDirectory key={directory.canonical} directory={directory} catalog={catalog} />
     </main>
   );
 }

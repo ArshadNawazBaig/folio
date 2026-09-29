@@ -137,45 +137,177 @@ test('Google can crawl the production sitemap and private workspaces stay noinde
   }
 });
 
-test('directory pagination, filtering and search work without JavaScript', async ({ browser }) => {
+test('directory shows every tool and supports filtering and search without JavaScript', async ({
+  browser,
+}) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   try {
-    await page.goto('/tools');
-    const seen = new Set<string>();
-    const titles = new Set<string>();
-    for (let index = 1; index <= 3; index++) {
-      titles.add(await page.title());
-      for (const href of await page
+    await page.goto('/tools?page=2&pageSize=25');
+    await expect(page).toHaveURL('/tools');
+    await expect(page.locator('.directory-card')).toHaveCount(tools.length);
+    expect(
+      await page
         .locator('.directory-card')
-        .evaluateAll((links) => links.map((link) => link.getAttribute('href')!)))
-        seen.add(href);
-      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-        'href',
-        `https://folio.example/tools${index > 1 ? `?page=${index}` : ''}`,
-      );
-      if (index < 3) await page.getByRole('link', { name: 'Next page', exact: true }).click();
-    }
-    expect(titles.size).toBe(3);
-    expect([...seen].sort()).toEqual(tools.map((tool) => `/${tool.slug}`).sort());
+        .evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
+    ).toEqual(tools.map((tool) => `/${tool.slug}`));
+    await expect(page.getByRole('navigation', { name: 'Tools pagination' })).toHaveCount(0);
+    await expect(page.getByRole('combobox', { name: 'Records per page' })).toHaveCount(0);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://folio.example/tools',
+    );
     await page
       .getByRole('navigation', { name: 'Filter tools' })
       .getByRole('link', { name: 'Convert', exact: true })
       .click();
-    await expect(page.locator('.directory-card small').first()).toHaveText('Convert');
-    await page.getByRole('textbox', { name: 'Find a PDF tool' }).fill('WEBP');
-    await page.getByRole('button', { name: 'Search directory' }).click();
-    await expect(
-      page.locator('.directory-card').getByRole('heading', { name: 'JPG to WEBP', exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.locator('.directory-card').getByRole('heading', { name: 'WEBP to JPG', exact: true }),
-    ).toBeVisible();
+    expect(
+      await page
+        .locator('.directory-card')
+        .evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
+    ).toEqual(tools.filter((tool) => tool.category === 'Convert').map((tool) => `/${tool.slug}`));
+    const search = page.getByRole('searchbox', { name: 'Find a PDF tool' });
+    await search.fill('WEBP');
+    await search.press('Enter');
+    await expect(page.locator('.directory-card[href="/jpg-to-webp"]')).toBeVisible();
+    await expect(page.locator('.directory-card[href="/webp-to-jpg"]')).toBeVisible();
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow');
+    await page.getByRole('link', { name: 'Clear tool search' }).click();
+    await expect(page.locator('.directory-card')).toHaveCount(
+      tools.filter((tool) => tool.category === 'Convert').length,
+    );
+    await page.goto('/convert?q=WEBP&page=3');
+    await expect(page).toHaveURL('/convert?q=WEBP');
+    await expect(page.locator('.directory-card[href="/jpg-to-webp"]')).toBeVisible();
   } finally {
     await context.close();
   }
 });
+
+for (const width of [1440, 768, 390]) {
+  test(`directory cards and search match home and filter the full catalogue at ${width}px`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    const searchBox = page.getByRole('search', { name: 'Find a tool' });
+    const homeStyle = await searchBox.evaluate((node) => {
+      const style = getComputedStyle(node);
+      return [style.backgroundColor, style.borderRadius, style.minHeight, style.padding];
+    });
+    const card = page.locator('.tool-card[href="/edit-pdf"]');
+    const cardStyles = (node: Element) => {
+      const style = getComputedStyle(node);
+      return [
+        style.display,
+        style.alignItems,
+        style.gap,
+        style.minHeight,
+        style.padding,
+        style.borderRadius,
+      ];
+    };
+    const homeCardStyle = await card.evaluate(cardStyles);
+
+    await page.goto('/tools?page=2');
+    await expect(page).toHaveURL('/tools');
+    await expect(page.locator('.directory-card')).toHaveCount(tools.length);
+    expect(await card.evaluate(cardStyles)).toEqual(homeCardStyle);
+    expect(
+      await page
+        .locator('.directory-grid')
+        .evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(' ').length),
+    ).toBe(width > 1000 ? 3 : width > 700 ? 2 : 1);
+    await expect(card.locator('.tool-icon')).toHaveCSS('background-color', 'rgb(25, 25, 25)');
+    await expect(card.locator('.tool-icon')).toHaveCSS('color', 'rgb(255, 119, 61)');
+    await expect(page.getByRole('navigation', { name: 'Tools pagination' })).toHaveCount(0);
+    await expect(page.getByRole('combobox', { name: 'Records per page' })).toHaveCount(0);
+    await page.screenshot({
+      path: info.outputPath(`directory-cards-${width}.png`),
+      fullPage: true,
+    });
+    expect(
+      await searchBox.evaluate((node) => {
+        const style = getComputedStyle(node);
+        return [style.backgroundColor, style.borderRadius, style.minHeight, style.padding];
+      }),
+    ).toEqual(homeStyle);
+    const input = searchBox.getByRole('searchbox', { name: 'Find a PDF tool' });
+    await expect(input).toHaveAttribute('placeholder', 'Find a PDF tool');
+    await expect(page.getByRole('button', { name: 'Search directory' })).toHaveCount(0);
+    await input.fill('  HANDWRITTEN  ');
+    await expect(page.locator('.directory-card')).toHaveCount(1);
+    await expect(page.locator('.directory-card')).toHaveAttribute('href', '/signature-generator');
+    await expect(input).toBeFocused();
+    await expect(input).toHaveCSS('outline-style', 'none');
+    await expect(searchBox).toHaveCSS('outline-style', 'solid');
+
+    await searchBox.getByRole('link', { name: 'Clear tool search' }).click();
+    await expect(input).toBeFocused();
+    await expect(input).toHaveValue('');
+    await expect(page.locator('.directory-card')).toHaveCount(tools.length);
+    await expect(page.locator('.directory-card').first()).toHaveAttribute(
+      'href',
+      '/invoice-generator',
+    );
+
+    await input.fill('a tool that does not exist');
+    await expect(page.locator('.directory-card')).toHaveCount(0);
+    await expect(page.getByText('A different word might do it.')).toBeVisible();
+    await page.getByRole('link', { name: 'Show all tools', exact: true }).click();
+    await expect(input).toHaveValue('');
+    await expect(page.locator('.directory-card')).toHaveCount(tools.length);
+
+    await input.fill('pdf');
+    await input.press('Enter');
+    await expect(page).toHaveURL('/tools?q=pdf');
+    await expect(input).toHaveValue('pdf');
+    await page.reload();
+    await expect(input).toHaveValue('pdf');
+
+    await page
+      .getByRole('navigation', { name: 'Filter tools' })
+      .getByRole('link', { name: 'Convert', exact: true })
+      .click();
+    await expect(page).toHaveURL(/q=pdf&category=Convert$/);
+    await expect(input).toHaveValue('pdf');
+    await input.fill('invoice');
+    await expect(page.locator('.directory-card')).toHaveCount(0);
+    await input.fill('WEBP');
+    await expect(page.locator('.directory-card[href="/jpg-to-webp"]')).toBeVisible();
+    await expect(page.locator('.directory-card[href="/webp-to-jpg"]')).toBeVisible();
+    await expect(page.locator('.directory-result-count')).toContainText('WEBP');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    await page.screenshot({
+      path: info.outputPath(`directory-search-${width}.png`),
+      fullPage: true,
+    });
+    expect(
+      (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
+        .violations,
+    ).toEqual([]);
+
+    await page.goto('/convert');
+    await expect(page.locator('.directory-card')).toHaveCount(
+      tools.filter((tool) => tool.category === 'Convert').length,
+    );
+    await expect(page.getByRole('navigation', { name: 'Tools pagination' })).toHaveCount(0);
+    await input.fill('invoice');
+    await expect(page.locator('.directory-card')).toHaveCount(0);
+    await input.fill('WEBP');
+    await expect(page.locator('.directory-card[href="/jpg-to-webp"]')).toBeVisible();
+    await input.press('Enter');
+    await expect(page).toHaveURL(/\/convert\?q=WEBP$/);
+    await page.reload();
+    await expect(input).toHaveValue('WEBP');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://folio.example/convert?q=WEBP',
+    );
+  });
+}
 
 test('blog pagination and article sections have matching crawlable metadata and links', async ({
   page,
@@ -217,17 +349,7 @@ test('blog pagination and article sections have matching crawlable metadata and 
   }
 });
 
-test('per-page controls remain custom and guide navigation matches the article metadata', async ({
-  page,
-}) => {
-  await page.goto('/tools');
-  const pagination = page.getByRole('navigation', { name: 'Tools pagination' });
-  await pagination.getByRole('combobox', { name: 'Records per page' }).click();
-  await page.getByRole('option', { name: '25 per page', exact: true }).click();
-  await expect(page.locator('.directory-card')).toHaveCount(25);
-  await expect(page).toHaveURL(/pageSize=25/);
-  await page.reload();
-  await expect(page.locator('.directory-card')).toHaveCount(25);
+test('guide navigation matches the article metadata', async ({ page }) => {
   await page.goto('/guides/how-to-sign-a-pdf');
   await expect(
     page.getByRole('navigation', { name: 'On this page' }).getByRole('link'),
