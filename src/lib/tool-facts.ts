@@ -17,6 +17,19 @@ const editorProcessing =
 // Product facts checked against the tool implementations, download policy and privacy page.
 // Keep limitations explicit; these summaries are visible to visitors as well as crawlers.
 export const toolFacts: Record<string, ToolFacts> = {
+  'invoice-generator': {
+    question: 'How do I create a free invoice PDF?',
+    answer:
+      'Open the invoice editor, enter your business and customer details, add line items, and review the live totals. Choose Classic or Minimal with a preset color, then download your invoice PDF for free. A logo, tax, discounts, shipping, and deposits are included.',
+    input:
+      'Business and customer details, invoice dates, up to 50 line items, and an optional logo.',
+    output:
+      'A watermark-free PDF in A4 or US Letter, plus an optional JSON draft backup for later editing.',
+    processing:
+      'Free PDFs are generated in your browser. Pro exports are processed in server memory. Only Save to account stores invoice contents in the private Pro library. Unsaved drafts are lost when the tab closes or refreshes.',
+    limits:
+      '24 currencies; one invoice-level tax rate with per-item exemptions. Up to 200 saved invoices with Pro. No automatic currency conversion, payment collection, email sending, tax filing, or payment-status synchronization. Some writing systems are not supported by the PDF font.',
+  },
   'compress-images': {
     question: 'How can I compress images to a file-size limit without uploading them?',
     answer:
@@ -147,6 +160,8 @@ export const toolFacts: Record<string, ToolFacts> = {
 };
 
 export function downloadFact(slug: string) {
+  if (slug === 'invoice-generator')
+    return 'Classic and Minimal PDFs with preset colors are free. Premium designs, custom branding, payment QR codes, and account saving require Pro.';
   if (slug === 'compress-images')
     return 'Free individual downloads and batch ZIPs. No account or watermark.';
   if (slug === 'signature-generator')

@@ -24,6 +24,8 @@ npm start
 
 ## Available workflows
 
+- Create invoice PDFs with a live preview, logo, 24 currencies, taxes, discounts, shipping, and deposits. Classic and Minimal exports are free. Pro adds premium designs, payment QR codes, custom branding, and 200 saved invoices. Apply [migration 015](supabase/migrations/015_invoices.sql) to enable account saving; see [invoice setup](docs/INVOICE-GENERATOR.md).
+
 - Edit PDFs with new text, highlights, rectangles, ellipses, horizontal lines, cross/check marks, freehand drawings, typed signatures, and JPG/PNG images.
 - Add PDF comments and clickable website/email link areas. Comment text supports Unicode; a PDF reader with comment support can open the notes.
 - Use Eraser to remove added items or cover an area visually. Covers do not remove underlying PDF content and are not secure redaction.

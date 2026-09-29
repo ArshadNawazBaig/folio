@@ -2,6 +2,7 @@ export const dashboardViews = [
   'overview',
   'files',
   'links',
+  'invoices',
   'billing',
   'settings',
   'support',

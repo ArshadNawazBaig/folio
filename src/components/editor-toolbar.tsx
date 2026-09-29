@@ -17,7 +17,7 @@ import {
   Signature,
   MessageSquare,
   Link2,
-  WandSparkles,
+  Grid2X2,
   PanelsTopLeft,
   Files,
   Copy,
@@ -311,7 +311,7 @@ export function EditorToolbar({
           disabled={busy}
           onClick={select('link')}
         />
-        <ToolMenu label="More tools" icon={WandSparkles} actions={more} disabled={busy} />
+        <ToolMenu label="More tools" icon={Grid2X2} actions={more} disabled={busy} />
         <span className="toolbar-divider" />
         <ToolMenu label="Page layout" icon={PanelsTopLeft} actions={layout} disabled={busy} />
         <ToolMenu label="Manage pages" icon={Files} actions={manage} disabled={busy} />

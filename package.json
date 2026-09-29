@@ -17,6 +17,8 @@
     "test": "tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
     "test:tools": "playwright test --config=playwright.tools.config.ts",
+    "test:invoice": "playwright test --config=playwright.invoice.config.ts",
+    "test:calendar": "playwright test --config=playwright.calendar.config.ts",
     "test:downloads": "playwright test --config=playwright.download.config.ts",
     "format": "prettier --write src tests scripts docs *.ts *.json README.md",
     "format:check": "prettier --check src tests scripts docs *.ts *.json README.md",

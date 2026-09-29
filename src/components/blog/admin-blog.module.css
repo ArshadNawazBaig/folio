@@ -820,15 +820,13 @@
   min-height: 42px;
   padding: 11px 16px;
 }
-.dialogField,
-.scheduleField {
+.dialogField {
   display: block;
   font-size: var(--text-label);
   color: var(--muted);
   margin: 18px 0;
 }
-.dialogField input,
-.scheduleField input {
+.dialogField input {
   display: block;
   width: 100%;
   border: 1px solid var(--border);
@@ -838,11 +836,6 @@
   font: inherit;
   color: var(--ink);
   margin-top: 9px;
-}
-.scheduleField small {
-  display: block;
-  font-size: var(--text-caption);
-  color: var(--muted);
 }
 .publishSummary {
   border: 1px solid var(--border);

@@ -1,3 +1,4 @@
+import { invoiceGuide } from './invoice-guide';
 export type Guide = {
   slug: string;
   title: string;
@@ -22,6 +23,7 @@ export type Guide = {
   }[];
 };
 export const guides: Guide[] = [
+  invoiceGuide,
   {
     slug: 'create-transparent-signature-png',
     title: 'How to Create a Signature PNG With a Transparent Background',

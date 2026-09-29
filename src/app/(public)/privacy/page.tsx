@@ -16,9 +16,26 @@ export default function Privacy() {
         </h1>
         <p>
           This page describes how the current version of Folio handles documents and saved links.
-          Updated September 28, 2026.
+          Updated September 29, 2026.
         </p>
       </header>
+      <h2>Invoice saving is your choice.</h2>
+      <p>
+        Invoice drafts stay in the current tab until you download a draft backup or explicitly
+        choose Save to account. Free PDF exports are generated in your browser. Premium exports send
+        the invoice details, logo, and payment instructions to Folio for processing in server
+        memory; exporting does not create a saved invoice record. Hosting infrastructure may buffer
+        requests. No invoice content is automatically saved in browser storage.
+      </p>
+      <p>
+        Save to account stores the full invoice, including customer details, logos, and payment
+        instructions, in a private Supabase record. Pro accounts can keep up to 200 invoices. Only
+        the owning account can read and manage its library through the application. Authorized
+        service operators retain infrastructure access. You can read and delete saved invoices after
+        Pro ends; creating or updating saved invoices requires current Pro access. Deleting an
+        account removes its saved invoice records. PDF and JSON files downloaded to your device are
+        separate copies. Folio does not send invoices or collect customer payments.
+      </p>
       <h2>Standalone signature images stay in your tab.</h2>
       <p>
         The signature generator processes your typed name, drawing, and chosen image in the current

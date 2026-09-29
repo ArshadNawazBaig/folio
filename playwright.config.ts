@@ -4,6 +4,8 @@ export default defineConfig({
   testDir: './tests',
   testMatch: '**/*.spec.ts',
   testIgnore: [
+    '**/invoice.spec.ts',
+    '**/date-picker.spec.ts',
     '**/auth-connected.spec.ts',
     '**/admin-activity.spec.ts',
     '**/guest-dashboard.spec.ts',

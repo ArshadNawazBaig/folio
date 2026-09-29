@@ -11,6 +11,8 @@ const destinations = new Set([
   '/edit-pdf-text',
   '/protect-pdf',
   '/url-shortener',
+  '/invoice-generator',
+  '/invoice-editor',
 ]);
 export function safeAuthDestination(value: unknown) {
   if (
@@ -31,6 +33,13 @@ export function safeAuthDestination(value: unknown) {
     )
       return '/account';
     const plan = url.searchParams.get('plan');
+    if (url.pathname === '/invoice-editor') {
+      const invoice = url.searchParams.get('invoice');
+      return invoice &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(invoice)
+        ? `/invoice-editor?invoice=${invoice}`
+        : '/invoice-editor';
+    }
     if (url.pathname === '/dashboard') {
       const view = dashboardView(url.searchParams.get('view'));
       return view === 'overview' ? '/dashboard' : `/dashboard?view=${view}`;

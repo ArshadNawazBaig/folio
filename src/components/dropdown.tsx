@@ -18,12 +18,24 @@ type DropdownProps = {
   disabled?: boolean;
   hideLabel?: boolean;
   icon?: ReactNode;
+  /** Keep popups in the same top layer when used inside a native dialog. */
+  portalContainer?: HTMLElement | null;
 };
 
 /** Shared styling, with Base UI handling focus, typeahead, and popup positioning. */
 export function Dropdown(props: DropdownProps) {
   if (props.searchPlaceholder) return <SearchableDropdown {...props} />;
-  const { label, value, onValueChange, options, disabled, hideLabel, icon, placeholder } = props;
+  const {
+    label,
+    value,
+    onValueChange,
+    options,
+    disabled,
+    hideLabel,
+    icon,
+    placeholder,
+    portalContainer,
+  } = props;
   return (
     <div className="dropdown-field">
       <Select.Root
@@ -49,7 +61,7 @@ export function Dropdown(props: DropdownProps) {
             <ChevronDown size={16} />
           </Select.Icon>
         </Select.Trigger>
-        <Select.Portal>
+        <Select.Portal container={portalContainer ?? undefined}>
           <Select.Positioner
             className="dropdown-positioner"
             align="start"
@@ -93,6 +105,7 @@ function SearchableDropdown({
   searchPlaceholder,
   searchLabel = 'Search options',
   emptyMessage = 'No matches found. Try another search.',
+  portalContainer,
 }: DropdownProps) {
   const items = useMemo(
     () =>
@@ -135,7 +148,7 @@ function SearchableDropdown({
             <ChevronDown size={16} />
           </Combobox.Icon>
         </Combobox.Trigger>
-        <Combobox.Portal>
+        <Combobox.Portal container={portalContainer ?? undefined}>
           <Combobox.Positioner
             className="dropdown-positioner"
             align="start"

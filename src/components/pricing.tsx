@@ -275,6 +275,7 @@ export function Pricing({
                 'Add text, highlights, images, and signatures',
                 'Merge, split, compress, crop, and organize PDFs',
                 'Fill forms and create fillable fields',
+                'Create invoice PDFs with logos, tax, and discounts',
               ]}
             />
             <FeatureGroup
@@ -359,6 +360,14 @@ export function Pricing({
                 plan === 'trial'
                   ? '1 GB during your trial, then unlimited storage with monthly billing'
                   : 'Unlimited private cloud storage',
+              ]}
+            />
+            <FeatureGroup
+              title="Invoice studio"
+              items={[
+                '10 premium invoice PDF designs',
+                'Custom brand colors, footers, and payment QR codes',
+                'Save and update up to 200 private invoices',
               ]}
             />
             <p className={s.limit}>

@@ -9,7 +9,12 @@ const emptyStorage = {
   full: false,
   recovery: [],
 };
-export async function mockGoogle(page: Page | BrowserContext, admin = false, fail = false) {
+export async function mockGoogle(
+  page: Page | BrowserContext,
+  admin = false,
+  fail = false,
+  origin = 'http://127.0.0.1:3001',
+) {
   let challenge = '';
   const id = '00000000-0000-4000-8000-000000000001',
     now = Math.floor(Date.now() / 1000);
@@ -43,7 +48,7 @@ export async function mockGoogle(page: Page | BrowserContext, admin = false, fai
       challenge = url.searchParams.get('code_challenge')!;
       expect(challenge).toBeTruthy();
       const callback = new URL(url.searchParams.get('redirect_to')!);
-      expect(callback.origin).toBe('http://127.0.0.1:3001');
+      expect(callback.origin).toBe(origin);
       expect(callback.pathname).toBe('/auth/callback');
       callback.searchParams.set('code', 'fixture-code');
       // Playwright WebKit cannot fulfill an intercepted navigation with a 302.

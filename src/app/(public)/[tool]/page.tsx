@@ -13,6 +13,7 @@ import { ProtectPdf } from '@/components/protect-pdf';
 import { ImageWorkbench } from '@/components/image-workbench';
 import { QrWorkbench } from '@/components/qr-workbench';
 import { ShortLinks } from '@/components/short-links';
+import { InvoiceLauncher } from '@/components/invoice-launcher';
 import { SignatureWorkbench } from '@/components/signature-dialog';
 import { Faq } from '@/components/faq';
 import { ToolFacts } from '@/components/tool-facts';
@@ -44,7 +45,7 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
       <StructuredData
         data={breadcrumbSchema([
           { name: 'Home', path: '/' },
-          { name: 'PDF tools', path: '/tools' },
+          { name: 'Tools', path: '/tools' },
           { name: t.name, path: `/${t.slug}` },
         ])}
       />
@@ -88,7 +89,15 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
             Just need a signature image? Create a transparent PNG <ArrowUpRight size={15} />
           </Link>
         )}
-        {t.processor === 'shortener' ? (
+        {t.processor === 'invoice' ? (
+          <div className="tool-benefits">
+            <span>
+              <ShieldCheck size={14} /> Free PDF downloads
+            </span>
+            <i /> Live invoice preview
+            <i /> Optional Pro features
+          </div>
+        ) : t.processor === 'shortener' ? (
           <div className="tool-benefits">
             <span>
               <ShieldCheck size={14} />
@@ -125,7 +134,9 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
           <span className="status-label">COMING SOON</span>
         )}
       </div>
-      {t.processor === 'signature' ? (
+      {t.processor === 'invoice' ? (
+        <InvoiceLauncher />
+      ) : t.processor === 'signature' ? (
         <SignatureWorkbench />
       ) : t.processor === 'image' ? (
         <ImageWorkbench key={t.slug} tool={t} />
@@ -184,11 +195,13 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
         <div>
           <span className="eyebrow">A FEW HELPFUL DETAILS</span>
           <h2>
-            {t.processor === 'signature'
-              ? 'Make your mark.'
-              : t.processor === 'shortener'
-                ? 'Make every link count.'
-                : 'Know your document.'}
+            {t.processor === 'invoice'
+              ? 'Make getting paid simpler.'
+              : t.processor === 'signature'
+                ? 'Make your mark.'
+                : t.processor === 'shortener'
+                  ? 'Make every link count.'
+                  : 'Know your document.'}
             <br />
             <em>Get a better result.</em>
           </h2>

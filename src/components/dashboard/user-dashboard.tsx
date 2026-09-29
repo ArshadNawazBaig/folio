@@ -24,6 +24,7 @@ import { useAccount } from '../account-provider';
 import { Logo } from '../logo';
 import { GuestAccount } from './guest-account';
 import { ShortLinks } from '../short-links';
+import { InvoiceLibrary } from '../invoice-library';
 import { SupportPanel } from '../support-panel';
 import { accountFetch, authClient } from '@/lib/auth-client';
 import { claimGuestWorkspaces, workspaceRequest } from '@/lib/workspace-client';
@@ -45,6 +46,7 @@ const navigation = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'files', label: 'My files', icon: FolderOpen },
   { id: 'links', label: 'My links', icon: Link2 },
+  { id: 'invoices', label: 'My invoices', icon: FileText },
   { id: 'billing', label: 'Billing & plan', icon: CreditCard },
   { id: 'settings', label: 'Account settings', icon: Settings },
   { id: 'support', label: 'Help & support', icon: MessageSquare },
@@ -250,6 +252,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
       : `Welcome back${name === 'Your account' ? '' : `, ${name.split(' ')[0]}`}.`,
     files: 'A home for your documents.',
     links: 'Good links. All together.',
+    invoices: 'Good work, clearly billed.',
     billing: 'Your plan, your choice.',
     settings: 'Make yourself at home.',
     support: 'A little help, right here.',
@@ -258,6 +261,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
     overview: 'Pick up where you left off, or start something new.',
     files: 'Private PDFs, ready whenever you need them.',
     links: 'Shorten a URL, share a QR code, and keep every link in one place.',
+    invoices: 'Create an invoice, revisit a draft, and keep your billing details organized.',
     billing: 'Manage your subscription, payments, and invoices.',
     settings: 'Keep your profile up to date and manage your sessions.',
     support: 'Ask a question and follow your conversations with our team.',
@@ -414,7 +418,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
               </Link>
             )}
           </div>
-          {guest && view !== 'links' && (
+          {guest && !['links', 'invoices'].includes(view) && (
             <div className={s.guestNotice}>
               <div>
                 <strong>100 MB, ready to use.</strong>
@@ -570,6 +574,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
             />
           )}
           {view === 'links' && <ShortLinks manage />}
+          {view === 'invoices' && <InvoiceLibrary />}
           {view === 'billing' &&
             (guest ? (
               <GuestAccount view="billing" />

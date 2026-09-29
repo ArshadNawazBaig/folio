@@ -1,0 +1,144 @@
+.launcher {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  margin: 32px 0 64px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+}
+.copy {
+  padding: clamp(24px, 4vw, 54px);
+}
+.copy h2 {
+  font-size: clamp(28px, 3.5vw, 44px);
+  line-height: 1.15;
+  letter-spacing: -1.7px;
+  margin: 18px 0;
+}
+.copy p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.9;
+}
+.copy ul {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 25px 0 30px;
+  font-size: 12px;
+}
+.copy li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.copy li svg {
+  flex-shrink: 0;
+  color: #52634a;
+}
+.copy small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin: 14px 0;
+}
+.saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  text-underline-offset: 4px;
+}
+.visual {
+  background: #eaece4;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 22px;
+}
+.caption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #535d49;
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+.paper {
+  width: 100%;
+  max-width: 350px;
+  padding: 30px;
+  background: #fff;
+  border: 1px solid #deded4;
+  box-shadow: 0 12px 30px #27301e12;
+  font-size: 10px;
+}
+.paperHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+}
+.paperHeading strong {
+  font-size: 25px;
+  color: #a65b3e;
+  letter-spacing: -1px;
+}
+.paperHeading span {
+  font-size: 9px;
+  line-height: 1.3;
+  font-weight: 800;
+}
+.parties {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  font-size: 8px;
+  color: #74746a;
+}
+.parties b {
+  display: block;
+  color: #252621;
+  font-size: 10px;
+  margin-top: 6px;
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid #e9eae3;
+}
+.total {
+  padding-top: 30px;
+  text-align: right;
+}
+.total strong {
+  display: block;
+  font-size: 22px;
+  color: #a65b3e;
+  margin-top: 5px;
+}
+.paper p {
+  font-size: 8px;
+  color: #74746a;
+  margin-top: 32px;
+}
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #535d49;
+  font-size: 11px;
+}
+@media (max-width: 760px) {
+  .launcher {
+    grid-template-columns: 1fr;
+  }
+  .visual {
+    padding: 28px;
+  }
+}

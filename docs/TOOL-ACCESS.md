@@ -6,6 +6,8 @@ URL shortening uses account entitlements: Free includes 10 saved links, random a
 
 ## Current catalogue
 
+Invoice generation is mixed: Classic and Minimal PDFs with preset colors are free, including logos and calculations. Studio/Editorial PDFs, custom colors/footers, and payment QR codes require Pro at download. The invoice editor labels these optional features but lets everyone preview them. Pro also saves/updates 200 private invoices; reading and deleting existing invoices remains available after downgrade. See [INVOICE-GENERATOR.md](INVOICE-GENERATOR.md).
+
 | Downloads              | Tools and operations                                                                                                |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | Free                   | Add text, annotations, highlights, shapes, images, and visual signatures; fill and create PDF forms                 |

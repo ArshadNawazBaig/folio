@@ -31,6 +31,11 @@ const config: NextConfig = {
     ],
   },
   outputFileTracingIncludes: {
+    '/api/invoices/export': [
+      './public/fonts/pdf/LiberationSans-Regular.ttf',
+      './public/fonts/pdf/LiberationSans-Bold.ttf',
+      './public/fonts/pdf/LiberationSerif-Regular.ttf',
+    ],
     '/api/{pro,documents}/*': [
       './scripts/pro-pdf-worker.mjs',
       './scripts/pdf-text-engine.mjs',
@@ -75,6 +80,12 @@ const config: NextConfig = {
       { source: '/pdf-editor', destination: '/edit-pdf', permanent: true },
       { source: '/translate-pdf-page', destination: '/translate-pdf', permanent: true },
       { source: '/pdf-forms', destination: '/forms', permanent: true },
+      {
+        source: '/invoice-generator',
+        has: [{ type: 'query', key: 'invoice', value: '(?<invoiceId>[0-9a-fA-F-]{36})' }],
+        destination: '/invoice-editor?invoice=:invoiceId',
+        permanent: false,
+      },
     ];
   },
   async headers() {
@@ -94,6 +105,7 @@ const config: NextConfig = {
       },
       ...[
         '/workspace',
+        '/invoice-editor',
         '/documents',
         '/account',
         '/dashboard/:path*',

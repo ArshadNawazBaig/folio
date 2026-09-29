@@ -62,6 +62,8 @@ import {
 } from '@/lib/blog';
 import { Logo } from '../logo';
 import { Dropdown } from '../dropdown';
+import { DateTimePicker } from '../date-picker';
+import { validLocalDateTime } from '@/lib/calendar';
 import { Skeleton, LoadingLabel } from '../skeleton';
 import { BlogAccess, BlogDialog, BlogToast } from './admin-shared';
 import { RichContent } from './rich-content';
@@ -1014,8 +1016,9 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
               </button>
               <button
                 className="button primary"
-                disabled={saving || uploading}
+                disabled={saving || uploading || (!!schedule && !validLocalDateTime(schedule))}
                 onClick={async () => {
+                  if (schedule && !validLocalDateTime(schedule)) return;
                   const publishAt = schedule
                     ? new Date(schedule).toISOString()
                     : post.published_at && Date.parse(post.published_at) <= Date.now()
@@ -1040,14 +1043,12 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
             <h3>{draft.title || 'Untitled post'}</h3>
             <p>{draft.excerpt || 'Add an excerpt in Post settings before publishing.'}</p>
           </div>
-          <label className={s.scheduleField}>
-            Publish time <small>Leave empty to publish now. Uses your local time zone.</small>
-            <input
-              type="datetime-local"
-              value={schedule}
-              onChange={(e) => setSchedule(e.target.value)}
-            />
-          </label>
+          <DateTimePicker
+            label="Publish date"
+            value={schedule}
+            onValueChange={setSchedule}
+            disabled={saving || uploading}
+          />
           {publicationError(draft) && (
             <p className={s.validation} role="status">
               {publicationError(draft)}

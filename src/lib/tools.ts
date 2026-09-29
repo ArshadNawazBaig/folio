@@ -22,6 +22,65 @@ export type Tool = {
 const tool = (t: Omit<Tool, 'premium'>) => t;
 export const tools: Tool[] = [
   tool({
+    slug: 'invoice-generator',
+    name: 'Invoice generator',
+    short: 'Good work deserves a great invoice.',
+    description:
+      'Create a professional invoice with a live preview, your logo, itemized charges, taxes, discounts, and payment details. Download a clean PDF for free, or add premium designs and a private invoice library with Pro.',
+    icon: 'invoice',
+    category: 'More possibilities',
+    color: 'sage',
+    available: true,
+    action: 'Create an invoice',
+    processor: 'invoice',
+    steps: [
+      'Open the invoice editor and add your business, customer, invoice number, and dates.',
+      'List the work, adjust tax and discounts, and choose your design.',
+      'Review the live preview and download a PDF. Pro can also save the draft to your account.',
+    ],
+    detail:
+      'Build an invoice that is clear to read and easy to pay. Folio calculates totals as you type, supports 24 currencies, separates deposits from the remaining balance, and continues long invoices onto additional PDF pages. Free downloads include your logo and no Folio watermark. Pro adds Studio and Editorial layouts, custom colors and footers, payment QR codes, and up to 200 explicitly saved invoices. Folio does not send invoices, collect payments, calculate jurisdiction-specific tax obligations, or automatically track payment status.',
+    faq: [
+      [
+        'Is this invoice generator free?',
+        'Yes. Create and download Classic or Minimal invoice PDFs with preset colors, a logo, up to 50 line items, tax, discounts, shipping, notes, and deposits. No account or watermark is required. Premium design options and account saving require Pro.',
+      ],
+      [
+        'Which invoice features require Pro?',
+        'Studio and Editorial PDF layouts, a custom brand color, a payment QR code, a custom footer, and saving or updating up to 200 invoices in your account. You can preview design options before upgrading. A free-version download removes premium styling and extras from the exported copy.',
+      ],
+      [
+        'Can I edit my invoice later?',
+        'Download a JSON draft backup and import it into this tool later, or choose Save to account with Pro. A PDF is a finished document, not an editable invoice draft. Unsaved work stays only in the current tab.',
+      ],
+      [
+        'How are discounts and taxes calculated?',
+        'Discounts apply to item charges before tax and are allocated proportionally across the items. Choose prices including tax or tax added to prices, and mark tax-exempt items individually. Shipping is separate and can optionally be taxed. Amounts are rounded to the chosen currency’s minor unit. Use the rates and treatment appropriate to your transaction.',
+      ],
+      [
+        'Can I add a payment link or QR code?',
+        'Paste an existing HTTPS checkout link for free. Pro can encode it as a QR code. Folio does not create a payment account, process the payment, verify the payee, or mark an invoice paid automatically.',
+      ],
+      [
+        'Will my invoice be saved online?',
+        'Free PDF creation happens in your browser. Premium PDF export sends the invoice to Folio for processing without saving it to the invoice library. Only Save to account stores its contents, including the logo and payment instructions, in your private library. Downloaded copies remain on your device.',
+      ],
+      [
+        'Can I use this on my phone?',
+        'Yes. Switch between Edit invoice and Live preview, then choose Download PDF. The mobile save panel gives you a fresh Download file or Share file action once the PDF is ready. Check your browser’s downloads or Files app for the saved copy.',
+      ],
+    ],
+    keywords: [
+      'free invoice generator',
+      'invoice maker',
+      'invoice template',
+      'billing',
+      'freelance invoice',
+      'create invoice online',
+      'invoice pdf',
+    ],
+  }),
+  tool({
     slug: 'edit-pdf',
     name: 'Edit PDF',
     short: 'Make it yours. Every last detail.',

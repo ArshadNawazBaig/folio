@@ -1,5 +1,6 @@
 // Search titles describe the actual task and omit branding; the layout adds Folio once.
 export const toolSearchTitles: Record<string, string> = {
+  'invoice-generator': 'Free Invoice Generator — Create & Download Invoice PDFs',
   'edit-pdf': 'Free Online PDF Editor — Add Text, Annotate & Sign',
   'edit-pdf-text': 'Edit Text in a PDF Online — Change Original Text',
   'protect-pdf': 'Password Protect PDF Online — AES-256 Encryption',

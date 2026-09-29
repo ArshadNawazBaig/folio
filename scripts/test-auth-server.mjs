@@ -22,7 +22,14 @@ const env = {
 };
 const child = spawn(
   process.execPath,
-  ['node_modules/next/dist/bin/next', 'dev', '--hostname', '127.0.0.1', '--port', '3001'],
+  [
+    'node_modules/next/dist/bin/next',
+    'dev',
+    '--hostname',
+    '127.0.0.1',
+    '--port',
+    process.env.FOLIO_TEST_PORT || '3001',
+  ],
   { stdio: 'inherit', env },
 );
 for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => child.kill(signal));

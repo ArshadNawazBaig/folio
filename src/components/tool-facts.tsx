@@ -19,7 +19,7 @@ export function ToolFacts({ tool }: { tool: Tool }) {
         <span className="eyebrow">BEFORE YOU START</span>
         <h2 id="tool-facts-title">{facts.question}</h2>
         <p>{facts.answer}</p>
-        {tool.slug !== 'url-shortener' && (
+        {!['url-shortener', 'invoice-generator'].includes(tool.slug) && (
           <Link href="/guides/does-folio-upload-pdf-files">
             Compare local processing and cloud saving
           </Link>

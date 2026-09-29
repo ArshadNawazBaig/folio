@@ -21,6 +21,7 @@ import {
   QrCode,
   Link2,
   SlidersHorizontal,
+  ReceiptText,
 } from 'lucide-react';
 const icons = {
   edit: FilePenLine,
@@ -44,6 +45,7 @@ const icons = {
   qr: QrCode,
   link: Link2,
   enhance: SlidersHorizontal,
+  invoice: ReceiptText,
 };
 export function ToolIcon({
   name,

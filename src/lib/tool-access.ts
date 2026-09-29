@@ -6,6 +6,11 @@
 export type ToolDownloadAccess = 'free' | 'premium' | 'mixed';
 
 export const premiumDownloads = {
+  'invoice-generator': {
+    reason:
+      'Premium invoice templates, custom brand colors, payment QR codes, and custom footers require a premium plan at download. Classic and Minimal invoices with preset colors stay free, including logos, taxes, discounts, and deposits.',
+    format: 'invoice PDF',
+  },
   'edit-pdf-text': {
     reason:
       'This document includes changes to original PDF text. Downloading those changes requires a premium plan. Added text, annotations, forms, and signatures on their own stay free.',
@@ -70,6 +75,7 @@ const downloadAccess = new Map<string, ToolDownloadAccess>([
   ...freeTools.map((slug): [string, ToolDownloadAccess] => [slug, 'free']),
   ...Object.keys(premiumDownloads).map((slug): [string, ToolDownloadAccess] => [slug, 'premium']),
   ['edit-pdf', 'mixed'],
+  ['invoice-generator', 'mixed'],
 ]);
 
 export function toolDownloadAccess(slug: string): ToolDownloadAccess {

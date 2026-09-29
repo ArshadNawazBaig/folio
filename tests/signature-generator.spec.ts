@@ -264,10 +264,7 @@ test('the tool and original guide have server-rendered content, metadata, and di
     'href',
     /\/guides\/create-transparent-signature-png$/,
   );
-  await page
-    .getByRole('navigation', { name: 'Main navigation', exact: true })
-    .getByRole('link', { name: 'Signature', exact: true })
-    .click();
+  await page.getByRole('link', { name: 'Open Signature generator', exact: true }).click();
   await expect(downloadButton(page)).toBeVisible();
   for (const width of [1280, 1152, 1050]) {
     await page.setViewportSize({ width, height: 1000 });

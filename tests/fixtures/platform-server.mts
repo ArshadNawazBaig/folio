@@ -28,6 +28,7 @@ import { requestedPage, filterLiteral } from '../../src/lib/server/pagination';
 import { cloudTestSchema } from './cloud-schema';
 import { proxy } from '../../src/proxy';
 import { verifyShortLinks } from './short-links-server';
+import { verifyInvoices } from './invoices-server';
 import { clearPlatformCache, getPlatform } from '../../src/lib/server/platform';
 import { DEFAULT_CATALOG, DEFAULT_SETTINGS } from '../../src/lib/platform';
 const admin = '00000000-0000-4000-8000-000000000001',
@@ -56,6 +57,7 @@ for (const name of [
   '011_guest_dashboard.sql',
   '012_monthly_unlimited_storage.sql',
   '013_short_links.sql',
+  '015_invoices.sql',
 ])
   await db.exec(
     await readFile(new URL(`../../supabase/migrations/${name}`, import.meta.url), 'utf8'),
@@ -197,6 +199,7 @@ globalThis.fetch = async (input, init) => {
         'admin_audit',
         'cloud_documents',
         'short_links',
+        'invoices',
         'user_deletions',
       ].includes(table),
     );
@@ -289,6 +292,7 @@ const request = (route: string, actor?: string, body?: unknown) =>
   });
 try {
   await verifyShortLinks(db, request, customer, other);
+  await verifyInvoices(db, request, customer, other);
   // Real anonymous ownership, expiry, idempotency, revision conflicts, and claiming an account.
   const workspaceId = '00000000-0000-4000-8000-000000000090';
   const workspaceContext = { params: Promise.resolve({ id: workspaceId }) };
@@ -1450,7 +1454,12 @@ try {
     const second = await (await fontsApi.GET(request(`/api/fonts?page=1&pageSize=${size}`))).json();
     assert.equal(first.fonts.length, size);
     assert.equal(second.fonts.length, size);
-    assert.equal(first.fonts.some((font: { id: string }) => second.fonts.some((other: { id: string }) => other.id === font.id)), false);
+    assert.equal(
+      first.fonts.some((font: { id: string }) =>
+        second.fonts.some((other: { id: string }) => other.id === font.id),
+      ),
+      false,
+    );
   }
   assert.equal((await fontsApi.GET(request('/api/fonts?pageSize=1000'))).status, 400);
   for (const value of ['0', '-1', '1.5', 'NaN', 'Infinity', '100001'])
