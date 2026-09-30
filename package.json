@@ -26,6 +26,7 @@
     "test:design": "playwright test --config=playwright.design.config.ts",
     "test:blog": "playwright test --config=playwright.blog.config.ts",
     "check:setup": "node scripts/check-setup.mjs",
+    "check:bundles": "node scripts/check-function-bundles.mjs",
     "seo:audit": "node scripts/seo-audit.mjs",
     "test:seo": "playwright test --config=playwright.seo.config.ts",
     "test:geo": "playwright test --config=playwright.geo.config.ts"

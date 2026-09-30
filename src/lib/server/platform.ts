@@ -1,6 +1,7 @@
 import 'server-only';
 import { adminDb, authReady, requireUser } from './auth';
 import { ApiError } from './http';
+import { createAsyncCache } from '../async-cache';
 import {
   DEFAULT_CATALOG,
   DEFAULT_SETTINGS,
@@ -25,25 +26,7 @@ export function catalogFromRow(row: Record<string, unknown>): PricingCatalog {
       (row.id === 'initial' ? process.env.LEMON_SQUEEZY_TRIAL_VARIANT_ID || null : null),
   };
 }
-let cached:
-  { expires: number; value: { settings: SiteSettings; catalog: PricingCatalog } } | undefined;
-let serviceSettings:
-  { expires: number; maintenance: boolean; maintenanceMessage: string } | undefined;
-export function clearPlatformCache() {
-  cached = undefined;
-  serviceSettings = undefined;
-}
-export async function getPlatform(fresh = false) {
-  if (!authReady())
-    return {
-      settings: DEFAULT_SETTINGS,
-      catalog: {
-        ...DEFAULT_CATALOG,
-        monthlyPriceId: process.env.LEMON_SQUEEZY_MONTHLY_VARIANT_ID || null,
-        trialPriceId: process.env.LEMON_SQUEEZY_TRIAL_VARIANT_ID || null,
-      },
-    };
-  if (!fresh && cached && cached.expires > Date.now()) return cached.value;
+const platformCache = createAsyncCache(async () => {
   const db = adminDb();
   const { data: settings, error } = await db
     .from('platform_settings')
@@ -57,7 +40,7 @@ export async function getPlatform(fresh = false) {
     .eq('id', settings.pricing_version)
     .single();
   if (priceError) throw new ApiError(503, 'Plan information is unavailable.');
-  const value = {
+  return {
     settings: {
       maintenance: settings.maintenance,
       maintenanceMessage: settings.maintenance_message,
@@ -66,8 +49,31 @@ export async function getPlatform(fresh = false) {
     } as SiteSettings,
     catalog: catalogFromRow(pricing),
   };
-  cached = { value, expires: Date.now() + 3000 };
-  return value;
+}, 3000);
+const serviceSettingsCache = createAsyncCache(async () => {
+  const { data, error } = await adminDb()
+    .from('platform_settings')
+    .select('maintenance,maintenance_message')
+    .eq('id', true)
+    .single();
+  if (error) throw new ApiError(503, 'Site settings are unavailable. Please try again shortly.');
+  return { maintenance: data.maintenance, maintenanceMessage: data.maintenance_message };
+}, 3000);
+export function clearPlatformCache() {
+  platformCache.clear();
+  serviceSettingsCache.clear();
+}
+export async function getPlatform(fresh = false) {
+  if (!authReady())
+    return {
+      settings: DEFAULT_SETTINGS,
+      catalog: {
+        ...DEFAULT_CATALOG,
+        monthlyPriceId: process.env.LEMON_SQUEEZY_MONTHLY_VARIANT_ID || null,
+        trialPriceId: process.env.LEMON_SQUEEZY_TRIAL_VARIANT_ID || null,
+      },
+    };
+  return platformCache.get(fresh);
 }
 export async function requireAdmin(request: Request) {
   const user = await requireUser(request, { allowSuspended: false });
@@ -84,28 +90,7 @@ export async function requireAdmin(request: Request) {
 // catalogue. Keep its existing three-second freshness and fail-closed behavior.
 export async function getServiceSettings() {
   if (!authReady()) return DEFAULT_SETTINGS;
-  const now = Date.now();
-  const settings = cached && cached.expires > now ? cached.value.settings : undefined;
-  if (!settings) {
-    if (!serviceSettings || serviceSettings.expires <= now) {
-      // Preview requests need the maintenance switch, not the pricing catalog.
-      // Keep the same short cache lifetime so an admin's pause takes effect promptly.
-      const { data, error } = await adminDb()
-        .from('platform_settings')
-        .select('maintenance,maintenance_message')
-        .eq('id', true)
-        .single();
-      if (error)
-        throw new ApiError(503, 'Site settings are unavailable. Please try again shortly.');
-      serviceSettings = {
-        expires: Date.now() + 3000,
-        maintenance: data.maintenance,
-        maintenanceMessage: data.maintenance_message,
-      };
-    }
-    return serviceSettings;
-  }
-  return settings;
+  return platformCache.peek()?.settings ?? serviceSettingsCache.get();
 }
 export async function assertServiceAvailable() {
   const settings = await getServiceSettings();

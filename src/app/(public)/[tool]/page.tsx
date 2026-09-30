@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { ArrowUpRight, ChevronRight, ShieldCheck, ArrowRight } from 'lucide-react';
 import { tools, editorTools } from '@/lib/tools';
 import { serverTools, isRemoteTool } from '@/lib/server/tool-catalog';
-import { conversionProvider } from '@/lib/server/document-providers';
+import { conversionProvider } from '@/lib/server/document-config';
 import { connection } from 'next/server';
 import { ToolIcon } from '@/components/icon';
 import { ToolProcessor } from '@/components/tool-processor';

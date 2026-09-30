@@ -30,6 +30,7 @@ import { proxy } from '../../src/proxy';
 import { verifyShortLinks } from './short-links-server';
 import { verifyInvoices } from './invoices-server';
 import { clearPlatformCache, getPlatform } from '../../src/lib/server/platform';
+import * as siteApi from '../../src/app/api/site/route';
 import { DEFAULT_CATALOG, DEFAULT_SETTINGS } from '../../src/lib/platform';
 const admin = '00000000-0000-4000-8000-000000000001',
   customer = '00000000-0000-4000-8000-000000000002',
@@ -898,11 +899,16 @@ try {
     200,
   );
   assert.equal((await getPlatform(true)).settings.maintenance, true);
+  const announcement = await siteApi.GET();
+  assert.deepEqual(await announcement.json(), { announcement: 'Scheduled care' });
+  assert.equal(announcement.headers.get('cache-control'), 'public, max-age=0, s-maxage=30');
   for (const route of [
     '/',
     '/pricing',
     '/edit-pdf-text',
     '/api/pro/preview',
+    '/api/capabilities',
+    '/api/site',
     '/api/billing/checkout',
   ]) {
     const response = await proxy(new NextRequest(`http://localhost${route}`));

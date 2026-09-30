@@ -18,9 +18,6 @@ function key() {
     throw new ApiError(503, 'Document downloads are not connected yet.');
   return Buffer.from(secret, 'hex');
 }
-export function artifactReady() {
-  return /^[0-9a-f]{64}$/i.test(process.env.DOCUMENT_RESULT_KEY || '');
-}
 export function sealResult(
   bytes: Uint8Array,
   details: { tool: RemoteTool; filename: string; pages: number },

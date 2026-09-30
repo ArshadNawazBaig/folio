@@ -36,7 +36,9 @@ const config: NextConfig = {
       './public/fonts/pdf/LiberationSans-Bold.ttf',
       './public/fonts/pdf/LiberationSerif-Regular.ttf',
     ],
-    '/api/{pro,documents}/*': [
+    // Only these routes launch the isolated PDF worker. Returning an existing
+    // document from /api/documents/export does not need the processing engine.
+    '/api/{pro/{pdf,preview,demo},documents/{process,preview}}': [
       './scripts/pro-pdf-worker.mjs',
       './scripts/pdf-text-engine.mjs',
       './src/lib/pdf-text-engine.mjs',
@@ -55,13 +57,15 @@ const config: NextConfig = {
       './src/lib/document-font-catalog.json',
       './src/lib/server/document-fonts.mjs',
       './public/fonts/pdf/*',
-      './node_modules/@pdf-lib/fontkit/**/*',
-      './node_modules/pdf-lib/**/*',
-      './node_modules/@pdf-lib/standard-fonts/**/*',
-      './node_modules/@pdf-lib/upng/**/*',
-      './node_modules/pako/**/*',
-      './node_modules/tslib/**/*',
-      './node_modules/@embedpdf/pdfium/**/*',
+      // The worker imports Node entry points, not browser builds, source maps,
+      // TypeScript declarations, or package development sources.
+      './node_modules/@pdf-lib/fontkit/{package.json,LICENSE*,dist/fontkit.umd.js}',
+      './node_modules/pdf-lib/{package.json,LICENSE*,cjs/**/*.js}',
+      './node_modules/@pdf-lib/standard-fonts/{package.json,LICENSE*,lib/**/*.{js,json}}',
+      './node_modules/@pdf-lib/upng/{package.json,LICENSE*,cjs/*.js}',
+      './node_modules/pako/{package.json,LICENSE*,index.js,lib/**/*.js}',
+      './node_modules/tslib/{package.json,LICENSE*,tslib.js}',
+      './node_modules/@embedpdf/pdfium/{package.json,LICENSE*,dist/index.js,dist/pdfium.wasm}',
       './node_modules/sharp/**/*',
       './node_modules/@img/sharp-*/**/*',
       './node_modules/@img/colour/**/*',
@@ -133,7 +137,7 @@ const config: NextConfig = {
         ],
       },
       {
-        source: '/api/:path((?!fonts(?:/|$)).*)',
+        source: '/api/:path((?!fonts(?:/|$)|(?:capabilities|site)$).*)',
         headers: [{ key: 'Cache-Control', value: 'private, no-store' }],
       },
     ];

@@ -1,4 +1,27 @@
-# Homepage performance
+# Performance and Vercel usage
+
+## Vercel usage improvements — 30 September 2026
+
+Measured using production builds on the same local machine. These are the sums of files in each Next.js output trace, not Vercel's billed storage or a measurement of production CPU savings. Vercel's Linux dependencies and function grouping can change the deployed totals.
+
+| Server route             |    Before |     After |
+| ------------------------ | --------: | --------: |
+| `/api/documents/export`  | 69.36 MiB |  2.23 MiB |
+| `/api/pro/preview`       | 69.52 MiB | 45.43 MiB |
+| `/api/documents/process` | 69.86 MiB | 45.77 MiB |
+| `/tools`                 |  2.92 MiB |  2.59 MiB |
+
+- Include the PDF worker only in the five routes that run it. Package the Node runtime files instead of unused browser builds, maps, declarations, and development sources.
+- Keep provider availability checks separate from the provider SDK and encrypted-document processing modules used by paid conversions.
+- Prerender `/api/capabilities`, whose public flags depend only on deployment environment variables. Rebuild after changing provider configuration. Its route response is cacheable; private account and document endpoints remain `private, no-store`.
+- Cache the public announcement for 30 seconds at the CDN, and share generated social preview images for one day. Announcement failures remain uncached. These public responses do not include user or document data.
+- Coalesce simultaneous settings lookups within each function instance, retaining the existing three-second expiry, explicit admin invalidation, and fail-closed maintenance behavior. Do not extend these TTLs to improve benchmark scores.
+
+Run `FOLIO_TEST_OUTPUT=performance npm run build`, then `npm run check:bundles -- .next-performance`. The bundle check copies only traced worker dependencies into a temporary directory outside the repository and verifies inspection, PNG preview, subset-font completion, text export, and password protection. It also verifies that prepared downloads do not carry PDFium and that capabilities are prerendered.
+
+The [Vercel storage metric](https://vercel.com/docs/deployment-storage) includes function bundles in retained deployments. Smaller new builds reduce future storage; review project deployment retention separately to reduce historical storage while keeping the rollback history you need. Production CPU and origin-transfer improvements must be measured after deployment using the per-route usage breakdown.
+
+## Homepage measurements
 
 Verified on 28 September 2026 using Lighthouse 13.5.0 against an isolated production build. These are local lab measurements, not a deployed PageSpeed Insights result.
 

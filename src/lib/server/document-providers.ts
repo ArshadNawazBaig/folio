@@ -1,23 +1,8 @@
 import 'server-only';
 import { JWT } from 'google-auth-library';
 import { ApiError } from './http';
-import { artifactReady } from './result-artifact';
-import {
-  outputFormats,
-  REMOTE_MAX_OUTPUT,
-  type RemoteOptions,
-  type RemoteTool,
-} from '../remote-types';
-function translationConfig() {
-  const project = process.env.GOOGLE_TRANSLATION_PROJECT_ID || '';
-  const email = process.env.GOOGLE_TRANSLATION_CLIENT_EMAIL || '';
-  const key = (process.env.GOOGLE_TRANSLATION_PRIVATE_KEY || '').replace(/\\n/g, '\n');
-  return /^[a-z][a-z0-9-]{4,61}[a-z0-9]$/.test(project) &&
-    /^[^@\s]+@[^@\s]+\.iam\.gserviceaccount\.com$/.test(email) &&
-    key.includes('-----BEGIN PRIVATE KEY-----')
-    ? { project, email, key }
-    : null;
-}
+import { remoteReady, translationConfig } from './document-config';
+import { outputFormats, REMOTE_MAX_OUTPUT, type RemoteOptions } from '../remote-types';
 let translationAuth: JWT | undefined,
   authSignature = '';
 async function translationToken() {
@@ -40,17 +25,6 @@ async function translationToken() {
   } catch {
     throw new ApiError(503, 'The translation service is not available. Contact support.');
   }
-}
-export function remoteReady(tool: RemoteTool) {
-  return (
-    artifactReady() &&
-    (tool === 'translate-pdf'
-      ? !!translationConfig()
-      : !!(process.env.CLOUDCONVERT_API_KEY?.trim() || process.env.CONVERTAPI_TOKEN))
-  );
-}
-export function conversionProvider() {
-  return process.env.CLOUDCONVERT_API_KEY?.trim() ? 'CloudConvert' : 'ConvertAPI';
 }
 export async function boundedProviderResponse(response: Response, limit = REMOTE_MAX_OUTPUT) {
   if (Number(response.headers.get('content-length') || 0) > limit) {

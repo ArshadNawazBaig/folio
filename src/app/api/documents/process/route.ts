@@ -1,6 +1,7 @@
 import { remoteOptions, outputFormats, REMOTE_MAX_INPUT } from '@/lib/remote-types';
 import { boundedBody, ApiError, apiError } from '@/lib/server/http';
-import { processRemotePdf, remoteReady } from '@/lib/server/document-providers';
+import { processRemotePdf } from '@/lib/server/document-providers';
+import { remoteReady } from '@/lib/server/document-config';
 import { sealResult } from '@/lib/server/result-artifact';
 import { claimRemoteProcessing } from '@/lib/server/public-limit';
 import { runProPdf } from '@/lib/server/pro-pdf';
