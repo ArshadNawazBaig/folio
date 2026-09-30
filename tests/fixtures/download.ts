@@ -66,3 +66,27 @@ export async function saveDownload(page: Page, button: string | Locator, type: s
   if (mobile) await ready.getByRole('button', { name: 'Close download options' }).click();
   return { bytes, name };
 }
+
+export async function saveDirectDownload(page: Page, name: string, type: string) {
+  const link = page.getByRole('link', { name, exact: true });
+  await expect(link).toBeVisible();
+  expect(
+    await link.evaluate(
+      async (element: HTMLAnchorElement) => (await (await fetch(element.href)).blob()).type,
+    ),
+  ).toBe(type);
+  const originalUrl = page.url();
+  const pageCount = page.context().pages().length;
+  const pending = page.waitForEvent('download');
+  await link.click();
+  const file = await pending;
+  expect(await file.failure()).toBeNull();
+  expect(file.url()).not.toMatch(/^blob:/);
+  await expect(page.getByRole('dialog', { name: 'Your file is ready.' })).toBeHidden();
+  await expect(page).toHaveURL(originalUrl);
+  expect(page.context().pages()).toHaveLength(pageCount);
+  return {
+    bytes: await readFile((await file.path())!),
+    name: file.suggestedFilename(),
+  };
+}

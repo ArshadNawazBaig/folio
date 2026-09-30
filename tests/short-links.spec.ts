@@ -117,7 +117,7 @@ test('free short links save to My links, copy, produce scannable QR downloads, a
   await expect(result.getByRole('img', { name: /QR code for/ })).toBeVisible();
   for (const format of ['PNG', 'SVG']) {
     const downloaded = page.waitForEvent('download');
-    await result.getByRole('button', { name: format, exact: true }).click();
+    await result.getByRole('link', { name: format, exact: true }).click();
     const download = await downloaded;
     expect(download.suggestedFilename()).toBe(`folio-random-link-1.${format.toLowerCase()}`);
     const { data, info } = await sharp((await download.path())!)

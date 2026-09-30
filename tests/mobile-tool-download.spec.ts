@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures/editor-storage';
-import { saveDownload, watchDownloads } from './fixtures/download';
+import { saveDirectDownload, saveDownload, watchDownloads } from './fixtures/download';
 import sharp from 'sharp';
 import JSZip from 'jszip';
 import jsQR from 'jsqr';
@@ -107,18 +107,19 @@ for (const [route, action, encoding] of [
     expect((await sharp(file.bytes).metadata()).format).toBe(encoding);
   });
 
-test('QR PNG and SVG downloads are scannable', async ({ page }) => {
+test('QR PNG and SVG download directly on one tap and are scannable', async ({ page }) => {
   await page.goto('/create-qr-code');
   await page
     .getByRole('textbox', { name: 'Website address', exact: true })
     .fill('https://example.com/mobile');
   await page.getByRole('button', { name: 'Generate QR code', exact: true }).click();
   for (const format of ['PNG', 'SVG']) {
-    const file = await saveDownload(
+    const file = await saveDirectDownload(
       page,
       `Download ${format}`,
       format === 'PNG' ? 'image/png' : 'image/svg+xml',
     );
+    expect(file.name).toBe(`folio-qr-code.${format.toLowerCase()}`);
     const { data, info } = await sharp(file.bytes)
       .ensureAlpha()
       .raw()
@@ -127,6 +128,49 @@ test('QR PNG and SVG downloads are scannable', async ({ page }) => {
       'https://example.com/mobile',
     );
   }
+});
+
+test('QR PNG downloads use the latest dimensions and content', async ({ page }) => {
+  await page.goto('/create-qr-code');
+  const address = page.getByRole('textbox', { name: 'Website address', exact: true });
+  await address.fill('https://example.com/original');
+  await page.getByRole('button', { name: 'Generate QR code', exact: true }).click();
+  await expect(page.getByRole('link', { name: 'Download PNG', exact: true })).toBeVisible();
+  for (const size of [512, 2048]) {
+    await page.getByRole('combobox', { name: 'PNG dimensions', exact: true }).click();
+    await page.getByRole('option', { name: `${size} × ${size} pixels`, exact: true }).click();
+    const file = await saveDirectDownload(page, 'Download PNG', 'image/png');
+    const metadata = await sharp(file.bytes).metadata();
+    expect([metadata.width, metadata.height]).toEqual([size, size]);
+  }
+  await address.fill('https://example.com/updated');
+  await expect(page.getByRole('link', { name: /^Download (PNG|SVG)$/ })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Generate QR code', exact: true }).click();
+  const { bytes } = await saveDirectDownload(page, 'Download PNG', 'image/png');
+  const { data, info } = await sharp(bytes)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  expect(jsQR(new Uint8ClampedArray(data), info.width, info.height)?.data).toBe(
+    'https://example.com/updated',
+  );
+});
+
+test('QR SVG remains downloadable if PNG preparation fails', async ({ page }) => {
+  await page.addInitScript(() => {
+    HTMLCanvasElement.prototype.toDataURL = () => {
+      throw new Error('Could not export the QR code.');
+    };
+  });
+  await page.goto('/create-qr-code');
+  await page.getByRole('textbox', { name: 'Website address', exact: true }).fill('example.com');
+  await page.getByRole('button', { name: 'Generate QR code', exact: true }).click();
+  await expect(page.getByRole('main').getByRole('alert')).toHaveText(
+    'Could not export the QR code.',
+  );
+  await expect(page.getByRole('button', { name: 'Download PNG', exact: true })).toBeDisabled();
+  const file = await saveDirectDownload(page, 'Download SVG', 'image/svg+xml');
+  expect(file.name).toBe('folio-qr-code.svg');
 });
 
 for (const format of ['JPG', 'PNG'])

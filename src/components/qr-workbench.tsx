@@ -2,8 +2,9 @@
 import { useEffect, useState } from 'react';
 import { Download, QrCode } from 'lucide-react';
 import { createQrSvg, type QrContent } from '@/lib/qr-code';
-import { download, friendlyError } from '@/lib/utils';
+import { friendlyError } from '@/lib/utils';
 import { Dropdown } from './dropdown';
+import { useQrDownloads } from './use-qr-downloads';
 import s from './tool-workbench.module.css';
 export function QrWorkbench() {
   const [ready, setReady] = useState(false);
@@ -20,22 +21,13 @@ export function QrWorkbench() {
     [light, setLight] = useState('#ffffff'),
     [size, setSize] = useState('1024');
   const [svg, setSvg] = useState(''),
-    [url, setUrl] = useState(''),
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false);
+  const { svgUrl, pngUrl, error: exportError } = useQrDownloads(svg, Number(size));
   useEffect(() => {
     setSvg('');
     setError('');
   }, [content, dark, light]);
-  useEffect(() => {
-    if (!svg) {
-      setUrl('');
-      return;
-    }
-    const next = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
-    setUrl(next);
-    return () => URL.revokeObjectURL(next);
-  }, [svg]);
   async function generate() {
     setBusy(true);
     setError('');
@@ -45,27 +37,6 @@ export function QrWorkbench() {
       setError(friendlyError(e));
     } finally {
       setBusy(false);
-    }
-  }
-  async function png() {
-    try {
-      const image = new Image();
-      image.src = url;
-      await image.decode();
-      const canvas = document.createElement('canvas');
-      canvas.width = canvas.height = Number(size);
-      const ctx = canvas.getContext('2d')!;
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-      const blob = await new Promise<Blob>((resolve, reject) =>
-        canvas.toBlob(
-          (b) => (b ? resolve(b) : reject(new Error('Could not export the QR code.'))),
-          'image/png',
-        ),
-      );
-      download(blob, 'folio-qr-code.png');
-    } catch (e) {
-      setError(friendlyError(e));
     }
   }
   return (
@@ -173,8 +144,8 @@ export function QrWorkbench() {
         <div className={s.preview}>
           <div className={s.previewToolbar}>Your QR code</div>
           <div className={s.qrStage}>
-            {url ? (
-              <img src={url} alt="Generated QR code" />
+            {svgUrl ? (
+              <img src={svgUrl} alt="Generated QR code" />
             ) : (
               <div className={s.empty}>
                 <QrCode size={64} />
@@ -188,28 +159,30 @@ export function QrWorkbench() {
           </p>
         </div>
       </div>
-      {error && (
+      {(error || exportError) && (
         <div className="error-message processor-message" role="alert">
-          {error}
+          {error || exportError}
         </div>
       )}
       {svg && (
         <div className={s.footer}>
           <span role="status">Your QR code is ready.</span>
           <div className={s.downloads}>
-            <button
-              className="button secondary"
-              onClick={() =>
-                download(new TextEncoder().encode(svg), 'folio-qr-code.svg', 'image/svg+xml')
-              }
-            >
+            <a className="button secondary" href={svgUrl} download="folio-qr-code.svg">
               <Download size={17} />
               Download SVG
-            </button>
-            <button className="button primary" onClick={png}>
-              <Download size={17} />
-              Download PNG
-            </button>
+            </a>
+            {pngUrl ? (
+              <a className="button primary" href={pngUrl} download="folio-qr-code.png">
+                <Download size={17} />
+                Download PNG
+              </a>
+            ) : (
+              <button className="button primary" disabled>
+                <Download size={17} />
+                {exportError ? 'Download PNG' : 'Preparing PNG…'}
+              </button>
+            )}
           </div>
         </div>
       )}

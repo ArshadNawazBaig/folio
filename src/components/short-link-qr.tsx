@@ -2,13 +2,14 @@
 import { useEffect, useState } from 'react';
 import { Download } from 'lucide-react';
 import { createQrSvg } from '@/lib/qr-code';
-import { download, friendlyError } from '@/lib/utils';
+import { friendlyError } from '@/lib/utils';
+import { useQrDownloads } from './use-qr-downloads';
 import s from './short-links.module.css';
 
 export function ShortLinkQr({ url, alias }: { url: string; alias: string }) {
   const [svg, setSvg] = useState('');
   const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
+  const { svgUrl, pngUrl, error: exportError } = useQrDownloads(svg);
   useEffect(() => {
     let cancelled = false;
     setSvg('');
@@ -29,37 +30,10 @@ export function ShortLinkQr({ url, alias }: { url: string; alias: string }) {
       cancelled = true;
     };
   }, [url]);
-  const imageUrl = svg ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}` : '';
-  async function png() {
-    setBusy(true);
-    setError('');
-    try {
-      const image = new Image();
-      image.src = imageUrl;
-      await image.decode();
-      const canvas = document.createElement('canvas');
-      canvas.width = canvas.height = 1024;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Your browser could not export the QR code.');
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(image, 0, 0, 1024, 1024);
-      const blob = await new Promise<Blob>((resolve, reject) =>
-        canvas.toBlob(
-          (value) => (value ? resolve(value) : reject(new Error('Could not export the QR code.'))),
-          'image/png',
-        ),
-      );
-      download(blob, `folio-${alias}.png`);
-    } catch (err) {
-      setError(friendlyError(err));
-    } finally {
-      setBusy(false);
-    }
-  }
   return (
     <div className={s.qr}>
       {svg ? (
-        <img src={imageUrl} alt={`QR code for ${url}`} width={200} height={200} />
+        <img src={svgUrl} alt={`QR code for ${url}`} width={200} height={200} />
       ) : (
         !error && <p role="status">Generating QR code…</p>
       )}
@@ -67,24 +41,32 @@ export function ShortLinkQr({ url, alias }: { url: string; alias: string }) {
         <strong>Ready for a scan.</strong>
         <p>This code opens your short link. Test it with your camera before sharing or printing.</p>
         <div className={s.actions}>
-          <button className="button secondary" disabled={!svg || busy} onClick={() => void png()}>
-            <Download size={16} />
-            {busy ? 'Exporting…' : 'PNG'}
-          </button>
-          <button
-            className="button secondary"
-            disabled={!svg || busy}
-            onClick={() =>
-              download(new TextEncoder().encode(svg), `folio-${alias}.svg`, 'image/svg+xml')
-            }
-          >
-            <Download size={16} />
-            SVG
-          </button>
+          {pngUrl ? (
+            <a className="button secondary" href={pngUrl} download={`folio-${alias}.png`}>
+              <Download size={16} />
+              PNG
+            </a>
+          ) : (
+            <button className="button secondary" disabled>
+              <Download size={16} />
+              {exportError ? 'PNG' : 'Preparing PNG…'}
+            </button>
+          )}
+          {svgUrl ? (
+            <a className="button secondary" href={svgUrl} download={`folio-${alias}.svg`}>
+              <Download size={16} />
+              SVG
+            </a>
+          ) : (
+            <button className="button secondary" disabled>
+              <Download size={16} />
+              SVG
+            </button>
+          )}
         </div>
-        {error && (
+        {(error || exportError) && (
           <p className="error-message" role="alert">
-            {error}
+            {error || exportError}
           </p>
         )}
       </div>

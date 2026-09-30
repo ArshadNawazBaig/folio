@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/editor-storage';
+import { saveDirectDownload } from './fixtures/download';
 import type { Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import sharp from 'sharp';
@@ -237,7 +238,7 @@ test('QR exports scan correctly, invalidate after edits and fit mobile and deskt
     .getByRole('textbox', { name: 'Website address', exact: true })
     .fill('example.com/folio');
   await page.getByRole('button', { name: 'Generate QR code', exact: true }).click();
-  const { bytes } = await exported(page, 'Download PNG');
+  const { bytes } = await saveDirectDownload(page, 'Download PNG', 'image/png');
   const { data, info } = await sharp(bytes)
     .ensureAlpha()
     .raw()
@@ -262,7 +263,7 @@ test('QR exports scan correctly, invalidate after edits and fit mobile and deskt
   await page
     .getByRole('textbox', { name: 'Website address', exact: true })
     .fill('example.com/updated');
-  await expect(page.getByRole('button', { name: 'Download PNG', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Download PNG', exact: true })).toHaveCount(0);
 });
 test('Wi-Fi QR validation identifies the missing password and the completed code scans', async ({
   page,
@@ -272,10 +273,12 @@ test('Wi-Fi QR validation identifies the missing password and the completed code
   await page.getByLabel('Network name', { exact: true }).fill('Office;network');
   await page.getByRole('button', { name: 'Generate QR code', exact: true }).click();
   await expect(page.getByRole('main').getByRole('alert')).toHaveText('Enter the Wi-Fi password.');
-  await expect(page.getByRole('button', { name: 'Download PNG', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Download PNG', exact: true })).toHaveCount(0);
   await page.getByLabel('Network password', { exact: true }).fill('test-password');
   await page.getByRole('button', { name: 'Generate QR code', exact: true }).click();
-  const { data, info } = await sharp((await exported(page, 'Download PNG')).bytes)
+  const { data, info } = await sharp(
+    (await saveDirectDownload(page, 'Download PNG', 'image/png')).bytes,
+  )
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });

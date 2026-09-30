@@ -1,6 +1,6 @@
 import { test, expect } from './fixtures/editor-storage';
 import { mockGoogle } from './fixtures/auth';
-import { saveDownload, watchDownloads } from './fixtures/download';
+import { saveDirectDownload, saveDownload, watchDownloads } from './fixtures/download';
 import { outputFormats, remoteTools } from '../src/lib/remote-types';
 import { FREE_STORAGE_LIMIT } from '../src/lib/cloud-types';
 import { PDFDocument } from 'pdf-lib';
@@ -185,7 +185,7 @@ test('new and saved short links download scannable PNG and SVG codes', async ({ 
     if (location === 'saved') await page.goto('/dashboard?view=links');
     await page.getByRole('button', { name: 'Generate QR', exact: true }).click();
     for (const format of ['PNG', 'SVG']) {
-      const file = await saveDownload(
+      const file = await saveDirectDownload(
         page,
         format,
         format === 'PNG' ? 'image/png' : 'image/svg+xml',
