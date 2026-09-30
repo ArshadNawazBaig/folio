@@ -5,6 +5,7 @@ import { trimPreviews } from './text-preview-cache';
 import { retryTransientRequest } from './request-retry';
 
 type WorkerResult = InteractiveTextImage | TextInspection;
+const browserTimeoutMs = 8000;
 
 export class InteractiveTextPreview {
   private worker: Worker;
@@ -29,7 +30,7 @@ export class InteractiveTextPreview {
     });
     this.ready = new Promise((resolve, reject) => {
       this.rejectReady = reject;
-      this.warmTimer = setTimeout(() => this.dispose(), 20000);
+      this.warmTimer = setTimeout(() => this.dispose(), browserTimeoutMs);
       this.worker.onmessage = ({ data }) => {
         if (data.ready) {
           clearTimeout(this.warmTimer);
@@ -72,7 +73,7 @@ export class InteractiveTextPreview {
       const timeout = setTimeout(() => {
         finish(new Error('The browser preview took too long.'));
         this.dispose();
-      }, 20000);
+      }, browserTimeoutMs);
       this.pending.set(id, {
         resolve: (result) => finish(undefined, result),
         reject: (error) => finish(error),
@@ -157,38 +158,22 @@ async function browserOrServer<T>(
   signal: AbortSignal,
   run: (client: InteractiveTextPreview, signal: AbortSignal) => Promise<T>,
 ): Promise<T> {
+  signal.throwIfAborted();
   const request = (signal: AbortSignal) =>
     retryTransientRequest<T>(
       async () => (await requestTextPdf(bytes, name, job, false, signal)).json(),
       signal,
     );
   if (!client) return request(signal);
-  const controller = new AbortController();
-  const abort = () => controller.abort();
-  signal.addEventListener('abort', abort, { once: true });
-  if (signal.aborted) controller.abort();
-  let startFallback!: () => void;
-  const fallbackReady = new Promise<void>((resolve) => {
-    startFallback = resolve;
-  });
-  const timer = setTimeout(startFallback, 350);
-  const browser = run(client, controller.signal).catch((error) => {
-    startFallback();
-    throw error;
-  });
-  const server = fallbackReady.then(async () => {
-    if (controller.signal.aborted) throw new DOMException('Preview cancelled.', 'AbortError');
-    return request(controller.signal);
-  });
   try {
-    return await Promise.any([browser, server]);
-  } catch (error) {
-    throw error instanceof AggregateError ? error.errors[1] : error;
-  } finally {
-    clearTimeout(timer);
-    controller.abort();
-    startFallback();
-    signal.removeEventListener('abort', abort);
+    // A healthy browser worker owns this job. Racing it against an upload
+    // duplicates PDF processing on Vercel, especially on mobile connections.
+    return await run(client, signal);
+  } catch {
+    // Worker startup and jobs have bounded timeouts. Only a failed local job
+    // needs server processing; superseded edits must not upload their source.
+    signal.throwIfAborted();
+    return request(signal);
   }
 }
 

@@ -45,7 +45,8 @@ export function ProtectPdf() {
       try {
         const form = new FormData();
         form.append('file', file);
-        form.append('job', JSON.stringify({ operation: 'inspect' }));
+        // Validate the document without extracting every text block and font.
+        form.append('job', JSON.stringify({ operation: 'info' }));
         const response = await fetch('/api/pro/preview', { method: 'POST', body: form });
         if (!response.ok)
           throw new Error((await response.json()).error || 'This PDF could not be opened.');

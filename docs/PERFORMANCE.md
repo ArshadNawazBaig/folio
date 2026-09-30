@@ -1,5 +1,26 @@
 # Performance and Vercel usage
 
+## Active CPU follow-up — 30 September 2026
+
+Reviewed [Vercel's usage guidance](https://vercel.com/docs/pricing/manage-and-optimize-usage) after the team reached 75% of its four-hour Active CPU allowance. The previous bundle reductions are already committed; this pass removes repeated runtime work.
+
+- **Browser text previews:** inspection and rendering previously raced the local PDF worker against a server upload after 350 ms. A healthy browser now completes the job locally. An unavailable or failed worker falls back immediately; a stuck startup or job is terminated after eight seconds before falling back. Cancellation prevents a superseded edit from uploading. This reduces duplicate uploads and PDF worker executions, with a possible eight-second wait on a stalled browser. Paid exports retain their existing server authorization.
+- **Password-protection validation:** request `info` instead of `inspect`. The same PDF engine checks file validity, page limits, encryption, signatures, and XFA support, then returns only the page count. It no longer extracts all text blocks and fonts just to open the download gate.
+- **Static tool pages:** `/translate-pdf`, `/pdf-to-word`, `/pdf-to-excel`, and `/pdf-to-powerpoint` now render at build time. Their availability and metadata depend on deployment configuration, like the already-static capabilities endpoint. Rebuild after provider configuration changes. The maintenance proxy still checks requests, and processing endpoints still validate availability and access.
+
+Regression checks cover healthy local jobs slower than 350 ms, worker failures and timeouts, cancellation without uploads, server fallback, and cached previews. The browser workflow asserts zero requests to `/api/pro/preview` when local processing works. Password setup checks the lightweight response and rejects damaged and over-limit PDFs; public previews still cannot export edited or protected PDFs. `check:bundles` also verifies that all four provider pages are prerendered.
+
+Validation passed: 15 focused unit/server tests, 13 browser scenarios against local account fixtures, lint, production build, and isolated PDF worker checks. A local production smoke check returned `x-nextjs-cache: HIT` and `s-maxage=31536000` for all four provider pages; `/api/pro/preview` remained `private, no-store`.
+
+```sh
+npx tsx --test tests/preview-fallback.test.ts tests/request-retry.test.ts tests/remote.test.ts tests/server-routes.test.ts tests/seo.test.ts
+npm run test:tools -- tests/interactive-preview.spec.ts tests/workspace-network.spec.ts tests/text-activation.spec.ts tests/platform.spec.ts --workers=1
+FOLIO_TEST_OUTPUT=performance npm run build
+npm run check:bundles -- .next-performance
+```
+
+The alert is team-wide and does not identify a hot route. After deployment, filter Vercel Usage to this project and compare Active CPU, invocation counts, errors, and cache hits over comparable traffic windows, especially `/api/pro/preview` and the four tool pages. Prefer CPU per invocation over total CPU alone. These code checks do not measure production savings or reset usage already consumed. If invocations remain unexpectedly high, review request sources and firewall controls using the dashboard before changing traffic rules.
+
 ## Vercel usage improvements — 30 September 2026
 
 Measured using production builds on the same local machine. These are the sums of files in each Next.js output trace, not Vercel's billed storage or a measurement of production CPU savings. Vercel's Linux dependencies and function grouping can change the deployed totals.

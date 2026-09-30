@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     const available = performance.now();
     publicLimit('preview');
     const { file, job } = await readProUpload(request);
-    if (job.operation !== 'inspect' && job.operation !== 'preview')
+    if (!['info', 'inspect', 'preview'].includes(job.operation))
       throw new ApiError(400, 'Use the download action to export a finished PDF.');
     const bytes = new Uint8Array(await file.arrayBuffer());
     const uploaded = performance.now();

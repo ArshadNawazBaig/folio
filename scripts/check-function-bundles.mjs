@@ -48,6 +48,8 @@ assert.ok(
 await report('/api/documents/export', exported);
 const prerender = JSON.parse(await readFile(path.join(build, 'prerender-manifest.json'), 'utf8'));
 assert.ok(prerender.routes['/api/capabilities'], 'Capabilities must be prerendered');
+for (const tool of ['translate-pdf', 'pdf-to-word', 'pdf-to-excel', 'pdf-to-powerpoint'])
+  assert.ok(prerender.routes[`/${tool}`], `${tool} must be prerendered`);
 
 const isolated = await mkdtemp(path.join(tmpdir(), 'folio-worker-bundle-'));
 try {

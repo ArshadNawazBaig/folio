@@ -22,7 +22,11 @@ test('local inspection and pixel previews work without the processing API and ho
   workspaceStorage,
 }) => {
   await observeBrowserTextPreview(page);
-  await page.route('**/api/pro/preview', (route) => route.abort());
+  let serverPreviews = 0;
+  await page.route('**/api/pro/preview', (route) => {
+    serverPreviews++;
+    return route.abort();
+  });
   await page.goto('/workspace');
   await page.locator('.editor-empty input[type=file]').setInputFiles(await sample());
   await page.getByRole('button', { name: 'Edit original text', exact: true }).click();
@@ -94,4 +98,5 @@ test('local inspection and pixel previews work without the processing API and ho
   await page.getByRole('button', { name: 'Go to page 1', exact: true }).click();
   await page.getByRole('button', { name: 'Edit text: Second line on page 1', exact: true }).click();
   await expect(second).toHaveValue('Second change');
+  expect(serverPreviews).toBe(0);
 });

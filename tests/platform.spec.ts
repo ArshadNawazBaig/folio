@@ -53,6 +53,7 @@ test('anyone can edit and preview their PDF; payment appears only at download an
   await page.getByRole('button', { name: 'Download PDF', exact: true }).click();
   const gate = page.getByRole('dialog');
   await expect(gate).toBeVisible();
+  await gate.getByText('About this Pro download', { exact: true }).click();
   await expect(
     gate.getByText('Downloading those changes requires a premium plan.', { exact: false }),
   ).toBeVisible();
@@ -124,7 +125,13 @@ test('password setup is free, mismatch errors appear before payment, and checkou
   expect(await page.locator('#main').innerText()).not.toMatch(
     /\b(pro|premium|upgrade|subscription)\b/i,
   );
+  const validation = page.waitForResponse((response) =>
+    response.url().endsWith('/api/pro/preview'),
+  );
   await page.getByRole('button', { name: 'Protect & download', exact: true }).click();
+  const checked = await validation;
+  expect(checked.request().postData()).toContain('"operation":"info"');
+  expect(checked.ok()).toBe(true);
   await expect(page.getByRole('dialog')).toBeVisible();
   await page
     .getByRole('dialog')
@@ -132,6 +139,35 @@ test('password setup is free, mismatch errors appear before payment, and checkou
     .last()
     .click();
   await expect(page.getByLabel('Opening password', { exact: true })).toHaveValue('my-secret-123');
+});
+test('lightweight PDF validation returns only page count and rejects invalid documents', async ({
+  request,
+}) => {
+  const valid = await request.post('/api/pro/preview', {
+    multipart: {
+      file: {
+        name: 'sample.pdf',
+        mimeType: 'application/pdf',
+        buffer: Buffer.from(await createSample()),
+      },
+      job: JSON.stringify({ operation: 'info' }),
+    },
+  });
+  expect(valid.ok()).toBe(true);
+  expect(await valid.json()).toEqual({ pageCount: 3 });
+  const { PDFDocument } = await import('pdf-lib');
+  const tooManyPages = await PDFDocument.create();
+  for (let i = 0; i < 101; i++) tooManyPages.addPage();
+  for (const buffer of [Buffer.from('%PDF-1.7\ninvalid'), Buffer.from(await tooManyPages.save())]) {
+    const response = await request.post('/api/pro/preview', {
+      multipart: {
+        file: { name: 'invalid.pdf', mimeType: 'application/pdf', buffer },
+        job: JSON.stringify({ operation: 'info' }),
+      },
+    });
+    expect(response.status()).toBe(422);
+    expect(await response.json()).toHaveProperty('error');
+  }
 });
 test('admin sections stay accessible and reject unauthenticated mutation access', async ({
   page,

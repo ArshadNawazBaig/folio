@@ -4,7 +4,6 @@ import { ArrowUpRight, ChevronRight, ShieldCheck, ArrowRight } from 'lucide-reac
 import { tools, editorTools } from '@/lib/tools';
 import { serverTools, isRemoteTool } from '@/lib/server/tool-catalog';
 import { conversionProvider } from '@/lib/server/document-config';
-import { connection } from 'next/server';
 import { ToolIcon } from '@/components/icon';
 import { ToolProcessor } from '@/components/tool-processor';
 import { RemotePdfWorkspace } from '@/components/remote-pdf-workspace';
@@ -22,19 +21,19 @@ import { pageMetadata, breadcrumbSchema, siteUrl } from '@/lib/seo';
 import { toolSearchTitle } from '@/lib/tool-seo';
 import { guidesForTool, relatedTools } from '@/lib/related-content';
 export const dynamicParams = false;
+// Provider availability is deployment configuration, just like /api/capabilities.
+// All tool landing pages can be rendered once during the build.
 export function generateStaticParams() {
   return tools.map((t) => ({ tool: t.slug }));
 }
 export async function generateMetadata({ params }: { params: Promise<{ tool: string }> }) {
   const slug = (await params).tool;
-  if (isRemoteTool(slug)) await connection();
   const catalog = serverTools();
   const t = catalog.find((t) => t.slug === slug);
   return t ? pageMetadata(toolSearchTitle(t), t.description, `/${t.slug}`, t.available) : {};
 }
 export default async function ToolPage({ params }: { params: Promise<{ tool: string }> }) {
   const slug = (await params).tool;
-  if (isRemoteTool(slug)) await connection();
   const catalog = serverTools();
   const t = catalog.find((t) => t.slug === slug);
   if (!t) notFound();
