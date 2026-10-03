@@ -1,4 +1,5 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
 
 import { useMemo, type ReactNode } from 'react';
 import { Combobox } from '@base-ui/react/combobox';
@@ -24,6 +25,22 @@ type DropdownProps = {
 
 /** Shared styling, with Base UI handling focus, typeahead, and popup positioning. */
 export function Dropdown(props: DropdownProps) {
+  const translate = useUiTranslation();
+  props = {
+    ...props,
+    label: translate(props.label),
+    placeholder: props.placeholder ? translate(props.placeholder) : undefined,
+    searchPlaceholder: props.searchPlaceholder ? translate(props.searchPlaceholder) : undefined,
+    searchLabel: props.searchLabel ? translate(props.searchLabel) : undefined,
+    emptyMessage: props.emptyMessage ? translate(props.emptyMessage) : undefined,
+    options: props.options.map((option) => ({
+      ...option,
+      label: translate(option.label),
+      description: option.description ? translate(option.description) : undefined,
+    })),
+  };
+  const tr = useUiTranslation();
+
   if (props.searchPlaceholder) return <SearchableDropdown {...props} />;
   const {
     label,
@@ -55,7 +72,7 @@ export function Dropdown(props: DropdownProps) {
           )}
           <Select.Value
             className="dropdown-value"
-            placeholder={placeholder || 'Choose an option'}
+            placeholder={placeholder || tr('Choose an option')}
           />
           <Select.Icon className="dropdown-chevron">
             <ChevronDown size={16} />
@@ -74,9 +91,9 @@ export function Dropdown(props: DropdownProps) {
                 {options.map((option) => (
                   <Select.Item key={option.value} value={option.value} className="dropdown-option">
                     <span className="dropdown-option-copy">
-                      <Select.ItemText>{option.label}</Select.ItemText>
+                      <Select.ItemText>{tr(option.label)}</Select.ItemText>
                       {option.description && (
-                        <span className="dropdown-description">{option.description}</span>
+                        <span className="dropdown-description">{tr(option.description)}</span>
                       )}
                     </span>
                     <Select.ItemIndicator className="dropdown-check">
@@ -107,6 +124,8 @@ function SearchableDropdown({
   emptyMessage = 'No matches found. Try another search.',
   portalContainer,
 }: DropdownProps) {
+  const tr = useUiTranslation();
+
   const items = useMemo(
     () =>
       Combobox.createItems(options, {
@@ -140,7 +159,7 @@ function SearchableDropdown({
               <span className="dropdown-value">
                 {options.find((option) => option.value === selected)?.label ||
                   placeholder ||
-                  'Choose an option'}
+                  tr('Choose an option')}
               </span>
             )}
           </Combobox.Value>
@@ -177,9 +196,9 @@ function SearchableDropdown({
                     className="dropdown-option"
                   >
                     <span className="dropdown-option-copy">
-                      <span>{option.label}</span>
+                      <span>{tr(option.label)}</span>
                       {option.description && (
-                        <span className="dropdown-description">{option.description}</span>
+                        <span className="dropdown-description">{tr(option.description)}</span>
                       )}
                     </span>
                     <Combobox.ItemIndicator className="dropdown-check">

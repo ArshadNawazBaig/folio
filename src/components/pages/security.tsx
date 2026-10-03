@@ -1,0 +1,50 @@
+import { translator, localizedHref, type PageLanguage } from '@/lib/i18n/translate';
+import Link from 'next/link';
+import { pageMetadata } from '@/lib/seo';
+
+export const metadata = pageMetadata(
+  'Report a Security Issue',
+  'Report a suspected vulnerability in Folio privately through support. Find the information to include and how to protect document and account data.',
+  '/security',
+);
+
+export default function SecurityPage({ locale = 'en', messages = {} }: PageLanguage = {}) {
+  const tr = translator(messages);
+  const href = (path: string) => localizedHref(locale, path);
+
+  return (
+    <main id="main" className="container prose-page with-page-heading">
+      <header className="page-heading">
+        <span className="eyebrow">{tr('HELP KEEP DOCUMENTS PRIVATE')}</span>
+        <h1>
+          {tr('Report a')} <em>{tr('security issue.')}</em>
+        </h1>
+        <p>
+          {tr('If you find a suspected vulnerability in Folio, use our')}{' '}
+          <Link href={href('/support')}>{tr('support form')}</Link>{' '}
+          {tr(
+            'and start the subject with “Security report”. Reports go to Folio’s administrators and are not published on the website.',
+          )}
+        </p>
+      </header>
+      <h2>{tr('What should your report include?')}</h2>
+      <ol>
+        <li>{tr('The affected page or feature and a short description of what happened.')}</li>
+        <li>{tr('Steps to reproduce the problem with your own account and a sample document.')}</li>
+        <li>{tr('Your browser, device, and the approximate time you noticed the issue.')}</li>
+      </ol>
+      <h2>{tr('Keep sensitive information out of your report.')}</h2>
+      <p>
+        {tr(
+          'Do not include passwords, access tokens, payment details, or other people’s documents. Describe the problem using a non-sensitive example. Do not access someone else’s files or disrupt the service to demonstrate an issue.',
+        )}
+      </p>
+      <p>
+        {tr('For questions about a file, payment, or account, the same')}{' '}
+        <Link href={href('/support')}>{tr('support form')}</Link> {tr('is available. Our')}{' '}
+        <Link href={href('/privacy')}>{tr('privacy page')}</Link>{' '}
+        {tr('explains how documents and support messages are handled.')}
+      </p>
+    </main>
+  );
+}

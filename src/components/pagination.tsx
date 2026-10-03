@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { PAGE_SIZE, PAGE_SIZES, pageWindow } from '@/lib/pagination.mjs';
 import { Dropdown } from './dropdown';
 import s from './pagination.module.css';
+import { useUiTranslation } from './ui-language';
 
 type Props = {
   page: number;
@@ -28,6 +29,7 @@ export function Pagination({
   disabled = false,
   label = 'Results pagination',
 }: Props) {
+  const t = useUiTranslation();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const unavailable = disabled || pending;
@@ -44,7 +46,7 @@ export function Pagination({
     return `${url.pathname}${url.search}${url.hash}`;
   };
   const control = (next: number, title: string, child: React.ReactNode, blocked = false) => {
-    const current = title.startsWith('Page ') && next === range.page;
+    const current = typeof child === 'number' && next === range.page;
     const props = {
       className: s.control,
       'aria-label': title,
@@ -66,20 +68,25 @@ export function Pagination({
     );
   };
   return (
-    <nav className={s.pagination} aria-label={label} aria-busy={unavailable}>
+    <nav className={s.pagination} aria-label={t(label)} aria-busy={unavailable}>
       <div className={s.details}>
         <p className={s.summary} aria-live="polite">
           <strong>
             {range.start}–{range.end}
           </strong>{' '}
-          of {total.toLocaleString()} {total === 1 ? 'record' : 'records'}
+          {t(total === 1 ? 'of {count} record' : 'of {count} records', {
+            count: total.toLocaleString(),
+          })}
         </p>
         <div className={s.pageSize}>
           <Dropdown
-            label="Records per page"
+            label={t('Records per page')}
             hideLabel
             value={String(pageSize)}
-            options={PAGE_SIZES.map((size) => ({ value: String(size), label: `${size} per page` }))}
+            options={PAGE_SIZES.map((size) => ({
+              value: String(size),
+              label: t('{count} per page', { count: size }),
+            }))}
             disabled={unavailable || (!href && !onPageSizeChange)}
             onValueChange={(value) => {
               const size = Number(value);
@@ -91,7 +98,7 @@ export function Pagination({
         </div>
       </div>
       <div className={s.controls}>
-        {control(range.page - 1, 'Previous page', <ChevronLeft size={17} />, range.page <= 1)}
+        {control(range.page - 1, t('Previous page'), <ChevronLeft size={17} />, range.page <= 1)}
         {numbers.map((n, i) => (
           <span className={s.number} key={n}>
             {i > 0 && n - numbers[i - 1] > 1 && (
@@ -99,15 +106,15 @@ export function Pagination({
                 …
               </span>
             )}
-            {control(n, `Page ${n}`, n)}
+            {control(n, t('Page {page}', { page: n }), n)}
           </span>
         ))}
         <span className={s.compact}>
-          Page {range.page} of {range.pages}
+          {t('Page {page} of {pages}', { page: range.page, pages: range.pages })}
         </span>
         {control(
           range.page + 1,
-          'Next page',
+          t('Next page'),
           <ChevronRight size={17} />,
           range.page >= range.pages,
         )}

@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { Check, ChevronDown, Loader2, Search } from 'lucide-react';
@@ -39,6 +41,8 @@ export function FontPicker({
   label?: string;
   disabled?: boolean;
 }) {
+  const tr = useUiTranslation();
+
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [pageSize, setPageSize] = useState(PAGE_SIZE);
@@ -139,7 +143,14 @@ export function FontPicker({
     const matches = (label: string) => label.toLowerCase().includes(query.trim().toLowerCase());
     return [
       ...(original && matches(`Original ${original.font}`)
-        ? [{ value: 'original', label: `Original · ${original.font.replace(/^[A-Z]{6}\+/, '')}` }]
+        ? [
+            {
+              value: 'original',
+              label: tr('Original · {value0}', {
+                value0: original.font.replace(/^[A-Z]{6}\+/, ''),
+              }),
+            },
+          ]
         : []),
       ...(busy ? [] : results?.fonts || []).map((font) => ({
         value: font.id,
@@ -150,7 +161,7 @@ export function FontPicker({
         .filter((font) => matches(font.replace('-', ' ')))
         .map((font) => ({ value: font, label: font.replace('-', ' ') })),
     ];
-  }, [original, query, busy, results]);
+  }, [original, query, busy, results, tr]);
   const collection = useMemo(
     () =>
       Combobox.createItems(items, {
@@ -190,7 +201,9 @@ export function FontPicker({
     } catch {
       if (request === sequence.current)
         setError(
-          'This font could not be loaded. Your current font is unchanged. Try another font or retry.',
+          tr(
+            'This font could not be loaded. Your current font is unchanged. Try another font or retry.',
+          ),
         );
     } finally {
       if (request === sequence.current) setApplying(false);
@@ -230,7 +243,7 @@ export function FontPicker({
         }}
         disabled={disabled || applying}
       >
-        <Combobox.Label className="dropdown-label">{label}</Combobox.Label>
+        <Combobox.Label className="dropdown-label">{tr(label)}</Combobox.Label>
         <Combobox.Trigger className="dropdown-trigger">
           <span className="dropdown-value">{currentLabel}</span>
           {applying ? <Loader2 size={16} className="spin" /> : <ChevronDown size={16} />}
@@ -242,39 +255,54 @@ export function FontPicker({
             collisionPadding={12}
             align="start"
           >
-            <Combobox.Popup className="dropdown-popup font-picker-popup" aria-label="Font library">
+            <Combobox.Popup
+              className="dropdown-popup font-picker-popup"
+              aria-label={tr('Font library')}
+            >
               <div className="dropdown-search">
                 <Search size={16} aria-hidden="true" />
                 <Combobox.Input
                   className="dropdown-search-input"
-                  placeholder="Search fonts…"
-                  aria-label="Search fonts"
+                  placeholder={tr('Search fonts…')}
+                  aria-label={tr('Search fonts')}
                   autoComplete="off"
                   spellCheck={false}
                 />
               </div>
               <div className="font-library-caption">
-                {query ? 'Search results' : 'Popular fonts first'}
-                {results && <span>{results.count.toLocaleString()} families</span>}
+                {query ? tr('Search results') : tr('Popular fonts first')}
+                {results && (
+                  <span>
+                    {results.count.toLocaleString()} {tr('families')}
+                  </span>
+                )}
               </div>
               {busy && (
-                <div className="font-library-loading" role="status" aria-label="Loading fonts">
+                <div
+                  className="font-library-loading"
+                  role="status"
+                  aria-label={tr('Loading fonts')}
+                >
                   {[0, 1, 2, 3].map((i) => (
                     <Skeleton key={i} width="70%" height={22} />
                   ))}
                 </div>
               )}
               {!busy && (
-                <Combobox.List className="dropdown-list font-library-list" aria-label="Fonts">
+                <Combobox.List className="dropdown-list font-library-list" aria-label={tr('Fonts')}>
                   {(item: Item) => (
                     <Combobox.Item className="dropdown-option" key={item.value} value={item.value}>
                       <span className="dropdown-option-copy">
-                        <span>{item.label}</span>
+                        <span>{tr(item.label)}</span>
                         {item.family && (
                           <span className="dropdown-description">
-                            {item.family.weights.length} weight
-                            {item.family.weights.length === 1 ? '' : 's'}
-                            {item.family.styles.includes('italic') ? ' · Italic available' : ''}
+                            {tr(
+                              item.family.weights.length === 1
+                                ? '{count} weight'
+                                : '{count} weights',
+                              { count: item.family.weights.length },
+                            )}
+                            {item.family.styles.includes('italic') ? tr(' · Italic available') : ''}
                           </span>
                         )}
                       </span>
@@ -286,15 +314,15 @@ export function FontPicker({
                 </Combobox.List>
               )}
               {!busy && !items.length && (
-                <p className="dropdown-empty">No fonts found. Try a different name.</p>
+                <p className="dropdown-empty">{tr('No fonts found. Try a different name.')}</p>
               )}
               {highlight?.family && (
                 <div
                   className="font-library-preview"
                   style={preview ? (documentFontStyle(preview) as CSSProperties) : undefined}
-                  aria-label="Font preview"
+                  aria-label={tr('Font preview')}
                 >
-                  {preview ? 'The quick brown fox · 123' : 'Loading preview…'}
+                  {preview ? tr('The quick brown fox · 123') : tr('Loading preview…')}
                 </div>
               )}
               {results && (
@@ -308,18 +336,18 @@ export function FontPicker({
                   total={results.total}
                   onChange={(next) => setPage(next - 1)}
                   disabled={busy}
-                  label="Fonts pagination"
+                  label={tr('Fonts pagination')}
                 />
               )}
               {open && error && (
                 <div className="font-picker-error" role="alert">
-                  {error}
+                  {tr(error)}
                   <button
                     type="button"
                     className="text-link"
                     onClick={() => setRetry((n) => n + 1)}
                   >
-                    Retry font library
+                    {tr('Retry font library')}
                   </button>
                 </div>
               )}
@@ -330,7 +358,7 @@ export function FontPicker({
       {parsed && family?.id === parsed.id && (
         <div className="font-style-fields">
           <Dropdown
-            label="Font weight"
+            label={tr('Font weight')}
             value={String(parsed.weight)}
             options={family.weights.map((weight) => ({
               value: String(weight),
@@ -342,11 +370,11 @@ export function FontPicker({
             disabled={disabled || applying}
           />
           <Dropdown
-            label="Font style"
+            label={tr('Font style')}
             value={parsed.style}
             options={family.styles.map((style) => ({
               value: style,
-              label: style === 'italic' ? 'Italic' : 'Normal',
+              label: style === 'italic' ? tr('Italic') : tr('Normal'),
             }))}
             onValueChange={(style) =>
               void apply(`google:${parsed.id}:${parsed.weight}:${style}` as TextFont)
@@ -355,10 +383,10 @@ export function FontPicker({
           />
         </div>
       )}
-      {applying && <small role="status">Loading font…</small>}
+      {applying && <small role="status">{tr('Loading font…')}</small>}
       {!open && error && (
         <p className="font-picker-error" role="alert">
-          {error}
+          {tr(error)}
           <button
             type="button"
             className="text-link"
@@ -367,7 +395,7 @@ export function FontPicker({
               setOpen(true);
             }}
           >
-            Retry font library
+            {tr('Retry font library')}
           </button>
         </p>
       )}

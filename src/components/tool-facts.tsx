@@ -1,9 +1,11 @@
+import { translator, type PageLanguage } from '@/lib/i18n/translate';
 import Link from 'next/link';
 import { downloadFact, toolFacts } from '@/lib/tool-facts';
 import type { Tool } from '@/lib/tools';
 import styles from './tool-facts.module.css';
 
-export function ToolFacts({ tool }: { tool: Tool }) {
+export function ToolFacts({ tool, messages = {} }: PageLanguage & { tool: Tool }) {
+  const tr = translator(messages);
   const facts = toolFacts[tool.slug];
   if (!tool.available || !facts) return null;
   const rows = [
@@ -16,12 +18,12 @@ export function ToolFacts({ tool }: { tool: Tool }) {
   return (
     <section className={styles.facts} id="tool-facts" aria-labelledby="tool-facts-title">
       <div className={styles.intro}>
-        <span className="eyebrow">BEFORE YOU START</span>
-        <h2 id="tool-facts-title">{facts.question}</h2>
-        <p>{facts.answer}</p>
+        <span className="eyebrow">{tr('BEFORE YOU START')}</span>
+        <h2 id="tool-facts-title">{tr(facts.question)}</h2>
+        <p>{tr(facts.answer)}</p>
         {!['url-shortener', 'invoice-generator'].includes(tool.slug) && (
           <Link href="/guides/does-folio-upload-pdf-files">
-            Compare local processing and cloud saving
+            {tr('Compare local processing and cloud saving')}
           </Link>
         )}
       </div>
@@ -29,14 +31,14 @@ export function ToolFacts({ tool }: { tool: Tool }) {
         <dl className={styles.rows}>
           {rows.map(([label, value]) => (
             <div key={label}>
-              <dt>{label}</dt>
-              <dd>{value}</dd>
+              <dt>{tr(label)}</dt>
+              <dd>{tr(value)}</dd>
             </div>
           ))}
         </dl>
         <p className={styles.links}>
-          <Link href="/pricing">Current plans</Link>
-          <Link href="/privacy">Full privacy details</Link>
+          <Link href="/pricing">{tr('Current plans')}</Link>
+          <Link href="/privacy">{tr('Full privacy details')}</Link>
         </p>
       </div>
     </section>

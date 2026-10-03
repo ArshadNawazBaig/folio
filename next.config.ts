@@ -1,5 +1,6 @@
 import type { NextConfig } from 'next';
 import { contentSecurityPolicy } from './src/lib/security-headers';
+import { locales, translatedPrivatePaths } from './src/lib/i18n/config';
 
 const config: NextConfig = {
   distDir:
@@ -12,6 +13,7 @@ const config: NextConfig = {
   reactStrictMode: true,
   // Keep workspace-only CSS out of the public landing page's critical requests.
   experimental: {
+    globalNotFound: true,
     cssChunking: 'graph',
   },
   // Resolve public metadata in the head; late streamed listing metadata can survive article navigation.
@@ -113,6 +115,9 @@ const config: NextConfig = {
         '/documents',
         '/account',
         '/dashboard/:path*',
+        ...locales
+          .filter((locale) => locale !== 'en')
+          .flatMap((locale) => translatedPrivatePaths.map((path) => `/${locale}${path}/:path*`)),
         '/admin/:path*',
         '/support',
         '/maintenance',

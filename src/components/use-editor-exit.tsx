@@ -1,4 +1,5 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -18,6 +19,8 @@ export function useEditorExit({
   guest: boolean;
   save: () => Promise<void>;
 }) {
+  const tr = useUiTranslation();
+
   const router = useRouter();
   const dialog = useRef<HTMLDialogElement>(null);
   const keepEditing = useRef<HTMLButtonElement>(null);
@@ -199,10 +202,10 @@ export function useEditorExit({
         }}
       >
         <header className="dialog-header">
-          <h2 id="editor-exit-heading">Are you sure you want to leave?</h2>
+          <h2 id="editor-exit-heading">{tr('Are you sure you want to leave?')}</h2>
           <button
             className="icon-button"
-            aria-label="Close leave dialog"
+            aria-label={tr('Close leave dialog')}
             disabled={phase === 'leaving'}
             onClick={cancel}
           >
@@ -212,27 +215,32 @@ export function useEditorExit({
         <div className="dialog-body">
           <p id="editor-exit-description">
             {unsaved
-              ? 'We’ll save your latest changes before you leave the editor.'
+              ? tr('We’ll save your latest changes before you leave the editor.')
               : guest
-                ? 'Your document is saved in your guest dashboard. Guest files remain available for 24 hours in this browser.'
-                : 'Your document is saved. You can reopen it from your dashboard whenever you’re ready.'}
+                ? tr(
+                    'Your document is saved in your guest dashboard. Guest files remain available for 24 hours in this browser.',
+                  )
+                : tr(
+                    'Your document is saved. You can reopen it from your dashboard whenever you’re ready.',
+                  )}
           </p>
           {phase === 'save-error' && (
             <p className="error-message" role="alert">
-              Your latest changes couldn’t be saved. Try again, or keep editing. Leaving without
-              saving may lose those changes.
+              {tr(
+                'Your latest changes couldn’t be saved. Try again, or keep editing. Leaving without saving may lose those changes.',
+              )}
             </p>
           )}
           {phase === 'exit-error' && (
             <p className="error-message" role="alert">
-              This page couldn’t be opened. Your document is still here. Please try again.
+              {tr('This page couldn’t be opened. Your document is still here. Please try again.')}
             </p>
           )}
         </div>
         <footer className="dialog-footer">
           {phase === 'save-error' && (
             <button className="text-link" onClick={() => void confirm(true)}>
-              Leave without saving
+              {tr('Leave without saving')}
             </button>
           )}
           <button
@@ -241,17 +249,17 @@ export function useEditorExit({
             disabled={phase === 'leaving'}
             onClick={cancel}
           >
-            Keep editing
+            {tr('Keep editing')}
           </button>
           <button className="button primary" disabled={working} onClick={() => void confirm()}>
             {working ? <Loader2 size={16} className="spin" /> : <ArrowRight size={16} />}
             {phase === 'saving'
-              ? 'Saving…'
+              ? tr('Saving…')
               : phase === 'leaving'
-                ? 'Leaving…'
+                ? tr('Leaving…')
                 : phase === 'save-error'
-                  ? 'Retry & leave'
-                  : 'Leave editor'}
+                  ? tr('Retry & leave')
+                  : tr('Leave editor')}
           </button>
         </footer>
       </dialog>

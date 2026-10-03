@@ -1,4 +1,7 @@
+'use client';
 import Link from 'next/link';
+import { useUiTranslation, useUiLocale } from './ui-language';
+import { localizedHref } from '@/lib/i18n/translate';
 import { ArrowRight } from 'lucide-react';
 import type { ToolSummary } from '@/lib/tool-summary';
 import { ToolIcon } from './icon';
@@ -28,12 +31,15 @@ export function ToolGrid({
   className?: string;
   cardClassName?: string;
 }) {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
   return (
     <div className={`${s.grid} ${className}`}>
       {tools.map((tool) => (
         <Link
           prefetch={false}
-          href={`/${tool.slug}`}
+          href={href(`/${tool.slug}`)}
           className={`tool-card ${s.card} ${cardClassName}`}
           key={tool.slug}
         >
@@ -42,8 +48,8 @@ export function ToolGrid({
           </span>
           <span className={s.copy}>
             <strong>{tool.name}</strong>
-            <span>{descriptions[tool.slug] || tool.short}</span>
-            {!tool.available && <small>Coming soon</small>}
+            <span>{tr(descriptions[tool.slug] || tool.short)}</span>
+            {!tool.available && <small>{tr('Coming soon')}</small>}
           </span>
           <ArrowRight size={18} aria-hidden="true" />
         </Link>

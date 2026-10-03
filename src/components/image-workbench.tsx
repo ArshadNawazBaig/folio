@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowDown,
@@ -32,6 +34,8 @@ import s from './tool-workbench.module.css';
 type Source = { id: string; file: File };
 type Result = ImageResult & { id: string; name: string };
 export function ImageWorkbench({ tool }: { tool: Tool }) {
+  const tr = useUiTranslation();
+
   const enhancement = tool.slug === 'enhance-image';
   const compression = tool.slug === 'compress-images';
   const sizeLabel = compression ? compressionSize : formatBytes;
@@ -101,14 +105,14 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
     setError('');
     const accepted = (tool.accept || '').split(',');
     if (files.length + incoming.length > 20) {
-      setError('Add up to 20 images per batch.');
+      setError(tr('Add up to 20 images per batch.'));
       return;
     }
     if (
       files.reduce((n, f) => n + f.file.size, 0) + incoming.reduce((n, f) => n + f.size, 0) >
       (compression ? 150_000_000 : 150 * 1024 * 1024)
     ) {
-      setError('Keep the batch under 150 MB.');
+      setError(tr('Keep the batch under 150 MB.'));
       return;
     }
     const invalid = incoming.find(
@@ -118,7 +122,12 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
         f.size > (compression ? compressionFileLimit : 50 * 1024 * 1024),
     );
     if (invalid) {
-      setError(`${invalid.name}: choose a supported image of up to ${compression ? 35 : 50} MB.`);
+      setError(
+        tr('{value0}: choose a supported image of up to {value1} MB.', {
+          value0: invalid.name,
+          value1: compression ? 35 : 50,
+        }),
+      );
       return;
     }
     const next = incoming.map((file) => ({ id: crypto.randomUUID(), file }));
@@ -168,18 +177,27 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
       setResults(next);
       if (Object.keys(failures).length)
         setError(
-          `${Object.keys(failures).length} image(s) could not be processed. Select each image to see its error.${next.length ? ' Successful results are available to download.' : ''}`,
+          tr(
+            '{value0} image(s) could not be processed. Select each image to see its error.{value1}',
+            {
+              value0: Object.keys(failures).length,
+              value1: next.length ? ' Successful results are available to download.' : '',
+            },
+          ),
         );
       setTab('result');
       setNotice(
         next.length
-          ? `${next.length} ${next.length === 1 ? 'image is' : 'images are'} ready. Review the result before downloading.`
+          ? tr('{value0} {value1} ready. Review the result before downloading.', {
+              value0: next.length,
+              value1: next.length === 1 ? 'image is' : 'images are',
+            })
           : '',
       );
     } catch (e) {
       if (abort.current !== controller) return;
       if (!controller.signal.aborted) setError(friendlyError(e));
-      else setNotice('Processing cancelled. You can adjust the settings and try again.');
+      else setNotice(tr('Processing cancelled. You can adjust the settings and try again.'));
     } finally {
       if (abort.current === controller) {
         setBusy(false);
@@ -216,14 +234,14 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
   }
   return (
     <div className={s.workbench}>
-      <ol className={s.steps} aria-label="Image workflow">
+      <ol className={s.steps} aria-label={tr('Image workflow')}>
         {['Choose images', 'Adjust & preview', 'Download'].map((label, i) => (
           <li
             key={label}
             aria-current={i === (results.length ? 2 : files.length ? 1 : 0) ? 'step' : undefined}
           >
             <span>{i + 1}</span>
-            {label}
+            {tr(label)}
           </li>
         ))}
       </ol>
@@ -244,8 +262,9 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
       {(compression || enhancement) && (
         <p className={s.privacy}>
           <ShieldCheck size={17} aria-hidden="true" />
-          Processed on your device. Images are not uploaded or saved by Folio. Up to 20 files per
-          batch.
+          {tr(
+            'Processed on your device. Images are not uploaded or saved by Folio. Up to 20 files per batch.',
+          )}
         </p>
       )}
       {!files.length ? (
@@ -266,9 +285,9 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
         <div className={s.grid}>
           <div className={s.controls}>
             <div className={s.heading}>
-              <h2>Your images</h2>
+              <h2>{tr('Your images')}</h2>
               <button className="button secondary" onClick={clearAll} disabled={exporting}>
-                Clear all
+                {tr('Clear all')}
               </button>
             </div>
             <div className={s.fileList}>
@@ -280,7 +299,7 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                     <button
                       className={s.fileSelect}
                       onClick={() => setSelected(id)}
-                      aria-label={`Preview ${file.name}`}
+                      aria-label={tr('Preview {value0}', { value0: file.name })}
                     >
                       <img src={sources[id]} alt="" />
                       <span>
@@ -288,9 +307,9 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                         <small>
                           {sizeLabel(file.size)}
                           {output
-                            ? ` → ${sizeLabel(output.blob.size)}`
+                            ? tr(' → {value0}', { value0: sizeLabel(output.blob.size) })
                             : fileErrors[id]
-                              ? ' · Needs attention'
+                              ? tr(' · Needs attention')
                               : ''}
                         </small>
                       </span>
@@ -298,7 +317,7 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                     <div className={s.fileActions}>
                       <button
                         className="icon-button"
-                        aria-label={`Move ${file.name} up`}
+                        aria-label={tr('Move {value0} up', { value0: file.name })}
                         disabled={i === 0 || busy || exporting}
                         onClick={() => move(i, -1)}
                       >
@@ -306,7 +325,7 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                       </button>
                       <button
                         className="icon-button"
-                        aria-label={`Move ${file.name} down`}
+                        aria-label={tr('Move {value0} down', { value0: file.name })}
                         disabled={i === files.length - 1 || busy || exporting}
                         onClick={() => move(i, 1)}
                       >
@@ -314,7 +333,7 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                       </button>
                       <button
                         className="icon-button"
-                        aria-label={`Remove ${file.name}`}
+                        aria-label={tr('Remove {value0}', { value0: file.name })}
                         disabled={busy || exporting}
                         onClick={() => {
                           setFiles(files.filter((f) => f.id !== id));
@@ -335,12 +354,12 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
               <Pagination
                 {...pagination}
                 disabled={busy || exporting}
-                label="Image files pagination"
+                label={tr('Image files pagination')}
               />
             )}
             <label className={s.add}>
               <Plus size={16} />
-              Add images
+              {tr('Add images')}
               <input
                 type="file"
                 accept={tool.accept}
@@ -359,53 +378,53 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                 disabled={busy || exporting}
                 hidden={compression && !!settings.targetBytes}
               >
-                <legend>Output settings</legend>
+                <legend>{tr('Output settings')}</legend>
                 {!compression && (
                   <Dropdown
-                    label="File format"
+                    label={tr('File format')}
                     value={settings.format}
                     onValueChange={(v) => change('format', v as ImageSettings['format'])}
                     disabled={
                       busy || exporting || ['jpg-to-webp', 'webp-to-jpg'].includes(tool.slug)
                     }
                     options={[
-                      { value: 'original', label: 'Keep source format' },
-                      { value: 'image/jpeg', label: 'JPG — compatible, white background' },
-                      { value: 'image/png', label: 'PNG — lossless, transparency' },
-                      { value: 'image/webp', label: 'WEBP — efficient, transparency' },
+                      { value: 'original', label: tr('Keep source format') },
+                      { value: 'image/jpeg', label: tr('JPG — compatible, white background') },
+                      { value: 'image/png', label: tr('PNG — lossless, transparency') },
+                      { value: 'image/webp', label: tr('WEBP — efficient, transparency') },
                     ]}
                   />
                 )}
                 <Dropdown
-                  label="Image dimensions"
+                  label={tr('Image dimensions')}
                   value={String(settings.maxDimension)}
                   onValueChange={(v) => change('maxDimension', Number(v))}
                   disabled={busy || exporting}
                   options={[
-                    { value: '0', label: 'Keep original dimensions' },
-                    { value: '2560', label: 'Fit within 2560 pixels' },
-                    { value: '1920', label: 'Fit within 1920 pixels' },
-                    { value: '1280', label: 'Fit within 1280 pixels' },
+                    { value: '0', label: tr('Keep original dimensions') },
+                    { value: '2560', label: tr('Fit within 2560 pixels') },
+                    { value: '1920', label: tr('Fit within 1920 pixels') },
+                    { value: '1280', label: tr('Fit within 1280 pixels') },
                   ]}
                 />
                 <label className={s.slider}>
-                  JPG / WEBP quality <output>{Math.round(settings.quality * 100)}%</output>
+                  {tr('JPG / WEBP quality')} <output>{Math.round(settings.quality * 100)}%</output>
                   <input
                     type="range"
-                    aria-label="JPG / WEBP quality"
+                    aria-label={tr('JPG / WEBP quality')}
                     min="40"
                     max="100"
                     value={Math.round(settings.quality * 100)}
                     onChange={(e) => change('quality', Number(e.target.value) / 100)}
                   />
-                  <small>PNG uses lossless encoding.</small>
+                  <small>{tr('PNG uses lossless encoding.')}</small>
                 </label>
               </fieldset>
             )}
             <div className={s.actions}>
               <button className="button primary full" onClick={run} disabled={busy || exporting}>
                 {busy ? <Loader2 size={18} className="spin" /> : <ImageIcon size={18} />}{' '}
-                {busy ? 'Processing…' : tool.action}
+                {busy ? tr('Processing…') : tool.action}
               </button>
               {busy && (
                 <button
@@ -415,35 +434,35 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                     setBusy(false);
                   }}
                 >
-                  Cancel processing
+                  {tr('Cancel processing')}
                 </button>
               )}
             </div>
             {busy && (
               <div className={s.progress}>
-                <progress max={files.length} value={progress} aria-label="Images processed" />
+                <progress max={files.length} value={progress} aria-label={tr('Images processed')} />
                 <span role="status">
-                  {progress} of {files.length} images processed
+                  {progress} {tr('of')} {files.length} {tr('images processed')}
                 </span>
               </div>
             )}
           </div>
           <div className={s.preview}>
             <div className={s.previewToolbar}>
-              <span>Preview</span>
-              <div className={s.tabs} aria-label="Compare image">
+              <span>{tr('Preview')}</span>
+              <div className={s.tabs} aria-label={tr('Compare image')}>
                 <button
                   aria-pressed={tab === 'original' || !result}
                   onClick={() => setTab('original')}
                 >
-                  Original
+                  {tr('Original')}
                 </button>
                 <button
                   aria-pressed={tab === 'result' && !!result}
                   disabled={!result}
                   onClick={() => setTab('result')}
                 >
-                  Result
+                  {tr('Result')}
                 </button>
               </div>
             </div>
@@ -451,7 +470,10 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
               {current && (
                 <img
                   src={tab === 'result' && result ? outputs[current.id] : sources[current.id]}
-                  alt={`${tab === 'result' && result ? 'Processed' : 'Original'} preview of ${current.file.name}`}
+                  alt={tr('{value0} preview of {value1}', {
+                    value0: tab === 'result' && result ? 'Processed' : 'Original',
+                    value1: current.file.name,
+                  })}
                 />
               )}
             </div>
@@ -462,27 +484,32 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                   <>
                     <span>
                       {result.originalWidth} × {result.originalHeight} → {result.width} ×{' '}
-                      {result.height} pixels
+                      {result.height} {tr('pixels')}
                     </span>
                     <span>
                       {sizeLabel(current.file.size)} → {sizeLabel(result.blob.size)}
                       {result.blob.size < current.file.size
-                        ? ` · ${Math.round((1 - result.blob.size / current.file.size) * 100)}% smaller`
+                        ? tr(' · {value0}% smaller', {
+                            value0: Math.round((1 - result.blob.size / current.file.size) * 100),
+                          })
                         : ''}
                     </span>
                     {compression && (
                       <span>
                         {imageExtension(result.blob.type).toUpperCase()} ·{' '}
-                        {result.blob.size.toLocaleString()} bytes
+                        {result.blob.size.toLocaleString()} {tr('bytes')}
                         {result.targetBytes
-                          ? ` · Within ${compressionSize(result.targetBytes)} limit`
+                          ? tr(' · Within {value0} limit', {
+                              value0: compressionSize(result.targetBytes),
+                            })
                           : ''}
                       </span>
                     )}
                     {result.keptOriginal && (
                       <p>
-                        Your original already meets these settings. We kept it at its original
-                        quality.
+                        {tr(
+                          'Your original already meets these settings. We kept it at its original quality.',
+                        )}
                       </p>
                     )}
                     <button
@@ -496,13 +523,13 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
                       }}
                     >
                       <Download size={16} />
-                      Download this image
+                      {tr('Download this image')}
                     </button>
                   </>
                 ) : (
                   <span>
                     {fileErrors[current.id] ||
-                      'Apply settings to compare the actual exported image.'}
+                      tr('Apply settings to compare the actual exported image.')}
                   </span>
                 )}
               </div>
@@ -512,22 +539,23 @@ export function ImageWorkbench({ tool }: { tool: Tool }) {
       )}
       {error && (
         <div className="error-message processor-message" role="alert">
-          {error}
+          {tr(error)}
         </div>
       )}
       {notice && (
         <p className={s.notice} role="status">
-          {notice}
+          {tr(notice)}
         </p>
       )}
       {!!results.length && (
         <div className={s.footer}>
           <span>
-            <Check size={18} /> {results.length} {results.length === 1 ? 'image' : 'images'} ready
+            <Check size={18} /> {results.length} {results.length === 1 ? tr('image') : tr('images')}{' '}
+            {tr('ready')}
           </span>
           <button className="button primary" onClick={exportAll} disabled={exporting}>
             <Download size={17} />
-            {results.length > 1 ? 'Download all (ZIP)' : 'Download image'}
+            {results.length > 1 ? tr('Download all (ZIP)') : tr('Download image')}
           </button>
         </div>
       )}

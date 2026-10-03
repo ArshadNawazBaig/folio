@@ -1,16 +1,22 @@
 'use client';
+import { useUiTranslation, useLocalizedHref } from '@/components/ui-language';
+
 import Link from 'next/link';
 import { ArrowRight, Check, Gem, LockKeyhole } from 'lucide-react';
 export function ProUpgrade({ compact = false }: { compact?: boolean }) {
+  const tr = useUiTranslation();
+  const href = useLocalizedHref();
+
   return (
     <div className={`pro-upgrade ${compact ? 'compact' : ''}`}>
       <span className="pro-badge">
-        <Gem size={13} /> FOLIO PRO
+        <Gem size={13} /> {tr('FOLIO PRO')}
       </span>
-      <h2>Go beyond the finishing touches.</h2>
+      <h2>{tr('Go beyond the finishing touches.')}</h2>
       <p>
-        Edit existing PDF text, find and replace words, and protect your finished document with a
-        password.
+        {tr(
+          'Edit existing PDF text, find and replace words, and protect your finished document with a password.',
+        )}
       </p>
       {!compact && (
         <ul>
@@ -21,17 +27,18 @@ export function ProUpgrade({ compact = false }: { compact?: boolean }) {
           ].map((item) => (
             <li key={item}>
               <Check size={16} />
-              {item}
+              {tr(item)}
             </li>
           ))}
         </ul>
       )}
-      <Link className="button primary" href="/pricing">
-        Explore Pro pricing <ArrowRight size={16} />
+      <Link className="button primary" href={href('/pricing')}>
+        {tr('Explore Pro pricing')} <ArrowRight size={16} />
       </Link>
-      <small>Review the current price and renewal terms before checkout.</small>
+      <small>{tr('Review the current price and renewal terms before checkout.')}</small>
       <small>
-        <LockKeyhole size={12} /> Edit and preview free. Pro is required for finished downloads.
+        <LockKeyhole size={12} />{' '}
+        {tr('Edit and preview free. Pro is required for finished downloads.')}
       </small>
     </div>
   );

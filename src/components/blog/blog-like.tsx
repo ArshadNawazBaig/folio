@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Heart, Link as LinkIcon, Check } from 'lucide-react';
@@ -15,6 +17,8 @@ export function BlogLike({
   slug: string;
   initialCount: number;
 }) {
+  const tr = useUiTranslation();
+
   const { user, loading } = useAccount();
   const userId = user?.id;
   const [count, setCount] = useState(initialCount),
@@ -63,7 +67,7 @@ export function BlogLike({
       setLiked(data.liked);
       setCount(data.count);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Your like could not be saved.');
+      setError(e instanceof Error ? e.message : tr('Your like could not be saved.'));
     } finally {
       setBusy(false);
     }
@@ -71,14 +75,14 @@ export function BlogLike({
   return (
     <div className={s.engagement}>
       <div>
-        <span className={s.eyebrow}>A GOOD READ?</span>
-        <p>A little appreciation goes a long way.</p>
+        <span className={s.eyebrow}>{tr('A GOOD READ?')}</span>
+        <p>{tr('A little appreciation goes a long way.')}</p>
       </div>
       <div className={s.engagementActions}>
         {user ? (
           <button
             className={`${s.likeButton} ${liked ? s.liked : ''}`}
-            aria-label={liked ? 'Unlike this post' : 'Like this post'}
+            aria-label={liked ? tr('Unlike this post') : tr('Like this post')}
             aria-pressed={liked}
             disabled={busy || !ready}
             onClick={() => void like()}
@@ -90,11 +94,11 @@ export function BlogLike({
           <Link
             className={s.likeButton}
             href={signInHref(`/blog/${slug}`)}
-            aria-label={`Sign in to like this post. ${count} likes`}
+            aria-label={tr('Sign in to like this post. {value0} likes', { value0: count })}
           >
             <Heart size={18} />
             <span>{count}</span>
-            <span>Like</span>
+            <span>{tr('Like')}</span>
           </Link>
         )}
         <button
@@ -105,17 +109,17 @@ export function BlogLike({
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             } catch {
-              setError('Copy the address from your browser to share this post.');
+              setError(tr('Copy the address from your browser to share this post.'));
             }
           }}
         >
           {copied ? <Check size={17} /> : <LinkIcon size={17} />}{' '}
-          {copied ? 'Link copied' : 'Copy link'}
+          {copied ? tr('Link copied') : tr('Copy link')}
         </button>
       </div>
       {error && (
         <p role="alert" className="error-message">
-          {error}
+          {tr(error)}
         </p>
       )}
     </div>

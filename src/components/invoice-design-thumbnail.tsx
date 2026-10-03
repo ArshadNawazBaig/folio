@@ -1,3 +1,5 @@
+'use client';
+import { useUiTranslation } from './ui-language';
 import { invoiceDesignColors, type InvoiceDesign } from '@/lib/invoice-designs';
 
 /** Small vector previews use the same design recipe as the full invoice. */
@@ -8,6 +10,7 @@ export function InvoiceDesignThumbnail({
   design: InvoiceDesign;
   accent: string;
 }) {
+  const tr = useUiTranslation();
   const colors = invoiceDesignColors(accent);
   const dark = design.header === 'dark',
     banner = design.header === 'banner';
@@ -53,7 +56,7 @@ export function InvoiceDesignThumbnail({
         textAnchor={centered ? 'middle' : undefined}
         fill={titleColor}
       >
-        A RECORD OF GOOD WORK
+        {tr('A RECORD OF GOOD WORK')}
       </text>
       <text
         x={titleX}
@@ -64,7 +67,7 @@ export function InvoiceDesignThumbnail({
         textAnchor={centered ? 'middle' : undefined}
         fill={titleColor}
       >
-        INVOICE
+        {tr('INVOICE')}
       </text>
       {(design.header === 'masthead' || centered) && <path d="M18 54H192" stroke={accent} />}
       {design.header === 'masthead' && <path d="M18 57H192" stroke={accent} strokeWidth="0.5" />}
@@ -73,19 +76,19 @@ export function InvoiceDesignThumbnail({
           INV-001
         </text>
         <text x="192" y="75" textAnchor="end">
-          DUE IN 14 DAYS
+          {tr('DUE IN 14 DAYS')}
         </text>
         <text x="18" y="95" fill={colors.text}>
-          FROM
+          {tr('FROM')}
         </text>
         <text x="116" y="95" fill={colors.text}>
-          BILL TO
+          {tr('BILL TO')}
         </text>
         <text x="18" y="105">
-          Your business
+          {tr('Your business')}
         </text>
         <text x="116" y="105">
-          Your customer
+          {tr('Your customer')}
         </text>
       </g>
       <path d="M18 113H75 M116 113H173" stroke="#d0d3cc" strokeWidth="2" />
@@ -104,10 +107,10 @@ export function InvoiceDesignThumbnail({
         fill={design.table === 'dark' ? '#ffffff' : '#454b42'}
       >
         <text x="23" y="138">
-          DESCRIPTION
+          {tr('DESCRIPTION')}
         </text>
         <text x="187" y="138" textAnchor="end">
-          AMOUNT
+          {tr('AMOUNT')}
         </text>
       </g>
       {[0, 1, 2].map((row) => (
@@ -149,7 +152,7 @@ export function InvoiceDesignThumbnail({
         fontSize="5.5"
         fill={design.balance === 'filled' ? colors.onAccent : colors.text}
       >
-        BALANCE
+        {tr('BALANCE')}
       </text>
       <text
         x="187"

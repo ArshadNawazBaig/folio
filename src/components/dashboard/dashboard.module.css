@@ -61,6 +61,14 @@
 .navigation a:hover {
   background: #292929;
 }
+.navigation a > svg {
+  flex-shrink: 0;
+}
+.navigation a > span {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 .navigation a[aria-current='page'] {
   background: #333;
   color: var(--accent);
@@ -273,6 +281,10 @@
   gap: 16px;
   margin-left: auto;
   flex-shrink: 0;
+}
+.topbarActions > details > nav a {
+  color: var(--ink);
+  font-weight: 400;
 }
 .topbar .toolsLink,
 .topbar .adminLink {
@@ -951,6 +963,9 @@
     padding: 10px 12px;
     flex-shrink: 0;
   }
+  .navigation a > span {
+    white-space: nowrap;
+  }
   .mainColumn {
     padding-top: 0;
   }
@@ -986,6 +1001,11 @@
   }
   .topbarActions {
     gap: 6px;
+  }
+  .topbarActions > details > nav {
+    position: fixed;
+    top: calc(var(--topbar-height) + 8px);
+    right: 12px;
   }
   .toolsLink > span,
   .adminLink > span {

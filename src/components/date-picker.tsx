@@ -1,4 +1,5 @@
 'use client';
+import { useUiTranslation, useUiLocale } from '@/components/ui-language';
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { Popover } from '@base-ui/react/popover';
@@ -61,6 +62,9 @@ export function DatePicker({
   name,
   placeholder = 'Choose a date',
 }: DatePickerProps) {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null),
     popup = useRef<HTMLDivElement>(null);
@@ -76,7 +80,7 @@ export function DatePicker({
   const month = active.slice(0, 7),
     year = Number(active.slice(0, 4));
   const days = calendarGrid(month);
-  const monthTitle = `${months[Number(active.slice(5, 7)) - 1]} ${year}`;
+  const monthTitle = `${tr(months[Number(active.slice(5, 7)) - 1])} ${year}`;
   const firstYear = Math.max(Number(lower.slice(0, 4)), year - 100);
   const lastYear = Math.min(Number(upper.slice(0, 4)), year + 100);
   const yearOptions = Array.from({ length: Math.max(0, lastYear - firstYear + 1) }, (_, index) => ({
@@ -141,11 +145,16 @@ export function DatePicker({
   }
   function applyTyped() {
     if (!calendarDate(typed)) {
-      setError('Enter a real date in YYYY-MM-DD format.');
+      setError(tr('Enter a real date in YYYY-MM-DD format.'));
       return;
     }
     if (!allowed(typed)) {
-      setError(`Choose a date between ${calendarLabel(lower)} and ${calendarLabel(upper)}.`);
+      setError(
+        tr('Choose a date between {value0} and {value1}.', {
+          value0: calendarLabel(lower, false, locale),
+          value1: calendarLabel(upper, false, locale),
+        }),
+      );
       return;
     }
     select(typed);
@@ -167,7 +176,7 @@ export function DatePicker({
           aria-describedby={`${id}-value${hint ? ` ${id}-hint` : ''}`}
         >
           <span id={`${id}-value`} data-placeholder={!value || undefined}>
-            {calendarLabel(value) || placeholder}
+            {calendarLabel(value, false, locale) || tr(placeholder)}
           </span>
           <CalendarDays size={17} aria-hidden="true" />
         </Popover.Trigger>
@@ -181,17 +190,19 @@ export function DatePicker({
             <Popover.Popup
               ref={popup}
               className={s.popup}
-              aria-label={`Choose ${label.toLowerCase()}`}
+              aria-label={tr('Choose {value0}', { value0: label.toLowerCase() })}
               initialFocus={() =>
                 popup.current?.querySelector<HTMLButtonElement>(`[data-date="${active}"]`) ?? false
               }
               finalFocus={trigger}
             >
               <div className={s.heading}>
-                <Popover.Title>Choose {label.toLowerCase()}</Popover.Title>
+                <Popover.Title>
+                  {tr('Choose')} {label.toLowerCase()}
+                </Popover.Title>
                 <Popover.Close
                   className={s.iconButton}
-                  aria-label={`Close ${label.toLowerCase()} calendar`}
+                  aria-label={tr('Close {value0} calendar', { value0: label.toLowerCase() })}
                 >
                   <X size={16} />
                 </Popover.Close>
@@ -200,14 +211,14 @@ export function DatePicker({
                 <button
                   type="button"
                   className={s.iconButton}
-                  aria-label="Previous month"
+                  aria-label={tr('Previous month')}
                   disabled={!previous || previous.slice(0, 7) < lower.slice(0, 7)}
                   onClick={() => move(previous)}
                 >
                   <ChevronLeft size={17} />
                 </button>
                 <Dropdown
-                  label="Calendar month"
+                  label={tr('Calendar month')}
                   hideLabel
                   value={active.slice(5, 7)}
                   options={monthOptions}
@@ -217,13 +228,13 @@ export function DatePicker({
                   }
                 />
                 <Dropdown
-                  label="Calendar year"
+                  label={tr('Calendar year')}
                   hideLabel
                   value={active.slice(0, 4)}
                   options={yearOptions}
                   portalContainer={portalContainer}
-                  searchPlaceholder="Find year…"
-                  searchLabel="Find calendar year"
+                  searchPlaceholder={tr('Find year…')}
+                  searchLabel={tr('Find calendar year')}
                   onValueChange={(value) =>
                     move(calendarAddMonths(active, (Number(value) - year) * 12))
                   }
@@ -231,7 +242,7 @@ export function DatePicker({
                 <button
                   type="button"
                   className={s.iconButton}
-                  aria-label="Next month"
+                  aria-label={tr('Next month')}
                   disabled={!next || next.slice(0, 7) > upper.slice(0, 7)}
                   onClick={() => move(next)}
                 >
@@ -245,8 +256,8 @@ export function DatePicker({
                 <thead>
                   <tr>
                     {weekdays.map((day) => (
-                      <th key={day} scope="col" abbr={day}>
-                        {day.slice(0, 2)}
+                      <th key={day} scope="col" abbr={tr(day)}>
+                        {tr(day).slice(0, 2)}
                       </th>
                     ))}
                   </tr>
@@ -264,7 +275,7 @@ export function DatePicker({
                               disabled={!allowed(date)}
                               data-outside={date.slice(0, 7) !== month || undefined}
                               data-selected={date === value || undefined}
-                              aria-label={calendarLabel(date, true)}
+                              aria-label={calendarLabel(date, true, locale)}
                               aria-current={date === today ? 'date' : undefined}
                               tabIndex={date === active ? 0 : -1}
                               onKeyDown={(event) => keyDown(event, date)}
@@ -279,20 +290,22 @@ export function DatePicker({
                   ))}
                 </tbody>
               </table>
-              <p className={s.keyboardHelp}>Arrow keys move days · Page Up / Down moves months</p>
+              <p className={s.keyboardHelp}>
+                {tr('Arrow keys move days · Page Up / Down moves months')}
+              </p>
               <div className={s.manual}>
                 <label htmlFor={`${id}-typed`}>
-                  Enter a date <span>YYYY-MM-DD</span>
+                  {tr('Enter a date')} <span>{tr('YYYY-MM-DD')}</span>
                 </label>
                 <div>
                   <input
                     id={`${id}-typed`}
                     value={typed}
-                    placeholder="YYYY-MM-DD"
+                    placeholder={tr('YYYY-MM-DD')}
                     inputMode="text"
                     autoComplete="off"
                     maxLength={10}
-                    aria-label={`${label} in YYYY-MM-DD format`}
+                    aria-label={tr('{value0} in YYYY-MM-DD format', { value0: label })}
                     aria-invalid={!!error}
                     aria-describedby={error ? `${id}-error` : undefined}
                     onChange={(event) => {
@@ -307,22 +320,22 @@ export function DatePicker({
                     }}
                   />
                   <button type="button" onClick={applyTyped}>
-                    Apply date
+                    {tr('Apply date')}
                   </button>
                 </div>
                 {error && (
                   <p id={`${id}-error`} className={s.error} role="alert">
-                    {error}
+                    {tr(error)}
                   </p>
                 )}
               </div>
               <div className={s.actions}>
                 <button type="button" disabled={!allowed(today)} onClick={() => select(today)}>
-                  Today
+                  {tr('Today')}
                 </button>
                 {clearable && (
                   <button type="button" disabled={!value} onClick={() => select('')}>
-                    Clear date
+                    {tr('Clear date')}
                   </button>
                 )}
               </div>
@@ -354,6 +367,8 @@ export function DateTimePicker({
   onValueChange,
   disabled,
 }: Pick<DatePickerProps, 'label' | 'value' | 'onValueChange' | 'disabled'>) {
+  const tr = useUiTranslation();
+
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
   const date = value.slice(0, 10),
     hour = value.slice(11, 13) || '09',
@@ -365,12 +380,12 @@ export function DateTimePicker({
         label={label}
         value={date}
         disabled={disabled}
-        placeholder="Publish now"
+        placeholder={tr('Publish now')}
         onValueChange={(next) => onValueChange(next ? `${next}T${hour}:${minute}` : '')}
       />
       <div className={s.timeFields}>
         <Dropdown
-          label="Hour (24-hour)"
+          label={tr('Hour (24-hour)')}
           value={hour}
           options={hours}
           portalContainer={portalContainer}
@@ -378,7 +393,7 @@ export function DateTimePicker({
           onValueChange={(next) => onValueChange(`${date}T${next}:${minute}`)}
         />
         <Dropdown
-          label="Minute"
+          label={tr('Minute')}
           value={minute}
           options={minutes}
           portalContainer={portalContainer}
@@ -387,11 +402,11 @@ export function DateTimePicker({
         />
       </div>
       <p className={s.hint}>
-        Leave the date empty to publish now. Times use your device’s local time zone.
+        {tr('Leave the date empty to publish now. Times use your device’s local time zone.')}
       </p>
       {value && !validLocalDateTime(value) && (
         <p className={s.error} role="alert">
-          This local time is unavailable. Choose another time.
+          {tr('This local time is unavailable. Choose another time.')}
         </p>
       )}
     </div>

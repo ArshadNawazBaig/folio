@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation, useUiLocale } from './ui-language';
+import { localizedHref } from '@/lib/i18n/translate';
 import Link from 'next/link';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
@@ -30,17 +32,23 @@ import { ShortLinkQr } from './short-link-qr';
 import s from './short-links.module.css';
 
 export function ShortLinks({ manage = false }: { manage?: boolean }) {
+  const tr = useUiTranslation();
+
   const { user, loading } = useAccount();
   if (loading && !user)
     return (
       <div className={s.card} role="status">
-        Loading your account…
+        {tr('Loading your account…')}
       </div>
     );
   return <LinkWorkspace key={user?.id || 'guest'} manage={manage} />;
 }
 
 function LinkWorkspace({ manage }: { manage: boolean }) {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
+
   const { user, access, loading, error: accountError } = useAccount();
   const [destination, setDestination] = useState('');
   const [title, setTitle] = useState('');
@@ -83,14 +91,14 @@ function LinkWorkspace({ manage }: { manage: boolean }) {
               <Link2 size={23} />
             </span>
             <div>
-              <h2 id="shorten-heading">A long link. A little simpler.</h2>
-              <p>Paste, shorten, and share in seconds.</p>
+              <h2 id="shorten-heading">{tr('A long link. A little simpler.')}</h2>
+              <p>{tr('Paste, shorten, and share in seconds.')}</p>
             </div>
           </div>
           <form onSubmit={create}>
             <fieldset disabled={busy || loading || !user} className={s.fields}>
               <label>
-                Destination URL
+                {tr('Destination URL')}
                 <input
                   name="destination"
                   type="text"
@@ -105,20 +113,20 @@ function LinkWorkspace({ manage }: { manage: boolean }) {
               </label>
               <div className={s.fieldRow}>
                 <label>
-                  Title <span className={s.optional}>(optional)</span>
+                  {tr('Title')} <span className={s.optional}>{tr('(optional)')}</span>
                   <input
                     name="title"
-                    placeholder="A name to find it later"
+                    placeholder={tr('A name to find it later')}
                     maxLength={100}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
                 </label>
                 <label>
-                  Custom alias <span className={s.pro}>PRO</span>
+                  {tr('Custom alias')} <span className={s.pro}>{tr('PRO')}</span>
                   <input
                     name="alias"
-                    placeholder={access.pro ? 'my-link' : 'Available with Pro'}
+                    placeholder={access.pro ? tr('my-link') : tr('Available with Pro')}
                     disabled={!access.pro}
                     aria-describedby="alias-hint"
                     maxLength={48}
@@ -131,70 +139,77 @@ function LinkWorkspace({ manage }: { manage: boolean }) {
               </div>
               <p id="alias-hint" className={s.hint}>
                 {access.pro
-                  ? 'Leave the alias blank for a random link, or choose 3–48 letters, numbers, or hyphens. Aliases cannot be changed or reused.'
-                  : 'Free links get a random alias. Choose your own with Folio Pro.'}
+                  ? tr(
+                      'Leave the alias blank for a random link, or choose 3–48 letters, numbers, or hyphens. Aliases cannot be changed or reused.',
+                    )
+                  : tr('Free links get a random alias. Choose your own with Folio Pro.')}
               </p>
             </fieldset>
             <div className={s.formFooter}>
               {user ? (
                 <button className="button primary" disabled={busy || loading || !!accountError}>
                   <Plus size={18} />
-                  {busy ? 'Creating link…' : 'Shorten link'}
+                  {busy ? tr('Creating link…') : tr('Shorten link')}
                 </button>
               ) : (
                 <Link
                   className="button primary"
-                  href={signInHref(manage ? '/dashboard?view=links' : '/url-shortener')}
+                  href={signInHref(href(manage ? '/dashboard?view=links' : '/url-shortener'))}
                 >
-                  Sign in to shorten <ArrowUpRight size={17} />
+                  {tr('Sign in to shorten')} <ArrowUpRight size={17} />
                 </Link>
               )}
               <span>
                 {user
-                  ? 'Automatically saved to My links.'
-                  : 'A free account keeps your links together.'}
+                  ? tr('Automatically saved to My links.')
+                  : tr('A free account keeps your links together.')}
               </span>
             </div>
             {(error || accountError) && (
               <p className="error-message" role="alert">
-                {error || accountError}
+                {tr(error || accountError)}
               </p>
             )}
           </form>
         </div>
         <aside className={s.planPanel}>
-          <span className="eyebrow">SMALL LINKS. MORE POSSIBILITIES.</span>
-          <h3>Made to be shared.</h3>
+          <span className="eyebrow">{tr('SMALL LINKS. MORE POSSIBILITIES.')}</span>
+          <h3>{tr('Made to be shared.')}</h3>
           <ul>
             <li>
               <Check size={17} />
-              {limit.toLocaleString()} saved links on {access.pro ? 'Pro' : 'Free'}
+              {tr('{count} saved links on {plan}', {
+                count: limit.toLocaleString(locale),
+                plan: access.pro ? 'Pro' : tr('Free'),
+              })}
             </li>
             <li>
               <Check size={17} />
-              QR downloads in PNG and SVG
+              {tr('QR downloads in PNG and SVG')}
             </li>
             <li>
               <Check size={17} />
-              Your links, on every signed-in device
+              {tr('Your links, on every signed-in device')}
             </li>
           </ul>
           <p>
             {access.pro
-              ? 'Choose a memorable alias and update destinations without changing the link or QR code.'
-              : 'Pro adds custom aliases, editable destinations, and room for 1,000 links.'}
+              ? tr(
+                  'Choose a memorable alias and update destinations without changing the link or QR code.',
+                )
+              : tr('Pro adds custom aliases, editable destinations, and room for 1,000 links.')}
           </p>
-          <Link href={access.pro ? '/dashboard?view=links' : '/pricing'}>
-            {access.pro ? 'Manage your links' : 'Compare plans'}
+          <Link href={href(access.pro ? '/dashboard?view=links' : '/pricing')}>
+            {access.pro ? tr('Manage your links') : tr('Compare plans')}
             <ArrowRight size={17} />
           </Link>
         </aside>
       </section>
       {result && (
-        <section className={s.card} aria-label="New short link">
+        <section className={s.card} aria-label={tr('New short link')}>
           <p className={s.success} role="status">
             <Check size={17} />
-            Your link is ready and saved.
+            {tr('Your link is ready and saved.')}
           </p>
           <LinkDetails link={result} />
         </section>
@@ -213,20 +228,23 @@ function LinkWorkspace({ manage }: { manage: boolean }) {
       ) : (
         !manage &&
         user && (
-          <Link className={s.manageLink} href="/dashboard?view=links">
-            Open My links <ArrowUpRight size={17} />
+          <Link className={s.manageLink} href={href('/dashboard?view=links')}>
+            {tr('Open My links')} <ArrowUpRight size={17} />
           </Link>
         )
       )}
       <p className={s.privacy}>
-        Your list is private. Anyone with a short link or QR code can open its destination. Deleting
-        a link stops both from working.
+        {tr(
+          'Your list is private. Anyone with a short link or QR code can open its destination. Deleting a link stops both from working.',
+        )}
       </p>
     </div>
   );
 }
 
 function LinkDetails({ link }: { link: ShortLink }) {
+  const tr = useUiTranslation();
+
   const [qr, setQr] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
@@ -258,20 +276,20 @@ function LinkDetails({ link }: { link: ShortLink }) {
         <div className={s.actions}>
           <button className="button secondary" onClick={() => void copy()}>
             <Copy size={16} />
-            <span>{copied ? 'Copied!' : 'Copy link'}</span>
+            <span>{copied ? tr('Copied!') : tr('Copy link')}</span>
           </button>
           <button className="button secondary" aria-expanded={qr} onClick={() => setQr(!qr)}>
             <QrCode size={16} />
-            {qr ? 'Hide QR' : 'Generate QR'}
+            {qr ? tr('Hide QR') : tr('Generate QR')}
           </button>
         </div>
       </div>
       <span className="sr-only" role="status">
-        {copied ? 'Short link copied to clipboard.' : ''}
+        {copied ? tr('Short link copied to clipboard.') : ''}
       </span>
       {error && (
         <p className="error-message" role="alert">
-          {error}
+          {tr(error)}
         </p>
       )}
       {qr && <ShortLinkQr url={link.shortUrl} alias={link.alias} />}
@@ -288,6 +306,9 @@ function SavedLinks({
   onDeleted: (id: string) => void;
   onUpdated: (link: ShortLink) => void;
 }) {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+
   const { access } = useAccount();
   const [listing, setListing] = useState<LinkListing | null>(null);
   const [page, setPage] = useState(1),
@@ -332,11 +353,14 @@ function SavedLinks({
     <section className={s.card} aria-labelledby="saved-links-heading">
       <div className={s.listHeading}>
         <div>
-          <h2 id="saved-links-heading">My links</h2>
+          <h2 id="saved-links-heading">{tr('My links')}</h2>
           <p>
             {listing
-              ? `${listing.used.toLocaleString()} of ${listing.limit.toLocaleString()} saved links`
-              : 'Your saved links, all in one place.'}
+              ? tr('{value0} of {value1} saved links', {
+                  value0: listing.used.toLocaleString(locale),
+                  value1: listing.limit.toLocaleString(locale),
+                })
+              : tr('Your saved links, all in one place.')}
           </p>
         </div>
         <button
@@ -344,15 +368,15 @@ function SavedLinks({
           disabled={loading}
           onClick={() => setRefresh((v) => v + 1)}
         >
-          Refresh
+          {tr('Refresh')}
         </button>
       </div>
       <label className={s.search}>
         <Search size={18} />
-        <span className="sr-only">Search saved links</span>
+        <span className="sr-only">{tr('Search saved links')}</span>
         <input
           type="search"
-          placeholder="Search by title, alias, or destination"
+          placeholder={tr('Search by title, alias, or destination')}
           maxLength={120}
           value={query}
           onChange={(e) => {
@@ -363,25 +387,25 @@ function SavedLinks({
       </label>
       {notice && (
         <p className="pro-notice" role="status">
-          {notice}
+          {tr(notice)}
         </p>
       )}
       {error ? (
         <p className="error-message" role="alert">
-          {error}
+          {tr(error)}
         </p>
       ) : loading ? (
         <p className={s.empty} role="status">
-          Loading links…
+          {tr('Loading links…')}
         </p>
       ) : !listing?.links.length ? (
         <div className={s.empty}>
           <Link2 size={28} />
-          <h3>{query ? 'No matching links.' : 'Your first link starts above.'}</h3>
+          <h3>{query ? tr('No matching links.') : tr('Your first link starts above.')}</h3>
           <p>
             {query
-              ? 'Try a different title, alias, or website.'
-              : 'Create a short link and it will be saved here automatically.'}
+              ? tr('Try a different title, alias, or website.')
+              : tr('Create a short link and it will be saved here automatically.')}
           </p>
         </div>
       ) : (
@@ -391,8 +415,8 @@ function SavedLinks({
               <LinkDetails link={link} />
               <div className={s.rowFooter}>
                 <span>
-                  {link.custom ? 'Custom alias' : 'Random alias'} ·{' '}
-                  {new Date(link.created_at).toLocaleDateString(undefined, {
+                  {link.custom ? tr('Custom alias') : tr('Random alias')} ·{' '}
+                  {new Date(link.created_at).toLocaleDateString(locale, {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric',
@@ -401,19 +425,19 @@ function SavedLinks({
                 <div className={s.actions}>
                   <button
                     className="button secondary"
-                    aria-label={`Edit ${link.title || link.alias}`}
+                    aria-label={tr('Edit {value0}', { value0: link.title || link.alias })}
                     onClick={() => setEdit(link)}
                   >
                     <Pencil size={15} />
-                    Edit
+                    {tr('Edit')}
                   </button>
                   <button
                     className="button secondary"
-                    aria-label={`Delete ${link.title || link.alias}`}
+                    aria-label={tr('Delete {value0}', { value0: link.title || link.alias })}
                     onClick={() => setRemove(link)}
                   >
                     <Trash2 size={15} />
-                    Delete
+                    {tr('Delete')}
                   </button>
                 </div>
               </div>
@@ -432,7 +456,7 @@ function SavedLinks({
             setPage(1);
           }}
           disabled={loading}
-          label="Saved links pagination"
+          label={tr('Saved links pagination')}
         />
       )}
       {edit && (
@@ -479,6 +503,10 @@ function LinkDialog({
   onClose: () => void;
   onSaved: (link: ShortLink) => void;
 }) {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
+
   const dialog = useRef<HTMLDialogElement>(null);
   const [title, setTitle] = useState(link.title),
     [destination, setDestination] = useState(link.destination);
@@ -517,8 +545,13 @@ function LinkDialog({
       }}
     >
       <div className="dialog-header">
-        <h2 id="link-dialog-title">{deleting ? 'Delete this link?' : 'Edit saved link'}</h2>
-        <button className="icon-button" aria-label="Close dialog" disabled={busy} onClick={onClose}>
+        <h2 id="link-dialog-title">{deleting ? tr('Delete this link?') : tr('Edit saved link')}</h2>
+        <button
+          className="icon-button"
+          aria-label={tr('Close dialog')}
+          disabled={busy}
+          onClick={onClose}
+        >
           <X size={20} />
         </button>
       </div>
@@ -526,17 +559,19 @@ function LinkDialog({
         <div className="dialog-body">
           {deleting ? (
             <p>
-              Deleting <strong>{link.title || link.alias}</strong> stops its short link and QR code
-              from working. This cannot be undone, and the alias cannot be reused.
+              {tr('Deleting')} <strong>{link.title || link.alias}</strong>{' '}
+              {tr(
+                'stops its short link and QR code from working. This cannot be undone, and the alias cannot be reused.',
+              )}
             </p>
           ) : (
             <fieldset className={s.fields} disabled={busy}>
               <label>
-                Title
+                {tr('Title')}
                 <input value={title} maxLength={100} onChange={(e) => setTitle(e.target.value)} />
               </label>
               <label>
-                Destination URL
+                {tr('Destination URL')}
                 <input
                   value={destination}
                   required
@@ -547,28 +582,28 @@ function LinkDialog({
               </label>
               <p className={s.hint}>
                 {pro
-                  ? 'Updating the destination keeps the same short link and QR code.'
-                  : 'Renaming is free. Changing the destination requires Folio Pro.'}
+                  ? tr('Updating the destination keeps the same short link and QR code.')
+                  : tr('Renaming is free. Changing the destination requires Folio Pro.')}
               </p>
               {!pro && (
-                <Link className="text-link" href="/pricing">
-                  Explore Pro <ArrowUpRight size={15} />
+                <Link className="text-link" href={href('/pricing')}>
+                  {tr('Explore Pro')} <ArrowUpRight size={15} />
                 </Link>
               )}
             </fieldset>
           )}
           {error && (
             <p className="error-message" role="alert">
-              {error}
+              {tr(error)}
             </p>
           )}
         </div>
         <div className="dialog-footer">
           <button type="button" className="button secondary" disabled={busy} onClick={onClose}>
-            Cancel
+            {tr('Cancel')}
           </button>
           <button className="button primary" disabled={busy}>
-            {busy ? 'Saving…' : deleting ? 'Delete link' : 'Save changes'}
+            {busy ? tr('Saving…') : deleting ? tr('Delete link') : tr('Save changes')}
           </button>
         </div>
       </form>

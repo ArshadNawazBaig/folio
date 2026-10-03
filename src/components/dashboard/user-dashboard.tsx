@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation, useUiLocale } from '../ui-language';
+import { localizedHref } from '@/lib/i18n/translate';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -20,6 +22,8 @@ import {
   ShieldCheck,
   UserRound,
 } from 'lucide-react';
+import { LanguageSelector } from '../language-selector';
+import { signInHref } from '@/lib/auth-navigation';
 import { useAccount } from '../account-provider';
 import { Logo } from '../logo';
 import { GuestAccount } from './guest-account';
@@ -54,16 +58,20 @@ const navigation = [
 type Props = { view: DashboardView; adminRequired: boolean; checkoutSuccess: boolean };
 export function UserDashboard(props: Props) {
   const { user, loading } = useAccount();
-  if (loading && !user) return <DashboardLoading />;
+  if (loading && !user) return <DashboardLoading view={props.view} />;
   // Reset every private view and in-flight result when the account changes.
   return <DashboardContent key={user?.id || 'guest'} {...props} />;
 }
-function DashboardLoading() {
+function DashboardLoading({ view }: { view: DashboardView }) {
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
+  const tr = useUiTranslation();
+
   return (
     <div className={s.dashboard} aria-busy="true">
       <aside className={s.sidebar}>
-        <Logo light />
-        <p className={s.navLabel}>YOUR WORKSPACE</p>
+        <Logo light href={href('/')} label={tr('Folio home')} />
+        <p className={s.navLabel}>{tr('YOUR WORKSPACE')}</p>
         <div className={s.navigation} aria-hidden="true">
           {navigation.map(({ id, icon: Icon }) => (
             <div className={s.navSkeleton} key={id}>
@@ -82,19 +90,23 @@ function DashboardLoading() {
         </div>
       </aside>
       <div className={s.mainColumn}>
-        <header className={s.topbar} aria-label="Workspace navigation">
+        <header className={s.topbar} aria-label={tr('Workspace navigation')}>
           <div className={s.topbarLogo}>
-            <Logo light />
+            <Logo light href={href('/')} label={tr('Folio home')} />
           </div>
           <div className={s.breadcrumb}>
             <Skeleton width={170} height={12} />
           </div>
-          <div className={s.topbarActions} aria-hidden="true">
+          <div className={s.topbarActions}>
+            <LanguageSelector
+              label={tr('Language')}
+              query={view === 'overview' ? '' : `view=${view}`}
+            />
             <Skeleton width={36} height={36} radius="50%" />
           </div>
         </header>
         <main id="main" className={s.content}>
-          <LoadingLabel>Loading your workspace…</LoadingLabel>
+          <LoadingLabel>{tr('Loading your workspace…')}</LoadingLabel>
           <div className={`${s.heading} page-heading page-heading--workspace`}>
             <div>
               <Skeleton width={110} height={10} />
@@ -122,6 +134,10 @@ function DashboardLoading() {
   );
 }
 function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
+
   const { user, access, loading: accountLoading, error: accountError, signOutGuest } = useAccount();
   const guest = !user;
   const sessionReady = !!user || !accountLoading;
@@ -243,13 +259,20 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
       setSigningOut(false);
     }
   }
-  const name = guest ? 'Guest account' : displayName(user?.user_metadata);
+  const accountName = displayName(user?.user_metadata);
+  const name = guest
+    ? tr('Guest account')
+    : accountName === 'Your account'
+      ? tr('Your account')
+      : accountName;
   const bytes = storage?.used ?? files.reduce((n, f) => n + f.size + (f.workspace_size || 0), 0);
   const capacity = storage ? storage.limit : access.pro ? PRO_STORAGE_LIMIT : FREE_STORAGE_LIMIT;
   const titles = {
     overview: guest
-      ? 'Your guest workspace.'
-      : `Welcome back${name === 'Your account' ? '' : `, ${name.split(' ')[0]}`}.`,
+      ? tr('Your guest workspace.')
+      : accountName === 'Your account'
+        ? tr('Welcome back.')
+        : tr('Welcome back, {name}.', { name: accountName.split(' ')[0] }),
     files: 'A home for your documents.',
     links: 'Good links. All together.',
     invoices: 'Good work, clearly billed.',
@@ -269,17 +292,17 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
   return (
     <div className={s.dashboard}>
       <aside className={s.sidebar}>
-        <Logo light />
-        <p className={s.navLabel}>YOUR WORKSPACE</p>
-        <nav ref={navigationRef} aria-label="Dashboard navigation" className={s.navigation}>
+        <Logo light href={href('/')} label={tr('Folio home')} />
+        <p className={s.navLabel}>{tr('YOUR WORKSPACE')}</p>
+        <nav ref={navigationRef} aria-label={tr('Dashboard navigation')} className={s.navigation}>
           {navigation.map(({ id, label, icon: Icon }) => (
             <Link
               key={id}
-              href={id === 'overview' ? '/dashboard' : `/dashboard?view=${id}`}
+              href={href(id === 'overview' ? '/dashboard' : `/dashboard?view=${id}`)}
               aria-current={view === id ? 'page' : undefined}
             >
               <Icon size={18} />
-              <span>{label}</span>
+              <span>{tr(label)}</span>
               {id === 'files' && !loading && !fileError && <small>{readyCount}</small>}
             </Link>
           ))}
@@ -287,80 +310,90 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
         <div className={s.sidebarBottom}>
           <div className={s.storage}>
             <Cloud size={19} />
-            <strong>Private cloud storage</strong>
+            <strong>{tr('Private cloud storage')}</strong>
             <span>
               {fileError ? (
-                'Storage unavailable'
+                tr('Storage unavailable')
               ) : loading && !storage ? (
                 <>
                   <Skeleton width="86%" height={10} />
-                  <LoadingLabel>Loading storage usage…</LoadingLabel>
+                  <LoadingLabel>{tr('Loading storage usage…')}</LoadingLabel>
                 </>
               ) : capacity === null ? (
-                `${bytes ? formatBytes(bytes) : '0 KB'} used · Unlimited storage`
+                tr('{used} used · Unlimited storage', { used: bytes ? formatBytes(bytes) : '0 KB' })
               ) : (
-                `${bytes ? formatBytes(bytes) : '0 KB'} of ${storageLabel(capacity)}`
+                tr('{used} of {capacity}', {
+                  used: bytes ? formatBytes(bytes) : '0 KB',
+                  capacity: storageLabel(capacity),
+                })
               )}
             </span>
             {capacity !== null && (
               <progress
-                aria-label="Cloud storage used"
+                aria-label={tr('Cloud storage used')}
                 value={Math.min(bytes, capacity)}
                 max={capacity}
               />
             )}
             {!loading && !fileError && capacity !== null && bytes >= capacity && (
-              <span>Storage full. Delete older files to upload more.</span>
+              <span>{tr('Storage full. Delete older files to upload more.')}</span>
             )}
-            <Link href="/dashboard?view=files">
-              Manage files <ArrowRight size={14} />
+            <Link href={href('/dashboard?view=files')}>
+              {tr('Manage files')} <ArrowRight size={14} />
             </Link>
           </div>
           {guest && (
-            <Link className={s.guestSignIn} href="/account?next=%2Fdashboard">
-              <ArrowUpRight size={16} /> Sign in to keep your files
+            <Link className={s.guestSignIn} href={signInHref(href(`/dashboard?view=${view}`))}>
+              <ArrowUpRight size={16} /> {tr('Sign in to keep your files')}
             </Link>
           )}
         </div>
       </aside>
       <div className={s.mainColumn}>
-        <header className={s.topbar} aria-label="Workspace navigation">
+        <header className={s.topbar} aria-label={tr('Workspace navigation')}>
           <div className={s.topbarLogo}>
-            <Logo light />
+            <Logo light href={href('/')} label={tr('Folio home')} />
           </div>
           <span className={s.breadcrumb}>
-            My workspace <span className={s.crumb}>/</span>{' '}
-            <strong>{navigation.find((n) => n.id === view)?.label}</strong>
+            {tr('My workspace')} <span className={s.crumb}>/</span>{' '}
+            <strong>{tr(navigation.find((n) => n.id === view)?.label ?? '')}</strong>
           </span>
-          <nav className={s.topbarActions} aria-label="Account navigation">
+          <nav className={s.topbarActions} aria-label={tr('Account navigation')}>
+            <LanguageSelector
+              label={tr('Language')}
+              query={view === 'overview' ? '' : `view=${view}`}
+            />
             <Link
-              href="/tools"
+              href={href('/tools')}
               className={s.toolsLink}
-              aria-label="All PDF tools"
-              title="All PDF tools"
+              aria-label={tr('All PDF tools')}
+              title={tr('All PDF tools')}
             >
               <FileText size={18} aria-hidden="true" />
-              <span>All PDF tools</span>
+              <span>{tr('All PDF tools')}</span>
             </Link>
             {access.admin && (
               <Link
-                href="/admin"
+                href={href('/admin')}
                 className={s.adminLink}
-                aria-label="Super admin dashboard"
-                title="Super admin dashboard"
+                aria-label={tr('Super admin dashboard')}
+                title={tr('Super admin dashboard')}
               >
                 <ShieldCheck size={18} aria-hidden="true" />
-                <span>Admin</span>
+                <span>{tr('Admin')}</span>
               </Link>
             )}
             <Menu.Root modal={false}>
-              <Menu.Trigger className={s.profile} aria-label={`${name} — account menu`}>
+              <Menu.Trigger
+                className={s.profile}
+                aria-label={tr('{value0} — account menu', { value0: name })}
+              >
                 <span className={s.avatar} aria-hidden="true">
                   {guest ? <UserRound size={19} /> : name.slice(0, 1).toUpperCase()}
                 </span>
                 <span className={s.profileCopy}>
                   <strong>{name}</strong>
-                  <small>{access.pro ? 'Folio Pro' : 'Folio Free'}</small>
+                  <small>{access.pro ? tr('Folio Pro') : tr('Folio Free')}</small>
                 </span>
                 <ChevronDown size={16} className={s.profileChevron} aria-hidden="true" />
               </Menu.Trigger>
@@ -371,18 +404,18 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                   sideOffset={10}
                   collisionPadding={12}
                 >
-                  <Menu.Popup className={s.accountMenu} aria-label="Account menu">
+                  <Menu.Popup className={s.accountMenu} aria-label={tr('Account menu')}>
                     <div className={s.accountMenuIdentity}>
                       <strong>{name}</strong>
-                      <small>{access.pro ? 'Folio Pro' : 'Folio Free'}</small>
+                      <small>{access.pro ? tr('Folio Pro') : tr('Folio Free')}</small>
                     </div>
                     <Menu.LinkItem
                       className={s.accountMenuItem}
-                      render={<Link href="/dashboard?view=settings" />}
+                      render={<Link href={href('/dashboard?view=settings')} />}
                       closeOnClick
                     >
                       <Settings size={18} aria-hidden="true" />
-                      Profile settings
+                      {tr('Profile settings')}
                     </Menu.LinkItem>
                     <Menu.Separator className={s.accountMenuSeparator} />
                     <Menu.Item
@@ -395,7 +428,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                       onClick={() => void signOut()}
                     >
                       <LogOut size={18} aria-hidden="true" />
-                      {signingOut ? 'Signing out…' : 'Sign out'}
+                      {signingOut ? tr('Signing out…') : tr('Sign out')}
                     </Menu.Item>
                   </Menu.Popup>
                 </Menu.Positioner>
@@ -407,57 +440,58 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
           <div className={`${s.heading} page-heading page-heading--workspace`}>
             <div>
               <span className={`${s.eyebrow} eyebrow`}>
-                {view === 'overview' ? 'A LITTLE MORE ORGANIZED' : 'YOUR FOLIO'}
+                {view === 'overview' ? tr('A LITTLE MORE ORGANIZED') : tr('YOUR FOLIO')}
               </span>
-              <h1>{titles[view]}</h1>
-              <p>{descriptions[view]}</p>
+              <h1>{tr(titles[view])}</h1>
+              <p>{tr(descriptions[view])}</p>
             </div>
             {view === 'overview' && (
-              <Link className="button primary" href="/workspace">
-                <Plus size={17} /> Edit a PDF
+              <Link className="button primary" href={href('/workspace')}>
+                <Plus size={17} /> {tr('Edit a PDF')}
               </Link>
             )}
           </div>
           {guest && !['links', 'invoices'].includes(view) && (
             <div className={s.guestNotice}>
               <div>
-                <strong>100 MB, ready to use.</strong>
+                <strong>{tr('100 MB, ready to use.')}</strong>
                 <p id="guest-session-details">
-                  Your files are private to this browser and expire 24 hours after upload. Sign in
-                  before they expire to keep them in your account. Signing out or clearing your
-                  browser cookies removes access to guest files.
+                  {tr(
+                    'Your files are private to this browser and expire 24 hours after upload. Sign in before they expire to keep them in your account. Signing out or clearing your browser cookies removes access to guest files.',
+                  )}
                 </p>
               </div>
-              <Link className="button secondary" href="/account?next=%2Fdashboard">
-                Sign in <ArrowUpRight size={16} />
+              <Link className="button secondary" href={signInHref(href(`/dashboard?view=${view}`))}>
+                {tr('Sign in')} <ArrowUpRight size={16} />
               </Link>
             </div>
           )}
           {transferNotice && (
             <p className="service-note" role="status">
-              {transferNotice}
+              {tr(transferNotice)}
             </p>
           )}
           {adminRequired && user && !access.admin && (
             <p role="status" className={s.notice}>
-              You’re signed in, but this account does not have super admin access. Your PDF tools
-              are still available.
+              {tr(
+                'You’re signed in, but this account does not have super admin access. Your PDF tools are still available.',
+              )}
             </p>
           )}
           {(accountError || sessionError) && (
             <p role="alert" className="error-message">
-              {sessionError || accountError}
+              {tr(sessionError || accountError)}
             </p>
           )}
           {view === 'overview' && (
             <>
               <div className={s.metrics}>
-                <Link href="/dashboard?view=files">
+                <Link href={href('/dashboard?view=files')}>
                   <span className={s.metricIcon}>
                     <FolderOpen size={21} />
                   </span>
                   <div>
-                    <span>Saved PDFs</span>
+                    <span>{tr('Saved PDFs')}</span>
                     <strong>
                       {loading && !storage ? (
                         <Skeleton width={35} height="1em" />
@@ -467,46 +501,46 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                         readyCount
                       )}
                     </strong>
-                    <small>In your private cloud</small>
+                    <small>{tr('In your private cloud')}</small>
                   </div>
                   <ArrowUpRight size={16} />
                 </Link>
-                <Link href="/dashboard?view=billing">
+                <Link href={href('/dashboard?view=billing')}>
                   <span className={s.metricIcon}>
                     <CreditCard size={21} />
                   </span>
                   <div>
-                    <span>Your plan</span>
+                    <span>{tr('Your plan')}</span>
                     <strong>
                       {accountLoading ? (
                         <Skeleton width={110} height="1em" />
                       ) : accountError ? (
-                        'Unavailable'
+                        tr('Unavailable')
                       ) : access.pro ? (
                         'Folio Pro'
                       ) : (
-                        'Folio Free'
+                        tr('Folio Free')
                       )}
                     </strong>
                     <small>
                       {access.trial
-                        ? 'Introductory period'
+                        ? tr('Introductory period')
                         : access.cancelAtPeriodEnd
-                          ? 'Cancellation scheduled'
-                          : 'Manage your membership'}
+                          ? tr('Cancellation scheduled')
+                          : tr('Manage your membership')}
                     </small>
                   </div>
                   <ArrowUpRight size={16} />
                 </Link>
-                <Link href="/dashboard?view=settings">
+                <Link href={href('/dashboard?view=settings')}>
                   <span className={s.metricIcon}>
                     <ShieldCheck size={21} />
                   </span>
                   <div>
-                    <span>Account</span>
-                    <strong>{guest ? 'This browser.' : 'All yours.'}</strong>
+                    <span>{tr('Account')}</span>
+                    <strong>{guest ? tr('This browser.') : tr('All yours.')}</strong>
                     <small>
-                      {guest ? 'Guest access · 24 hours' : 'Profile & sign-in settings'}
+                      {guest ? tr('Guest access · 24 hours') : tr('Profile & sign-in settings')}
                     </small>
                   </div>
                   <ArrowUpRight size={16} />
@@ -514,22 +548,22 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
               </div>
               <section className={s.quickCard}>
                 <div>
-                  <span className={`${s.eyebrow} eyebrow`}>FROM TO-DO TO DONE</span>
-                  <h2>Good work starts with a PDF.</h2>
-                  <p>Edit a proposal, fill a form, or bring a few files together.</p>
+                  <span className={`${s.eyebrow} eyebrow`}>{tr('FROM TO-DO TO DONE')}</span>
+                  <h2>{tr('Good work starts with a PDF.')}</h2>
+                  <p>{tr('Edit a proposal, fill a form, or bring a few files together.')}</p>
                 </div>
                 <div className={s.quickLinks}>
-                  <Link href="/workspace">
-                    <FileText size={20} /> Edit PDF <ArrowUpRight size={16} />
+                  <Link href={href('/workspace')}>
+                    <FileText size={20} /> {tr('Edit PDF')} <ArrowUpRight size={16} />
                   </Link>
-                  <Link href="/forms">
-                    Fill a form <ArrowUpRight size={16} />
+                  <Link href={href('/forms')}>
+                    {tr('Fill a form')} <ArrowUpRight size={16} />
                   </Link>
-                  <Link href="/merge-pdf">
-                    Merge PDFs <ArrowUpRight size={16} />
+                  <Link href={href('/merge-pdf')}>
+                    {tr('Merge PDFs')} <ArrowUpRight size={16} />
                   </Link>
-                  <Link href="/dashboard?view=links">
-                    Shorten a link <ArrowUpRight size={16} />
+                  <Link href={href('/dashboard?view=links')}>
+                    {tr('Shorten a link')} <ArrowUpRight size={16} />
                   </Link>
                 </div>
               </section>
@@ -589,9 +623,9 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
             </div>
           )}
           <footer className={s.footer}>
-            <span>Made for the work that matters.</span>
-            <Link href="/dashboard?view=support">
-              Need a hand? <ArrowUpRight size={14} />
+            <span>{tr('Made for the work that matters.')}</span>
+            <Link href={href('/dashboard?view=support')}>
+              {tr('Need a hand?')} <ArrowUpRight size={14} />
             </Link>
           </footer>
         </main>

@@ -55,3 +55,34 @@ test('editor sign-in returns to its own tab without changing normal authenticati
   assert.equal(editor.searchParams.get('return_to'), 'editor');
   assert.equal(editor.searchParams.get('next'), '/account');
 });
+
+test('translated dashboard authentication preserves supported locales and views only', () => {
+  assert.equal(
+    safeAuthDestination('/de/dashboard?view=settings&user=someone-else'),
+    '/de/dashboard?view=settings',
+  );
+  assert.equal(safeAuthDestination('/ja/dashboard?view=billing'), '/ja/dashboard?view=billing');
+  assert.equal(afterSignIn('/fr/dashboard?view=files', false), '/fr/dashboard?view=files');
+  assert.equal(safeAuthDestination('/ko/dashboard?view=admin'), '/ko/dashboard');
+  for (const path of [
+    '/zz/dashboard',
+    '/de/admin',
+    '//evil.test/de/dashboard',
+    '/de/dashboard/extra',
+  ])
+    assert.equal(safeAuthDestination(path), '/account');
+});
+
+test('translated account and checkout routes survive sign-in without accepting foreign destinations', () => {
+  assert.equal(
+    safeAuthDestination('/de/pricing?plan=month&next=https://evil.test'),
+    '/de/pricing?plan=month',
+  );
+  assert.equal(afterSignIn('/ja/account', false), '/ja/dashboard');
+  assert.equal(afterSignIn('/fr/pricing?plan=trial', true), '/fr/pricing?plan=trial');
+  assert.equal(
+    signInHref('/ko/pricing?plan=month'),
+    '/ko/account?next=%2Fko%2Fpricing%3Fplan%3Dmonth',
+  );
+  assert.equal(safeAuthDestination('/de/admin'), '/account');
+});

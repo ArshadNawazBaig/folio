@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation, useUiLocale } from './ui-language';
+import { localizedHref } from '@/lib/i18n/translate';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { ArrowUpRight, FilePlus2, RefreshCw, Trash2 } from 'lucide-react';
@@ -20,6 +22,10 @@ type Entry = {
   };
 };
 export function InvoiceLibrary() {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
+
   const { user, access } = useAccount();
   const [invoices, setInvoices] = useState<Entry[]>([]),
     [page, setPage] = useState(1),
@@ -75,37 +81,42 @@ export function InvoiceLibrary() {
     }
   }
   return (
-    <section className={s.library} aria-label="Saved invoices">
+    <section className={s.library} aria-label={tr('Saved invoices')}>
       <div className={s.libraryHeader}>
         <div>
-          <h2>Your invoice library.</h2>
-          <p>Pick up where you left off. Keep the details in one place.</p>
+          <h2>{tr('Your invoice library.')}</h2>
+          <p>{tr('Pick up where you left off. Keep the details in one place.')}</p>
         </div>
-        <Link href="/invoice-editor" className="button dark">
-          <FilePlus2 size={16} /> New invoice
+        <Link href={href('/invoice-editor')} className="button dark">
+          <FilePlus2 size={16} /> {tr('New invoice')}
         </Link>
       </div>
       <p>
         {!user
-          ? 'Create and download invoices for free. Sign in with Pro to save drafts across devices.'
+          ? tr(
+              'Create and download invoices for free. Sign in with Pro to save drafts across devices.',
+            )
           : access.pro
-            ? `${total} of 200 saved invoices. Saving is always your choice.`
-            : 'Pro is required to save or update invoices. You can still open, back up, or delete previously saved invoices, and download them with free design options.'}
+            ? tr('{value0} of 200 saved invoices. Saving is always your choice.', { value0: total })
+            : tr(
+                'Pro is required to save or update invoices. You can still open, back up, or delete previously saved invoices, and download them with free design options.',
+              )}
       </p>
       {error && (
         <p className={s.error} role="alert">
-          {error}{' '}
+          {tr(error)}{' '}
           <button className="text-link" onClick={() => setRevision((v) => v + 1)}>
-            <RefreshCw size={14} /> Retry
+            <RefreshCw size={14} /> {tr('Retry')}
           </button>
         </p>
       )}
       {loading && user ? (
-        <p role="status">Loading invoices…</p>
+        <p role="status">{tr('Loading invoices…')}</p>
       ) : !invoices.length && !error ? (
         <p className={s.help}>
-          Your saved invoices will appear here. Start with a blank invoice or try the sample in the
-          generator.
+          {tr(
+            'Your saved invoices will appear here. Start with a blank invoice or try the sample in the generator.',
+          )}
         </p>
       ) : null}
       <div className={s.libraryList}>
@@ -113,40 +124,44 @@ export function InvoiceLibrary() {
           invoices.map((invoice) => (
             <article className={s.libraryRow} key={invoice.id}>
               <div>
-                <strong>{invoice.summary.number || 'Untitled invoice'}</strong>
-                <span>{invoice.summary.customer || 'Customer not added'}</span>
+                <strong>{invoice.summary.number || tr('Untitled invoice')}</strong>
+                <span>{invoice.summary.customer || tr('Customer not added')}</span>
                 <small>
-                  Due {invoice.summary.due} · Updated{' '}
-                  {new Date(invoice.updated_at).toLocaleDateString()}
+                  {tr('Due')} {invoice.summary.due} {tr('· Updated')}{' '}
+                  {new Date(invoice.updated_at).toLocaleDateString(locale)}
                 </small>
               </div>
               <div>
                 <strong>{invoiceMoney(invoice.summary.total, invoice.summary.currency)}</strong>
                 <small>
                   {invoice.summary.balance
-                    ? `${invoiceMoney(invoice.summary.balance, invoice.summary.currency)} due`
-                    : 'No balance due'}
+                    ? tr('{value0} due', {
+                        value0: invoiceMoney(invoice.summary.balance, invoice.summary.currency),
+                      })
+                    : tr('No balance due')}
                 </small>
               </div>
               <div className={s.libraryActions}>
                 {remove === invoice.id ? (
                   <>
-                    <span>Delete this draft?</span>
+                    <span>{tr('Delete this draft?')}</span>
                     <button disabled={busy} onClick={() => void deleteInvoice(invoice.id)}>
-                      Delete
+                      {tr('Delete')}
                     </button>
                     <button disabled={busy} onClick={() => setRemove('')}>
-                      Cancel
+                      {tr('Cancel')}
                     </button>
                   </>
                 ) : (
                   <>
                     <Link href={`/invoice-editor?invoice=${invoice.id}`}>
-                      Open <ArrowUpRight size={14} />
+                      {tr('Open')} <ArrowUpRight size={14} />
                     </Link>
                     <button
                       onClick={() => setRemove(invoice.id)}
-                      aria-label={`Delete ${invoice.summary.number || 'invoice'}`}
+                      aria-label={tr('Delete {value0}', {
+                        value0: invoice.summary.number || 'invoice',
+                      })}
                     >
                       <Trash2 size={15} />
                     </button>
@@ -157,15 +172,15 @@ export function InvoiceLibrary() {
           ))}
       </div>
       {total > 10 && (
-        <nav className={s.pagination} aria-label="Invoice library pages">
+        <nav className={s.pagination} aria-label={tr('Invoice library pages')}>
           <button disabled={page <= 1 || loading} onClick={() => setPage((v) => v - 1)}>
-            Previous
+            {tr('Previous')}
           </button>
           <span>
-            Page {page} of {Math.ceil(total / 10)}
+            {tr('Page')} {page} {tr('of')} {Math.ceil(total / 10)}
           </span>
           <button disabled={page * 10 >= total || loading} onClick={() => setPage((v) => v + 1)}>
-            Next
+            {tr('Next')}
           </button>
         </nav>
       )}

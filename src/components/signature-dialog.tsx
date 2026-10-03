@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import {
   useEffect,
   useLayoutEffect,
@@ -93,6 +95,8 @@ export function SignatureDialog(props: EditorSignatureProps) {
 }
 
 export function SignatureWorkbench() {
+  const tr = useUiTranslation();
+
   const [version, setVersion] = useState(0);
   const id = useId();
   // Discard the working signature before the browser puts this page in its back/forward cache.
@@ -111,8 +115,9 @@ export function SignatureWorkbench() {
       />
       <p className={s.privacy}>
         <ShieldCheck size={17} aria-hidden="true" />
-        Your signature stays in this tab. Folio does not upload or save it. Download it before
-        leaving.
+        {tr(
+          'Your signature stays in this tab. Folio does not upload or save it. Download it before leaving.',
+        )}
       </p>
     </section>
   );
@@ -131,6 +136,8 @@ function SignatureComposer({
   onAdd?: (signature: SignatureResult) => void;
   downloadMode?: boolean;
 }) {
+  const tr = useUiTranslation();
+
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [downloadStatus, setDownloadStatus] = useState('');
@@ -250,7 +257,7 @@ function SignatureComposer({
       }
     } catch (e) {
       if (mounted.current && version === uploadVersion.current)
-        setError(e instanceof Error ? e.message : 'This image could not be opened.');
+        setError(e instanceof Error ? e.message : tr('This image could not be opened.'));
     } finally {
       if (mounted.current && version === uploadVersion.current) setLoading(false);
     }
@@ -262,7 +269,7 @@ function SignatureComposer({
       if (originalImage.current) setImage(signatureImage(originalImage.current, checked));
     } catch (e) {
       setImage(null);
-      setError(e instanceof Error ? e.message : 'This image could not be prepared.');
+      setError(e instanceof Error ? e.message : tr('This image could not be prepared.'));
     }
   }
   function add() {
@@ -309,7 +316,7 @@ function SignatureComposer({
       } else return;
       onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Your signature could not be added.');
+      setError(e instanceof Error ? e.message : tr('Your signature could not be added.'));
     }
   }
   const ready =
@@ -333,16 +340,20 @@ function SignatureComposer({
         </span>
         <div>
           <h2 id={`${id}-title`}>
-            {downloadMode ? 'Create your signature' : 'Add your signature'}
+            {downloadMode ? tr('Create your signature') : tr('Add your signature')}
           </h2>
           <p id={`${id}-description`}>
             {downloadMode
-              ? 'Draw, type, or choose an image. Download your PNG for free.'
-              : 'A personal touch, in your own style.'}
+              ? tr('Draw, type, or choose an image. Download your PNG for free.')
+              : tr('A personal touch, in your own style.')}
           </p>
         </div>
         {!downloadMode && (
-          <button className="icon-button" aria-label="Close signature dialog" onClick={onClose}>
+          <button
+            className="icon-button"
+            aria-label={tr('Close signature dialog')}
+            onClick={onClose}
+          >
             <X size={21} />
           </button>
         )}
@@ -350,7 +361,7 @@ function SignatureComposer({
       <div
         className={s.tabs}
         role="tablist"
-        aria-label="Signature method"
+        aria-label={tr('Signature method')}
         onKeyDown={(e) => {
           const current = tabs.findIndex((item) => item.id === tab);
           const next =
@@ -382,7 +393,7 @@ function SignatureComposer({
             onClick={() => changeTab(value)}
           >
             <Icon size={17} />
-            {label}
+            {tr(label)}
           </button>
         ))}
       </div>
@@ -397,25 +408,25 @@ function SignatureComposer({
             <div>
               <h3>
                 {tab === 'draw'
-                  ? 'Make your mark.'
+                  ? tr('Make your mark.')
                   : tab === 'image'
-                    ? 'Bring your own signature.'
-                    : 'Your name, beautifully signed.'}
+                    ? tr('Bring your own signature.')
+                    : tr('Your name, beautifully signed.')}
               </h3>
               <p>
                 {tab === 'draw'
-                  ? 'Use your mouse, finger, or pen to sign below.'
+                  ? tr('Use your mouse, finger, or pen to sign below.')
                   : tab === 'image'
-                    ? 'Upload a clear image of your signature.'
-                    : 'Type your name and choose a style.'}
+                    ? tr('Upload a clear image of your signature.')
+                    : tr('Type your name and choose a style.')}
               </p>
             </div>
             {tab !== 'image' && (
-              <div className={s.colors} role="group" aria-label="Signature ink color">
+              <div className={s.colors} role="group" aria-label={tr('Signature ink color')}>
                 {colors.map((item) => (
                   <button
                     key={item.value}
-                    aria-label={`${item.label} ink`}
+                    aria-label={tr('{value0} ink', { value0: item.label })}
                     aria-pressed={color === item.value}
                     onClick={() => setColor(item.value)}
                     style={{ '--signature-color': item.value } as CSSProperties}
@@ -431,7 +442,7 @@ function SignatureComposer({
               <div className={`${s.pad} ${s.drawPad}`}>
                 <canvas
                   ref={canvas}
-                  aria-label="Draw your signature"
+                  aria-label={tr('Draw your signature')}
                   aria-describedby={`${id}-draw-help`}
                   tabIndex={0}
                   onPointerDown={(e) => draw(e, true)}
@@ -454,7 +465,7 @@ function SignatureComposer({
                 {!strokeCount && (
                   <div className={s.empty} aria-hidden="true">
                     <Signature size={40} strokeWidth={1.2} />
-                    <span>Sign here</span>
+                    <span>{tr('Sign here')}</span>
                   </div>
                 )}
                 <span className={s.baseline} aria-hidden="true" />
@@ -462,7 +473,7 @@ function SignatureComposer({
               <div className={s.padActions}>
                 <button className={s.textButton} onClick={() => clear()} disabled={!strokeCount}>
                   <RotateCcw size={15} />
-                  Clear signature
+                  {tr('Clear signature')}
                 </button>
                 <button
                   className={s.textButton}
@@ -470,11 +481,11 @@ function SignatureComposer({
                   disabled={!strokeCount}
                 >
                   <Undo2 size={15} />
-                  Undo stroke
+                  {tr('Undo stroke')}
                 </button>
               </div>
               <p className={s.hint} id={`${id}-draw-help`}>
-                Prefer using the keyboard? Choose Type to create your signature.
+                {tr('Prefer using the keyboard? Choose Type to create your signature.')}
               </p>
             </>
           )}
@@ -485,7 +496,7 @@ function SignatureComposer({
                 type="file"
                 hidden
                 accept="image/png,image/jpeg,image/webp"
-                aria-label="Upload signature image"
+                aria-label={tr('Upload signature image')}
                 onChange={(e) => {
                   void upload(e.target.files?.[0]);
                   e.target.value = '';
@@ -509,19 +520,19 @@ function SignatureComposer({
                 {loading ? (
                   <div className={s.empty} role="status">
                     <Loader2 size={28} className="spin" />
-                    <span>Preparing your signature…</span>
+                    <span>{tr('Preparing your signature…')}</span>
                   </div>
                 ) : image ? (
-                  <img src={image.dataUrl} alt="Uploaded signature preview" />
+                  <img src={image.dataUrl} alt={tr('Uploaded signature preview')} />
                 ) : (
                   <div className={s.uploadEmpty}>
                     <span className={s.uploadIcon}>
                       <Upload size={26} strokeWidth={1.5} />
                     </span>
-                    <strong>Drop your signature here</strong>
-                    <span>PNG, JPG, or WebP · up to 5 MB</span>
+                    <strong>{tr('Drop your signature here')}</strong>
+                    <span>{tr('PNG, JPG, or WebP · up to 5 MB')}</span>
                     <button className="button secondary" onClick={() => input.current?.click()}>
-                      Choose image <ImagePlus size={16} />
+                      {tr('Choose image')} <ImagePlus size={16} />
                     </button>
                   </div>
                 )}
@@ -534,7 +545,7 @@ function SignatureComposer({
                     onChange={(e) => background(e.target.checked)}
                     disabled={loading}
                   />
-                  Remove white background
+                  {tr('Remove white background')}
                 </label>
                 {image && (
                   <button
@@ -542,14 +553,15 @@ function SignatureComposer({
                     onClick={() => input.current?.click()}
                     disabled={loading}
                   >
-                    Replace image
+                    {tr('Replace image')}
                   </button>
                 )}
               </div>
               {downloadMode && (
                 <p className={s.hint}>
-                  White removal works best on plain white paper. Shadows and colored backgrounds may
-                  remain.
+                  {tr(
+                    'White removal works best on plain white paper. Shadows and colored backgrounds may remain.',
+                  )}
                 </p>
               )}
               {fileName && (
@@ -562,16 +574,16 @@ function SignatureComposer({
           {tab === 'type' && (
             <>
               <label className={s.nameInput}>
-                Your signature
+                {tr('Your signature')}
                 <input
                   autoComplete={downloadMode ? 'off' : 'name'}
                   value={name}
                   maxLength={80}
-                  placeholder="Enter your full name"
+                  placeholder={tr('Enter your full name')}
                   onChange={(e) => setName(e.target.value.replace(/[\r\n\t]/g, ' '))}
                 />
               </label>
-              <div className={s.styles} role="group" aria-label="Signature style">
+              <div className={s.styles} role="group" aria-label={tr('Signature style')}>
                 {fonts.map((item) => (
                   <button
                     key={item.value}
@@ -581,7 +593,7 @@ function SignatureComposer({
                       setFont(item.value);
                     }}
                   >
-                    {item.label}
+                    {tr(item.label)}
                     {font === item.value && <Check size={14} />}
                   </button>
                 ))}
@@ -590,7 +602,9 @@ function SignatureComposer({
                 <div className={`${s.pad} ${s.typePad}`}>
                   <div className={s.empty} role="status">
                     {error ? <Type size={24} /> : <Loader2 size={24} className="spin" />}
-                    <span>{error ? 'Choose another signature style.' : 'Loading your style…'}</span>
+                    <span>
+                      {error ? tr('Choose another signature style.') : tr('Loading your style…')}
+                    </span>
                   </div>
                 </div>
               ) : (
@@ -605,7 +619,7 @@ function SignatureComposer({
         </div>
         {error && (
           <p className={s.error} role="alert">
-            {error}
+            {tr(error)}
           </p>
         )}
       </div>
@@ -618,17 +632,17 @@ function SignatureComposer({
         <p>
           {downloadMode
             ? tab === 'image' && !removeWhite
-              ? 'PNG · original background retained'
-              : 'PNG · transparent background'
-            : 'Drag and resize after adding.'}
+              ? tr('PNG · original background retained')
+              : tr('PNG · transparent background')
+            : tr('Drag and resize after adding.')}
         </p>
         <div>
           <button className="button secondary" onClick={onClose}>
-            {downloadMode ? 'Clear all' : 'Cancel'}
+            {downloadMode ? tr('Clear all') : tr('Cancel')}
           </button>
           <button className="button primary" onClick={add} disabled={!ready}>
             {downloadMode ? <Download size={16} /> : <Check size={16} />}
-            {downloadMode ? 'Download PNG' : 'Add signature'}
+            {downloadMode ? tr('Download PNG') : tr('Add signature')}
           </button>
         </div>
       </footer>
@@ -645,6 +659,8 @@ function TypedSignaturePreview({
   font: DocumentFont;
   color: string;
 }) {
+  const tr = useUiTranslation();
+
   const frame = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState(60);
   useLayoutEffect(() => {
@@ -671,7 +687,7 @@ function TypedSignaturePreview({
     return () => observer.disconnect();
   }, [text, font]);
   return (
-    <div ref={frame} className={`${s.pad} ${s.typePad}`} aria-label="Typed signature preview">
+    <div ref={frame} className={`${s.pad} ${s.typePad}`} aria-label={tr('Typed signature preview')}>
       <span style={{ ...documentFontStyle(font), color, fontSize: size } as CSSProperties}>
         {text}
       </span>

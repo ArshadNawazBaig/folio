@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { useUiTranslation, useUiLocale } from './ui-language';
+import { localizedHref } from '@/lib/i18n/translate';
 import { useState } from 'react';
 import { ArrowUpRight, Search } from 'lucide-react';
 import { matchesToolSearch, type ToolSummary } from '@/lib/tool-summary';
@@ -34,6 +36,9 @@ export function HomeTools({
   tools: ToolSummary[];
   popularSlugs: string[];
 }) {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
   const [filter, setFilter] = useState<Filter>('Popular');
   const [query, setQuery] = useState('');
   const search = query.trim().toLowerCase();
@@ -56,10 +61,10 @@ export function HomeTools({
     <section className={styles.toolSection} aria-labelledby="home-tools-title">
       <div className="container">
         <div className={styles.toolHeading}>
-          <h2 id="home-tools-title">What would you like to do?</h2>
+          <h2 id="home-tools-title">{tr('What would you like to do?')}</h2>
           <ToolSearch value={query} onValueChange={setQuery} />
         </div>
-        <div className={styles.filters} role="group" aria-label="Filter home tools">
+        <div className={styles.filters} role="group" aria-label={tr('Filter home tools')}>
           {filters.map((item) => (
             <button
               type="button"
@@ -67,19 +72,21 @@ export function HomeTools({
               aria-pressed={filter === item}
               onClick={() => setFilter(item)}
             >
-              {item}
+              {tr(item)}
             </button>
           ))}
         </div>
         <p className="sr-only" role="status">
-          {visible.length} tools found{search ? ` for ${query}` : ''}.
+          {search
+            ? tr('{count} tools found for “{query}”.', { count: visible.length, query })
+            : tr('{count} tools found.', { count: visible.length })}
         </p>
         <ToolGrid tools={visible} />
         {!visible.length && (
           <div className={styles.empty}>
             <Search size={25} aria-hidden="true" />
-            <h3>No tools found.</h3>
-            <p>Try “merge”, “signature” or “image”.</p>
+            <h3>{tr('No tools found.')}</h3>
+            <p>{tr('Try “merge”, “signature” or “image”.')}</p>
             <button
               type="button"
               className="button secondary"
@@ -88,14 +95,14 @@ export function HomeTools({
                 setFilter('Popular');
               }}
             >
-              Reset filters
+              {tr('Reset filters')}
             </button>
           </div>
         )}
         <div className={styles.toolFootnote}>
-          <p>Annotations and page tools are free. Original-text changes require Pro.</p>
-          <Link prefetch={false} href="/tools">
-            Explore all tools <ArrowUpRight size={16} aria-hidden="true" />
+          <p>{tr('Annotations and page tools are free. Original-text changes require Pro.')}</p>
+          <Link prefetch={false} href={href('/tools')}>
+            {tr('Explore all tools')} <ArrowUpRight size={16} aria-hidden="true" />
           </Link>
         </div>
       </div>

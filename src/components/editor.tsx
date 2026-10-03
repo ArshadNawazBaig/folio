@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
@@ -71,6 +73,10 @@ import type { WorkspaceRecord } from '@/lib/workspace-types';
 import { runPdf } from '@/lib/pdf-client';
 import { loadViewer } from '@/lib/pdf-viewer';
 import { getDocument, getPendingDocument, setPendingDocument } from '@/lib/storage';
+import { stageDocumentHandoff, takeDocumentHandoff } from '@/lib/document-handoff';
+import { useUiLocale } from './ui-language';
+import { localizedHref } from '@/lib/i18n/translate';
+import { signInHref } from '@/lib/auth-navigation';
 import { MAX_FILE_SIZE, download, friendlyError, baseName } from '@/lib/utils';
 import type { Annotation, AnnotationKind, EditorState, FormValue, PageModel } from '@/lib/types';
 import type { inspectPdf } from '@/lib/pdf-engine';
@@ -81,6 +87,10 @@ type TextClipboard =
   | { kind: 'original'; block: TextBlock; change: TextChange }
   | { kind: 'added'; annotation: Annotation };
 export function Editor() {
+  const tr = useUiTranslation();
+
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
   const { user, access } = useAccount();
   const userId = user?.id;
   const params = useSearchParams();
@@ -490,7 +500,10 @@ export function Editor() {
           const { createSample } = await import('@/lib/sample');
           await openBytes(await createSample(params.get('sample')!), 'Studio North — Proposal.pdf');
         } else {
-          const pending = getPendingDocument();
+          const handoff = params.get('handoff');
+          const pending = handoff ? await takeDocumentHandoff(handoff) : getPendingDocument();
+          if (handoff && !pending)
+            throw new Error('This file transfer has expired. Choose your PDF again to open it.');
           if (pending) await openBytes(pending.bytes, pending.name);
         }
       } catch (e) {
@@ -576,7 +589,9 @@ export function Editor() {
     setSelectedId('');
     if (bytes.length > 10 * 1024 * 1024 || doc.numPages > 100) {
       setError(
-        'Original text editing supports PDFs up to 10 MB and 100 pages. Split a larger file first.',
+        tr(
+          'Original text editing supports PDFs up to 10 MB and 100 pages. Split a larger file first.',
+        ),
       );
       return;
     }
@@ -628,7 +643,7 @@ export function Editor() {
     const text = copied.kind === 'original' ? copied.change.text : copied.annotation.text;
     // The editor clipboard works even when system clipboard access is unavailable.
     void navigator.clipboard?.writeText(text).catch(() => {});
-    setNotice('Text box copied. Use Paste to place an editable copy.');
+    setNotice(tr('Text box copied. Use Paste to place an editable copy.'));
   }
   function pasteTextBox() {
     if (busy || !pageModel || !textClipboard || !canPasteText) return;
@@ -682,7 +697,7 @@ export function Editor() {
       setOriginalSelection({ ...block, id, page: pageModel.sourceIndex! });
       setMode('original-text');
     }
-    setNotice('Text box pasted. Drag it into place or click to edit.');
+    setNotice(tr('Text box pasted. Drag it into place or click to edit.'));
   }
   const clipboardActions = useRef({
     copy: copyTextBox,
@@ -709,7 +724,9 @@ export function Editor() {
     if (hasTextChanges(stateRef.current) && !access.pro && !verified) {
       if (nextTool) {
         setNotice(
-          'Download your finished text edits before continuing in another tool. Your work stays in this editor.',
+          tr(
+            'Download your finished text edits before continuing in another tool. Your work stays in this editor.',
+          ),
         );
         return;
       }
@@ -725,15 +742,19 @@ export function Editor() {
     try {
       const result = await exportWorkspacePdf(bytes, name, stateRef.current, flatten);
       if (nextTool) {
-        setPendingDocument({ name: `${baseName(name)}-edited.pdf`, bytes: result.bytes });
+        const file = { name: `${baseName(name)}-edited.pdf`, bytes: result.bytes };
+        let destination = href(`/${nextTool}`);
+        if (destination !== `/${nextTool}`)
+          destination += `?handoff=${await stageDocumentHandoff(file)}`;
+        else setPendingDocument(file);
         setDirty(false);
-        router.push(`/${nextTool}`);
+        router.push(destination);
       } else {
         const delivery = download(result.bytes, `${baseName(name)}-edited.pdf`);
         setNotice(
           delivery === 'ready'
-            ? 'Your edited PDF is ready. Choose how to save it.'
-            : 'Download started. Check your browser’s downloads.',
+            ? tr('Your edited PDF is ready. Choose how to save it.')
+            : tr('Download started. Check your browser’s downloads.'),
         );
       }
     } catch (e) {
@@ -759,7 +780,7 @@ export function Editor() {
     try {
       await autosave.flush({ name, snapshot: { ...snapshot, state: stateRef.current } });
       if (saveMounted.current && version === loadVersion.current)
-        setNotice('Your document has been saved.');
+        setNotice(tr('Your document has been saved.'));
     } catch {
       // The save queue publishes one persistent error toast with a retry action.
     } finally {
@@ -1191,7 +1212,9 @@ export function Editor() {
     if (!pageModel) return;
     if (state.annotations.some((a) => a.pageId === pageModel.id)) {
       setError(
-        'Export your annotations and reopen the exported PDF before rotating this page. This keeps every mark aligned.',
+        tr(
+          'Export your annotations and reopen the exported PDF before rotating this page. This keeps every mark aligned.',
+        ),
       );
       return;
     }
@@ -1307,14 +1330,18 @@ export function Editor() {
       ) : (
         <header className="editor-header">
           <div className="editor-header-left">
-            <Logo light />
+            <Logo light href={href('/')} />
             <span className="header-divider" />
-            <Link href="/tools" className="icon-button" aria-label="Back to all tools">
+            <Link
+              href={href('/tools')}
+              className="icon-button"
+              aria-label={tr('Back to all tools')}
+            >
               <ArrowLeft size={18} />
             </Link>
             <div className="editor-file-title">
               <input
-                aria-label="Document name"
+                aria-label={tr('Document name')}
                 value={name}
                 onChange={(e) => {
                   setName(e.target.value);
@@ -1323,30 +1350,36 @@ export function Editor() {
                 }}
               />
               <span>
-                {busy ||
-                  (!bytes
-                    ? 'Your next document starts here'
-                    : autosave.phase === 'saved'
-                      ? 'All changes saved'
-                      : autosave.phase === 'uploading'
-                        ? 'Uploading PDF…'
-                        : autosave.phase === 'error'
-                          ? 'Not saved — retry'
-                          : 'Saving changes…')}
+                {tr(
+                  busy ||
+                    (!bytes
+                      ? 'Your next document starts here'
+                      : autosave.phase === 'saved'
+                        ? 'All changes saved'
+                        : autosave.phase === 'uploading'
+                          ? 'Uploading PDF…'
+                          : autosave.phase === 'error'
+                            ? 'Not saved — retry'
+                            : 'Saving changes…'),
+                )}
               </span>
             </div>
           </div>
           <div className="editor-header-right">
             <button
               className="button secondary cloud-save-button"
-              aria-label="Save to cloud"
-              title="Save your workspace now"
+              aria-label={tr('Save to cloud')}
+              title={tr('Save your workspace now')}
               disabled={!bytes || !!busy || savingNow}
               onClick={() => void save()}
             >
               {savingNow ? <Loader2 size={16} className="spin" /> : <CloudUpload size={16} />}
               <span>
-                {savingNow ? 'Saving…' : autosave.phase === 'error' ? 'Retry saving' : 'Save now'}
+                {savingNow
+                  ? tr('Saving…')
+                  : autosave.phase === 'error'
+                    ? tr('Retry saving')
+                    : tr('Save now')}
               </span>
             </button>
             <button
@@ -1355,7 +1388,7 @@ export function Editor() {
               onClick={() => exportFile()}
             >
               {busy ? <Loader2 size={16} className="spin" /> : <Download size={16} />}
-              <span>Download PDF</span>
+              <span>{tr('Download PDF')}</span>
             </button>
           </div>
         </header>
@@ -1363,10 +1396,10 @@ export function Editor() {
       {editorExit.dialog}
       <dialog ref={signInDialog} className="confirm-dialog" aria-labelledby="cloud-signin-heading">
         <header className="dialog-header">
-          <h2 id="cloud-signin-heading">Keep this document in your account.</h2>
+          <h2 id="cloud-signin-heading">{tr('Keep this document in your account.')}</h2>
           <button
             className="icon-button"
-            aria-label="Close save dialog"
+            aria-label={tr('Close save dialog')}
             onClick={() => signInDialog.current?.close()}
           >
             <X size={18} />
@@ -1375,26 +1408,28 @@ export function Editor() {
         <div className="dialog-body">
           <p>
             {user
-              ? 'You’re signed in. Your document is saved to your account automatically.'
-              : 'Your guest workspace expires after 24 hours. Sign in to keep it beyond 24 hours and open it on any device. Sign-in opens in a new tab.'}
+              ? tr('You’re signed in. Your document is saved to your account automatically.')
+              : tr(
+                  'Your guest workspace expires after 24 hours. Sign in to keep it beyond 24 hours and open it on any device. Sign-in opens in a new tab.',
+                )}
           </p>
         </div>
         <footer className="dialog-footer">
           <button className="button secondary" onClick={() => signInDialog.current?.close()}>
-            Keep editing
+            {tr('Keep editing')}
           </button>
           {user ? (
             <button className="button primary" onClick={() => void save()}>
-              Save PDF
+              {tr('Save PDF')}
             </button>
           ) : (
             <Link
               className="button primary"
-              href="/account?next=%2Fdashboard%3Fview%3Dfiles"
+              href={signInHref(href('/dashboard?view=files'))}
               target="_blank"
               rel="noopener noreferrer"
             >
-              Sign in to keep <ArrowRight size={16} />
+              {tr('Sign in to keep')} <ArrowRight size={16} />
             </Link>
           )}
         </footer>
@@ -1411,7 +1446,7 @@ export function Editor() {
             const f = files[0];
             if (!f) return;
             if (f.size > MAX_FILE_SIZE || !/\.pdf$/i.test(f.name)) {
-              setError('Choose a PDF smaller than 50 MB.');
+              setError(tr('Choose a PDF smaller than 50 MB.'));
               return;
             }
             await openBytes(new Uint8Array(await f.arrayBuffer()), f.name);
@@ -1466,7 +1501,7 @@ export function Editor() {
             image={() => imageInput.current?.click()}
             more={[
               {
-                label: 'Text field',
+                label: tr('Text field'),
                 onClick: () => {
                   setMode('field');
                   setSelectedId('');
@@ -1474,7 +1509,7 @@ export function Editor() {
                 },
               },
               {
-                label: 'Checkbox',
+                label: tr('Checkbox'),
                 onClick: () => {
                   setMode('checkbox');
                   setSelectedId('');
@@ -1482,7 +1517,7 @@ export function Editor() {
                 },
               },
               {
-                label: 'Fill existing fields',
+                label: tr('Fill existing fields'),
                 onClick: () => {
                   setMode('form-fill');
                   showProperties();
@@ -1490,7 +1525,7 @@ export function Editor() {
                 },
               },
               {
-                label: 'Review annotations',
+                label: tr('Review annotations'),
                 onClick: () => {
                   setMode('select');
                   showProperties();
@@ -1498,68 +1533,68 @@ export function Editor() {
                 },
               },
               {
-                label: 'Find text',
+                label: tr('Find text'),
                 onClick: () => {
                   showProperties();
                   setPropertiesTab('find');
                 },
               },
-              { label: 'Add a password', onClick: () => void exportFile('protect-pdf') },
+              { label: tr('Add a password'), onClick: () => void exportFile('protect-pdf') },
               {
-                label: properties ? 'Hide properties' : 'Show properties',
+                label: properties ? tr('Hide properties') : tr('Show properties'),
                 onClick: toggleProperties,
               },
             ]}
             layout={[
-              { label: 'Rotate page clockwise', onClick: () => rotatePage() },
-              { label: 'Rotate page counterclockwise', onClick: () => rotatePage(-90) },
-              { label: 'Turn page upside down', onClick: () => rotatePage(180) },
-              { label: 'Fit to width', onClick: () => setZoom(100) },
+              { label: tr('Rotate page clockwise'), onClick: () => rotatePage() },
+              { label: tr('Rotate page counterclockwise'), onClick: () => rotatePage(-90) },
+              { label: tr('Turn page upside down'), onClick: () => rotatePage(180) },
+              { label: tr('Fit to width'), onClick: () => setZoom(100) },
               {
-                label: sidebar ? 'Hide page thumbnails' : 'Show page thumbnails',
+                label: sidebar ? tr('Hide page thumbnails') : tr('Show page thumbnails'),
                 onClick: togglePages,
               },
             ]}
             manage={[
-              { label: 'Add a blank page', onClick: addPage },
-              { label: 'Duplicate page', onClick: duplicatePage },
+              { label: tr('Add a blank page'), onClick: addPage },
+              { label: tr('Duplicate page'), onClick: duplicatePage },
               {
-                label: 'Move page earlier',
+                label: tr('Move page earlier'),
                 onClick: () => movePage(-1),
                 disabled: pageIndex === 0,
               },
               {
-                label: 'Move page later',
+                label: tr('Move page later'),
                 onClick: () => movePage(1),
                 disabled: pageIndex === state.pages.length - 1,
               },
-              { label: 'Delete page', onClick: removePage, disabled: state.pages.length <= 1 },
-              { label: 'Split or extract pages', onClick: () => void exportFile('split-pdf') },
-              { label: 'Merge another PDF', onClick: () => void exportFile('merge-pdf') },
+              { label: tr('Delete page'), onClick: removePage, disabled: state.pages.length <= 1 },
+              { label: tr('Split or extract pages'), onClick: () => void exportFile('split-pdf') },
+              { label: tr('Merge another PDF'), onClick: () => void exportFile('merge-pdf') },
             ]}
           />
-          <div className="editor-mobile-panels" role="group" aria-label="Editor side panels">
+          <div className="editor-mobile-panels" role="group" aria-label={tr('Editor side panels')}>
             <button
               ref={pagesToggle}
               className="editor-panel-toggle"
-              aria-label="Toggle page thumbnails"
+              aria-label={tr('Toggle page thumbnails')}
               aria-expanded={sidebar}
               aria-controls="pages-panel"
               onClick={togglePages}
             >
               <PanelLeft size={17} aria-hidden="true" />
-              Pages
+              {tr('Pages')}
             </button>
             <button
               ref={propertiesToggle}
               className="editor-panel-toggle mobile-properties-toggle"
-              aria-label="Toggle properties and forms"
+              aria-label={tr('Toggle properties and forms')}
               aria-expanded={properties}
               aria-controls="properties-panel"
               onClick={toggleProperties}
             >
               <Settings2 size={17} aria-hidden="true" />
-              Properties
+              {tr('Properties')}
             </button>
           </div>
           <div
@@ -1568,14 +1603,14 @@ export function Editor() {
             {(sidebar || properties) && (
               <button
                 className="editor-panel-backdrop"
-                aria-label="Dismiss side panel"
+                aria-label={tr('Dismiss side panel')}
                 onClick={() => closeSidePanel(properties ? 'properties' : 'pages')}
               />
             )}
             <aside
               className="page-sidebar"
               id="pages-panel"
-              aria-label="Page thumbnails"
+              aria-label={tr('Page thumbnails')}
               onKeyDown={(event) => {
                 if (event.key === 'Escape' && !event.defaultPrevented && window.innerWidth < 1000) {
                   event.preventDefault();
@@ -1586,14 +1621,18 @@ export function Editor() {
             >
               <div className="sidebar-heading">
                 <h2>
-                  Pages <span>{state.pages.length}</span>
+                  {tr('Pages')} <span>{state.pages.length}</span>
                 </h2>
-                <button className="icon-button" aria-label="Add a blank page" onClick={addPage}>
+                <button
+                  className="icon-button"
+                  aria-label={tr('Add a blank page')}
+                  onClick={addPage}
+                >
                   <Plus size={16} />
                 </button>
                 <button
                   className="icon-button editor-panel-close"
-                  aria-label="Close page thumbnails"
+                  aria-label={tr('Close page thumbnails')}
                   onClick={() => closeSidePanel('pages')}
                 >
                   <X size={18} aria-hidden="true" />
@@ -1609,7 +1648,7 @@ export function Editor() {
                       setSelectedId('');
                       if (window.innerWidth <= 700) closeSidePanel('pages');
                     }}
-                    aria-label={`Go to page ${i + 1}`}
+                    aria-label={tr('Go to page {value0}', { value0: i + 1 })}
                     aria-current={i === pageIndex ? 'page' : undefined}
                   >
                     <div className="thumbnail-page">
@@ -1627,7 +1666,7 @@ export function Editor() {
                         <div className="blank-thumbnail" />
                       )}
                       {state.annotations.some((a) => a.pageId === p.id) && (
-                        <span className="thumbnail-edited" title="Has annotations" />
+                        <span className="thumbnail-edited" title={tr('Has annotations')} />
                       )}
                     </div>
                     <span>{i + 1}</span>
@@ -1637,8 +1676,8 @@ export function Editor() {
               <div className="page-actions">
                 <button
                   className="icon-button"
-                  title="Move page up"
-                  aria-label="Move page up"
+                  title={tr('Move page up')}
+                  aria-label={tr('Move page up')}
                   disabled={pageIndex === 0}
                   onClick={() => movePage(-1)}
                 >
@@ -1646,8 +1685,8 @@ export function Editor() {
                 </button>
                 <button
                   className="icon-button"
-                  title="Move page down"
-                  aria-label="Move page down"
+                  title={tr('Move page down')}
+                  aria-label={tr('Move page down')}
                   disabled={pageIndex === state.pages.length - 1}
                   onClick={() => movePage(1)}
                 >
@@ -1655,24 +1694,24 @@ export function Editor() {
                 </button>
                 <button
                   className="icon-button"
-                  title="Rotate page"
-                  aria-label="Rotate page"
+                  title={tr('Rotate page')}
+                  aria-label={tr('Rotate page')}
                   onClick={() => rotatePage()}
                 >
                   <RotateCw size={16} />
                 </button>
                 <button
                   className="icon-button"
-                  title="Duplicate page"
-                  aria-label="Duplicate page"
+                  title={tr('Duplicate page')}
+                  aria-label={tr('Duplicate page')}
                   onClick={duplicatePage}
                 >
                   <Copy size={15} />
                 </button>
                 <button
                   className="icon-button danger"
-                  title="Delete page"
-                  aria-label="Delete page"
+                  title={tr('Delete page')}
+                  aria-label={tr('Delete page')}
                   disabled={state.pages.length <= 1}
                   onClick={removePage}
                 >
@@ -1685,7 +1724,7 @@ export function Editor() {
               ref={scrollArea}
               tabIndex={0}
               role="region"
-              aria-label="Document canvas"
+              aria-label={tr('Document canvas')}
               aria-describedby="canvas-instruction"
               onKeyDown={(e) => {
                 if (e.target !== e.currentTarget || e.key !== 'Enter' || busy) return;
@@ -1704,36 +1743,42 @@ export function Editor() {
             >
               <div className="canvas-instruction" id="canvas-instruction">
                 {mode === 'select' ? (
-                  'Drag the page to move around. Select an added item to move or edit it.'
+                  tr('Drag the page to move around. Select an added item to move or edit it.')
                 ) : mode === 'original-text' ? (
                   pageModel.sourceIndex === null ? (
-                    'This is a blank page. Choose Add Text to write on it.'
+                    tr('This is a blank page. Choose Add Text to write on it.')
                   ) : preparedText.error ? (
                     <span role="alert">
-                      {preparedText.error}{' '}
+                      {tr(preparedText.error)}{' '}
                       <button className="text-link" onClick={preparedText.retry}>
-                        Retry preparing text
+                        {tr('Retry preparing text')}
                       </button>
                     </span>
                   ) : !preparedText.ready ? (
-                    <span role="status">Preparing editable text on this page…</span>
+                    <span role="status">{tr('Preparing editable text on this page…')}</span>
                   ) : !editorInspection?.blocks.some(
                       (block) => block.page === pageModel.sourceIndex,
                     ) ? (
-                    'No editable text was found on this page. You can still use Add Text.'
+                    tr('No editable text was found on this page. You can still use Add Text.')
                   ) : (
-                    'Click text and type directly on the page. Ctrl/⌘ + mouse wheel or pinch to zoom.'
+                    tr(
+                      'Click text and type directly on the page. Ctrl/⌘ + mouse wheel or pinch to zoom.',
+                    )
                   )
                 ) : mode === 'erase' ? (
-                  'Click an added item to remove it. Undo restores removed items.'
+                  tr('Click an added item to remove it. Undo restores removed items.')
                 ) : mode === 'whiteout' ? (
-                  'Drag over an area to cover it. Covered content remains in the PDF; this is not secure redaction.'
+                  tr(
+                    'Drag over an area to cover it. Covered content remains in the PDF; this is not secure redaction.',
+                  )
                 ) : mode === 'draw' ? (
-                  'Draw directly on the page. Use a stylus, mouse, or your finger.'
+                  tr('Draw directly on the page. Use a stylus, mouse, or your finger.')
                 ) : mode === 'form-fill' ? (
-                  'Complete your fields in the Form panel, then export.'
+                  tr('Complete your fields in the Form panel, then export.')
                 ) : (
-                  'Click on the page, or focus the canvas and press Enter, to add your selected tool.'
+                  tr(
+                    'Click on the page, or focus the canvas and press Enter, to add your selected tool.',
+                  )
                 )}
               </div>
               <div
@@ -1822,7 +1867,21 @@ export function Editor() {
                           }}
                           tabIndex={inlineAnnotation === a.id ? undefined : 0}
                           role={inlineAnnotation === a.id ? undefined : 'button'}
-                          aria-label={`${a.signatureSource ? 'signature' : a.kind}: ${a.signatureSource ? a.text : a.kind === 'link' ? a.url || 'Set link address' : a.kind === 'comment' ? a.text || 'Write a comment' : a.kind === 'text' || a.kind === 'signature' || a.kind === 'field' || a.kind === 'checkbox' ? a.text : 'annotation'}`}
+                          aria-label={tr('{value0}: {value1}', {
+                            value0: a.signatureSource ? 'signature' : a.kind,
+                            value1: a.signatureSource
+                              ? a.text
+                              : a.kind === 'link'
+                                ? a.url || 'Set link address'
+                                : a.kind === 'comment'
+                                  ? a.text || 'Write a comment'
+                                  : a.kind === 'text' ||
+                                      a.kind === 'signature' ||
+                                      a.kind === 'field' ||
+                                      a.kind === 'checkbox'
+                                    ? a.text
+                                    : 'annotation',
+                          })}
                           onKeyDown={(e) => {
                             if (e.target !== e.currentTarget) return;
                             if (e.key === 'Enter') {
@@ -1867,7 +1926,7 @@ export function Editor() {
                             (inlineAnnotation === a.id ? (
                               <textarea
                                 className="inline-annotation-input"
-                                aria-label="Edit added text"
+                                aria-label={tr('Edit added text')}
                                 autoFocus
                                 value={a.text}
                                 style={{
@@ -1955,7 +2014,7 @@ export function Editor() {
                           {a.kind === 'comment' && (
                             <span
                               className="annotation-comment-icon"
-                              title={a.text || 'Write a comment'}
+                              title={a.text || tr('Write a comment')}
                               style={{ opacity: a.opacity }}
                             >
                               <MessageSquare size={Math.min(a.width, a.height) * scale * 0.8} />
@@ -1964,7 +2023,7 @@ export function Editor() {
                           {a.kind === 'link' && (
                             <span
                               className="annotation-link-area"
-                              title={a.url || 'Set link address'}
+                              title={a.url || tr('Set link address')}
                             >
                               <Link2 size={14} />
                             </span>
@@ -1972,7 +2031,9 @@ export function Editor() {
                           {a.kind === 'image' && (
                             <img
                               src={a.dataUrl}
-                              alt={a.signatureSource ? 'Your signature' : 'Document annotation'}
+                              alt={
+                                a.signatureSource ? tr('Your signature') : tr('Document annotation')
+                              }
                               draggable={false}
                             />
                           )}
@@ -2010,9 +2071,9 @@ export function Editor() {
                             <>
                               <span className="annotation-tag">
                                 {a.signatureSource
-                                  ? 'signature'
+                                  ? tr('signature')
                                   : a.kind === 'field'
-                                    ? 'Form field'
+                                    ? tr('Form field')
                                     : a.kind}
                               </span>
                               {a.kind !== 'draw' && (
@@ -2057,7 +2118,7 @@ export function Editor() {
             <aside
               className="properties-sidebar"
               id="properties-panel"
-              aria-label="Properties and forms"
+              aria-label={tr('Properties and forms')}
               onKeyDown={(event) => {
                 if (event.key === 'Escape' && !event.defaultPrevented && window.innerWidth < 1000) {
                   event.preventDefault();
@@ -2071,7 +2132,7 @@ export function Editor() {
                   className={propertiesTab === 'style' ? 'active' : ''}
                   onClick={() => setPropertiesTab('style')}
                 >
-                  Properties
+                  {tr('Properties')}
                 </button>
                 <button
                   className={propertiesTab === 'form' ? 'active' : ''}
@@ -2080,18 +2141,19 @@ export function Editor() {
                     setMode('form-fill');
                   }}
                 >
-                  Form {allFields.length ? `(${allFields.length})` : ''}
+                  {tr('Form')}{' '}
+                  {allFields.length ? tr('({value0})', { value0: allFields.length }) : ''}
                 </button>
                 <button
                   className={propertiesTab === 'find' ? 'active' : ''}
-                  aria-label="Search document"
+                  aria-label={tr('Search document')}
                   onClick={() => setPropertiesTab('find')}
                 >
                   <Search size={15} />
                 </button>
                 <button
                   className="icon-button editor-panel-close"
-                  aria-label="Close properties and forms"
+                  aria-label={tr('Close properties and forms')}
                   onClick={() => closeSidePanel('properties')}
                 >
                   <X size={18} aria-hidden="true" />
@@ -2100,9 +2162,9 @@ export function Editor() {
               <div className="properties-content">
                 {propertiesTab === 'annotations' ? (
                   <>
-                    <h2>Annotations</h2>
+                    <h2>{tr('Annotations')}</h2>
                     <p className="panel-description">
-                      Select an item to jump to its page and edit it.
+                      {tr('Select an item to jump to its page and edit it.')}
                     </p>
                     <div className="editor-annotation-list">
                       {state.annotations.map((a) => (
@@ -2117,39 +2179,45 @@ export function Editor() {
                         >
                           <strong>
                             {a.kind === 'comment'
-                              ? a.text || 'Empty comment'
+                              ? a.text || tr('Empty comment')
                               : a.kind === 'link'
-                                ? a.url || 'Link address needed'
+                                ? a.url || tr('Link address needed')
                                 : a.kind}
                           </strong>
-                          <small>Page {state.pages.findIndex((p) => p.id === a.pageId) + 1}</small>
+                          <small>
+                            {tr('Page')} {state.pages.findIndex((p) => p.id === a.pageId) + 1}
+                          </small>
                         </button>
                       ))}
                     </div>
                     {!state.annotations.length && (
                       <p className="panel-description">
-                        Your added text, notes, links, and marks will appear here.
+                        {tr('Your added text, notes, links, and marks will appear here.')}
                       </p>
                     )}
                   </>
                 ) : propertiesTab === 'form' ? (
                   <>
-                    <h2>Fill in the details.</h2>
+                    <h2>{tr('Fill in the details.')}</h2>
                     <p className="panel-description">
-                      Values are applied to your downloaded PDF. The original page preview remains
-                      unchanged.
+                      {tr(
+                        'Values are applied to your downloaded PDF. The original page preview remains unchanged.',
+                      )}
                     </p>
                     {allFields.length ? (
                       allFields.map((f) =>
                         f.type === 'select' ? (
                           <Dropdown
                             key={f.name}
-                            label={`${f.name}${f.required ? ' *' : ''}`}
+                            label={tr('{value0}{value1}', {
+                              value0: f.name,
+                              value1: f.required ? ' *' : '',
+                            })}
                             disabled={f.readonly}
                             value={String(state.formValues[f.name] || '')}
                             onValueChange={(value) => setFormValue(f.name, value)}
                             options={[
-                              { value: '', label: 'Choose an option' },
+                              { value: '', label: tr('Choose an option') },
                               ...(('options' in f ? f.options : []) || []).map((option) => ({
                                 value: option,
                                 label: option,
@@ -2201,7 +2269,7 @@ export function Editor() {
                     ) : (
                       <div className="panel-empty">
                         <TextCursorInput size={30} />
-                        <p>No fillable fields yet.</p>
+                        <p>{tr('No fillable fields yet.')}</p>
                         <button
                           className="text-link"
                           onClick={() => {
@@ -2209,7 +2277,7 @@ export function Editor() {
                             setPropertiesTab('style');
                           }}
                         >
-                          Add a text field <Plus size={15} />
+                          {tr('Add a text field')} <Plus size={15} />
                         </button>
                       </div>
                     )}
@@ -2220,14 +2288,14 @@ export function Editor() {
                         onChange={(e) => setFlatten(e.target.checked)}
                       />
                       <span>
-                        Flatten fields when exporting
-                        <small>Makes completed fields uneditable.</small>
+                        {tr('Flatten fields when exporting')}
+                        <small>{tr('Makes completed fields uneditable.')}</small>
                       </span>
                     </label>
                   </>
                 ) : propertiesTab === 'find' ? (
                   <>
-                    <h2>Find your place.</h2>
+                    <h2>{tr('Find your place.')}</h2>
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
@@ -2235,22 +2303,22 @@ export function Editor() {
                       }}
                     >
                       <label>
-                        Search original document text
+                        {tr('Search original document text')}
                         <input
                           value={search}
                           onChange={(e) => setSearch(e.target.value)}
-                          placeholder="A word or phrase…"
+                          placeholder={tr('A word or phrase…')}
                         />
                       </label>
                       <button className="button dark full" disabled={searching}>
                         {searching ? <Loader2 className="spin" size={16} /> : <Search size={16} />}
-                        Find pages
+                        {tr('Find pages')}
                       </button>
                     </form>
                     <p className="panel-description">
                       {searchMatches.length
-                        ? `Found on ${searchMatches.length} page(s).`
-                        : 'Matching pages will appear here. Scanned images need OCR.'}
+                        ? tr('Found on {value0} page(s).', { value0: searchMatches.length })
+                        : tr('Matching pages will appear here. Scanned images need OCR.')}
                     </p>
                     <div className="search-page-results">
                       {searchMatches.map((i) => (
@@ -2259,7 +2327,7 @@ export function Editor() {
                           key={i}
                           onClick={() => setPageIndex(i)}
                         >
-                          Page {i + 1}
+                          {tr('Page')} {i + 1}
                           <ArrowRight size={14} />
                         </button>
                       ))}
@@ -2267,15 +2335,15 @@ export function Editor() {
                   </>
                 ) : mode === 'original-text' && originalSelection ? (
                   <>
-                    <h2>Text appearance</h2>
+                    <h2>{tr('Text appearance')}</h2>
                     <p className="panel-description">
-                      Type directly on the page. Drag the move handle to reposition this text. Use
-                      Tab or Shift+Tab to move between text blocks. Copy and Paste in the toolbar
-                      reuse the whole text box.
+                      {tr(
+                        'Type directly on the page. Drag the move handle to reposition this text. Use Tab or Shift+Tab to move between text blocks. Copy and Paste in the toolbar reuse the whole text box.',
+                      )}
                     </p>
                     <FontPicker
                       key={originalSelection.id}
-                      label="Text font"
+                      label={tr('Text font')}
                       value={
                         (
                           state.textChanges?.[pageModel.id]?.[originalSelection.id] ||
@@ -2286,7 +2354,7 @@ export function Editor() {
                       onChange={(font) => updateOriginalText(originalSelection, { font })}
                     />
                     <label>
-                      Text size
+                      {tr('Text size')}
                       <PdfTextSizeInput
                         key={originalSelection.id}
                         block={originalSelection}
@@ -2300,7 +2368,7 @@ export function Editor() {
                       />
                     </label>
                     <label>
-                      Text color
+                      {tr('Text color')}
                       <input
                         type="color"
                         value={
@@ -2328,12 +2396,13 @@ export function Editor() {
                           setOriginalSelection(null);
                         }}
                       >
-                        <Trash2 size={15} /> Delete copied text
+                        <Trash2 size={15} /> {tr('Delete copied text')}
                       </button>
                     )}
                     <p className="panel-description">
-                      The original font is preserved where available. Missing characters use a
-                      matching font automatically.
+                      {tr(
+                        'The original font is preserved where available. Missing characters use a matching font automatically.',
+                      )}
                     </p>
                   </>
                 ) : selected ? (
@@ -2341,22 +2410,22 @@ export function Editor() {
                     <div className="selected-heading">
                       <h2>
                         {selected.signatureSource
-                          ? 'Signature'
+                          ? tr('Signature')
                           : selected.kind === 'field'
-                            ? 'Text field'
+                            ? tr('Text field')
                             : selected.kind.charAt(0).toUpperCase() + selected.kind.slice(1)}
                       </h2>
-                      <span className="status-label">SELECTED</span>
+                      <span className="status-label">{tr('SELECTED')}</span>
                     </div>
                     {['text', 'signature', 'field', 'checkbox', 'comment'].includes(
                       selected.kind,
                     ) && (
                       <label>
                         {selected.kind === 'field' || selected.kind === 'checkbox'
-                          ? 'Unique field name'
+                          ? tr('Unique field name')
                           : selected.kind === 'comment'
-                            ? 'Comment'
-                            : 'Your text'}
+                            ? tr('Comment')
+                            : tr('Your text')}
                         <textarea
                           rows={selected.kind === 'text' || selected.kind === 'comment' ? 4 : 2}
                           maxLength={selected.kind === 'comment' ? 4000 : undefined}
@@ -2368,7 +2437,7 @@ export function Editor() {
                     {selected.kind === 'link' && (
                       <>
                         <label>
-                          Link address
+                          {tr('Link address')}
                           <input
                             type="url"
                             placeholder="https://example.com"
@@ -2378,21 +2447,24 @@ export function Editor() {
                           />
                         </label>
                         <p className="panel-description">
-                          Use https://, http://, or mailto:. The outlined area becomes clickable in
-                          the exported PDF.
+                          {tr(
+                            'Use https://, http://, or mailto:. The outlined area becomes clickable in the exported PDF.',
+                          )}
                         </p>
                       </>
                     )}
                     {selected.kind === 'comment' && (
                       <p className="panel-description">
-                        This note is saved as a PDF comment. Open it in a PDF reader that supports
-                        comments.
+                        {tr(
+                          'This note is saved as a PDF comment. Open it in a PDF reader that supports comments.',
+                        )}
                       </p>
                     )}
                     {selected.kind === 'whiteout' && (
                       <p className="panel-description">
-                        This covers content visually. The original content can still be recovered;
-                        use a dedicated redaction tool for sensitive information.
+                        {tr(
+                          'This covers content visually. The original content can still be recovered; use a dedicated redaction tool for sensitive information.',
+                        )}
                       </p>
                     )}
                     {['text', 'signature'].includes(selected.kind) && (
@@ -2409,7 +2481,7 @@ export function Editor() {
                     )}
                     {['text', 'signature', 'field'].includes(selected.kind) && (
                       <label>
-                        Text size
+                        {tr('Text size')}
                         <input
                           type="number"
                           min="6"
@@ -2425,13 +2497,13 @@ export function Editor() {
                     )}
                     {!['field', 'checkbox', 'image', 'link'].includes(selected.kind) && (
                       <>
-                        <label>Color</label>
+                        <label>{tr('Color')}</label>
                         <div className="color-swatches">
                           {palette.map((c) => (
                             <button
                               key={c}
                               style={{ background: c }}
-                              aria-label={`Use ${c} color`}
+                              aria-label={tr('Use {value0} color', { value0: c })}
                               aria-pressed={selected.color === c}
                               onClick={() => updateAnnotation(selected.id, { color: c })}
                             >
@@ -2442,7 +2514,7 @@ export function Editor() {
                           ))}
                           <input
                             type="color"
-                            aria-label="Custom annotation color"
+                            aria-label={tr('Custom annotation color')}
                             value={selected.color}
                             onChange={(e) =>
                               updateAnnotation(selected.id, { color: e.target.value })
@@ -2450,7 +2522,7 @@ export function Editor() {
                           />
                         </div>
                         <label>
-                          Opacity <span>{Math.round(selected.opacity * 100)}%</span>
+                          {tr('Opacity')} <span>{Math.round(selected.opacity * 100)}%</span>
                           <input
                             type="range"
                             min=".05"
@@ -2473,12 +2545,12 @@ export function Editor() {
                             updateAnnotation(selected.id, { required: e.target.checked })
                           }
                         />
-                        Required field
+                        {tr('Required field')}
                       </label>
                     )}
                     <div className="two-fields">
                       <label>
-                        Width
+                        {tr('Width')}
                         <input
                           type="number"
                           min="12"
@@ -2495,7 +2567,7 @@ export function Editor() {
                         />
                       </label>
                       <label>
-                        Height
+                        {tr('Height')}
                         <input
                           type="number"
                           min="12"
@@ -2530,7 +2602,7 @@ export function Editor() {
                         }}
                       >
                         <Copy size={15} />
-                        Duplicate
+                        {tr('Duplicate')}
                       </button>
                       <button
                         className="button secondary danger"
@@ -2543,11 +2615,11 @@ export function Editor() {
                         }}
                       >
                         <Trash2 size={15} />
-                        Delete
+                        {tr('Delete')}
                       </button>
                     </div>
                     <p className="panel-description">
-                      Drag to position. Use the corner handle or dimensions to resize.
+                      {tr('Drag to position. Use the corner handle or dimensions to resize.')}
                     </p>
                   </>
                 ) : (
@@ -2555,28 +2627,33 @@ export function Editor() {
                     <span className="properties-illustration">
                       <Settings2 size={32} strokeWidth={1.3} />
                     </span>
-                    <h2>The details are yours.</h2>
+                    <h2>{tr('The details are yours.')}</h2>
                     <p className="panel-description">
-                      Choose a tool, then click on your document. Select a mark to adjust its
-                      appearance.
+                      {tr(
+                        'Choose a tool, then click on your document. Select a mark to adjust its appearance.',
+                      )}
                     </p>
                     {mode === 'erase' || mode === 'whiteout' ? (
                       <p className="panel-description">
                         {mode === 'erase'
-                          ? 'Click any added text, shape, note, link, or image to remove it. Original page content stays intact. Use Undo to restore an item.'
-                          : 'Click or drag to add a cover. Resize it to fit the area and choose a color that matches the page. This does not permanently remove underlying text or images.'}
+                          ? tr(
+                              'Click any added text, shape, note, link, or image to remove it. Original page content stays intact. Use Undo to restore an item.',
+                            )
+                          : tr(
+                              'Click or drag to add a cover. Resize it to fit the area and choose a color that matches the page. This does not permanently remove underlying text or images.',
+                            )}
                       </p>
                     ) : mode === 'signature' ? (
                       <button
                         className="button secondary full"
                         onClick={() => setSignatureTab('draw')}
                       >
-                        Create your signature
+                        {tr('Create your signature')}
                       </button>
                     ) : (
                       <>
                         <label>
-                          Default text size
+                          {tr('Default text size')}
                           <input
                             type="number"
                             min="6"
@@ -2587,13 +2664,13 @@ export function Editor() {
                             }
                           />
                         </label>
-                        <label>Default color</label>
+                        <label>{tr('Default color')}</label>
                         <div className="color-swatches">
                           {palette.map((c) => (
                             <button
                               key={c}
                               style={{ background: c }}
-                              aria-label={`Default color ${c}`}
+                              aria-label={tr('Default color {value0}', { value0: c })}
                               aria-pressed={color === c}
                               onClick={() => setColor(c)}
                             >
@@ -2606,47 +2683,47 @@ export function Editor() {
                       </>
                     )}
                     <div className="editor-tips">
-                      <span className="eyebrow">A LITTLE GOOD TO KNOW</span>
+                      <span className="eyebrow">{tr('A LITTLE GOOD TO KNOW')}</span>
                       <p>
-                        Add text creates annotations. Choose Edit original text to replace supported
-                        PDF text directly on this page. Ctrl/⌘ + mouse wheel or pinch zooms around
-                        your pointer.
+                        {tr(
+                          'Add text creates annotations. Choose Edit original text to replace supported PDF text directly on this page. Ctrl/⌘ + mouse wheel or pinch zooms around your pointer.',
+                        )}
                       </p>
                       <div>
-                        <kbd>⌘ Z</kbd>
-                        <span>Undo a change</span>
+                        <kbd>{tr('⌘ Z')}</kbd>
+                        <span>{tr('Undo a change')}</span>
                       </div>
                       <div>
-                        <kbd>⌘ S</kbd>
-                        <span>Save to your account</span>
+                        <kbd>{tr('⌘ S')}</kbd>
+                        <span>{tr('Save to your account')}</span>
                       </div>
                       <div>
-                        <kbd>ESC</kbd>
-                        <span>Back to Move</span>
+                        <kbd>{tr('ESC')}</kbd>
+                        <span>{tr('Back to Move')}</span>
                       </div>
                     </div>
                   </>
                 )}
               </div>
               <div className="editor-next-step">
-                <span className="eyebrow">KEEP THE GOOD WORK GOING</span>
+                <span className="eyebrow">{tr('KEEP THE GOOD WORK GOING')}</span>
                 <Dropdown
-                  label="Continue with another tool"
+                  label={tr('Continue with another tool')}
                   hideLabel
-                  placeholder="Continue with another tool…"
+                  placeholder={tr('Continue with another tool…')}
                   value=""
                   disabled={!!busy}
                   onValueChange={(value) => {
                     if (value) void exportFile(value);
                   }}
                   options={[
-                    { value: 'edit-pdf-text', label: 'Edit original text' },
-                    { value: 'protect-pdf', label: 'Add a password' },
-                    { value: 'merge-pdf', label: 'Merge with another PDF' },
-                    { value: 'compress-pdf', label: 'Compress this PDF' },
-                    { value: 'pdf-to-jpg', label: 'Convert pages to JPG' },
-                    { value: 'split-pdf', label: 'Split or extract pages' },
-                    { value: 'translate-pdf', label: 'Prepare for translation' },
+                    { value: 'edit-pdf-text', label: tr('Edit original text') },
+                    { value: 'protect-pdf', label: tr('Add a password') },
+                    { value: 'merge-pdf', label: tr('Merge with another PDF') },
+                    { value: 'compress-pdf', label: tr('Compress this PDF') },
+                    { value: 'pdf-to-jpg', label: tr('Convert pages to JPG') },
+                    { value: 'split-pdf', label: tr('Split or extract pages') },
+                    { value: 'translate-pdf', label: tr('Prepare for translation') },
                   ]}
                 />
               </div>
@@ -2657,41 +2734,43 @@ export function Editor() {
             annotationFonts.error ||
             error ||
             notice) && (
-            <section className="editor-notifications" aria-label="Editor notifications">
+            <section className="editor-notifications" aria-label={tr('Editor notifications')}>
               {annotationFonts.error && (
                 <div className="editor-toast error-message" role="alert">
                   <span>{annotationFonts.error}</span>
                   <button className="text-link" onClick={annotationFonts.retry}>
-                    Retry fonts
+                    {tr('Retry fonts')}
                   </button>
                 </div>
               )}
               {autosave.phase === 'error' && (
                 <div className="editor-toast error-message" role="alert">
-                  <span>{autosave.error} Your current edits remain in this tab.</span>
+                  <span>
+                    {autosave.error} {tr('Your current edits remain in this tab.')}
+                  </span>
                   <button className="text-link" onClick={() => void save()}>
-                    Retry saving
+                    {tr('Retry saving')}
                   </button>
                 </div>
               )}
               {previewError && (
                 <div className="editor-toast error-message" role="alert">
-                  <span>{previewError}</span>
+                  <span>{tr(previewError)}</span>
                   <button
                     className="text-link"
                     disabled={retryingPreview}
                     onClick={() => void retryPreview()}
                   >
-                    {retryingPreview ? 'Loading preview…' : 'Retry preview'}
+                    {retryingPreview ? tr('Loading preview…') : tr('Retry preview')}
                   </button>
                 </div>
               )}
               {error && (
                 <div className="editor-toast error-message" role="alert">
-                  <span>{error}</span>
+                  <span>{tr(error)}</span>
                   <button
                     className="icon-button"
-                    aria-label="Dismiss error"
+                    aria-label={tr('Dismiss error')}
                     onClick={() => setError('')}
                   >
                     <X size={17} />
@@ -2701,10 +2780,10 @@ export function Editor() {
               {notice && (
                 <div className="editor-toast success-message" role="status">
                   <Check size={17} />
-                  <span>{notice}</span>
+                  <span>{tr(notice)}</span>
                   <button
                     className="icon-button"
-                    aria-label="Dismiss notification"
+                    aria-label={tr('Dismiss notification')}
                     onClick={() => setNotice('')}
                   >
                     <X size={17} />
@@ -2718,37 +2797,37 @@ export function Editor() {
               <ShieldCheck size={14} />
               {autosave.phase === 'saved'
                 ? autosave.expiresAt
-                  ? 'Saved for 24 hours'
-                  : 'All changes saved'
+                  ? tr('Saved for 24 hours')
+                  : tr('All changes saved')
                 : autosave.phase === 'uploading'
-                  ? 'Uploading PDF…'
+                  ? tr('Uploading PDF…')
                   : autosave.phase === 'error'
-                    ? 'Not saved — retry saving'
-                    : 'Saving changes…'}
+                    ? tr('Not saved — retry saving')
+                    : tr('Saving changes…')}
             </span>
             {bytes && !user && autosave.expiresAt && (
               <button
                 className="text-link guest-keep-file"
                 onClick={() => signInDialog.current?.showModal()}
               >
-                Sign in to keep
+                {tr('Sign in to keep')}
               </button>
             )}
             <div className="page-navigation">
               <button
                 className="icon-button"
-                aria-label="Previous page"
+                aria-label={tr('Previous page')}
                 disabled={pageIndex === 0}
                 onClick={() => setPageIndex(pageIndex - 1)}
               >
                 <ChevronLeft size={16} />
               </button>
               <span>
-                Page {pageIndex + 1} of {state.pages.length}
+                {tr('Page')} {pageIndex + 1} {tr('of')} {state.pages.length}
               </span>
               <button
                 className="icon-button"
-                aria-label="Next page"
+                aria-label={tr('Next page')}
                 disabled={pageIndex >= state.pages.length - 1}
                 onClick={() => setPageIndex(pageIndex + 1)}
               >
@@ -2758,18 +2837,22 @@ export function Editor() {
             <div className="zoom-controls">
               <button
                 className="icon-button"
-                aria-label="Zoom out"
+                aria-label={tr('Zoom out')}
                 disabled={zoom <= 50}
                 onClick={() => setZoom(Math.max(50, zoom - 10))}
               >
                 <Minus size={15} />
               </button>
-              <button className="zoom-value" title="Fit to width" onClick={() => setZoom(100)}>
+              <button
+                className="zoom-value"
+                title={tr('Fit to width')}
+                onClick={() => setZoom(100)}
+              >
                 {zoom}%
               </button>
               <button
                 className="icon-button"
-                aria-label="Zoom in"
+                aria-label={tr('Zoom in')}
                 disabled={zoom >= 300}
                 onClick={() => setZoom(Math.min(300, zoom + 10))}
               >
@@ -2797,7 +2880,7 @@ export function Editor() {
         onReady={() => void exportFile(undefined, true)}
       />
       <div className="sr-only" role="status" aria-live="polite">
-        {busy}
+        {tr(busy)}
       </div>
     </main>
   );

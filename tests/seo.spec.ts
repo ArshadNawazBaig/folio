@@ -32,9 +32,13 @@ test('public discovery exposes real FAQs, published feeds, image locations and a
     'content',
     'telephone=no, address=no, email=no',
   );
-  await expect(
-    page.locator('meta[name="twitter:site"], meta[name="twitter:creator"], link[hreflang]'),
-  ).toHaveCount(0);
+  await expect(page.locator('meta[name="twitter:site"], meta[name="twitter:creator"]')).toHaveCount(
+    0,
+  );
+  await expect(page.locator('head link[hreflang="de"]')).toHaveAttribute(
+    'href',
+    'https://folio.example/de',
+  );
   const shareDescription = await page
     .locator('meta[property="og:description"]')
     .getAttribute('content');

@@ -1,5 +1,8 @@
 'use client';
 import Link from 'next/link';
+import { useUiTranslation, useUiLocale } from './ui-language';
+import { signInHref } from '@/lib/auth-navigation';
+import { localizedHref } from '@/lib/i18n/translate';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Search, ArrowUpRight, Menu, X, ChevronRight } from 'lucide-react';
@@ -9,6 +12,7 @@ import { ToolIcon } from './icon';
 import { SiteAnnouncement } from './site-announcement';
 import { useAccount } from './account-provider';
 import { Skeleton, LoadingLabel } from './skeleton';
+import { LanguageSelector } from './language-selector';
 const nav = [
   ['Tools', '/tools'],
   ['Invoice', '/invoice-generator'],
@@ -26,6 +30,9 @@ const mobileNav = [
   ['Translate PDF', '/translate-pdf'],
 ];
 export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
   const { user, guest, loading, guestLoading } = useAccount();
   const hasAccount = !!user || guest;
   const checkingAccount = !user && (loading || guestLoading);
@@ -66,62 +73,66 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
-  const filtered = tools.filter((t) =>
-    `${t.name} ${t.keywords.join(' ')}`.toLowerCase().includes(query.toLowerCase()),
-  );
+  const filtered = tools
+    .map((tool) => ({ ...tool, name: tr(tool.name), short: tr(tool.short) }))
+    .filter((t) => `${t.name} ${t.keywords.join(' ')}`.toLowerCase().includes(query.toLowerCase()));
   return (
     <>
       <SiteAnnouncement />
-      <header className="site-header">
+      <header className="site-header" lang={locale}>
         <div className="header-inner">
-          <Logo light />
-          <nav aria-label="Main navigation" className="desktop-nav">
-            {nav.map(([label, href]) => (
+          <Logo light href={href('/')} label={tr('Folio home')} />
+          <nav aria-label={tr('Main navigation')} className="desktop-nav">
+            {nav.map(([label, target]) => (
               <Link
                 prefetch={false}
-                key={href}
-                href={href}
-                aria-current={path === href ? 'page' : undefined}
+                key={target}
+                href={href(target)}
+                aria-current={path === href(target) ? 'page' : undefined}
               >
-                {label}
+                {tr(label)}
               </Link>
             ))}
           </nav>
           <div className="header-actions">
+            <LanguageSelector label={tr('Language')} />
             <button
               className="search-trigger"
-              aria-label="Search tools"
+              aria-label={tr('Search tools')}
               aria-haspopup="dialog"
               aria-controls="tool-search-dialog"
               onClick={() => setSearchOpen(true)}
             >
               <Search size={17} aria-hidden="true" />
-              <span>Search tools</span>
-              <kbd aria-hidden="true">⌘ K</kbd>
+              <span>{tr('Search tools')}</span>
+              <kbd aria-hidden="true">{tr('⌘ K')}</kbd>
             </button>
             {checkingAccount ? (
               <span className="header-account" aria-busy="true">
-                <LoadingLabel>Checking your account…</LoadingLabel>
+                <LoadingLabel>{tr('Checking your account…')}</LoadingLabel>
                 <Skeleton width={49} height={12} />
                 <Skeleton width={15} height={15} className="header-account-icon-skeleton" />
               </span>
             ) : (
               <Link
                 prefetch={false}
-                href={hasAccount ? '/dashboard' : '/account'}
+                href={
+                  hasAccount
+                    ? href('/dashboard')
+                    : locale === 'en'
+                      ? '/account'
+                      : signInHref(href('/dashboard'))
+                }
                 className="header-account"
                 onClick={() => setMenu(false)}
               >
-                {hasAccount ? 'Dashboard' : 'Sign in'}
+                {tr(hasAccount ? 'Dashboard' : 'Sign in')}
                 <ArrowUpRight size={15} aria-hidden="true" />
               </Link>
             )}
-            <Link prefetch={false} href="/workspace" className="button header-editor-link">
-              Open editor <ArrowUpRight size={15} aria-hidden="true" />
-            </Link>
             <button
               className="icon-button mobile-menu"
-              aria-label={menu ? 'Close navigation' : 'Open navigation'}
+              aria-label={tr(menu ? 'Close navigation' : 'Open navigation')}
               aria-expanded={menu}
               onClick={() => setMenu(!menu)}
             >
@@ -130,20 +141,31 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
           </div>
         </div>
         {menu && (
-          <nav className="mobile-nav" aria-label="Mobile navigation">
-            {mobileNav.map(([label, href]) => (
-              <Link prefetch={false} key={href} href={href} onClick={() => setMenu(false)}>
-                {label}
+          <nav className="mobile-nav" aria-label={tr('Mobile navigation')}>
+            {mobileNav.map(([label, target]) => (
+              <Link
+                prefetch={false}
+                key={target}
+                href={href(target)}
+                onClick={() => setMenu(false)}
+              >
+                {tr(label)}
                 <ChevronRight size={17} />
               </Link>
             ))}
             {!checkingAccount && (
               <Link
                 prefetch={false}
-                href={hasAccount ? '/dashboard' : '/account'}
+                href={
+                  hasAccount
+                    ? href('/dashboard')
+                    : locale === 'en'
+                      ? '/account'
+                      : signInHref(href('/dashboard'))
+                }
                 onClick={() => setMenu(false)}
               >
-                {hasAccount ? 'Dashboard' : 'Sign in'} <ChevronRight size={17} />
+                {tr(hasAccount ? 'Dashboard' : 'Sign in')} <ChevronRight size={17} />
               </Link>
             )}
           </nav>
@@ -152,7 +174,7 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
       <dialog
         ref={dialog}
         id="tool-search-dialog"
-        aria-label="Find a PDF tool"
+        aria-label={tr('Find a PDF tool')}
         className="search-dialog"
         onClose={() => setSearchOpen(false)}
         onClick={(e) => {
@@ -165,28 +187,28 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
               <div className="search-dialog-field">
                 <Search size={19} aria-hidden="true" />
                 <input
-                  aria-label="Search PDF tools"
-                  placeholder="Search PDF tools…"
+                  aria-label={tr('Search PDF tools')}
+                  placeholder={tr('Search PDF tools…')}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   autoFocus
                 />
               </div>
               <button
-                aria-label="Close search"
+                aria-label={tr('Close search')}
                 className="icon-button"
                 onClick={() => dialog.current?.close()}
               >
                 <X size={20} />
               </button>
             </div>
-            <p className="search-hint">Try “make my PDF smaller” or “fill a form”</p>
+            <p className="search-hint">{tr('Try “make my PDF smaller” or “fill a form”')}</p>
             <div className="search-results">
               {filtered.length ? (
                 filtered.map((t) => (
                   <Link
                     prefetch={false}
-                    href={`/${t.slug}`}
+                    href={href(`/${t.slug}`)}
                     key={t.slug}
                     onClick={() => dialog.current?.close()}
                   >
@@ -197,16 +219,19 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
                       <strong>{t.name}</strong>
                       <small>{t.short}</small>
                     </span>
-                    {!t.available && <span className="status-label">Coming soon</span>}
+                    {!t.available && <span className="status-label">{tr('Coming soon')}</span>}
                     <ArrowUpRight size={16} />
                   </Link>
                 ))
               ) : (
-                <p className="empty-search">No matching tools. Try “merge”, “text”, or “image”.</p>
+                <p className="empty-search">
+                  {tr('No matching tools. Try “merge”, “text”, or “image”.')}
+                </p>
               )}
             </div>
             <div className="search-dialog-footer">
-              Your next step, a little easier.<kbd>ESC to close</kbd>
+              {tr('Your next step, a little easier.')}
+              <kbd>{tr('ESC to close')}</kbd>
             </div>
           </>
         )}

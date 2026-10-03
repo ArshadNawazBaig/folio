@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import { useEffect, useRef, useState } from 'react';
 import { Download, X, RefreshCw, Loader2, ShieldCheck } from 'lucide-react';
 import { googleSignInUrl } from '@/lib/auth-client';
@@ -19,6 +21,8 @@ export function DownloadGate({
   saved?: boolean;
   tool: PremiumDownloadTool;
 }) {
+  const tr = useUiTranslation();
+
   const dialog = useRef<HTMLDialogElement>(null);
   const signInTab = useRef<Window | null>(null);
   const startingSignIn = useRef(false);
@@ -60,7 +64,7 @@ export function DownloadGate({
       const url = await googleSignInUrl('/account', true);
       if (tab.closed) throw new Error('The sign-in tab was closed. Please try again.');
       tab.location.replace(url);
-      setNotice('Google sign-in opened in a new tab. Your edits are still here.');
+      setNotice(tr('Google sign-in opened in a new tab. Your edits are still here.'));
     } catch (e) {
       tab.close();
       signInTab.current = null;
@@ -81,7 +85,9 @@ export function DownloadGate({
         onReady();
       } else
         setNotice(
-          'Premium access is not active yet. After paying, allow a moment for confirmation and check again.',
+          tr(
+            'Premium access is not active yet. After paying, allow a moment for confirmation and check again.',
+          ),
         );
     } finally {
       setChecking(false);
@@ -103,52 +109,61 @@ export function DownloadGate({
           <Download size={25} />
         </span>
         <div className={s.heading}>
-          <span>FOLIO PRO DOWNLOAD</span>
-          <h2 id="download-gate-title">Take your work with you.</h2>
+          <span>{tr('FOLIO PRO DOWNLOAD')}</span>
+          <h2 id="download-gate-title">{tr('Take your work with you.')}</h2>
         </div>
-        <button className="icon-button gate-close" aria-label="Keep editing" onClick={onClose}>
+        <button
+          className="icon-button gate-close"
+          aria-label={tr('Keep editing')}
+          onClick={onClose}
+        >
           <X size={20} />
         </button>
       </header>
-      <div className="download-gate-body" role="region" aria-label="Download options" tabIndex={0}>
+      <div
+        className="download-gate-body"
+        role="region"
+        aria-label={tr('Download options')}
+        tabIndex={0}
+      >
         <p id="download-gate-description">
-          Unlock your {download.format} download with Folio Pro. Keep editing and previewing for
-          free.
+          {tr('Unlock your')} {download.format}{' '}
+          {tr('download with Folio Pro. Keep editing and previewing for free.')}
         </p>
         {open && <Pricing compact checkoutInNewTab signInInFooter />}
         <details className={s.explanation}>
-          <summary>About this Pro download</summary>
+          <summary>{tr('About this Pro download')}</summary>
           <p>{download.reason}</p>
         </details>
         <div className={`gate-preserve ${s.preserve}`}>
           <ShieldCheck size={18} aria-hidden="true" />
           <p>
             {saved
-              ? 'Your recovery draft is saved in cloud storage. '
-              : 'Keep this tab open until your work is saved to your account or downloaded. '}
-            Sign-in and checkout open in a new tab, so your document stays here.
+              ? tr('Your recovery draft is saved in cloud storage. ')
+              : tr('Keep this tab open until your work is saved to your account or downloaded. ')}
+            {tr('Sign-in and checkout open in a new tab, so your document stays here.')}
           </p>
         </div>
       </div>
       <footer className="download-gate-footer">
         {notice && !message && (
           <p role="status" className="service-note">
-            {notice}
+            {tr(notice)}
           </p>
         )}
         {message && (
           <p className="error-message" role="alert">
-            {message}
+            {tr(message)}
           </p>
         )}
         {!user && !configured && (
           <p className="service-note" role="status">
-            Google sign-in is not connected yet. You can keep editing.
+            {tr('Google sign-in is not connected yet. You can keep editing.')}
           </p>
         )}
         <div className="gate-actions">
           <button className="button secondary" onClick={onClose}>
-            Keep editing
+            {tr('Keep editing')}
           </button>
           {!user ? (
             <button
@@ -161,16 +176,16 @@ export function DownloadGate({
               ) : (
                 <img src="/google-g.png" width={18} height={18} alt="" />
               )}
-              <span>{signingIn ? 'Opening Google…' : 'Continue with Google'}</span>
+              <span>{signingIn ? tr('Opening Google…') : tr('Continue with Google')}</span>
             </button>
           ) : (
             <button className="button primary" disabled={checking || loading} onClick={check}>
               {access.pro ? <Download size={15} /> : <RefreshCw size={15} />}
               {checking || loading
-                ? 'Checking access…'
+                ? tr('Checking access…')
                 : access.pro
-                  ? `Download my ${download.format}`
-                  : `I’ve paid — download my ${download.format}`}
+                  ? tr('Download my {value0}', { value0: download.format })
+                  : tr('I’ve paid — download my {value0}', { value0: download.format })}
             </button>
           )}
         </div>

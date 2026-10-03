@@ -1,3 +1,4 @@
+import { translator } from './i18n/translate';
 import { z } from 'zod';
 import { invoiceTemplates, invoiceTemplateIds } from './invoice-designs';
 export { invoiceTemplates } from './invoice-designs';
@@ -316,27 +317,30 @@ export function invoiceMoney(minor: number, currency: InvoiceCurrency) {
   const digits = invoiceCurrencies[currency];
   return `${currency} ${(minor / 10 ** digits).toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })}`;
 }
-export function invoiceIssues(invoice: Invoice) {
+export function invoiceIssues(invoice: Invoice, tr = translator()) {
   const issues: string[] = [];
-  if (!invoice.number.trim()) issues.push('Add an invoice number.');
-  if (!invoice.from.name.trim()) issues.push('Add your business name.');
-  if (!invoice.to.name.trim()) issues.push('Add your customer’s name.');
-  if (invoice.due < invoice.issued) issues.push('The due date cannot be before the invoice date.');
+  if (!invoice.number.trim()) issues.push(tr('Add an invoice number.'));
+  if (!invoice.from.name.trim()) issues.push(tr('Add your business name.'));
+  if (!invoice.to.name.trim()) issues.push(tr('Add your customer’s name.'));
+  if (invoice.due < invoice.issued)
+    issues.push(tr('The due date cannot be before the invoice date.'));
   for (const [index, item] of invoice.items.entries()) {
-    if (!item.description.trim()) issues.push(`Describe item ${index + 1}.`);
+    if (!item.description.trim()) issues.push(tr('Describe item {number}.', { number: index + 1 }));
     if (!(Number(item.quantity) > 0))
-      issues.push(`Enter a quantity greater than zero for item ${index + 1}.`);
+      issues.push(
+        tr('Enter a quantity greater than zero for item {number}.', { number: index + 1 }),
+      );
   }
   if (invoice.discountMode === 'percent' && Number(invoice.discount) > 100)
-    issues.push('The discount cannot exceed 100%.');
+    issues.push(tr('The discount cannot exceed 100%.'));
   if (
     invoice.discountMode === 'fixed' &&
     Number(invoice.discount) * 10 ** invoiceCurrencies[invoice.currency] >
       invoiceTotals(invoice).subtotal
   )
-    issues.push('The discount cannot exceed the items subtotal.');
+    issues.push(tr('The discount cannot exceed the items subtotal.'));
   if (invoice.paymentQr && !invoice.paymentUrl)
-    issues.push('Add a payment link for the QR code, or turn the QR code off.');
+    issues.push(tr('Add a payment link for the QR code, or turn the QR code off.'));
   return issues;
 }
 export function invoiceFilename(invoice: Invoice, extension = 'pdf') {

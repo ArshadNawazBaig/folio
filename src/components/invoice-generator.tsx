@@ -1,9 +1,12 @@
 'use client';
+import { useUiTranslation, useLocalizedHref, useUiLocale } from '@/components/ui-language';
+
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Menu } from '@base-ui/react/menu';
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ChangeEvent,
@@ -98,28 +101,38 @@ const draftConfirmations = {
     confirmLabel: 'Import draft',
   },
 };
-const currencyNames = new Intl.DisplayNames(['en'], { type: 'currency' });
-const currencyOptions = Object.keys(invoiceCurrencies).map((value) => ({
-  value,
-  label: `${value} · ${currencyNames.of(value) || value}`,
-}));
 function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
+  const tr = useUiTranslation();
+
   return (
     <label className={s.field}>
-      <span>{label}</span>
+      <span>{tr(label)}</span>
       {children}
-      {hint && <small>{hint}</small>}
+      {hint && <small>{tr(hint)}</small>}
     </label>
   );
 }
 function ProBadge() {
+  const tr = useUiTranslation();
+
   return (
     <span className={s.proBadge}>
-      <Crown size={10} /> PRO
+      <Crown size={10} /> {tr('PRO')}
     </span>
   );
 }
 export function InvoiceGenerator() {
+  const tr = useUiTranslation();
+  const href = useLocalizedHref();
+  const locale = useUiLocale();
+  const currencyOptions = useMemo(() => {
+    const names = new Intl.DisplayNames([locale], { type: 'currency' });
+    return Object.keys(invoiceCurrencies).map((value) => ({
+      value,
+      label: `${value} · ${names.of(value) || value}`,
+    }));
+  }, [locale]);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const invoiceId = searchParams.get('invoice');
@@ -149,7 +162,7 @@ export function InvoiceGenerator() {
   const [blankSnapshot, setBlankSnapshot] = useState(() => JSON.stringify(newInvoice()));
   const totals = invoiceTotals(invoice),
     proFeatures = invoiceProFeatures(invoice),
-    issues = invoiceIssues(invoice);
+    issues = invoiceIssues(invoice, tr);
   const dirty = saved
     ? saved.snapshot !== JSON.stringify(invoice)
     : blankSnapshot !== JSON.stringify(invoice);
@@ -308,7 +321,7 @@ export function InvoiceGenerator() {
       setShowIssues(false);
       loadedId.current = '';
       window.history.replaceState(null, '', window.location.pathname);
-      setNotice('Draft imported. Review the details before downloading.');
+      setNotice(tr('Draft imported. Review the details before downloading.'));
       return;
     }
     const sample = action.kind === 'sample';
@@ -319,8 +332,8 @@ export function InvoiceGenerator() {
     setError('');
     setNotice(
       sample
-        ? 'Sample loaded. Replace the example details before sending.'
-        : 'A fresh invoice, ready for your details.',
+        ? tr('Sample loaded. Replace the example details before sending.')
+        : tr('A fresh invoice, ready for your details.'),
     );
     setShowIssues(false);
     loadedId.current = '';
@@ -341,7 +354,7 @@ export function InvoiceGenerator() {
     setSaved(null);
     loadedId.current = '';
     window.history.replaceState(null, '', window.location.pathname);
-    setNotice('A new copy is ready. Check its invoice number and dates before sending.');
+    setNotice(tr('A new copy is ready. Check its invoice number and dates before sending.'));
   }
   async function loadLogo(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -352,7 +365,7 @@ export function InvoiceGenerator() {
       !['image/png', 'image/jpeg', 'image/webp'].includes(file.type) ||
       file.size > 5 * 1024 * 1024
     ) {
-      setError('Choose a PNG, JPG, or WebP logo smaller than 5 MB.');
+      setError(tr('Choose a PNG, JPG, or WebP logo smaller than 5 MB.'));
       return;
     }
     const url = URL.createObjectURL(file);
@@ -371,7 +384,7 @@ export function InvoiceGenerator() {
       if (data.length > 480000) throw new Error('This logo is too detailed. Try a smaller image.');
       patch('logo', data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'The logo could not be opened.');
+      setError(e instanceof Error ? e.message : tr('The logo could not be opened.'));
     } finally {
       URL.revokeObjectURL(url);
     }
@@ -390,7 +403,7 @@ export function InvoiceGenerator() {
         );
       requestDraftAction({ kind: 'import', document: parsed.data });
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'The draft could not be opened.');
+      setError(e instanceof Error ? e.message : tr('The draft could not be opened.'));
     }
   }
   function backup() {
@@ -403,7 +416,7 @@ export function InvoiceGenerator() {
       new Blob([JSON.stringify(invoice, null, 2)], { type: 'application/json' }),
       invoiceFilename(invoice, 'json'),
     );
-    setNotice('Draft backup prepared. Keep the JSON file to edit this invoice later.');
+    setNotice(tr('Draft backup prepared. Keep the JSON file to edit this invoice later.'));
   }
   async function exportPdf(useFree = false, verified = false) {
     if (busy) return;
@@ -416,9 +429,9 @@ export function InvoiceGenerator() {
       setError(parsed.error.issues[0].message);
       return;
     }
-    const problems = invoiceIssues(document);
+    const problems = invoiceIssues(document, tr);
     if (problems.length) {
-      setError('Complete the highlighted checklist before downloading.');
+      setError(tr('Complete the highlighted checklist before downloading.'));
       return;
     }
     const pro = invoiceProFeatures(document).length > 0;
@@ -459,12 +472,14 @@ export function InvoiceGenerator() {
       if (!controller.signal.aborted)
         setNotice(
           useFree
-            ? 'Free PDF prepared with Classic/free design options. Your working design is unchanged.'
-            : 'Your PDF is ready. Review it before sending it to your customer.',
+            ? tr(
+                'Free PDF prepared with Classic/free design options. Your working design is unchanged.',
+              )
+            : tr('Your PDF is ready. Review it before sending it to your customer.'),
         );
     } catch (e) {
       if (!controller.signal.aborted)
-        setError(e instanceof Error ? e.message : 'The PDF could not be prepared.');
+        setError(e instanceof Error ? e.message : tr('The PDF could not be prepared.'));
     } finally {
       if (!controller.signal.aborted) setBusy('');
     }
@@ -500,10 +515,10 @@ export function InvoiceGenerator() {
       setSaved({ id: value.id, revision: value.revision, snapshot: JSON.stringify(invoice) });
       loadedId.current = `${user?.id}:${value.id}`;
       window.history.replaceState(null, '', `${window.location.pathname}?invoice=${value.id}`);
-      setNotice('Invoice saved privately to your account.');
+      setNotice(tr('Invoice saved privately to your account.'));
     } catch (e) {
       if (!controller.signal.aborted)
-        setError(e instanceof Error ? e.message : 'The invoice could not be saved.');
+        setError(e instanceof Error ? e.message : tr('The invoice could not be saved.'));
     } finally {
       if (!controller.signal.aborted) setBusy('');
     }
@@ -530,88 +545,92 @@ export function InvoiceGenerator() {
     <main
       id="main"
       className={s.workspace}
-      aria-label="Invoice editor"
+      aria-label={tr('Invoice editor')}
       onClickCapture={confirmExit}
     >
       <header className={s.workspaceBar}>
         <div className={s.workspaceIdentity}>
-          <Logo light />
+          <Logo light href={href('/')} />
           <span className={s.headerDivider} aria-hidden="true" />
           <div className={s.workspaceTitle}>
-            <h1>Invoice editor</h1>
+            <h1>{tr('Invoice editor')}</h1>
             <div className={s.documentMeta}>
-              <span className={s.documentNumber} title={invoice.number || 'Untitled invoice'}>
-                {invoice.number || 'Untitled invoice'}
+              <span className={s.documentNumber} title={invoice.number || tr('Untitled invoice')}>
+                {invoice.number || tr('Untitled invoice')}
               </span>
               <span
                 className={s.draftState}
                 data-state={saved && !dirty ? 'saved' : dirty ? 'unsaved' : 'draft'}
               >
                 <span className={s.statusDot} />
-                {saved ? (dirty ? 'Unsaved changes' : 'Saved to account') : 'Draft in this tab'}
+                {saved
+                  ? dirty
+                    ? tr('Unsaved changes')
+                    : tr('Saved to account')
+                  : tr('Draft in this tab')}
               </span>
             </div>
           </div>
         </div>
         <div className={s.workspaceActions}>
           <Link
-            href="/dashboard?view=invoices"
+            href={href('/dashboard?view=invoices')}
             target="_blank"
             rel="noopener"
-            aria-label="Saved invoices"
+            aria-label={tr('Saved invoices')}
             className={s.libraryLink}
           >
             <FolderOpen size={17} />
-            <span>Saved invoices</span>
+            <span>{tr('Saved invoices')}</span>
           </Link>
           <button
             className={s.saveButton}
             disabled={!ready || loading || !!busy}
             onClick={() => void save()}
-            aria-label="Save to account"
+            aria-label={tr('Save to account')}
           >
             {busy === 'Saving invoice…' ? (
               <Loader2 size={16} className="spin" />
             ) : (
               <Save size={16} />
             )}
-            <span className={s.saveFullLabel}>Save to account</span>
-            <span className={s.saveShortLabel}>Save</span>
+            <span className={s.saveFullLabel}>{tr('Save to account')}</span>
+            <span className={s.saveShortLabel}>{tr('Save')}</span>
             {!access.pro && <ProBadge />}
           </button>
         </div>
       </header>
       <div className={s.actionBar}>
         <Link
-          href="/invoice-generator"
+          href={href('/invoice-generator')}
           className={s.backLink}
-          aria-label="Back to invoice generator"
-          title="Back to invoice generator"
+          aria-label={tr('Back to invoice generator')}
+          title={tr('Back to invoice generator')}
         >
           <ArrowLeft size={16} />
-          <span>Invoice generator</span>
+          <span>{tr('Invoice generator')}</span>
         </Link>
         <div className={s.secondaryActions}>
           <button disabled={!ready || !!busy} onClick={() => requestDraftAction({ kind: 'new' })}>
-            <FilePlus2 size={16} /> New
+            <FilePlus2 size={16} /> {tr('New')}
           </button>
           <button
             disabled={!ready || !!busy}
             onClick={() => requestDraftAction({ kind: 'sample' })}
-            aria-label="Try a sample"
+            aria-label={tr('Try a sample')}
           >
             <ClipboardList size={16} />
-            <span className={s.sampleFullLabel}>Try a sample</span>
-            <span className={s.sampleShortLabel}>Sample</span>
+            <span className={s.sampleFullLabel}>{tr('Try a sample')}</span>
+            <span className={s.sampleShortLabel}>{tr('Sample')}</span>
           </button>
           <span className={s.toolbarDivider} aria-hidden="true" />
           <Menu.Root>
             <Menu.Trigger
               className={s.fileMenuTrigger}
               disabled={!ready || !!busy}
-              aria-label="File actions"
+              aria-label={tr('File actions')}
             >
-              <FileText size={16} /> File <ChevronDown size={13} />
+              <FileText size={16} /> {tr('File')} <ChevronDown size={13} />
             </Menu.Trigger>
             <Menu.Portal>
               <Menu.Positioner
@@ -628,7 +647,8 @@ export function InvoiceGenerator() {
                   >
                     <Copy size={16} />
                     <span>
-                      Duplicate invoice<small>Start a new invoice with these details</small>
+                      {tr('Duplicate invoice')}
+                      <small>{tr('Start a new invoice with these details')}</small>
                     </span>
                   </Menu.Item>
                   <Menu.Item
@@ -638,7 +658,8 @@ export function InvoiceGenerator() {
                   >
                     <Upload size={16} />
                     <span>
-                      Import draft<small>Continue from a saved draft backup</small>
+                      {tr('Import draft')}
+                      <small>{tr('Continue from a saved draft backup')}</small>
                     </span>
                   </Menu.Item>
                   <Menu.Item
@@ -648,17 +669,25 @@ export function InvoiceGenerator() {
                   >
                     <Download size={16} />
                     <span>
-                      Draft backup<small>Keep an editable copy on your device</small>
+                      {tr('Draft backup')}
+                      <small>{tr('Keep an editable copy on your device')}</small>
                     </span>
                   </Menu.Item>
                   <Menu.Separator className={s.fileMenuSeparator} />
                   <Menu.Item
                     className={`editor-menu-item ${s.fileMenuItem}`}
-                    render={<Link href="/dashboard?view=invoices" target="_blank" rel="noopener" />}
+                    render={
+                      <Link
+                        href={href('/dashboard?view=invoices')}
+                        target="_blank"
+                        rel="noopener"
+                      />
+                    }
                   >
                     <FolderOpen size={16} />
                     <span>
-                      Saved invoices<small>Open your private invoice library</small>
+                      {tr('Saved invoices')}
+                      <small>{tr('Open your private invoice library')}</small>
                     </span>
                   </Menu.Item>
                 </Menu.Popup>
@@ -672,7 +701,7 @@ export function InvoiceGenerator() {
         type="file"
         accept="application/json,.json"
         hidden
-        aria-label="Import invoice draft"
+        aria-label={tr('Import invoice draft')}
         onChange={importDraft}
       />
       <input
@@ -680,14 +709,19 @@ export function InvoiceGenerator() {
         type="file"
         accept="image/png,image/jpeg,image/webp"
         hidden
-        aria-label="Choose business logo"
+        aria-label={tr('Choose business logo')}
         onChange={loadLogo}
       />
       {(error || notice || upgrade || (showIssues && issues.length > 0)) && (
-        <div className={s.messages} tabIndex={0} role="region" aria-label="Invoice notifications">
+        <div
+          className={s.messages}
+          tabIndex={0}
+          role="region"
+          aria-label={tr('Invoice notifications')}
+        >
           <button
             className={s.dismissMessage}
-            aria-label="Dismiss invoice notifications"
+            aria-label={tr('Dismiss invoice notifications')}
             onClick={() => {
               setError('');
               setNotice('');
@@ -699,22 +733,23 @@ export function InvoiceGenerator() {
           </button>
           {error && (
             <p className={s.error} role="alert">
-              {error}
+              {tr(error)}
             </p>
           )}
           {notice && (
             <p className={s.notice} role="status">
               <Check size={16} />
-              {notice}
+              {tr(notice)}
             </p>
           )}
           {upgrade && (
             <div className={s.upgrade} role="status">
               <div>
-                <strong>Your invoices, ready next time.</strong>
+                <strong>{tr('Your invoices, ready next time.')}</strong>
                 <p>
-                  Pro saves up to 200 invoices in your private account. Free PDF downloads and draft
-                  backups are always available.
+                  {tr(
+                    'Pro saves up to 200 invoices in your private account. Free PDF downloads and draft backups are always available.',
+                  )}
                 </p>
               </div>
               <Link
@@ -729,19 +764,19 @@ export function InvoiceGenerator() {
                 rel="noopener"
                 className="button dark"
               >
-                {user ? 'Explore Pro' : 'Sign in to continue'} <ChevronRight size={15} />
+                {user ? tr('Explore Pro') : tr('Sign in to continue')} <ChevronRight size={15} />
               </Link>
-              <button onClick={() => setUpgrade(false)} aria-label="Dismiss Pro information">
+              <button onClick={() => setUpgrade(false)} aria-label={tr('Dismiss Pro information')}>
                 <X size={17} />
               </button>
             </div>
           )}
           {showIssues && issues.length > 0 && (
             <div className={s.checklist}>
-              <strong>Before you download</strong>
+              <strong>{tr('Before you download')}</strong>
               <ul>
                 {issues.map((issue) => (
-                  <li key={issue}>{issue}</li>
+                  <li key={issue}>{tr(issue)}</li>
                 ))}
               </ul>
             </div>
@@ -750,15 +785,15 @@ export function InvoiceGenerator() {
       )}
       <div className={s.mobileSwitch}>
         <button aria-pressed={!mobilePreview} onClick={() => setMobilePreview(false)}>
-          Edit invoice
+          {tr('Edit invoice')}
         </button>
         <button aria-pressed={mobilePreview} onClick={() => setMobilePreview(true)}>
-          Live preview
+          {tr('Live preview')}
         </button>
       </div>
       <div className={s.workGrid}>
         <div className={`${s.editor} ${mobilePreview ? s.mobileHidden : ''}`}>
-          <nav className={s.tabs} aria-label="Invoice sections">
+          <nav className={s.tabs} aria-label={tr('Invoice sections')}>
             {tabs.map((label, index) => (
               <button
                 key={label}
@@ -767,7 +802,7 @@ export function InvoiceGenerator() {
                 onClick={() => setTab(index)}
               >
                 <span>0{index + 1}</span>
-                {label}
+                {tr(label)}
               </button>
             ))}
           </nav>
@@ -776,17 +811,17 @@ export function InvoiceGenerator() {
             className={s.formScroll}
             tabIndex={0}
             role="region"
-            aria-label="Invoice editing fields"
+            aria-label={tr('Invoice editing fields')}
           >
             <fieldset className={s.editorFields} disabled={!ready || !!busy}>
-              <legend className="sr-only">{tabs[tab]}</legend>
+              <legend className="sr-only">{tr(tabs[tab])}</legend>
               {tab === 0 && (
                 <>
                   <div className={s.sectionTitle}>
                     <div>
-                      <span className="eyebrow">START WITH THE ESSENTIALS</span>
-                      <h2>Who’s it for?</h2>
-                      <p>A few details make it unmistakably yours.</p>
+                      <span className="eyebrow">{tr('START WITH THE ESSENTIALS')}</span>
+                      <h2>{tr('Who’s it for?')}</h2>
+                      <p>{tr('A few details make it unmistakably yours.')}</p>
                     </div>
                     <button
                       className={s.logoButton}
@@ -794,11 +829,11 @@ export function InvoiceGenerator() {
                       type="button"
                     >
                       {invoice.logo ? (
-                        <img src={invoice.logo} width={70} height={42} alt="Current logo" />
+                        <img src={invoice.logo} width={70} height={42} alt={tr('Current logo')} />
                       ) : (
                         <ImagePlus size={24} />
                       )}
-                      <span>{invoice.logo ? 'Change logo' : 'Add your logo'}</span>
+                      <span>{invoice.logo ? tr('Change logo') : tr('Add your logo')}</span>
                     </button>
                   </div>
                   {invoice.logo && (
@@ -807,32 +842,34 @@ export function InvoiceGenerator() {
                       onClick={() => patch('logo', '')}
                       type="button"
                     >
-                      Remove logo
+                      {tr('Remove logo')}
                     </button>
                   )}
                   <div className={s.fieldGrid}>
-                    <Field label="Invoice number">{input('number', 'text', 60)}</Field>
+                    <Field label={tr('Invoice number')}>{input('number', 'text', 60)}</Field>
                     <div className={s.selectField}>
                       <Dropdown
-                        label="Currency"
+                        label={tr('Currency')}
                         value={invoice.currency}
                         disabled={!ready || !!busy}
                         onValueChange={(value) => patch('currency', value as Invoice['currency'])}
                         options={currencyOptions}
-                        searchPlaceholder="Search currencies…"
-                        searchLabel="Search currencies"
+                        searchPlaceholder={tr('Search currencies…')}
+                        searchLabel={tr('Search currencies')}
                       />
-                      <small>Changes the currency, not the prices through an exchange rate.</small>
+                      <small>
+                        {tr('Changes the currency, not the prices through an exchange rate.')}
+                      </small>
                     </div>
                     <DatePicker
-                      label="Invoice date"
+                      label={tr('Invoice date')}
                       value={invoice.issued}
                       clearable={false}
                       disabled={!ready || !!busy}
                       onValueChange={(value) => patch('issued', value)}
                     />
                     <DatePicker
-                      label="Due date"
+                      label={tr('Due date')}
                       value={invoice.due}
                       clearable={false}
                       disabled={!ready || !!busy}
@@ -840,7 +877,7 @@ export function InvoiceGenerator() {
                     />
                   </div>
                   <div className={s.quickTerms}>
-                    <span>Payment due</span>
+                    <span>{tr('Payment due')}</span>
                     {[0, 7, 14, 30, 60].map((days) => (
                       <button
                         key={days}
@@ -849,21 +886,21 @@ export function InvoiceGenerator() {
                           if (invoice.issued) patch('due', dueAfter(invoice.issued, days));
                         }}
                       >
-                        {days ? `Net ${days}` : 'On receipt'}
+                        {days ? tr('Net {value0}', { value0: days }) : tr('On receipt')}
                       </button>
                     ))}
                   </div>
-                  <Field label="Reference / purchase order (optional)">
+                  <Field label={tr('Reference / purchase order (optional)')}>
                     {input('reference', 'text', 120)}
                   </Field>
                   {(['from', 'to'] as const).map((key) => (
                     <div className={s.partyEditor} key={key}>
                       <h3>
                         <span>{key === 'from' ? '01' : '02'}</span>
-                        {key === 'from' ? 'Your business' : 'Your customer'}
+                        {key === 'from' ? tr('Your business') : tr('Your customer')}
                       </h3>
                       <div className={s.fieldGrid}>
-                        <Field label={key === 'from' ? 'Business name' : 'Customer name'}>
+                        <Field label={key === 'from' ? tr('Business name') : tr('Customer name')}>
                           <input
                             value={invoice[key].name}
                             maxLength={120}
@@ -874,8 +911,8 @@ export function InvoiceGenerator() {
                         <Field
                           label={
                             key === 'from'
-                              ? 'Business email (optional)'
-                              : 'Customer email (optional)'
+                              ? tr('Business email (optional)')
+                              : tr('Customer email (optional)')
                           }
                         >
                           <input
@@ -886,7 +923,9 @@ export function InvoiceGenerator() {
                           />
                         </Field>
                       </div>
-                      <Field label={key === 'from' ? 'Business address' : 'Billing address'}>
+                      <Field
+                        label={key === 'from' ? tr('Business address') : tr('Billing address')}
+                      >
                         <textarea
                           rows={3}
                           maxLength={500}
@@ -897,8 +936,8 @@ export function InvoiceGenerator() {
                       <Field
                         label={
                           key === 'from'
-                            ? 'Business tax ID (optional)'
-                            : 'Customer tax ID (optional)'
+                            ? tr('Business tax ID (optional)')
+                            : tr('Customer tax ID (optional)')
                         }
                       >
                         <input
@@ -910,8 +949,8 @@ export function InvoiceGenerator() {
                     </div>
                   ))}
                   <details className={s.optional}>
-                    <summary>Different shipping address</summary>
-                    <Field label="Ship to">
+                    <summary>{tr('Different shipping address')}</summary>
+                    <Field label={tr('Ship to')}>
                       <textarea
                         rows={3}
                         maxLength={500}
@@ -926,22 +965,24 @@ export function InvoiceGenerator() {
                 <>
                   <div className={s.sectionTitle}>
                     <div>
-                      <span className="eyebrow">MAKE EVERY LINE CLEAR</span>
-                      <h2>The work, itemized.</h2>
-                      <p>Quantities, prices, and totals that stay in sync.</p>
+                      <span className="eyebrow">{tr('MAKE EVERY LINE CLEAR')}</span>
+                      <h2>{tr('The work, itemized.')}</h2>
+                      <p>{tr('Quantities, prices, and totals that stay in sync.')}</p>
                     </div>
                   </div>
                   <div className={s.items}>
                     {invoice.items.map((item, index) => (
                       <div className={s.item} key={item.id}>
                         <div className={s.itemHeading}>
-                          <strong>Item {String(index + 1).padStart(2, '0')}</strong>
+                          <strong>
+                            {tr('Item')} {String(index + 1).padStart(2, '0')}
+                          </strong>
                           <div>
                             <button
                               type="button"
                               onClick={() => reorder(index, -1)}
                               disabled={!index || !!busy}
-                              aria-label={`Move item ${index + 1} up`}
+                              aria-label={tr('Move item {value0} up', { value0: index + 1 })}
                             >
                               <ArrowUp size={15} />
                             </button>
@@ -949,7 +990,7 @@ export function InvoiceGenerator() {
                               type="button"
                               onClick={() => reorder(index, 1)}
                               disabled={index === invoice.items.length - 1 || !!busy}
-                              aria-label={`Move item ${index + 1} down`}
+                              aria-label={tr('Move item {value0} down', { value0: index + 1 })}
                             >
                               <ArrowDown size={15} />
                             </button>
@@ -963,7 +1004,7 @@ export function InvoiceGenerator() {
                                   ...invoice.items.slice(index + 1),
                                 ])
                               }
-                              aria-label={`Duplicate item ${index + 1}`}
+                              aria-label={tr('Duplicate item {value0}', { value0: index + 1 })}
                             >
                               <Copy size={15} />
                             </button>
@@ -976,23 +1017,23 @@ export function InvoiceGenerator() {
                                   invoice.items.filter((i) => i.id !== item.id),
                                 )
                               }
-                              aria-label={`Remove item ${index + 1}`}
+                              aria-label={tr('Remove item {value0}', { value0: index + 1 })}
                             >
                               <Trash2 size={15} />
                             </button>
                           </div>
                         </div>
-                        <Field label={`Description ${index + 1}`}>
+                        <Field label={tr('Description {value0}', { value0: index + 1 })}>
                           <textarea
                             rows={2}
                             maxLength={500}
-                            placeholder="e.g. Website design · 12 hours"
+                            placeholder={tr('e.g. Website design · 12 hours')}
                             value={item.description}
                             onChange={(e) => changeItem(item.id, 'description', e.target.value)}
                           />
                         </Field>
                         <div className={s.itemAmounts}>
-                          <Field label={`Quantity ${index + 1}`}>
+                          <Field label={tr('Quantity {value0}', { value0: index + 1 })}>
                             <input
                               inputMode="decimal"
                               maxLength={12}
@@ -1003,7 +1044,12 @@ export function InvoiceGenerator() {
                               }}
                             />
                           </Field>
-                          <Field label={`Rate ${index + 1} (${invoice.currency})`}>
+                          <Field
+                            label={tr('Rate {value0} ({value1})', {
+                              value0: index + 1,
+                              value1: invoice.currency,
+                            })}
+                          >
                             <input
                               inputMode="decimal"
                               maxLength={14}
@@ -1015,7 +1061,7 @@ export function InvoiceGenerator() {
                             />
                           </Field>
                           <div className={s.lineAmount}>
-                            <span>Amount</span>
+                            <span>{tr('Amount')}</span>
                             <strong>{invoiceMoney(totals.amounts[index], invoice.currency)}</strong>
                           </div>
                         </div>
@@ -1025,7 +1071,7 @@ export function InvoiceGenerator() {
                             checked={item.taxable}
                             onChange={(e) => changeItem(item.id, 'taxable', e.target.checked)}
                           />
-                          Apply invoice tax to this item
+                          {tr('Apply invoice tax to this item')}
                         </label>
                       </div>
                     ))}
@@ -1041,42 +1087,46 @@ export function InvoiceGenerator() {
                       ])
                     }
                   >
-                    <Plus size={17} /> Add line item <small>{invoice.items.length} / 50</small>
+                    <Plus size={17} /> {tr('Add line item')}{' '}
+                    <small>{invoice.items.length} / 50</small>
                   </button>
                   <div className={s.adjustments}>
-                    <h3>Adjustments</h3>
+                    <h3>{tr('Adjustments')}</h3>
                     <div className={s.fieldGrid}>
                       <div className={s.selectField}>
                         <Dropdown
-                          label="Discount type"
+                          label={tr('Discount type')}
                           value={invoice.discountMode}
                           disabled={!ready || !!busy}
                           onValueChange={(value) =>
                             patch('discountMode', value as Invoice['discountMode'])
                           }
                           options={[
-                            { value: 'percent', label: 'Percentage (%)' },
-                            { value: 'fixed', label: `Fixed amount (${invoice.currency})` },
+                            { value: 'percent', label: tr('Percentage (%)') },
+                            {
+                              value: 'fixed',
+                              label: tr('Fixed amount ({value0})', { value0: invoice.currency }),
+                            },
                           ]}
                         />
                       </div>
-                      <Field label="Discount">{amountInput('discount')}</Field>
+                      <Field label={tr('Discount')}>{amountInput('discount')}</Field>
                       <div className={s.selectField}>
                         <Dropdown
-                          label="Tax calculation"
+                          label={tr('Tax calculation')}
                           value={invoice.taxMode}
                           disabled={!ready || !!busy}
                           onValueChange={(value) => patch('taxMode', value as Invoice['taxMode'])}
                           options={[
-                            { value: 'none', label: 'No tax' },
-                            { value: 'exclusive', label: 'Add tax to prices' },
-                            { value: 'inclusive', label: 'Prices include tax' },
+                            { value: 'none', label: tr('No tax') },
+                            { value: 'exclusive', label: tr('Add tax to prices') },
+                            { value: 'inclusive', label: tr('Prices include tax') },
                           ]}
                         />
                       </div>
-                      <Field label="Tax rate (%)">{amountInput('taxRate')}</Field>
-                      <Field label="Tax label">{input('taxLabel', 'text', 30)}</Field>
-                      <Field label={`Shipping (${invoice.currency})`}>
+                      <Field label={tr('Tax rate (%)')}>{amountInput('taxRate')}</Field>
+                      <Field label={tr('Tax label')}>{input('taxLabel', 'text', 30)}</Field>
+                      <Field label={tr('Shipping ({value0})', { value0: invoice.currency })}>
                         {amountInput('shipping')}
                       </Field>
                     </div>
@@ -1086,11 +1136,12 @@ export function InvoiceGenerator() {
                         checked={invoice.shippingTaxable}
                         onChange={(e) => patch('shippingTaxable', e.target.checked)}
                       />
-                      Apply invoice tax to shipping
+                      {tr('Apply invoice tax to shipping')}
                     </label>
                     <p className={s.help}>
-                      Discounts apply to items before tax. Shipping is added separately. Tax is
-                      rounded for each taxable item.
+                      {tr(
+                        'Discounts apply to items before tax. Shipping is added separately. Tax is rounded for each taxable item.',
+                      )}
                     </p>
                   </div>
                 </>
@@ -1099,28 +1150,30 @@ export function InvoiceGenerator() {
                 <>
                   <div className={s.sectionTitle}>
                     <div>
-                      <span className="eyebrow">MAKE THE NEXT STEP EASY</span>
-                      <h2>Ready to get paid.</h2>
-                      <p>Give your customer a clear way forward.</p>
+                      <span className="eyebrow">{tr('MAKE THE NEXT STEP EASY')}</span>
+                      <h2>{tr('Ready to get paid.')}</h2>
+                      <p>{tr('Give your customer a clear way forward.')}</p>
                     </div>
                   </div>
                   <Field
-                    label={`Amount already paid (${invoice.currency})`}
+                    label={tr('Amount already paid ({value0})', { value0: invoice.currency })}
                     hint="Enter a deposit or payment you have already received. This does not collect a payment."
                   >
                     {amountInput('paid')}
                   </Field>
-                  <Field label="Payment instructions">
+                  <Field label={tr('Payment instructions')}>
                     <textarea
                       rows={4}
                       maxLength={1500}
-                      placeholder="Bank name, account details, or your preferred payment method"
+                      placeholder={tr(
+                        'Bank name, account details, or your preferred payment method',
+                      )}
                       value={invoice.paymentDetails}
                       onChange={(e) => patch('paymentDetails', e.target.value)}
                     />
                   </Field>
                   <Field
-                    label="Payment link (optional)"
+                    label={tr('Payment link (optional)')}
                     hint="Paste an existing HTTPS checkout link. Folio does not process or track payments."
                   >
                     {input('paymentUrl', 'url', 500)}
@@ -1132,24 +1185,26 @@ export function InvoiceGenerator() {
                         checked={invoice.paymentQr}
                         onChange={(e) => patch('paymentQr', e.target.checked)}
                       />
-                      Add a scannable payment QR code
+                      {tr('Add a scannable payment QR code')}
                     </span>
                     <ProBadge />
                   </label>
-                  <Field label="Notes">
+                  <Field label={tr('Notes')}>
                     <textarea
                       rows={3}
                       maxLength={2000}
-                      placeholder="A personal thank-you or useful project details"
+                      placeholder={tr('A personal thank-you or useful project details')}
                       value={invoice.notes}
                       onChange={(e) => patch('notes', e.target.value)}
                     />
                   </Field>
-                  <Field label="Terms">
+                  <Field label={tr('Terms')}>
                     <textarea
                       rows={4}
                       maxLength={2000}
-                      placeholder="Payment timing, agreed milestones, or other terms already agreed with your customer"
+                      placeholder={tr(
+                        'Payment timing, agreed milestones, or other terms already agreed with your customer',
+                      )}
                       value={invoice.terms}
                       onChange={(e) => patch('terms', e.target.value)}
                     />
@@ -1160,11 +1215,11 @@ export function InvoiceGenerator() {
                 <>
                   <div className={s.sectionTitle}>
                     <div>
-                      <span className="eyebrow">THE FINISHING TOUCH</span>
-                      <h2>Good work. Well presented.</h2>
+                      <span className="eyebrow">{tr('THE FINISHING TOUCH')}</span>
+                      <h2>{tr('Good work. Well presented.')}</h2>
                       <p>
-                        2 free designs and {proInvoiceDesignCount} Pro designs. Preview any style
-                        before downloading.
+                        {tr('2 free designs and')} {proInvoiceDesignCount}{' '}
+                        {tr('Pro designs. Preview any style before downloading.')}
                       </p>
                     </div>
                     <LayoutTemplate size={28} />
@@ -1182,10 +1237,10 @@ export function InvoiceGenerator() {
                           <InvoiceDesignThumbnail design={template} accent={invoice.accent} />
                         </div>
                         <span className={s.templateName}>
-                          {template.name}
-                          {template.pro ? <ProBadge /> : <small>FREE</small>}
+                          {tr(template.name)}
+                          {template.pro ? <ProBadge /> : <small>{tr('FREE')}</small>}
                         </span>
-                        <small>{template.description}</small>
+                        <small>{tr(template.description)}</small>
                         {invoice.template === template.id && (
                           <Check className={s.templateCheck} size={17} />
                         )}
@@ -1193,14 +1248,14 @@ export function InvoiceGenerator() {
                     ))}
                   </div>
                   <div className={s.colorRow}>
-                    <strong>Accent color</strong>
+                    <strong>{tr('Accent color')}</strong>
                     <div>
                       {invoiceColors.map((color) => (
                         <button
                           type="button"
                           key={color}
                           style={{ backgroundColor: color }}
-                          aria-label={`Use ${color} accent`}
+                          aria-label={tr('Use {value0} accent', { value0: color })}
                           aria-pressed={invoice.accent === color}
                           onClick={() => patch('accent', color)}
                         >
@@ -1209,10 +1264,10 @@ export function InvoiceGenerator() {
                       ))}
                     </div>
                   </div>
-                  <Field label="Custom brand color · Pro">
+                  <Field label={tr('Custom brand color · Pro')}>
                     <div className={s.customColor}>
                       <input
-                        aria-label="Custom brand color"
+                        aria-label={tr('Custom brand color')}
                         type="color"
                         value={invoice.accent}
                         onChange={(e) => patch('accent', e.target.value)}
@@ -1223,18 +1278,18 @@ export function InvoiceGenerator() {
                   </Field>
                   <div className={s.selectField}>
                     <Dropdown
-                      label="Paper size"
+                      label={tr('Paper size')}
                       value={invoice.paper}
                       disabled={!ready || !!busy}
                       onValueChange={(value) => patch('paper', value as Invoice['paper'])}
                       options={[
-                        { value: 'a4', label: 'A4 · 210 × 297 mm' },
-                        { value: 'letter', label: 'US Letter · 8.5 × 11 in' },
+                        { value: 'a4', label: tr('A4 · 210 × 297 mm') },
+                        { value: 'letter', label: tr('US Letter · 8.5 × 11 in') },
                       ]}
                     />
                   </div>
                   <Field
-                    label="Custom footer · Pro"
+                    label={tr('Custom footer · Pro')}
                     hint="A short business tagline or registration detail, repeated on every PDF page."
                   >
                     <input
@@ -1247,10 +1302,13 @@ export function InvoiceGenerator() {
                     <div className={s.designNotice}>
                       <Palette size={18} />
                       <p>
-                        This design uses {proFeatures.join(', ')}.{' '}
+                        {tr('This design uses')}{' '}
+                        {proFeatures.map((feature) => tr(feature)).join(', ')}.{' '}
                         {access.pro
-                          ? 'Included in your Pro plan.'
-                          : 'Preview freely. Pro is required for this PDF; a free version is also available below.'}
+                          ? tr('Included in your Pro plan.')
+                          : tr(
+                              'Preview freely. Pro is required for this PDF; a free version is also available below.',
+                            )}
                       </p>
                     </div>
                   )}
@@ -1259,12 +1317,12 @@ export function InvoiceGenerator() {
               <div className={s.sectionNav}>
                 {tab > 0 && (
                   <button type="button" onClick={() => setTab(tab - 1)}>
-                    Back
+                    {tr('Back')}
                   </button>
                 )}
                 {tab < tabs.length - 1 && (
                   <button type="button" className={s.nextSection} onClick={() => setTab(tab + 1)}>
-                    Next: {tabs[tab + 1]} <ChevronRight size={15} />
+                    {tr('Next:')} {tr(tabs[tab + 1])} <ChevronRight size={15} />
                   </button>
                 )}
               </div>
@@ -1272,9 +1330,11 @@ export function InvoiceGenerator() {
             <div className={s.privacy}>
               <ShieldCheck size={18} />
               <p>
-                Free PDFs are created on your device. Pro PDFs are processed on Folio. Invoices are
-                saved online only when you choose <strong>Save to account</strong>. Download a draft
-                backup before closing an unsaved invoice.
+                {tr(
+                  'Free PDFs are created on your device. Pro PDFs are processed on Folio. Invoices are saved online only when you choose',
+                )}{' '}
+                <strong>{tr('Save to account')}</strong>
+                {tr('. Download a draft backup before closing an unsaved invoice.')}
               </p>
             </div>
           </div>
@@ -1283,33 +1343,34 @@ export function InvoiceGenerator() {
           <div className={s.previewSticky}>
             <div className={s.previewHeading}>
               <span>
-                <span className={s.liveDot} /> LIVE PREVIEW
+                <span className={s.liveDot} /> {tr('LIVE PREVIEW')}
               </span>
               <span>
-                {invoice.paper === 'a4' ? 'A4' : 'US Letter'} · {invoice.currency}
+                {invoice.paper === 'a4' ? tr('A4') : tr('US Letter')} · {invoice.currency}
               </span>
             </div>
             <div
               className={s.previewScroll}
               tabIndex={0}
               role="region"
-              aria-label="Scrollable invoice preview"
+              aria-label={tr('Scrollable invoice preview')}
             >
               <InvoicePreview invoice={invoice} />
             </div>
             <p className={s.previewHint}>
-              Your PDF automatically continues onto extra pages when needed.
+              {tr('Your PDF automatically continues onto extra pages when needed.')}
             </p>
           </div>
         </aside>
       </div>
       <div className={s.exportBar}>
         <div>
-          <span>{totals.credit ? 'OVERPAYMENT CREDIT' : 'BALANCE DUE'}</span>
+          <span>{totals.credit ? tr('OVERPAYMENT CREDIT') : tr('BALANCE DUE')}</span>
           <strong>{invoiceMoney(totals.credit || totals.balance, invoice.currency)}</strong>
           <small>
-            {invoice.items.length} line {invoice.items.length === 1 ? 'item' : 'items'} ·{' '}
-            {proFeatures.length ? 'Pro design' : 'Free PDF · no watermark'}
+            {invoice.items.length} {tr('line')}{' '}
+            {invoice.items.length === 1 ? tr('item') : tr('items')} ·{' '}
+            {proFeatures.length ? tr('Pro design') : tr('Free PDF · no watermark')}
           </small>
         </div>
         <div className={s.exportActions}>
@@ -1319,7 +1380,7 @@ export function InvoiceGenerator() {
               disabled={!ready || !!busy}
               onClick={() => void exportPdf(true)}
             >
-              Download free version
+              {tr('Download free version')}
             </button>
           )}
           <button
@@ -1328,7 +1389,9 @@ export function InvoiceGenerator() {
             onClick={() => void exportPdf()}
           >
             {busy ? <Loader2 size={17} className="spin" /> : <Download size={17} />}
-            {busy || (proFeatures.length && !access.pro ? 'Download with Pro' : 'Download PDF')}
+            {busy
+              ? tr(busy)
+              : tr(proFeatures.length && !access.pro ? 'Download with Pro' : 'Download PDF')}
           </button>
         </div>
       </div>
@@ -1346,7 +1409,7 @@ export function InvoiceGenerator() {
               backup();
             }}
           >
-            <Download size={16} aria-hidden="true" /> Download draft backup
+            <Download size={16} aria-hidden="true" /> {tr('Download draft backup')}
           </button>
         </ConfirmDialog>
       )}

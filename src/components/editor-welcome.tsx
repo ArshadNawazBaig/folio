@@ -12,28 +12,38 @@ import {
 } from 'lucide-react';
 import { Logo } from './logo';
 import { UploadArea } from './upload';
+import { useUiLocale, useUiTranslation } from './ui-language';
+import { localizedHref } from '@/lib/i18n/translate';
+import { signInHref } from '@/lib/auth-navigation';
 import s from './editor-welcome.module.css';
 
 export function EditorWelcomeHeader() {
+  const locale = useUiLocale();
+  const tr = useUiTranslation();
+  const href = (path: string) => localizedHref(locale, path);
   return (
     <header className={`editor-header ${s.header}`}>
       <div className={s.brand}>
-        <Logo light />
-        <span>PDF workspace</span>
+        <Logo light href={href('/')} label={tr('Folio home')} />
+        <span>{tr('PDF workspace')}</span>
       </div>
-      <nav className={s.navigation} aria-label="Workspace navigation">
-        <Link href="/tools" aria-label="Back to all tools" title="All PDF tools">
+      <nav className={s.navigation} aria-label={tr('Workspace navigation')}>
+        <Link
+          href={href('/tools')}
+          aria-label={tr('Back to all tools')}
+          title={tr('All PDF tools')}
+        >
           <FileText size={18} aria-hidden="true" />
-          <span>All PDF tools</span>
+          <span>{tr('All PDF tools')}</span>
         </Link>
         <Link
-          href="/dashboard?view=files"
+          href={href('/dashboard?view=files')}
           className={s.filesLink}
-          aria-label="My files"
-          title="My files"
+          aria-label={tr('My files')}
+          title={tr('My files')}
         >
           <FolderOpen size={18} aria-hidden="true" />
-          <span>My files</span>
+          <span>{tr('My files')}</span>
         </Link>
       </nav>
     </header>
@@ -53,17 +63,20 @@ export function EditorWelcome({
   signedIn: boolean;
   cloudRequested: boolean;
 }) {
+  const tr = useUiTranslation();
+
+  const locale = useUiLocale();
   return (
     <div className={`editor-empty ${s.welcome}`}>
       <section className={s.hero} aria-labelledby="workspace-welcome-heading">
         <div className={s.container}>
-          <span className={s.eyebrow}>YOUR PDF WORKSPACE</span>
+          <span className={s.eyebrow}>{tr('YOUR PDF WORKSPACE')}</span>
           <h1 id="workspace-welcome-heading">
-            Your PDF.
+            {tr('Your PDF.')}
             <br />
-            <em>Your finishing touches.</em>
+            <em>{tr('Your finishing touches.')}</em>
           </h1>
-          <p>A few small edits. A document that’s ready for what’s next.</p>
+          <p>{tr('A few small edits. A document that’s ready for what’s next.')}</p>
         </div>
       </section>
 
@@ -73,43 +86,43 @@ export function EditorWelcome({
             <div className={s.cardHeading}>
               <span className={s.step}>01</span>
               <div>
-                <h2 id="workspace-upload-heading">Start with your PDF.</h2>
-                <p>Add a PDF to open your workspace.</p>
+                <h2 id="workspace-upload-heading">{tr('Start with your PDF.')}</h2>
+                <p>{tr('Add a PDF to open your workspace.')}</p>
               </div>
             </div>
             {cloudRequested && !signedIn && (
               <Link
                 className={`text-link ${s.cloudLink}`}
-                href="/account?next=%2Fdashboard%3Fview%3Dfiles"
+                href={signInHref(localizedHref(locale, '/dashboard?view=files'))}
               >
-                Sign in to open your cloud files <ArrowRight size={16} aria-hidden="true" />
+                {tr('Sign in to open your cloud files')} <ArrowRight size={16} aria-hidden="true" />
               </Link>
             )}
             <UploadArea onFiles={onFiles} />
             {error && (
               <p className="error-message" role="alert">
-                {error}
+                {tr(error)}
               </p>
             )}
             <p className={s.sessionNote}>
               <ShieldCheck size={17} aria-hidden="true" />
               {signedIn
-                ? 'Pick up your work later from My files.'
-                : 'Guest files expire after 24 hours. Sign in to keep them.'}
+                ? tr('Pick up your work later from My files.')
+                : tr('Guest files expire after 24 hours. Sign in to keep them.')}
             </p>
           </section>
 
           <section className={s.sampleCard} aria-labelledby="workspace-sample-heading">
-            <span className={s.sampleLabel}>TAKE A LOOK AROUND</span>
-            <h2 id="workspace-sample-heading">A little practice space.</h2>
-            <p>Get a feel for the editor with a sample you can make your own.</p>
+            <span className={s.sampleLabel}>{tr('TAKE A LOOK AROUND')}</span>
+            <h2 id="workspace-sample-heading">{tr('A little practice space.')}</h2>
+            <p>{tr('Get a feel for the editor with a sample you can make your own.')}</p>
             <div className={s.sampleDocument}>
               <div className={s.samplePage} aria-hidden="true">
-                <span>STUDIO NORTH</span>
+                <span>{tr('STUDIO NORTH')}</span>
                 <strong>
-                  A place to
+                  {tr('A place to')}
                   <br />
-                  make your own.
+                  {tr('make your own.')}
                 </strong>
                 <div className={s.sampleArt}>
                   <i />
@@ -118,37 +131,37 @@ export function EditorWelcome({
                 <div className={s.sampleLines} />
               </div>
               <div>
-                <strong>Studio North</strong>
-                <span>Design proposal</span>
-                <small>PDF · 3 pages</small>
+                <strong>{tr('Studio North')}</strong>
+                <span>{tr('Design proposal')}</span>
+                <small>{tr('PDF · 3 pages')}</small>
               </div>
             </div>
             <button type="button" className="button secondary" onClick={onSample}>
-              Try a sample document <ArrowRight size={17} aria-hidden="true" />
+              {tr('Try a sample document')} <ArrowRight size={17} aria-hidden="true" />
             </button>
           </section>
         </div>
 
-        <section className={s.features} aria-label="What you can do in your workspace">
+        <section className={s.features} aria-label={tr('What you can do in your workspace')}>
           <div>
             <TextCursorInput size={21} aria-hidden="true" />
             <div>
-              <h3>Find the right words.</h3>
-              <p>Edit text and add your notes.</p>
+              <h3>{tr('Find the right words.')}</h3>
+              <p>{tr('Edit text and add your notes.')}</p>
             </div>
           </div>
           <div>
             <PenLine size={21} aria-hidden="true" />
             <div>
-              <h3>Make it official.</h3>
-              <p>Fill in forms and add a signature.</p>
+              <h3>{tr('Make it official.')}</h3>
+              <p>{tr('Fill in forms and add a signature.')}</p>
             </div>
           </div>
           <div>
             <Layers size={21} aria-hidden="true" />
             <div>
-              <h3>Put it all in order.</h3>
-              <p>Arrange pages, then download.</p>
+              <h3>{tr('Put it all in order.')}</h3>
+              <p>{tr('Arrange pages, then download.')}</p>
             </div>
           </div>
         </section>

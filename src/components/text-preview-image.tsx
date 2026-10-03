@@ -1,4 +1,5 @@
 'use client';
+
 import { useLayoutEffect, useRef } from 'react';
 import type { InteractiveTextImage } from '@/lib/pro-types';
 

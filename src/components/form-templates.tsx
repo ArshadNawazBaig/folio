@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import { Pagination } from './pagination';
 import { useRecordPagination } from './use-record-pagination';
 import { useState } from 'react';
@@ -33,6 +35,8 @@ const templates = [
   },
 ];
 export function FormTemplates() {
+  const tr = useUiTranslation();
+
   const router = useRouter();
   const [busy, setBusy] = useState('');
   const [category, setCategory] = useState('All templates');
@@ -61,7 +65,7 @@ export function FormTemplates() {
             onClick={() => setCategory(c)}
             key={c}
           >
-            {c}
+            {tr(c)}
           </button>
         ))}
       </div>
@@ -75,41 +79,49 @@ export function FormTemplates() {
           >
             <div className={`template-preview ${t.color}`}>
               <div className="template-paper">
-                <span>FOLIO / A GOOD START</span>
-                <h3>{t.heading}</h3>
+                <span>{tr('FOLIO / A GOOD START')}</span>
+                <h3>
+                  {t.heading
+                    .split('\n')
+                    .map((line) => tr(line))
+                    .join('\n')}
+                </h3>
                 {['Your name', 'Email address', 'A little more about you'].map((l) => (
                   <div className="template-field" key={l}>
-                    <span>{l}</span>
+                    <span>{tr(l)}</span>
                     <i />
                   </div>
                 ))}
-                <small>MADE FOR THE DETAILS.</small>
+                <small>{tr('MADE FOR THE DETAILS.')}</small>
               </div>
             </div>
             <div className="template-info">
-              <span>{t.category} · Fillable PDF</span>
+              <span>
+                {tr(t.category)} {tr('· Fillable PDF')}
+              </span>
               <h3>
-                {t.title}
+                {tr(t.title)}
                 {busy === t.id ? (
                   <Loader2 size={18} className="spin" />
                 ) : (
                   <ArrowUpRight size={18} />
                 )}
               </h3>
-              <p>{t.subtitle}</p>
+              <p>{tr(t.subtitle)}</p>
             </div>
           </button>
         ))}
       </div>
-      <Pagination {...pagination} disabled={!!busy} label="Templates pagination" />
+      <Pagination {...pagination} disabled={!!busy} label={tr('Templates pagination')} />
       {error && (
         <p role="alert" className="error-message">
-          {error}
+          {tr(error)}
         </p>
       )}
       <p className="template-disclaimer">
-        Original Folio templates for everyday use. These are sample documents, not official or legal
-        forms.
+        {tr(
+          'Original Folio templates for everyday use. These are sample documents, not official or legal forms.',
+        )}
       </p>
     </>
   );

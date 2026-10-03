@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation, useLocalizedHref } from '@/components/ui-language';
+
 import Link from 'next/link';
 import { isLemonUrl } from '@/lib/lemon-squeezy';
 import { useEffect, useState } from 'react';
@@ -17,8 +19,9 @@ import { signInHref } from '@/lib/auth-navigation';
 import { accountFetch } from '@/lib/auth-client';
 import type { ProPlan } from '@/lib/pro-types';
 import type { PlanChoice } from '@/lib/plans';
-import { DEFAULT_CATALOG, money, offerTerms, type PricingCatalog } from '@/lib/platform';
+import { DEFAULT_CATALOG, money, type PricingCatalog } from '@/lib/platform';
 import { Skeleton, LoadingLabel } from './skeleton';
+import { localizedOfferTerms } from '@/lib/i18n/format';
 import s from './pricing.module.css';
 import c from './pricing-compact.module.css';
 export function Pricing({
@@ -34,6 +37,9 @@ export function Pricing({
   signInInFooter?: boolean;
   additionalPremiumTools?: string[];
 }) {
+  const tr = useUiTranslation();
+  const href = useLocalizedHref();
+
   const { user, access } = useAccount();
   const [plans, setPlans] = useState<ProPlan[]>([]),
     [plan, setPlan] = useState<PlanChoice>(initialCatalog.trialEnabled ? 'trial' : 'month'),
@@ -94,7 +100,7 @@ export function Pricing({
       } else window.location.assign(target.href);
     } catch (e) {
       tab?.close();
-      setError(e instanceof Error ? e.message : 'Checkout could not be opened.');
+      setError(e instanceof Error ? e.message : tr('Checkout could not be opened.'));
       setBusy(false);
     }
   }
@@ -102,64 +108,67 @@ export function Pricing({
     !user && signInInFooter ? null : access.pro ? (
       <Link
         className="button primary full"
-        href="/account"
+        href={href('/account')}
         target={checkoutInNewTab ? '_blank' : undefined}
         rel={checkoutInNewTab ? 'noopener noreferrer' : undefined}
       >
-        Manage your Pro plan <ArrowRight size={16} />
+        {tr('Manage your Pro plan')} <ArrowRight size={16} />
       </Link>
     ) : loading ? (
       <div className="pricing-availability-skeleton" aria-busy="true">
-        <LoadingLabel>Checking plan availability…</LoadingLabel>
+        <LoadingLabel>{tr('Checking plan availability…')}</LoadingLabel>
         <Skeleton height={44} radius={7} />
       </div>
     ) : !available ? (
       <button className="button primary full" disabled>
-        Checkout not available yet
+        {tr('Checkout not available yet')}
       </button>
     ) : !user ? (
       <Link
         className="button primary full"
-        href={signInHref(`/pricing?plan=${plan}`)}
+        href={signInHref(href(`/pricing?plan=${plan}`))}
         target={checkoutInNewTab ? '_blank' : undefined}
         rel={checkoutInNewTab ? 'noopener noreferrer' : undefined}
       >
         {plan === 'trial'
-          ? `Sign in to start for ${money(catalog.trialAmount)}`
-          : 'Sign in to subscribe'}{' '}
+          ? tr('Sign in to start for {value0}', { value0: money(catalog.trialAmount) })
+          : tr('Sign in to subscribe')}{' '}
         <ArrowRight size={16} />
       </Link>
     ) : (
       <button className="button primary full" disabled={busy} onClick={checkout}>
         {busy ? <Loader2 size={16} className="spin" /> : null}
         {plan === 'trial'
-          ? `Start ${catalog.trialDays} days for ${money(catalog.trialAmount)}`
-          : `Subscribe for ${money(catalog.monthlyAmount)}/month`}{' '}
+          ? tr('Start {value0} days for {value1}', {
+              value0: catalog.trialDays,
+              value1: money(catalog.trialAmount),
+            })
+          : tr('Subscribe for {value0}/month', { value0: money(catalog.monthlyAmount) })}{' '}
         <ArrowRight size={16} />
       </button>
     );
   const planSwitch = (
-    <div className="pricing-switch" role="group" aria-label="Pro plan">
+    <div className="pricing-switch" role="group" aria-label={tr('Pro plan')}>
       {catalog.trialEnabled && (
         <button aria-pressed={plan === 'trial'} onClick={() => setPlan('trial')}>
-          {catalog.trialDays}-day trial
+          {tr('{days}-day trial', { days: catalog.trialDays })}
         </button>
       )}
       <button aria-pressed={plan === 'month'} onClick={() => setPlan('month')}>
-        Monthly
+        {tr('Monthly')}
       </button>
     </div>
   );
   const renewal =
     plan === 'trial'
-      ? 'Then ' + money(catalog.monthlyAmount) + '/month. All prices in USD.'
-      : 'Billed monthly in USD.';
+      ? tr('Then {amount}/month. All prices in USD.', { amount: money(catalog.monthlyAmount) })
+      : tr('Billed monthly in USD.');
 
   if (compact)
     return (
       <div className={c.pricing}>
         <div className={c.selection}>
-          <span>Choose your Pro billing</span>
+          <span>{tr('Choose your Pro billing')}</span>
           {planSwitch}
         </div>
         <div className="pricing-grid compact-pricing">
@@ -170,35 +179,39 @@ export function Pricing({
                   <Gem size={21} aria-hidden="true" />
                 </span>
                 <h3>{catalog.name}</h3>
-                <span className={c.badge}>ALL PRO FEATURES</span>
+                <span className={c.badge}>{tr('ALL PRO FEATURES')}</span>
               </div>
               <div className={c.priceLine}>
                 <div className={`plan-price ${c.amount}`}>
                   {selected.label}
                   <span>
-                    {plan === 'trial' ? ' for ' + catalog.trialDays + ' days' : ' / month'}
+                    {plan === 'trial'
+                      ? tr(' for {days} days', { days: catalog.trialDays })
+                      : tr(' / month')}
                   </span>
                 </div>
-                <p className={`plan-renewal ${c.renewal}`}>{renewal}</p>
+                <p className={`plan-renewal ${c.renewal}`}>{tr(renewal)}</p>
               </div>
             </div>
             <div className={c.allowances}>
               <div>
                 <Cloud size={19} aria-hidden="true" />
                 <div>
-                  <strong>{plan === 'trial' ? '1 GB trial storage' : 'Unlimited storage'}</strong>
+                  <strong>
+                    {plan === 'trial' ? tr('1 GB trial storage') : tr('Unlimited storage')}
+                  </strong>
                   <span>
                     {plan === 'trial'
-                      ? 'Unlimited when monthly billing begins'
-                      : 'Private cloud storage'}
+                      ? tr('Unlimited when monthly billing begins')
+                      : tr('Private cloud storage')}
                   </span>
                 </div>
               </div>
               <div>
                 <Link2 size={19} aria-hidden="true" />
                 <div>
-                  <strong>1,000 saved links</strong>
-                  <span>Custom aliases & QR codes</span>
+                  <strong>{tr('1,000 saved links')}</strong>
+                  <span>{tr('Custom aliases & QR codes')}</span>
                 </div>
               </div>
             </div>
@@ -206,16 +219,18 @@ export function Pricing({
           </article>
         </div>
         <div className={c.terms}>
-          <h4>Billing details</h4>
-          <p>{offerTerms(catalog, plan)}</p>
+          <h4>{tr('Billing details')}</h4>
+          <p>{localizedOfferTerms(catalog, plan, tr)}</p>
           {plan === 'trial' && (
-            <p>One introductory offer per account. Includes all Pro features.</p>
+            <p>{tr('One introductory offer per account. Includes all Pro features.')}</p>
           )}
-          {!loading && !available && <p>This offer is not accepting purchases right now.</p>}
+          {!loading && !available && (
+            <p>{tr('This offer is not accepting purchases right now.')}</p>
+          )}
         </div>
         {error && (
           <p role="alert" className="error-message">
-            {error}
+            {tr(error)}
           </p>
         )}
       </div>
@@ -224,11 +239,11 @@ export function Pricing({
     <div className={s.pricing}>
       <div className={s.selection}>
         <div>
-          <span className={s.eyebrow}>FIND YOUR FIT</span>
-          <h2>One workspace. Two ways to work.</h2>
+          <span className={s.eyebrow}>{tr('FIND YOUR FIT')}</span>
+          <h2>{tr('One workspace. Two ways to work.')}</h2>
         </div>
         <div className={s.billingChoice}>
-          <span>Choose your Pro billing</span>
+          <span>{tr('Choose your Pro billing')}</span>
           {planSwitch}
         </div>
       </div>
@@ -239,38 +254,40 @@ export function Pricing({
               <span className={s.planIcon}>
                 <FilePenLine size={22} aria-hidden="true" />
               </span>
-              <span className={s.badge}>FREE FOREVER</span>
+              <span className={s.badge}>{tr('FREE FOREVER')}</span>
             </div>
-            <h2 id="free-plan-title">Folio Free</h2>
-            <p className={s.description}>Everyday tools for your documents, images, and links.</p>
+            <h2 id="free-plan-title">{tr('Folio Free')}</h2>
+            <p className={s.description}>
+              {tr('Everyday tools for your documents, images, and links.')}
+            </p>
             <div className={'plan-price ' + s.amount}>
-              $0 <span>always free</span>
+              $0 <span>{tr('always free')}</span>
             </div>
-            <p className={'plan-renewal ' + s.renewal}>No subscription. No card needed.</p>
-            <Link className={'button secondary full ' + s.cta} href="/tools">
-              Start with free tools <ArrowRight size={17} />
+            <p className={'plan-renewal ' + s.renewal}>{tr('No subscription. No card needed.')}</p>
+            <Link className={'button secondary full ' + s.cta} href={href('/tools')}>
+              {tr('Start with free tools')} <ArrowRight size={17} />
             </Link>
           </div>
           <div className={s.allowances}>
             <div>
               <Cloud size={18} aria-hidden="true" />
               <span>
-                <strong>100 MB</strong>
-                <small>Private cloud storage</small>
+                <strong>{tr('100 MB')}</strong>
+                <small>{tr('Private cloud storage')}</small>
               </span>
             </div>
             <div>
               <Link2 size={18} aria-hidden="true" />
               <span>
-                <strong>10 links</strong>
-                <small>Saved to your account</small>
+                <strong>{tr('10 links')}</strong>
+                <small>{tr('Saved to your account')}</small>
               </span>
             </div>
           </div>
           <div className={s.features}>
-            <p className={s.included}>Everything you need to get started.</p>
+            <p className={s.included}>{tr('Everything you need to get started.')}</p>
             <FeatureGroup
-              title="PDFs & documents"
+              title={tr('PDFs & documents')}
               items={[
                 'Add text, highlights, images, and signatures',
                 'Merge, split, compress, crop, and organize PDFs',
@@ -279,7 +296,7 @@ export function Pricing({
               ]}
             />
             <FeatureGroup
-              title="Images & conversion"
+              title={tr('Images & conversion')}
               items={[
                 'Convert PDF pages to JPG or PNG and extract text',
                 'Convert images to PDF, JPG to WEBP, and WEBP to JPG',
@@ -287,7 +304,7 @@ export function Pricing({
               ]}
             />
             <FeatureGroup
-              title="Links & sharing"
+              title={tr('Links & sharing')}
               items={[
                 '10 saved short links with random aliases',
                 'Short-link QR downloads in PNG and SVG',
@@ -296,7 +313,7 @@ export function Pricing({
           </div>
           <div className={s.cardFooter}>
             <ShieldCheck size={18} aria-hidden="true" />
-            <p>Free downloads without a subscription or added watermark.</p>
+            <p>{tr('Free downloads without a subscription or added watermark.')}</p>
           </div>
         </article>
         <article
@@ -309,51 +326,59 @@ export function Pricing({
                 <Gem size={22} aria-hidden="true" />
               </span>
               <span className={s.badge}>
-                {access.pro ? 'YOUR CURRENT PLAN' : 'MORE POSSIBILITIES'}
+                {access.pro ? tr('YOUR CURRENT PLAN') : tr('MORE POSSIBILITIES')}
               </span>
             </div>
             <h2 id="pro-plan-title">{catalog.name}</h2>
-            <p className={s.description}>Advanced PDF editing, custom links, and room to grow.</p>
+            <p className={s.description}>
+              {tr('Advanced PDF editing, custom links, and room to grow.')}
+            </p>
             <div className={'plan-price ' + s.amount}>
               {selected.label}
-              <span>{plan === 'trial' ? ' for ' + catalog.trialDays + ' days' : ' / month'}</span>
+              <span>
+                {plan === 'trial'
+                  ? tr(' for {days} days', { days: catalog.trialDays })
+                  : tr(' / month')}
+              </span>
             </div>
-            <p className={'plan-renewal ' + s.renewal}>{renewal}</p>
+            <p className={'plan-renewal ' + s.renewal}>{tr(renewal)}</p>
             <div className={s.cta}>{proAction}</div>
           </div>
           <div className={s.allowances}>
             <div>
               <Cloud size={18} aria-hidden="true" />
               <span>
-                <strong>{plan === 'trial' ? '1 GB' : 'Unlimited'}</strong>
-                <small>{plan === 'trial' ? 'Trial cloud storage' : 'Private cloud storage'}</small>
+                <strong>{plan === 'trial' ? tr('1 GB') : tr('Unlimited')}</strong>
+                <small>
+                  {plan === 'trial' ? tr('Trial cloud storage') : tr('Private cloud storage')}
+                </small>
               </span>
             </div>
             <div>
               <Link2 size={18} aria-hidden="true" />
               <span>
-                <strong>1,000 links</strong>
-                <small>With custom aliases</small>
+                <strong>{tr('1,000 links')}</strong>
+                <small>{tr('With custom aliases')}</small>
               </span>
             </div>
           </div>
           <div className={s.features}>
             <p className={s.included}>
               <Check size={16} aria-hidden="true" />
-              Everything in Folio Free, plus:
+              {tr('Everything in Folio Free, plus:')}
             </p>
             <FeatureGroup
-              title="Advanced PDF tools"
+              title={tr('Advanced PDF tools')}
               items={[
                 'Replace and delete existing PDF text',
                 'Change replacement fonts, sizes, and colors',
                 'Find and replace across the document',
                 'AES-256 password protection',
-                ...additionalPremiumTools.map((name) => name + ' downloads'),
+                ...additionalPremiumTools.map((name) => tr('{name} downloads', { name: tr(name) })),
               ]}
             />
             <FeatureGroup
-              title="Links & storage"
+              title={tr('Links & storage')}
               items={[
                 '1,000 saved short links with custom aliases',
                 'Edit destinations without changing links or QR codes',
@@ -363,7 +388,7 @@ export function Pricing({
               ]}
             />
             <FeatureGroup
-              title="Invoice studio"
+              title={tr('Invoice studio')}
               items={[
                 '10 premium invoice PDF designs',
                 'Custom brand colors, footers, and payment QR codes',
@@ -371,51 +396,58 @@ export function Pricing({
               ]}
             />
             <p className={s.limit}>
-              Text editing and protection: up to 10 MB and 100 pages per file.
+              {tr('Text editing and protection: up to 10 MB and 100 pages per file.')}
             </p>
           </div>
           <div className={s.cardFooter}>
             <ShieldCheck size={18} aria-hidden="true" />
-            <p>Secure checkout with Lemon Squeezy. Manage your subscription from your account.</p>
+            <p>
+              {tr(
+                'Secure checkout with Lemon Squeezy. Manage your subscription from your account.',
+              )}
+            </p>
           </div>
         </article>
       </div>
       {error && (
         <p role="alert" className="error-message">
-          {error}
+          {tr(error)}
         </p>
       )}
       <div className={s.terms}>
         <div>
-          <h3>Clear pricing. No surprises.</h3>
-          <p>{offerTerms(catalog, plan)}</p>
+          <h3>{tr('Clear pricing. No surprises.')}</h3>
+          <p>{localizedOfferTerms(catalog, plan, tr)}</p>
           {plan === 'trial' && (
-            <p>One introductory offer per account. Includes all Pro features.</p>
+            <p>{tr('One introductory offer per account. Includes all Pro features.')}</p>
           )}
-          {!loading && !available && <p>This offer is not accepting purchases right now.</p>}
+          {!loading && !available && (
+            <p>{tr('This offer is not accepting purchases right now.')}</p>
+          )}
         </div>
-        <Link className="text-link" href="/edit-pdf-text?demo=1">
-          Try a sample before choosing <ArrowRight size={17} />
+        <Link className="text-link" href={href('/edit-pdf-text?demo=1')}>
+          {tr('Try a sample before choosing')} <ArrowRight size={17} />
         </Link>
       </div>
       <p className={s.notes}>
-        PDF editing and previews are free; premium file downloads require a plan. Short links
-        require sign-in on both plans. The editor saves PDFs and changes to private cloud storage;
-        opening passwords are never saved. Premium downloads allow up to 20 requests per minute and
-        500 per day. Each tool’s file and page limits still apply.
+        {tr(
+          'PDF editing and previews are free; premium file downloads require a plan. Short links require sign-in on both plans. The editor saves PDFs and changes to private cloud storage; opening passwords are never saved. Premium downloads allow up to 20 requests per minute and 500 per day. Each tool’s file and page limits still apply.',
+        )}
       </p>
     </div>
   );
 }
 function FeatureGroup({ title, items }: { title: string; items: string[] }) {
+  const tr = useUiTranslation();
+
   return (
     <section className={s.featureGroup}>
-      <h3>{title}</h3>
+      <h3>{tr(title)}</h3>
       <ul>
         {items.map((item) => (
           <li key={item}>
             <Check size={16} aria-hidden="true" />
-            <span>{item}</span>
+            <span>{tr(item)}</span>
           </li>
         ))}
       </ul>

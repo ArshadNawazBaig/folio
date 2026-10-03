@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import { useState } from 'react';
 import { compressionPresets, compressionSize, targetBytesFromKB } from '@/lib/image-compression';
 import type { ImageSettings } from '@/lib/image-tools';
@@ -14,6 +16,8 @@ export function ImageCompressionControls({
   onChange: (settings: ImageSettings) => void;
   disabled: boolean;
 }) {
+  const tr = useUiTranslation();
+
   const [custom, setCustom] = useState('');
   const [error, setError] = useState('');
   const targeted = !!settings.targetBytes;
@@ -21,11 +25,11 @@ export function ImageCompressionControls({
     <div className={s.controls}>
       <div className={s.heading}>
         <div>
-          <span className="eyebrow">SMALLER FILES. SAME NEXT STEP.</span>
-          <h2>Make room for your images.</h2>
-          <p>Choose a size limit, then add your files.</p>
+          <span className="eyebrow">{tr('SMALLER FILES. SAME NEXT STEP.')}</span>
+          <h2>{tr('Make room for your images.')}</h2>
+          <p>{tr('Choose a size limit, then add your files.')}</p>
         </div>
-        <div className={s.modes} role="group" aria-label="Compression method">
+        <div className={s.modes} role="group" aria-label={tr('Compression method')}>
           <button
             disabled={disabled}
             aria-pressed={targeted}
@@ -34,7 +38,7 @@ export function ImageCompressionControls({
               setError('');
             }}
           >
-            Target file size
+            {tr('Target file size')}
           </button>
           <button
             disabled={disabled}
@@ -48,13 +52,13 @@ export function ImageCompressionControls({
               setError('');
             }}
           >
-            Manual settings
+            {tr('Manual settings')}
           </button>
         </div>
       </div>
       {targeted && (
         <>
-          <div className={s.presets} role="group" aria-label="Target file size">
+          <div className={s.presets} role="group" aria-label={tr('Target file size')}>
             {compressionPresets.map((kb) => (
               <button
                 key={kb}
@@ -66,7 +70,7 @@ export function ImageCompressionControls({
                   setError('');
                 }}
               >
-                {kb === 1000 ? '1 MB' : `${kb} KB`}
+                {kb === 1000 ? tr('1 MB') : tr('{value0} KB', { value0: kb })}
               </button>
             ))}
           </div>
@@ -83,18 +87,18 @@ export function ImageCompressionControls({
                 onChange({ ...settings, targetBytes: targetBytesFromKB(custom) });
                 setError('');
               } catch (error) {
-                setError(error instanceof Error ? error.message : 'Enter a valid size.');
+                setError(error instanceof Error ? error.message : tr('Enter a valid size.'));
               }
             }}
           >
-            <label htmlFor="compression-custom-kb">Custom size (KB)</label>
+            <label htmlFor="compression-custom-kb">{tr('Custom size (KB)')}</label>
             <div>
               <input
                 id="compression-custom-kb"
                 type="text"
                 inputMode="decimal"
                 autoComplete="off"
-                placeholder="e.g. 75"
+                placeholder={tr('e.g. 75')}
                 value={custom}
                 maxLength={12}
                 disabled={disabled}
@@ -106,45 +110,58 @@ export function ImageCompressionControls({
                 }}
               />
               <button className="button secondary" disabled={disabled} type="submit">
-                Apply
+                {tr('Apply')}
               </button>
             </div>
           </form>
         ) : (
-          <p className={s.manualHint}>Choose quality and dimensions after adding your images.</p>
+          <p className={s.manualHint}>
+            {tr('Choose quality and dimensions after adding your images.')}
+          </p>
         )}
         <Dropdown
-          label="Output format"
+          label={tr('Output format')}
           value={settings.format}
           disabled={disabled}
           onValueChange={(format) =>
             onChange({ ...settings, format: format as ImageSettings['format'] })
           }
           options={[
-            ...(targeted ? [{ value: 'auto', label: 'Auto — best compression' }] : []),
-            { value: 'original', label: 'Keep source format' },
-            { value: 'image/jpeg', label: 'JPG' },
-            { value: 'image/png', label: 'PNG' },
-            { value: 'image/webp', label: 'WebP' },
+            ...(targeted ? [{ value: 'auto', label: tr('Auto — best compression') }] : []),
+            { value: 'original', label: tr('Keep source format') },
+            { value: 'image/jpeg', label: tr('JPG') },
+            { value: 'image/png', label: tr('PNG') },
+            { value: 'image/webp', label: tr('WebP') },
           ]}
         />
       </div>
       {error && (
         <p id="compression-size-error" className={s.error} role="alert">
-          {error}
+          {tr(error)}
         </p>
       )}
       <p className={s.note} aria-live="polite">
         {targeted
-          ? `Current limit: ${compressionSize(settings.targetBytes!)} per image. Quality and dimensions adjust automatically. 1 KB = 1,000 bytes.`
-          : 'Manual settings let you keep the original dimensions. They do not enforce a file-size limit.'}
+          ? tr(
+              'Current limit: {value0} per image. Quality and dimensions adjust automatically. 1 KB = 1,000 bytes.',
+              { value0: compressionSize(settings.targetBytes!) },
+            )
+          : tr(
+              'Manual settings let you keep the original dimensions. They do not enforce a file-size limit.',
+            )}
       </p>
       <p className={s.note}>
         {settings.format === 'image/jpeg'
-          ? 'JPG fills transparent areas with white. Choose PNG or WebP if you need transparency.'
+          ? tr(
+              'JPG fills transparent areas with white. Choose PNG or WebP if you need transparency.',
+            )
           : settings.format === 'image/png'
-            ? 'PNG uses lossless encoding, but meeting a small target can reduce pixel dimensions.'
-            : 'Auto, PNG, and WebP keep transparent backgrounds. Review the result before downloading.'}
+            ? tr(
+                'PNG uses lossless encoding, but meeting a small target can reduce pixel dimensions.',
+              )
+            : tr(
+                'Auto, PNG, and WebP keep transparent backgrounds. Review the result before downloading.',
+              )}
       </p>
     </div>
   );

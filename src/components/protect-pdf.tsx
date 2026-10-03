@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import { useEffect, useRef, useState } from 'react';
 import { Download, Eye, EyeOff, LockKeyhole, Upload } from 'lucide-react';
 import { useAccount } from './account-provider';
@@ -7,6 +9,8 @@ import { accountFetch, AccountRequestError } from '@/lib/auth-client';
 import { baseName, download, formatBytes } from '@/lib/utils';
 import { getPendingDocument } from '@/lib/storage';
 export function ProtectPdf() {
+  const tr = useUiTranslation();
+
   const { access } = useAccount();
   const input = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null),
@@ -33,11 +37,11 @@ export function ProtectPdf() {
     setError('');
     setDone(false);
     if (password !== confirm) {
-      setError('The passwords do not match.');
+      setError(tr('The passwords do not match.'));
       return;
     }
     if (password.length < 8 || password.length > 64 || file.size > 10 * 1024 * 1024) {
-      setError('Use a password of 8–64 characters and a PDF under 10 MB.');
+      setError(tr('Use a password of 8–64 characters and a PDF under 10 MB.'));
       return;
     }
     if (!access.pro && !verified) {
@@ -52,7 +56,7 @@ export function ProtectPdf() {
           throw new Error((await response.json()).error || 'This PDF could not be opened.');
         setGateOpen(true);
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'This PDF could not be opened.');
+        setError(e instanceof Error ? e.message : tr('This PDF could not be opened.'));
       } finally {
         setBusy(false);
       }
@@ -73,7 +77,7 @@ export function ProtectPdf() {
         setGateOpen(true);
         return;
       }
-      setError(e instanceof Error ? e.message : 'The PDF could not be protected.');
+      setError(e instanceof Error ? e.message : tr('The PDF could not be protected.'));
     } finally {
       setBusy(false);
     }
@@ -84,8 +88,8 @@ export function ProtectPdf() {
         <span className="account-symbol">
           <LockKeyhole size={26} />
         </span>
-        <h2>A password for your paperwork.</h2>
-        <p>Require a password to open your PDF. Your original stays unchanged.</p>
+        <h2>{tr('A password for your paperwork.')}</h2>
+        <p>{tr('Require a password to open your PDF. Your original stays unchanged.')}</p>
         <button
           type="button"
           className="button secondary full"
@@ -93,7 +97,7 @@ export function ProtectPdf() {
           onClick={() => input.current?.click()}
         >
           <Upload size={16} />
-          {file ? 'Change PDF' : 'Choose a PDF'}
+          {file ? tr('Change PDF') : tr('Choose a PDF')}
         </button>
         <input
           ref={input}
@@ -106,7 +110,7 @@ export function ProtectPdf() {
             setDone(false);
             setError('');
             if (f && (!/\.pdf$/i.test(f.name) || f.size > 10 * 1024 * 1024)) {
-              setError('Choose a PDF smaller than 10 MB.');
+              setError(tr('Choose a PDF smaller than 10 MB.'));
               setFile(null);
             } else setFile(f || null);
           }}
@@ -122,13 +126,13 @@ export function ProtectPdf() {
               disabled={busy}
               onClick={() => download(file, file.name)}
             >
-              Download current copy <Download size={14} />
+              {tr('Download current copy')} <Download size={14} />
             </button>
           </>
         )}
         <fieldset disabled={busy}>
           <label className="pro-field">
-            Opening password
+            {tr('Opening password')}
             <div className="password-input">
               <input
                 type={show ? 'text' : 'password'}
@@ -142,7 +146,7 @@ export function ProtectPdf() {
               <button
                 type="button"
                 className="icon-button"
-                aria-label={show ? 'Hide password' : 'Show password'}
+                aria-label={show ? tr('Hide password') : tr('Show password')}
                 onClick={() => setShow((v) => !v)}
               >
                 {show ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -150,7 +154,7 @@ export function ProtectPdf() {
             </div>
           </label>
           <label className="pro-field">
-            Confirm password
+            {tr('Confirm password')}
             <input
               type={show ? 'text' : 'password'}
               required
@@ -164,33 +168,34 @@ export function ProtectPdf() {
             disabled={!file || file.size > 10 * 1024 * 1024 || busy}
           >
             <Download size={16} />
-            {busy ? 'Protecting your PDF…' : 'Protect & download'}
+            {busy ? tr('Protecting your PDF…') : tr('Protect & download')}
           </button>
         </fieldset>
         <p className="service-note">
-          This sends the PDF and password to Folio for processing in memory. Neither is saved by the
-          application. Use at least 8 characters; keep a copy of the password. Maximum 10 MB, 100
-          pages.
+          {tr(
+            'This sends the PDF and password to Folio for processing in memory. Neither is saved by the application. Use at least 8 characters; keep a copy of the password. Maximum 10 MB, 100 pages.',
+          )}
         </p>
         {error && (
           <p role="alert" className="error-message">
-            {error}
+            {tr(error)}
           </p>
         )}
         {done && (
           <p role="status" className="pro-notice">
-            Your protected PDF is ready. Keep your password safe to open it later.
+            {tr('Your protected PDF is ready. Keep your password safe to open it later.')}
           </p>
         )}
       </form>
       <div className="pro-edit-first">
-        <span className="eyebrow">SET IT UP FIRST</span>
-        <h3>A little more privacy.</h3>
+        <span className="eyebrow">{tr('SET IT UP FIRST')}</span>
+        <h3>{tr('A little more privacy.')}</h3>
         <p>
-          Choose your file, enter an opening password, and confirm it before downloading a protected
-          copy.
+          {tr(
+            'Choose your file, enter an opening password, and confirm it before downloading a protected copy.',
+          )}
         </p>
-        <p>Your password stays in this tab until you request the protected download.</p>
+        <p>{tr('Your password stays in this tab until you request the protected download.')}</p>
       </div>
       <DownloadGate
         tool="protect-pdf"

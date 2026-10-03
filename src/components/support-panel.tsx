@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation, useUiLocale } from './ui-language';
+import { localizedHref } from '@/lib/i18n/translate';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Inbox, MessageSquare, RefreshCw } from 'lucide-react';
@@ -9,6 +11,10 @@ import { accountFetch } from '@/lib/auth-client';
 import type { SupportTicket, SupportMessage } from '@/lib/platform';
 import { TicketListSkeleton, ThreadSkeleton } from './skeleton';
 export function SupportPanel() {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
+
   const { user, loading: accountLoading } = useAccount();
   const [loading, setLoading] = useState(true);
   const generation = useRef(0);
@@ -137,13 +143,15 @@ export function SupportPanel() {
           <span className="account-symbol">
             <MessageSquare size={25} />
           </span>
-          <h2>Tell us what’s on your mind.</h2>
-          <p>A billing question, a document problem, or an idea for Folio—we’re listening.</p>
+          <h2>{tr('Tell us what’s on your mind.')}</h2>
+          <p>
+            {tr('A billing question, a document problem, or an idea for Folio—we’re listening.')}
+          </p>
           <form onSubmit={submit}>
             <fieldset disabled={busy}>
               <div className="admin-two-fields">
                 <label>
-                  Your name
+                  {tr('Your name')}
                   <input
                     required
                     minLength={2}
@@ -154,7 +162,7 @@ export function SupportPanel() {
                   />
                 </label>
                 <label>
-                  Email address
+                  {tr('Email address')}
                   <input
                     required
                     type="email"
@@ -167,7 +175,7 @@ export function SupportPanel() {
                 </label>
               </div>
               <label>
-                Subject
+                {tr('Subject')}
                 <input
                   required
                   minLength={3}
@@ -177,7 +185,7 @@ export function SupportPanel() {
                 />
               </label>
               <label>
-                Message
+                {tr('Message')}
                 <textarea
                   required
                   minLength={10}
@@ -188,7 +196,7 @@ export function SupportPanel() {
                 />
               </label>
               <label className="support-honeypot" aria-hidden="true">
-                Website
+                {tr('Website')}
                 <input
                   tabIndex={-1}
                   autoComplete="off"
@@ -198,11 +206,12 @@ export function SupportPanel() {
               </label>
               <div className="form-actions">
                 <p className="service-note">
-                  Do not include passwords, card numbers, or sensitive document contents. Replies
-                  appear here after sign-in with the email used for your inquiry.
+                  {tr(
+                    'Do not include passwords, card numbers, or sensitive document contents. Replies appear here after sign-in with the email used for your inquiry.',
+                  )}
                 </p>
                 <button className="button primary">
-                  {busy ? 'Sending…' : 'Send inquiry'}
+                  {busy ? tr('Sending…') : tr('Send inquiry')}
                   <ArrowRight size={16} />
                 </button>
               </div>
@@ -211,11 +220,14 @@ export function SupportPanel() {
           {receipt && (
             <div className="pro-notice" role="status">
               <span>
-                Your inquiry was received. Reference: {receipt.slice(0, 8)}.
+                {tr('Your inquiry was received. Reference:')} {receipt.slice(0, 8)}.
                 {!user && (
                   <>
                     {' '}
-                    <Link href="/account">Sign in with {email}</Link> to follow the conversation.
+                    <Link href={href('/account')}>
+                      {tr('Sign in with')} {email}
+                    </Link>{' '}
+                    {tr('to follow the conversation.')}
                   </>
                 )}
               </span>
@@ -224,10 +236,10 @@ export function SupportPanel() {
         </section>
         <section className="admin-card">
           <div className="admin-table-top">
-            <h2>Your conversations</h2>
+            <h2>{tr('Your conversations')}</h2>
             <button
               className="icon-button"
-              aria-label="Refresh support conversations"
+              aria-label={tr('Refresh support conversations')}
               disabled={!user || busy || loading}
               onClick={() => void load()}
             >
@@ -235,19 +247,19 @@ export function SupportPanel() {
             </button>
           </div>
           {(accountLoading && !user) || (loading && !tickets.length) ? (
-            <TicketListSkeleton count={pageSize} />
+            <TicketListSkeleton count={pageSize} label={tr('Loading conversations…')} />
           ) : !user ? (
             <div className="admin-empty">
               <Inbox size={27} />
-              <p>Sign in to see replies and follow up on your inquiries.</p>
-              <Link className="button secondary" href="/account">
-                Sign in
+              <p>{tr('Sign in to see replies and follow up on your inquiries.')}</p>
+              <Link className="button secondary" href={href('/account')}>
+                {tr('Sign in')}
               </Link>
             </div>
           ) : !tickets.length ? (
             <div className="admin-empty">
               <Inbox size={27} />
-              <p>Your inquiries will appear here.</p>
+              <p>{tr('Your inquiries will appear here.')}</p>
             </div>
           ) : (
             <div className="admin-ticket-list">
@@ -267,7 +279,7 @@ export function SupportPanel() {
                 >
                   <strong>{t.subject}</strong>
                   <small>
-                    {t.status} · {new Date(t.updated_at).toLocaleDateString()}
+                    {tr(t.status)} · {new Date(t.updated_at).toLocaleDateString(locale)}
                   </small>
                 </button>
               ))}
@@ -289,25 +301,25 @@ export function SupportPanel() {
                 setMessagePage(1);
               }}
               disabled={loading || busy}
-              label="Conversations pagination"
+              label={tr('Conversations pagination')}
             />
           )}
           {ticket && (
             <>
               <h3>{ticket.subject}</h3>
               {loading ? (
-                <ThreadSkeleton count={messagePageSize} />
+                <ThreadSkeleton count={messagePageSize} label={tr('Loading conversation…')} />
               ) : (
                 <div className="support-thread">
                   <article>
-                    <strong>You</strong>
+                    <strong>{tr('You')}</strong>
                     <p>{ticket.message}</p>
                   </article>
                   {messages.map((m) => (
                     <article key={m.id} className={m.staff ? 'staff' : ''}>
-                      <strong>{m.staff ? 'Folio support' : 'You'}</strong>
+                      <strong>{m.staff ? tr('Folio support') : tr('You')}</strong>
                       <p>{m.message}</p>
-                      <small>{new Date(m.created_at).toLocaleString()}</small>
+                      <small>{new Date(m.created_at).toLocaleString(locale)}</small>
                     </article>
                   ))}
                 </div>
@@ -322,11 +334,11 @@ export function SupportPanel() {
                 total={messageTotal}
                 onChange={setMessagePage}
                 disabled={loading || busy}
-                label="Replies pagination"
+                label={tr('Replies pagination')}
               />
               <form onSubmit={postReply}>
                 <label>
-                  Add a reply
+                  {tr('Add a reply')}
                   <textarea
                     required
                     rows={4}
@@ -336,7 +348,7 @@ export function SupportPanel() {
                   />
                 </label>
                 <button className="button primary" disabled={busy}>
-                  Post reply <ArrowRight size={16} />
+                  {tr('Post reply')} <ArrowRight size={16} />
                 </button>
               </form>
             </>
@@ -345,7 +357,7 @@ export function SupportPanel() {
       </div>
       {error && (
         <p className="error-message" role="alert">
-          {error}
+          {tr(error)}
         </p>
       )}
     </>

@@ -4,11 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import { Download, ExternalLink, FileCheck2, Loader2, Share2, X } from 'lucide-react';
 import { DOWNLOAD_READY_EVENT, formatBytes, type PreparedDownload } from '@/lib/utils';
 import s from './download-ready.module.css';
+import { useUiTranslation } from './ui-language';
 
 type ReadyFile = { file: File; url: string; shareable: boolean };
 
 /** One save surface for the editor, dashboard and standalone tools. */
 export function DownloadReady() {
+  const t = useUiTranslation();
   const dialog = useRef<HTMLDialogElement>(null);
   const [ready, setReady] = useState<ReadyFile | null>(null);
   const [sharing, setSharing] = useState(false);
@@ -65,12 +67,12 @@ export function DownloadReady() {
       // No async preparation before share: this must run within the new tap.
       await navigator.share({ files: [ready.file] });
       if (activeShare.current === attempt)
-        setNotice('The file was handed to your selected app. You can keep working here.');
+        setNotice(t('The file was handed to your selected app. You can keep working here.'));
     } catch (e) {
       if (activeShare.current === attempt) {
         if (e instanceof Error && e.name === 'AbortError')
-          setNotice('Sharing was canceled. Your file is still ready to download.');
-        else setError('Sharing is unavailable right now. Use Download file instead.');
+          setNotice(t('Sharing was canceled. Your file is still ready to download.'));
+        else setError(t('Sharing is unavailable right now. Use Download file instead.'));
       }
     } finally {
       if (activeShare.current === attempt) {
@@ -97,8 +99,8 @@ export function DownloadReady() {
       onClose={close}
     >
       <header className="dialog-header">
-        <h2 id="download-ready-heading">Your file is ready.</h2>
-        <button className="icon-button" aria-label="Close download options" onClick={close}>
+        <h2 id="download-ready-heading">{t('Your file is ready.')}</h2>
+        <button className="icon-button" aria-label={t('Close download options')} onClick={close}>
           <X size={20} />
         </button>
       </header>
@@ -115,30 +117,32 @@ export function DownloadReady() {
               </div>
             </div>
             <p id="download-ready-description">
-              Download a copy to your device. Your workspace stays open.
+              {t('Download a copy to your device. Your workspace stays open.')}
             </p>
-            {ready.shareable && <p>Use Share file to save to Files or send it to another app.</p>}
+            {ready.shareable && (
+              <p>{t('Use Share file to save to Files or send it to another app.')}</p>
+            )}
             {preview && (
               <p>
-                If your browser opens the {preview}, use its Share or Save option. You can also{' '}
+                {t('If your browser opens the file, use its Share or Save option.')}{' '}
                 <a href={ready.url} target="_blank" rel="noopener" className="text-link">
-                  open the {preview} <ExternalLink size={13} aria-hidden="true" />
+                  {t('Open file')} <ExternalLink size={13} aria-hidden="true" />
                 </a>
                 .
               </p>
             )}
             {error && (
               <p className="error-message" role="alert">
-                {error}
+                {t(error)}
               </p>
             )}
-            {notice && <p role="status">{notice}</p>}
+            {notice && <p role="status">{t(notice)}</p>}
           </div>
           <footer className="dialog-footer">
             {ready.shareable && (
               <button className="button secondary" disabled={sharing} onClick={() => void share()}>
                 {sharing ? <Loader2 size={16} className="spin" /> : <Share2 size={16} />}
-                Share file
+                {t('Share file')}
               </button>
             )}
             <a
@@ -149,10 +153,11 @@ export function DownloadReady() {
               rel="noopener"
               onClick={() => {
                 setError('');
-                setNotice('Download requested. Check your browser’s downloads or file preview.');
+                setNotice(t('Download requested. Check your browser’s downloads or file preview.'));
               }}
             >
-              <Download size={16} /> Download file
+              <Download size={16} />
+              {t('Download file')}
             </a>
           </footer>
         </>

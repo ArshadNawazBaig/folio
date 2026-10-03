@@ -1,10 +1,14 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import { useEffect, useState, type CSSProperties } from 'react';
 import { invoiceMoney, invoiceTotals, type Invoice } from '@/lib/invoice';
 import { invoiceDesign, invoiceDesignColors, invoiceInitials } from '@/lib/invoice-designs';
 import s from './invoice-generator.module.css';
 
 export function InvoicePreview({ invoice }: { invoice: Invoice }) {
+  const tr = useUiTranslation();
+
   const design = invoiceDesign(invoice.template),
     colors = invoiceDesignColors(invoice.accent);
   const totals = invoiceTotals(invoice),
@@ -48,15 +52,15 @@ export function InvoicePreview({ invoice }: { invoice: Invoice }) {
           '--invoice-tint': colors.tint,
         } as CSSProperties
       }
-      aria-label="Invoice live preview"
+      aria-label={tr('Invoice live preview')}
     >
       <header className={s.paperHeader}>
         {design.header === 'monogram' && (
           <span className={s.monogram}>{invoiceInitials(invoice.from.name)}</span>
         )}
         <div className={s.paperTitle}>
-          <span className={s.paperEyebrow}>A RECORD OF GOOD WORK</span>
-          <h2>INVOICE</h2>
+          <span className={s.paperEyebrow}>{tr('A RECORD OF GOOD WORK')}</span>
+          <h2>{tr('INVOICE')}</h2>
         </div>
         {invoice.logo && (
           <img
@@ -64,55 +68,63 @@ export function InvoicePreview({ invoice }: { invoice: Invoice }) {
             width={100}
             height={56}
             className={s.previewLogo}
-            alt="Your business logo"
+            alt={tr('Your business logo')}
           />
         )}
       </header>
       <div className={s.paperMeta}>
-        <strong>{invoice.number || 'Invoice number'}</strong>
+        <strong>{invoice.number || tr('Invoice number')}</strong>
         <span>
-          Issued {invoice.issued || '—'}
+          {tr('Issued')} {invoice.issued || '—'}
           <br />
-          Due {invoice.due || '—'}
+          {tr('Due')} {invoice.due || '—'}
         </span>
       </div>
-      {invoice.reference && <p className={s.paperReference}>Reference: {invoice.reference}</p>}
+      {invoice.reference && (
+        <p className={s.paperReference}>
+          {tr('Reference:')} {invoice.reference}
+        </p>
+      )}
       <div className={s.paperParties}>
         {(['from', 'to'] as const).map((key) => (
           <div key={key}>
-            <span className={s.paperLabel}>{key === 'from' ? 'FROM' : 'BILL TO'}</span>
+            <span className={s.paperLabel}>{key === 'from' ? tr('FROM') : tr('BILL TO')}</span>
             <strong>
               {invoice[key].name ||
-                (key === 'from' ? 'Your business name' : 'Your customer’s name')}
+                (key === 'from' ? tr('Your business name') : tr('Your customer’s name'))}
             </strong>
-            <p>{invoice[key].address || 'Street address\nCity, postal code'}</p>
+            <p>{invoice[key].address || tr('Street address\nCity, postal code')}</p>
             {invoice[key].email && <p>{invoice[key].email}</p>}
-            {invoice[key].taxId && <p>Tax ID: {invoice[key].taxId}</p>}
+            {invoice[key].taxId && (
+              <p>
+                {tr('Tax ID:')} {invoice[key].taxId}
+              </p>
+            )}
           </div>
         ))}
       </div>
       {invoice.shipTo && (
         <div className={s.paperSection}>
-          <span className={s.paperLabel}>SHIP TO</span>
+          <span className={s.paperLabel}>{tr('SHIP TO')}</span>
           <p>{invoice.shipTo}</p>
         </div>
       )}
       <table className={s.paperTable}>
-        <caption className="sr-only">Invoice items</caption>
+        <caption className="sr-only">{tr('Invoice items')}</caption>
         <thead>
           <tr>
-            <th>Description</th>
-            <th>Qty</th>
-            <th>Rate</th>
-            <th>Amount</th>
+            <th>{tr('Description')}</th>
+            <th>{tr('Qty')}</th>
+            <th>{tr('Rate')}</th>
+            <th>{tr('Amount')}</th>
           </tr>
         </thead>
         <tbody>
           {invoice.items.map((item, index) => (
             <tr key={item.id}>
               <td>
-                {item.description || 'Your product or service'}
-                {invoice.taxMode !== 'none' && !item.taxable && <small>Tax exempt</small>}
+                {item.description || tr('Your product or service')}
+                {invoice.taxMode !== 'none' && !item.taxable && <small>{tr('Tax exempt')}</small>}
               </td>
               <td>{item.quantity || '0'}</td>
               <td>
@@ -125,42 +137,42 @@ export function InvoicePreview({ invoice }: { invoice: Invoice }) {
       </table>
       <dl className={s.paperTotals}>
         <div>
-          <dt>Subtotal</dt>
+          <dt>{tr('Subtotal')}</dt>
           <dd>{money(totals.subtotal)}</dd>
         </div>
         {!!totals.discount && (
           <div>
-            <dt>Discount</dt>
+            <dt>{tr('Discount')}</dt>
             <dd>−{money(totals.discount)}</dd>
           </div>
         )}
         {!!totals.shipping && (
           <div>
-            <dt>Shipping</dt>
+            <dt>{tr('Shipping')}</dt>
             <dd>{money(totals.shipping)}</dd>
           </div>
         )}
         {invoice.taxMode !== 'none' && (
           <div>
             <dt>
-              {invoice.taxLabel || 'Tax'} ({invoice.taxRate || '0'}%)
-              {invoice.taxMode === 'inclusive' && <small>Included in prices</small>}
+              {invoice.taxLabel || tr('Tax')} ({invoice.taxRate || '0'}%)
+              {invoice.taxMode === 'inclusive' && <small>{tr('Included in prices')}</small>}
             </dt>
             <dd>{money(totals.tax)}</dd>
           </div>
         )}
         <div>
-          <dt>Total</dt>
+          <dt>{tr('Total')}</dt>
           <dd>{money(totals.total)}</dd>
         </div>
         {!!totals.paid && (
           <div>
-            <dt>Amount paid</dt>
+            <dt>{tr('Amount paid')}</dt>
             <dd>{money(totals.paid)}</dd>
           </div>
         )}
         <div className={s.balance}>
-          <dt>{totals.credit ? 'Overpayment credit' : 'Balance due'}</dt>
+          <dt>{totals.credit ? tr('Overpayment credit') : tr('Balance due')}</dt>
           <dd>{money(totals.credit || totals.balance)}</dd>
         </div>
       </dl>
@@ -172,16 +184,17 @@ export function InvoicePreview({ invoice }: { invoice: Invoice }) {
       ].map(([label, value]) =>
         value ? (
           <div className={s.paperSection} key={label}>
-            <span className={s.paperLabel}>{label}</span>
+            <span className={s.paperLabel}>{tr(label)}</span>
             <p>{value}</p>
           </div>
         ) : null,
       )}
       {qr && (
         <div className={s.paperQr}>
-          <img src={qr} width={84} height={84} alt="QR code for your payment link" />
+          <img src={qr} width={84} height={84} alt={tr('QR code for your payment link')} />
           <span>
-            Scan to open the payment link.<small>Confirm the recipient before paying.</small>
+            {tr('Scan to open the payment link.')}
+            <small>{tr('Confirm the recipient before paying.')}</small>
           </span>
         </div>
       )}

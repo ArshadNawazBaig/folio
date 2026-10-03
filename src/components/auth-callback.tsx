@@ -1,10 +1,14 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { accountFetch, authClient } from '@/lib/auth-client';
 import { afterSignIn, safeAuthDestination, signInHref } from '@/lib/auth-navigation';
 import { claimGuestWorkspaces } from '@/lib/workspace-client';
 export function AuthCallback() {
+  const tr = useUiTranslation();
+
   const started = useRef(false),
     [error, setError] = useState(''),
     [returnToEditor, setReturnToEditor] = useState(false),
@@ -74,15 +78,15 @@ export function AuthCallback() {
   return (
     <>
       <header className="page-heading">
-        <span className="eyebrow">YOUR FOLIO ACCOUNT</span>
+        <span className="eyebrow">{tr('YOUR FOLIO ACCOUNT')}</span>
         <h1>
           {signedIn ? (
             <>
-              You’re <em>signed in.</em>
+              {tr('You’re')} <em>{tr('signed in.')}</em>
             </>
           ) : (
             <>
-              Welcome <em>back.</em>
+              {tr('Welcome')} <em>{tr('back.')}</em>
             </>
           )}
         </h1>
@@ -91,35 +95,36 @@ export function AuthCallback() {
         {signedIn ? (
           <>
             <p role="status">
-              Return to your document tab to continue. Your edits have stayed open.
+              {tr('Return to your document tab to continue. Your edits have stayed open.')}
             </p>
             <button className="button primary" onClick={() => window.close()}>
-              Close this tab
+              {tr('Close this tab')}
             </button>
           </>
         ) : error ? (
           <>
             <p role="alert" className="error-message">
-              {error}
+              {tr(error)}
             </p>
             {returnToEditor ? (
               <>
                 <p>
-                  Your edits are still in the editor. Close this tab and try Google sign-in again
-                  from your document.
+                  {tr(
+                    'Your edits are still in the editor. Close this tab and try Google sign-in again from your document.',
+                  )}
                 </p>
                 <button className="button primary" onClick={() => window.close()}>
-                  Close this tab
+                  {tr('Close this tab')}
                 </button>
               </>
             ) : (
               <Link className="button primary" href={signInHref(destination)}>
-                Back to sign in
+                {tr('Back to sign in')}
               </Link>
             )}
           </>
         ) : (
-          <p role="status">Finishing your sign-in…</p>
+          <p role="status">{tr('Finishing your sign-in…')}</p>
         )}
       </div>
     </>

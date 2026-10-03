@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation, useUiLocale } from '@/components/ui-language';
+
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
@@ -30,7 +32,6 @@ import { useAccount } from './account-provider';
 import { Dropdown } from './dropdown';
 import { DownloadGate } from './download-gate';
 import { PdfCanvas } from './pdf-canvas';
-const sourceOptions = [{ value: 'auto', label: 'Auto-detect' }, ...languageOptions];
 export function RemotePdfWorkspace({
   tool,
   initialReady = false,
@@ -40,6 +41,14 @@ export function RemotePdfWorkspace({
   initialReady?: boolean;
   provider?: 'CloudConvert' | 'ConvertAPI';
 }) {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+  const languageNames = new Intl.DisplayNames([locale], { type: 'language' });
+  const localizedLanguages = languageOptions.map((option) => ({
+    ...option,
+    label: languageNames.of(option.value) || option.label,
+  }));
+
   const translation = tool === 'translate-pdf',
     format = outputFormats[tool];
   const { user, access } = useAccount();
@@ -155,7 +164,7 @@ export function RemotePdfWorkspace({
   async function open(next?: File) {
     if (!next) return;
     if (!/\.pdf$/i.test(next.name) || !next.size || next.size > REMOTE_MAX_INPUT) {
-      setError('Choose a PDF smaller than 10 MB.');
+      setError(tr('Choose a PDF smaller than 10 MB.'));
       return;
     }
     reset();
@@ -164,7 +173,7 @@ export function RemotePdfWorkspace({
       const bytes = new Uint8Array(await next.arrayBuffer());
       if (alive.current && current === version.current) setFile({ bytes, name: next.name });
     } catch {
-      setError('This PDF could not be read. Try choosing it again.');
+      setError(tr('This PDF could not be read. Try choosing it again.'));
     }
   }
   async function process() {
@@ -172,11 +181,13 @@ export function RemotePdfWorkspace({
     setError('');
     setNotice('');
     if (!ready) {
-      setError('This document service is not connected yet. Your original PDF is unchanged.');
+      setError(tr('This document service is not connected yet. Your original PDF is unchanged.'));
       return;
     }
     if (!doc || doc.numPages > (translation ? 20 : 100)) {
-      setError(`Choose a readable PDF with up to ${translation ? 20 : 100} pages.`);
+      setError(
+        tr('Choose a readable PDF with up to {value0} pages.', { value0: translation ? 20 : 100 }),
+      );
       return;
     }
     const current = ++version.current;
@@ -204,12 +215,12 @@ export function RemotePdfWorkspace({
       setTab('translation');
       setNotice(
         translation
-          ? 'Your translation is ready. Review every page before downloading.'
-          : `Your ${format.label} file is ready to download.`,
+          ? tr('Your translation is ready. Review every page before downloading.')
+          : tr('Your {value0} file is ready to download.', { value0: format.label }),
       );
     } catch (e) {
       if (alive.current && current === version.current)
-        setError(e instanceof Error ? e.message : 'Your PDF could not be processed.');
+        setError(e instanceof Error ? e.message : tr('Your PDF could not be processed.'));
     } finally {
       if (alive.current && current === version.current) setBusy('');
     }
@@ -222,7 +233,7 @@ export function RemotePdfWorkspace({
   async function exportResult(verified = false) {
     if (!result) return;
     if (result.expiresAt <= Date.now()) {
-      setError('This prepared file has expired. Process your original PDF again.');
+      setError(tr('This prepared file has expired. Process your original PDF again.'));
       return;
     }
     if (!access.pro && !verified) {
@@ -241,12 +252,12 @@ export function RemotePdfWorkspace({
       if (delivery === 'started') void clearRemoteDraft(tool).catch(() => {});
       setNotice(
         delivery === 'ready'
-          ? 'Your finished document is ready. Choose how to save it.'
-          : 'Download started. Check your browser’s downloads.',
+          ? tr('Your finished document is ready. Choose how to save it.')
+          : tr('Download started. Check your browser’s downloads.'),
       );
     } catch (e) {
       if (e instanceof AccountRequestError && [401, 402].includes(e.status)) await askForDownload();
-      else setError(e instanceof Error ? e.message : 'Your document could not be downloaded.');
+      else setError(e instanceof Error ? e.message : tr('Your document could not be downloaded.'));
     } finally {
       setBusy('');
     }
@@ -268,7 +279,7 @@ export function RemotePdfWorkspace({
       if (alive.current && current === version.current) setImages((v) => ({ ...v, [next]: image }));
     } catch (e) {
       if (alive.current && current === version.current)
-        setError(e instanceof Error ? e.message : 'The preview could not be loaded.');
+        setError(e instanceof Error ? e.message : tr('The preview could not be loaded.'));
     } finally {
       if (alive.current && current === version.current) setBusy('');
     }
@@ -280,44 +291,46 @@ export function RemotePdfWorkspace({
         {translation ? (
           <div className="translation-language">
             <Dropdown
-              label="Original language"
+              label={tr('Original language')}
               value={source}
               onValueChange={(v) => {
                 reset();
                 setSource(v);
               }}
-              options={sourceOptions}
-              searchPlaceholder="Search languages…"
-              searchLabel="Search languages"
-              emptyMessage="No languages found. Try another spelling."
+              options={[{ value: 'auto', label: tr('Auto-detect') }, ...localizedLanguages]}
+              searchPlaceholder={tr('Search languages…')}
+              searchLabel={tr('Search languages')}
+              emptyMessage={tr('No languages found. Try another spelling.')}
               disabled={!!busy}
               icon={source === 'auto' ? <ScanText size={18} /> : <Languages size={18} />}
             />
             <ArrowRight size={21} aria-hidden="true" />
             <Dropdown
-              label="Translate into"
+              label={tr('Translate into')}
               value={target}
               onValueChange={(v) => {
                 reset();
                 setTarget(v);
               }}
-              options={languageOptions}
-              searchPlaceholder="Search languages…"
-              searchLabel="Search languages"
-              emptyMessage="No languages found. Try another spelling."
+              options={localizedLanguages}
+              searchPlaceholder={tr('Search languages…')}
+              searchLabel={tr('Search languages')}
+              emptyMessage={tr('No languages found. Try another spelling.')}
               disabled={!!busy}
               icon={<Languages size={18} />}
             />
           </div>
         ) : (
           <div>
-            <span className="eyebrow">A NEW FORMAT FOR YOUR IDEAS</span>
-            <h2 className="remote-title">PDF to {format.label}</h2>
+            <span className="eyebrow">{tr('A NEW FORMAT FOR YOUR IDEAS')}</span>
+            <h2 className="remote-title">
+              {tr('PDF to')} {format.label}
+            </h2>
           </div>
         )}
         <label className="button secondary">
           <Upload size={16} />
-          {file ? 'Change PDF' : 'Choose a PDF'}
+          {file ? tr('Change PDF') : tr('Choose a PDF')}
           <input
             type="file"
             accept="application/pdf"
@@ -336,40 +349,40 @@ export function RemotePdfWorkspace({
           <strong>{file.name}</strong>
           <span>
             {formatBytes(file.bytes.length)}
-            {doc ? ` · ${doc.numPages} pages` : ''}
+            {doc ? tr(' · {value0} pages', { value0: doc.numPages }) : ''}
           </span>
         </div>
       )}
       <div className="mobile-preview-tabs">
         <button className={tab === 'original' ? 'active' : ''} onClick={() => setTab('original')}>
-          Original
+          {tr('Original')}
         </button>
         <button
           className={tab === 'translation' ? 'active' : ''}
           onClick={() => setTab('translation')}
         >
-          {translation ? 'Translation' : 'Converted file'}
+          {translation ? tr('Translation') : tr('Converted file')}
         </button>
       </div>
       <div className="translation-panes">
         <div className={`translation-pane ${tab === 'original' ? 'mobile-active' : ''}`}>
           <div className="translation-pane-header">
-            <span>Original document</span>
-            <span className="status-label">LOCAL PREVIEW</span>
+            <span>{tr('Original document')}</span>
+            <span className="status-label">{tr('LOCAL PREVIEW')}</span>
           </div>
           <div
             className="translation-canvas"
             tabIndex={0}
             role="region"
-            aria-label="Original document preview"
+            aria-label={tr('Original document preview')}
           >
             {doc ? (
               <PdfCanvas document={doc} page={Math.min(page, doc.numPages)} width={400} />
             ) : (
               <div className="translation-empty">
                 <FileText size={38} strokeWidth={1.2} />
-                <h3>A new perspective starts here.</h3>
-                <p>Choose a PDF to preview it on your device.</p>
+                <h3>{tr('A new perspective starts here.')}</h3>
+                <p>{tr('Choose a PDF to preview it on your device.')}</p>
                 <button
                   className="text-link"
                   onClick={async () => {
@@ -378,7 +391,7 @@ export function RemotePdfWorkspace({
                     setFile({ name: 'Studio North — Proposal.pdf', bytes: await createSample() });
                   }}
                 >
-                  Or explore a sample <ArrowRight size={15} />
+                  {tr('Or explore a sample')} <ArrowRight size={15} />
                 </button>
               </div>
             )}
@@ -388,8 +401,10 @@ export function RemotePdfWorkspace({
           <div className="translation-pane-header">
             <span>
               {translation
-                ? `${languageOptions.find((l) => l.value === target)?.label || 'Translated'} document`
-                : `${format.label} document`}
+                ? tr('{value0} document', {
+                    value0: languageOptions.find((l) => l.value === target)?.label || 'Translated',
+                  })
+                : tr('{value0} document', { value0: format.label })}
             </span>
             <Languages size={17} />
           </div>
@@ -397,7 +412,7 @@ export function RemotePdfWorkspace({
             className="translation-canvas"
             tabIndex={0}
             role="region"
-            aria-label={translation ? 'Translated document preview' : 'Conversion result'}
+            aria-label={translation ? tr('Translated document preview') : tr('Conversion result')}
           >
             {result && translation && images[page] ? (
               <img
@@ -405,7 +420,7 @@ export function RemotePdfWorkspace({
                 src={`data:image/png;base64,${images[page].preview}`}
                 width={images[page].width}
                 height={images[page].height}
-                alt={`Translated PDF, page ${page}`}
+                alt={tr('Translated PDF, page {value0}', { value0: page })}
               />
             ) : result ? (
               <div className="translation-empty">
@@ -414,17 +429,20 @@ export function RemotePdfWorkspace({
                 </span>
                 <h3>
                   {translation
-                    ? 'Your translated document is ready.'
-                    : `Your ${format.label} file is ready.`}
+                    ? tr('Your translated document is ready.')
+                    : tr('Your {value0} file is ready.', { value0: format.label })}
                 </h3>
                 <p>{result.filename}</p>
                 <span className="status-label">{formatBytes(result.size)}</span>
                 {!translation && (
-                  <p>Open the downloaded file in {format.label} to review its converted layout.</p>
+                  <p>
+                    {tr('Open the downloaded file in')} {format.label}{' '}
+                    {tr('to review its converted layout.')}
+                  </p>
                 )}
                 {translation && !busy && (
                   <button className="text-link" onClick={() => void changePage(page)}>
-                    Load this page <ArrowRight size={15} />
+                    {tr('Load this page')} <ArrowRight size={15} />
                   </button>
                 )}
               </div>
@@ -435,16 +453,16 @@ export function RemotePdfWorkspace({
                 </span>
                 <h3>
                   {translation
-                    ? 'Another language. The same big idea.'
-                    : `Make room for ${format.label}.`}
+                    ? tr('Another language. The same big idea.')
+                    : tr('Make room for {value0}.', { value0: format.label })}
                 </h3>
                 <p>
                   {translation
-                    ? 'Your translated pages will appear here.'
-                    : 'Your converted file will be ready here after processing.'}
+                    ? tr('Your translated pages will appear here.')
+                    : tr('Your converted file will be ready here after processing.')}
                 </p>
                 <span className="status-label">
-                  {ready ? 'READY WHEN YOU ARE' : 'SERVICE NOT CONNECTED'}
+                  {ready ? tr('READY WHEN YOU ARE') : tr('SERVICE NOT CONNECTED')}
                 </span>
               </div>
             )}
@@ -454,10 +472,10 @@ export function RemotePdfWorkspace({
       <div className="translation-bottom">
         <span>
           <FileText size={15} />
-          Original PDF stays unchanged.
+          {tr('Original PDF stays unchanged.')}
           {file && (
             <button className="text-link" onClick={() => download(file.bytes, file.name)}>
-              Save original
+              {tr('Save original')}
             </button>
           )}
         </span>
@@ -465,7 +483,7 @@ export function RemotePdfWorkspace({
           <div className="page-navigation">
             <button
               className="icon-button"
-              aria-label="Previous page"
+              aria-label={tr('Previous page')}
               disabled={page <= 1 || !!busy}
               onClick={() => void changePage(page - 1)}
             >
@@ -474,7 +492,7 @@ export function RemotePdfWorkspace({
             {page} / {pages}
             <button
               className="icon-button"
-              aria-label="Next page"
+              aria-label={tr('Next page')}
               disabled={page >= pages || !!busy}
               onClick={() => void changePage(page + 1)}
             >
@@ -485,7 +503,7 @@ export function RemotePdfWorkspace({
         {result ? (
           <button className="button primary" disabled={!!busy} onClick={() => void exportResult()}>
             <Download size={16} />
-            Download {format.label}
+            {tr('Download')} {format.label}
           </button>
         ) : (
           <button
@@ -494,31 +512,45 @@ export function RemotePdfWorkspace({
             onClick={() => void process()}
           >
             {busy ? <Loader2 size={16} className="spin" /> : <ArrowRight size={16} />}
-            {busy || (translation ? 'Translate PDF' : `Convert to ${format.label}`)}
+            {busy
+              ? tr(busy)
+              : translation
+                ? tr('Translate PDF')
+                : tr('Convert to {format}', { format: format.label })}
           </button>
         )}
       </div>
       <p className="service-note service-note--footer">
         {ready
-          ? `${translation ? 'Translation sends this PDF to Google Cloud Translation.' : `Conversion sends this PDF to ${provider}.`} Processing starts when you choose ${translation ? 'Translate PDF' : 'Convert'}. Prepared files remain available for 24 hours; layout and recognition quality depend on your source document.`
-          : 'This processing service is not connected yet. Local previews work, and your file is not uploaded.'}{' '}
-        Maximum 10 MB and {translation ? 20 : 100} pages.
+          ? tr(
+              '{value0} Processing starts when you choose {value1}. Prepared files remain available for 24 hours; layout and recognition quality depend on your source document.',
+              {
+                value0: translation
+                  ? 'Translation sends this PDF to Google Cloud Translation.'
+                  : `Conversion sends this PDF to ${provider}.`,
+                value1: translation ? 'Translate PDF' : 'Convert',
+              },
+            )
+          : tr(
+              'This processing service is not connected yet. Local previews work, and your file is not uploaded.',
+            )}{' '}
+        {tr('Maximum 10 MB and')} {translation ? 20 : 100} {tr('pages.')}
       </p>
       {busy && (
         <p className="pro-processing" role="status">
           <Loader2 size={16} className="spin" />
-          {busy}
+          {tr(busy)}
         </p>
       )}
       {error && (
         <p className="error-message" role="alert">
-          {error}
+          {tr(error)}
         </p>
       )}
       {notice && (
         <p className="pro-notice" role="status">
           <Check size={16} />
-          {notice}
+          {tr(notice)}
         </p>
       )}
       <DownloadGate

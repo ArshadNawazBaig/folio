@@ -1,0 +1,27 @@
+import { translator, type PageLanguage } from '@/lib/i18n/translate';
+import { SupportPanel } from '@/components/support-panel';
+import { pageMetadata } from '@/lib/seo';
+export const metadata = pageMetadata(
+  'Contact Folio support',
+  'Ask a question about your documents, account, or subscription.',
+  '/support',
+  false,
+);
+export default function SupportPage({ messages = {} }: PageLanguage = {}) {
+  const tr = translator(messages);
+
+  return (
+    <main id="main" className="container support-page with-page-heading">
+      <div className="support-heading page-heading">
+        <span className="eyebrow">{tr('A HUMAN QUESTION DESERVES AN ANSWER')}</span>
+        <h1>
+          {tr('A little help,')}
+          <br />
+          <em>{tr('right when you need it.')}</em>
+        </h1>
+        <p>{tr('Ask a question about your documents, account, or subscription.')}</p>
+      </div>
+      <SupportPanel />
+    </main>
+  );
+}

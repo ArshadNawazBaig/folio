@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation, useUiLocale } from '../ui-language';
+import { localizedHref } from '@/lib/i18n/translate';
 import { PAGE_SIZE } from '@/lib/pagination.mjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -73,6 +75,10 @@ export function CloudFiles({
   compact = false,
   guest = false,
 }: Props) {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
+
   const { user, access } = useAccount();
   const router = useRouter();
   const userId = user?.id;
@@ -141,22 +147,29 @@ export function CloudFiles({
     <section className={s.fileSection}>
       <div className={s.sectionHeading}>
         <div>
-          <h2>{compact ? 'Recent files' : 'Your files'}</h2>
+          <h2>{compact ? tr('Recent files') : tr('Your files')}</h2>
           <p>
             {compact
-              ? 'Your latest work, ready to open.'
-              : `Up to 50 MB per PDF · ${storageLabel(storage.limit)} private storage${storage.limit === null ? '' : ' · 200 files'}`}
+              ? tr('Your latest work, ready to open.')
+              : tr('Up to 50 MB per PDF · {value0} private storage{value1}', {
+                  value0: tr(storageLabel(storage.limit)),
+                  value1: storage.limit === null ? '' : tr(' · 200 files'),
+                })}
           </p>
         </div>
         <div className={s.inlineActions}>
           {hasWorkspace && (
-            <Link className="button secondary" href="/workspace?draft=pro-text" prefetch={false}>
-              <Pencil size={16} /> Resume text workspace
+            <Link
+              className="button secondary"
+              href={href('/workspace?draft=pro-text')}
+              prefetch={false}
+            >
+              <Pencil size={16} /> {tr('Resume text workspace')}
             </Link>
           )}
           {compact && (
-            <Link className="text-link" href="/dashboard?view=files">
-              View all <ArrowUpRight size={16} />
+            <Link className="text-link" href={href('/dashboard?view=files')}>
+              {tr('View all')} <ArrowUpRight size={16} />
             </Link>
           )}
           <button
@@ -164,14 +177,14 @@ export function CloudFiles({
             disabled={!!busy || loading || !!error || storage.full}
             onClick={() => input.current?.click()}
           >
-            <Upload size={16} /> Upload PDF
+            <Upload size={16} /> {tr('Upload PDF')}
           </button>
           <input
             ref={input}
             className="sr-only"
             type="file"
             accept="application/pdf,.pdf"
-            aria-label="Upload PDF to cloud"
+            aria-label={tr('Upload PDF to cloud')}
             tabIndex={-1}
             onChange={(e) => {
               const file = e.target.files?.[0];
@@ -184,21 +197,24 @@ export function CloudFiles({
       {!compact && (
         <div className={s.fileUsage} aria-busy={loading}>
           {error ? (
-            'Storage unavailable'
+            tr('Storage unavailable')
           ) : loading ? (
             <Skeleton width="65%" height={12} />
           ) : (
             <span>
               {storage.limit === null
-                ? `${formatBytes(storage.used)} used · Unlimited storage`
-                : `${formatBytes(storage.used)} of ${storageLabel(storage.limit)} used`}
+                ? tr('{value0} used · Unlimited storage', { value0: formatBytes(storage.used) })
+                : tr('{value0} of {value1} used', {
+                    value0: formatBytes(storage.used),
+                    value1: tr(storageLabel(storage.limit)),
+                  })}
             </span>
           )}
           {loading && !error ? (
             <Skeleton width="100%" height={6} />
           ) : !error && storage.limit !== null ? (
             <progress
-              aria-label="File storage used"
+              aria-label={tr('File storage used')}
               value={Math.min(storage.used, storage.limit)}
               max={storage.limit}
             />
@@ -207,8 +223,9 @@ export function CloudFiles({
       )}
       {storage.full && !loading && !error && (
         <p className="service-note" role="status">
-          Your private storage is full. Delete older files or recovery drafts to upload more.
-          Existing files remain available.
+          {tr(
+            'Your private storage is full. Delete older files or recovery drafts to upload more. Existing files remain available.',
+          )}
         </p>
       )}
       {!compact && (
@@ -217,26 +234,26 @@ export function CloudFiles({
             <label className={s.search}>
               <Search size={17} />
               <input
-                aria-label="Search cloud files"
-                placeholder="Find a document…"
+                aria-label={tr('Search cloud files')}
+                placeholder={tr('Find a document…')}
                 value={query}
                 onChange={(e) => onQueryChange(e.target.value)}
               />
             </label>
             <Dropdown
-              label="Sort files"
+              label={tr('Sort files')}
               hideLabel
               value={sort}
               onValueChange={onSortChange}
               options={[
-                { value: 'recent', label: 'Recently saved' },
-                { value: 'name', label: 'Name A–Z' },
-                { value: 'size', label: 'Largest first' },
+                { value: 'recent', label: tr('Recently saved') },
+                { value: 'name', label: tr('Name A–Z') },
+                { value: 'size', label: tr('Largest first') },
               ]}
             />
             <button
               className="icon-button"
-              aria-label="Refresh files"
+              aria-label={tr('Refresh files')}
               disabled={loading || !!busy}
               onClick={() => void refresh()}
             >
@@ -247,20 +264,20 @@ export function CloudFiles({
       )}
       {busy && (
         <p role="status" className={s.notice}>
-          {busy} Keep this tab open until it finishes.
+          {tr(busy)} {tr('Keep this tab open until it finishes.')}
         </p>
       )}
       {notice && (
         <p role="status" className={s.notice}>
-          {notice}
+          {tr(notice)}
         </p>
       )}
       {(actionError || error) && (
         <div role="alert" className="error-message">
-          {actionError || error}
+          {tr(actionError || error)}
           {error && (
             <button className="text-link" onClick={() => void refresh()}>
-              Retry loading files
+              {tr('Retry loading files')}
             </button>
           )}
         </div>
@@ -273,13 +290,17 @@ export function CloudFiles({
             <span className={s.emptyIcon}>
               <FolderOpen size={30} strokeWidth={1.4} />
             </span>
-            <h3>{query ? 'No matching files.' : 'Your next document belongs here.'}</h3>
+            <h3>{query ? tr('No matching files.') : tr('Your next document belongs here.')}</h3>
             <p>
               {query
-                ? 'Try another file name.'
+                ? tr('Try another file name.')
                 : guest
-                  ? 'PDFs you open in the editor are saved here automatically. Your files are private to this browser for 24 hours.'
-                  : 'PDFs you open in the editor are saved here automatically. Your files are private to your account.'}
+                  ? tr(
+                      'PDFs you open in the editor are saved here automatically. Your files are private to this browser for 24 hours.',
+                    )
+                  : tr(
+                      'PDFs you open in the editor are saved here automatically. Your files are private to your account.',
+                    )}
             </p>
             {!query && (
               <button
@@ -287,7 +308,7 @@ export function CloudFiles({
                 disabled={!!busy || storage.full}
                 onClick={() => input.current?.click()}
               >
-                Upload your first PDF <ArrowUpRight size={15} />
+                {tr('Upload your first PDF')} <ArrowUpRight size={15} />
               </button>
             )}
           </div>
@@ -307,16 +328,18 @@ export function CloudFiles({
                     )}
                     <small>
                       {file.status === 'ready'
-                        ? `PDF · ${formatBytes(file.size + (file.workspace_size || 0))}`
+                        ? tr('PDF · {value0}', {
+                            value0: formatBytes(file.size + (file.workspace_size || 0)),
+                          })
                         : file.status === 'deleting'
-                          ? 'Removal incomplete · retry below'
-                          : 'Upload incomplete · finish or remove'}
+                          ? tr('Removal incomplete · retry below')
+                          : tr('Upload incomplete · finish or remove')}
                     </small>
                     {file.guest && file.expires_at && (
                       <small>
-                        Guest file · expires{' '}
+                        {tr('Guest file · expires')}{' '}
                         <time dateTime={file.expires_at}>
-                          {new Date(file.expires_at).toLocaleString(undefined, {
+                          {new Date(file.expires_at).toLocaleString(locale, {
                             month: 'short',
                             day: 'numeric',
                             hour: 'numeric',
@@ -327,7 +350,7 @@ export function CloudFiles({
                     )}
                   </div>
                   <time className={s.fileDate} dateTime={file.updated_at}>
-                    {new Date(file.updated_at).toLocaleDateString(undefined, {
+                    {new Date(file.updated_at).toLocaleDateString(locale, {
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric',
@@ -339,14 +362,14 @@ export function CloudFiles({
                         <Link
                           className="icon-button"
                           href={`/workspace?cloud=${file.id}`}
-                          aria-label={`Open ${file.name}`}
+                          aria-label={tr('Open {value0}', { value0: file.name })}
                         >
                           <ArrowUpRight size={17} />
                         </Link>
                         <button
                           className="icon-button"
                           disabled={!!busy}
-                          aria-label={`Download ${file.name}`}
+                          aria-label={tr('Download {value0}', { value0: file.name })}
                           onClick={() =>
                             void perform('Downloading PDF…', async () => {
                               const record =
@@ -375,7 +398,7 @@ export function CloudFiles({
                         <button
                           className="icon-button"
                           disabled={!!busy}
-                          aria-label={`Rename ${file.name}`}
+                          aria-label={tr('Rename {value0}', { value0: file.name })}
                           onClick={() => {
                             setSelected(file);
                             setAction('rename');
@@ -404,14 +427,14 @@ export function CloudFiles({
                             })
                           }
                         >
-                          Finish upload
+                          {tr('Finish upload')}
                         </button>
                       )
                     )}
                     <button
                       className="icon-button danger"
                       disabled={!!busy}
-                      aria-label={`Delete ${file.name}`}
+                      aria-label={tr('Delete {value0}', { value0: file.name })}
                       onClick={() => {
                         setSelected(file);
                         setAction('delete');
@@ -431,7 +454,7 @@ export function CloudFiles({
         <Pagination
           pageSize={pageSize}
           onPageSizeChange={onPageSizeChange}
-          label="Files pagination"
+          label={tr('Files pagination')}
           page={page}
           total={total}
           onChange={onPageChange}
@@ -441,11 +464,11 @@ export function CloudFiles({
       {!compact && !guest && <LegacyDraftImport refresh={refresh} />}
       {!compact && !!storage.recovery.length && (
         <div className={s.recoveryDrafts}>
-          <h3>Recovery drafts</h3>
-          <p>Saved work from other tools also counts toward your private storage.</p>
+          <h3>{tr('Recovery drafts')}</h3>
+          <p>{tr('Saved work from other tools also counts toward your private storage.')}</p>
           {recoveryDrafts.slice(recoveryPagination.start, recoveryPagination.end).map((draft) => {
             const slot = draft.slot as RecoverySlot;
-            const label = recoveryNames[slot];
+            const label = tr(recoveryNames[slot]);
             return (
               <div className={s.fileRow} key={slot}>
                 <span className={s.fileIcon}>
@@ -458,7 +481,7 @@ export function CloudFiles({
                 <button
                   className="icon-button"
                   disabled={!!busy}
-                  aria-label={`Delete ${label}`}
+                  aria-label={tr('Delete {value0}', { value0: label })}
                   onClick={() => {
                     setSelected({
                       id: slot,
@@ -482,7 +505,7 @@ export function CloudFiles({
           <Pagination
             {...recoveryPagination}
             disabled={!!busy || loading}
-            label="Recovery drafts pagination"
+            label={tr('Recovery drafts pagination')}
           />
         </div>
       )}
@@ -496,12 +519,12 @@ export function CloudFiles({
       >
         <header className="dialog-header">
           <h2 id="file-dialog-title">
-            {action === 'rename' ? 'A new name for this PDF.' : 'Delete this cloud file?'}
+            {action === 'rename' ? tr('A new name for this PDF.') : tr('Delete this cloud file?')}
           </h2>
           <button
             className="icon-button"
             disabled={!!busy}
-            aria-label="Close file dialog"
+            aria-label={tr('Close file dialog')}
             onClick={() => dialog.current?.close()}
           >
             <X size={18} />
@@ -539,7 +562,7 @@ export function CloudFiles({
           <div className="dialog-body">
             {action === 'rename' ? (
               <label className={s.field}>
-                File name
+                {tr('File name')}
                 <input
                   autoFocus
                   required
@@ -551,13 +574,19 @@ export function CloudFiles({
             ) : (
               <p>
                 {selected?.recoverySlot
-                  ? `“${selected.name}” will be permanently deleted. You will no longer be able to restore this saved draft.`
-                  : `“${selected?.name}” will be permanently removed from your cloud library. Download a copy first if you need to keep it.`}
+                  ? tr(
+                      '“{value0}” will be permanently deleted. You will no longer be able to restore this saved draft.',
+                      { value0: selected.name },
+                    )
+                  : tr(
+                      '“{value0}” will be permanently removed from your cloud library. Download a copy first if you need to keep it.',
+                      { value0: selected?.name ?? '' },
+                    )}
               </p>
             )}
             {actionError && (
               <p role="alert" className="error-message">
-                {actionError}
+                {tr(actionError)}
               </p>
             )}
           </div>
@@ -568,13 +597,13 @@ export function CloudFiles({
               disabled={!!busy}
               onClick={() => dialog.current?.close()}
             >
-              Cancel
+              {tr('Cancel')}
             </button>
             <button
               className="button primary"
               disabled={!!busy || (action === 'rename' && !name.trim())}
             >
-              {busy ? 'Saving…' : action === 'rename' ? 'Save name' : 'Delete file'}
+              {busy ? tr('Saving…') : action === 'rename' ? tr('Save name') : tr('Delete file')}
             </button>
           </footer>
         </form>
@@ -584,9 +613,11 @@ export function CloudFiles({
 }
 
 export function CloudFileSkeleton({ count = PAGE_SIZE }: { count?: number }) {
+  const tr = useUiTranslation();
+
   return (
     <div className={s.fileList} aria-busy="true" data-loading-files="">
-      <LoadingLabel>Loading your files…</LoadingLabel>
+      <LoadingLabel>{tr('Loading your files…')}</LoadingLabel>
       {Array.from({ length: count }, (_, i) => (
         <div className={s.fileRow} key={i} aria-hidden="true">
           <Skeleton width={36} height={43} radius={6} />

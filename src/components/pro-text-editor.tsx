@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -35,6 +37,8 @@ import { type TextChange, type TextInspection, type TextPreview } from '@/lib/pr
 type SourceFile = { bytes: Uint8Array; name: string };
 type Changes = Record<string, TextChange>;
 export function ProTextEditor() {
+  const tr = useUiTranslation();
+
   const router = useRouter();
   const { user, access } = useAccount();
   const userId = user?.id;
@@ -147,7 +151,7 @@ export function ProTextEditor() {
         anchor.target !== '_blank' &&
         !event.metaKey &&
         !event.ctrlKey &&
-        !window.confirm('You have changes that have not been downloaded. Leave this document?')
+        !window.confirm(tr('You have changes that have not been downloaded. Leave this document?'))
       ) {
         event.preventDefault();
         event.stopPropagation();
@@ -159,7 +163,7 @@ export function ProTextEditor() {
       window.removeEventListener('beforeunload', handler);
       document.removeEventListener('click', linkClick, true);
     };
-  }, [dirty]);
+  }, [dirty, tr]);
   useEffect(() => {
     if (initial.current) return;
     initial.current = true;
@@ -185,6 +189,8 @@ export function ProTextEditor() {
           );
         })
         .catch(() => {});
+    // Opening an existing draft is a one-time operation; UI translations must not reload it.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
   useEffect(() => {
     if (!userId || !gateOpen || !file || !inspection) return;
@@ -243,7 +249,9 @@ export function ProTextEditor() {
       if (!mounted.current) return;
       if (next.bytes.length > 10 * 1024 * 1024) {
         setError(
-          'This copy exceeds the 10 MB file limit. Download it and split it into smaller files first.',
+          tr(
+            'This copy exceeds the 10 MB file limit. Download it and split it into smaller files first.',
+          ),
         );
         return;
       }
@@ -252,7 +260,7 @@ export function ProTextEditor() {
         setInspection(await result.json());
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'This PDF could not be opened.');
+      setError(e instanceof Error ? e.message : tr('This PDF could not be opened.'));
     } finally {
       setBusy('');
     }
@@ -271,7 +279,7 @@ export function ProTextEditor() {
         true,
       );
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'The sample could not be loaded.');
+      setError(e instanceof Error ? e.message : tr('The sample could not be loaded.'));
       setBusy('');
     }
   }
@@ -323,7 +331,7 @@ export function ProTextEditor() {
     try {
       setInspection(await (await request(file, demo, { operation: 'inspect' })).json());
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Text could not be inspected.');
+      setError(e instanceof Error ? e.message : tr('Text could not be inspected.'));
     } finally {
       setBusy('');
     }
@@ -376,16 +384,16 @@ export function ProTextEditor() {
         }
         setNotice(
           delivery === 'ready'
-            ? 'Your PDF with the changed text is ready. Choose how to save it.'
-            : 'Download started. Check your browser’s downloads.',
+            ? tr('Your PDF with the changed text is ready. Choose how to save it.')
+            : tr('Download started. Check your browser’s downloads.'),
         );
-      } else setNotice('Preview updated. Your changes are now in the PDF.');
+      } else setNotice(tr('Preview updated. Your changes are now in the PDF.'));
     } catch (e) {
       if (e instanceof AccountRequestError && [401, 402].includes(e.status)) {
         await askForDownload();
         return;
       }
-      setError(e instanceof Error ? e.message : 'This text could not be changed.');
+      setError(e instanceof Error ? e.message : tr('This text could not be changed.'));
     } finally {
       setBusy('');
     }
@@ -408,10 +416,10 @@ export function ProTextEditor() {
         ...current,
         [previewPage]: { image: result, key: JSON.stringify(changeSet), changes: changeSet },
       }));
-      setNotice('Preview updated. Your changes are ready for download.');
+      setNotice(tr('Preview updated. Your changes are ready for download.'));
       return true;
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'The preview could not be updated.');
+      setError(e instanceof Error ? e.message : tr('The preview could not be updated.'));
       return false;
     } finally {
       setBusy('');
@@ -438,13 +446,16 @@ export function ProTextEditor() {
     if (count) commit(next);
     setNotice(
       count
-        ? `${count} replacement${count === 1 ? '' : 's'} ready. Update the preview to apply them.`
-        : 'No matching text found within editable blocks.',
+        ? tr('{value0} replacement{value1} ready. Update the preview to apply them.', {
+            value0: count,
+            value1: count === 1 ? '' : 's',
+          })
+        : tr('No matching text found within editable blocks.'),
     );
   }
   const blocksOnPage = inspection?.blocks.filter((block) => block.page === page) || [];
   function chooseFile() {
-    if (!dirty || window.confirm('Download your edits before opening another PDF. Continue?')) {
+    if (!dirty || window.confirm(tr('Download your edits before opening another PDF. Continue?'))) {
       input.current?.click();
     }
   }
@@ -454,16 +465,17 @@ export function ProTextEditor() {
         <div className="pro-intro">
           <div>
             <span className="workspace-label">
-              <PencilLine size={14} /> ORIGINAL TEXT, EDITABLE
+              <PencilLine size={14} /> {tr('ORIGINAL TEXT, EDITABLE')}
             </span>
             <h2>
-              A better word.
+              {tr('A better word.')}
               <br />
-              <em>Right where it belongs.</em>
+              <em>{tr('Right where it belongs.')}</em>
             </h2>
             <p>
-              Correct a name, update a detail, or rewrite a text block in your PDF. Preview the
-              result before you download.
+              {tr(
+                'Correct a name, update a detail, or rewrite a text block in your PDF. Preview the result before you download.',
+              )}
             </p>
             <div className="pro-intro-actions">
               <button
@@ -472,30 +484,31 @@ export function ProTextEditor() {
                 onClick={() => input.current?.click()}
               >
                 <Upload size={16} />
-                Choose your PDF
+                {tr('Choose your PDF')}
               </button>
               <button className="button secondary" disabled={!!busy} onClick={openDemo}>
-                Try the sample <ArrowRight size={16} />
+                {tr('Try the sample')} <ArrowRight size={16} />
               </button>
             </div>
             <small>
-              Your file is uploaded only when you choose “Upload for text editing”. Maximum 10 MB
-              and 100 pages.
+              {tr(
+                'Your file is uploaded only when you choose “Upload for text editing”. Maximum 10 MB and 100 pages.',
+              )}
             </small>
           </div>
           <div className="pro-edit-first">
-            <span className="eyebrow">MAKE IT YOURS FIRST</span>
+            <span className="eyebrow">{tr('MAKE IT YOURS FIRST')}</span>
             <h3>
-              Your document.
+              {tr('Your document.')}
               <br />
-              Your finishing touches.
+              {tr('Your finishing touches.')}
             </h3>
             <ol>
-              <li>Choose a PDF and start editing.</li>
-              <li>Refine the text and preview every change.</li>
-              <li>Download your finished PDF.</li>
+              <li>{tr('Choose a PDF and start editing.')}</li>
+              <li>{tr('Refine the text and preview every change.')}</li>
+              <li>{tr('Download your finished PDF.')}</li>
             </ol>
-            <p>Adjust fonts, colors, and wording in one workspace.</p>
+            <p>{tr('Adjust fonts, colors, and wording in one workspace.')}</p>
           </div>
         </div>
       ) : (
@@ -504,17 +517,17 @@ export function ProTextEditor() {
             <div>
               <span className="workspace-label">
                 <PencilLine size={12} />
-                {demo ? 'SAMPLE WORKSPACE' : 'TEXT EDITOR'}
+                {demo ? tr('SAMPLE WORKSPACE') : tr('TEXT EDITOR')}
               </span>
               <strong>{file.name}</strong>
               <small>
-                {formatBytes(file.bytes.length)} · {doc?.numPages || '…'} pages
+                {formatBytes(file.bytes.length)} · {doc?.numPages || '…'} {tr('pages')}
               </small>
             </div>
             <div className="pro-workspace-actions">
               <button
                 className="icon-button"
-                aria-label="Undo text change"
+                aria-label={tr('Undo text change')}
                 disabled={history.index === 0 || !!busy}
                 onClick={() => setHistory((h) => ({ ...h, index: h.index - 1 }))}
               >
@@ -522,14 +535,14 @@ export function ProTextEditor() {
               </button>
               <button
                 className="icon-button"
-                aria-label="Redo text change"
+                aria-label={tr('Redo text change')}
                 disabled={history.index === history.states.length - 1 || !!busy}
                 onClick={() => setHistory((h) => ({ ...h, index: h.index + 1 }))}
               >
                 <Redo2 size={17} />
               </button>
               <button className="button secondary" disabled={!!busy} onClick={chooseFile}>
-                Change PDF
+                {tr('Change PDF')}
               </button>
               <button
                 className="button primary"
@@ -537,30 +550,33 @@ export function ProTextEditor() {
                 onClick={() => (inspection ? void apply(true) : download(file.bytes, file.name))}
               >
                 <Download size={15} />
-                {inspection ? 'Download PDF' : 'Download current copy'}
+                {inspection ? tr('Download PDF') : tr('Download current copy')}
               </button>
             </div>
           </div>
           {demo && (
             <div className="pro-demo-note">
-              <span>You’re editing a sample PDF. Try changing its text, fonts, and colors.</span>
+              <span>
+                {tr('You’re editing a sample PDF. Try changing its text, fonts, and colors.')}
+              </span>
               <button className="text-link" disabled={!!busy} onClick={chooseFile}>
-                Use your own PDF <ArrowRight size={14} />
+                {tr('Use your own PDF')} <ArrowRight size={14} />
               </button>
             </div>
           )}
           {!inspection && (
             <div className="pro-upload-consent">
               <p>
-                Your PDF is previewed locally. Text editing sends this document to Folio for
-                processing in memory.
+                {tr(
+                  'Your PDF is previewed locally. Text editing sends this document to Folio for processing in memory.',
+                )}
               </p>
               <button
                 className="button primary"
                 disabled={!!busy || file.bytes.length > 10 * 1024 * 1024}
                 onClick={inspect}
               >
-                Upload for text editing <ArrowRight size={16} />
+                {tr('Upload for text editing')} <ArrowRight size={16} />
               </button>
             </div>
           )}
@@ -569,7 +585,7 @@ export function ProTextEditor() {
               <div className="pro-page-tools">
                 <button
                   className="icon-button"
-                  aria-label="Previous PDF page"
+                  aria-label={tr('Previous PDF page')}
                   disabled={page <= 0 || !!busy}
                   onClick={() => {
                     changePage(page - 1);
@@ -579,11 +595,11 @@ export function ProTextEditor() {
                   <ChevronLeft size={17} />
                 </button>
                 <span>
-                  Page {page + 1} of {doc?.numPages || '…'}
+                  {tr('Page')} {page + 1} {tr('of')} {doc?.numPages || '…'}
                 </span>
                 <button
                   className="icon-button"
-                  aria-label="Next PDF page"
+                  aria-label={tr('Next PDF page')}
                   disabled={!doc || page >= doc.numPages - 1 || !!busy}
                   onClick={() => {
                     changePage(page + 1);
@@ -593,14 +609,14 @@ export function ProTextEditor() {
                   <ChevronRight size={17} />
                 </button>
                 <span className={needsPreview ? 'preview-pending' : 'preview-current'}>
-                  {needsPreview ? 'Preview needs updating' : 'Preview is up to date'}
+                  {needsPreview ? tr('Preview needs updating') : tr('Preview is up to date')}
                 </span>
               </div>
               <div
                 className="pro-page-scroll"
                 tabIndex={0}
                 role="region"
-                aria-label="PDF text editing preview"
+                aria-label={tr('PDF text editing preview')}
               >
                 <div className="pro-editable-page" style={{ width: canvasWidth }}>
                   {previewImages[page] ? (
@@ -608,7 +624,7 @@ export function ProTextEditor() {
                       <TextPreviewImage
                         className="pro-rendered-preview"
                         image={previewImages[page].image}
-                        alt={`Edited preview of page ${page + 1}`}
+                        alt={tr('Edited preview of page {value0}', { value0: page + 1 })}
                         width={canvasWidth}
                         height={
                           (canvasWidth * previewImages[page].image.height) /
@@ -638,7 +654,7 @@ export function ProTextEditor() {
                             width: Math.max(12, rect[2] + 6),
                             height: Math.max(16, rect[3] + 6),
                           }}
-                          aria-label={`Edit text: ${block.text}`}
+                          aria-label={tr('Edit text: {value0}', { value0: block.text })}
                           aria-pressed={selectedId === block.id}
                           disabled={!!busy}
                           onClick={() => setSelectedId(block.id)}
@@ -649,19 +665,20 @@ export function ProTextEditor() {
                 </div>
               </div>
               <small className="pro-canvas-hint">
-                Click an outlined text block, or choose it from the list. Existing images and page
-                layout stay in place.
+                {tr(
+                  'Click an outlined text block, or choose it from the list. Existing images and page layout stay in place.',
+                )}
               </small>
             </div>
             <aside className="pro-text-properties">
               <fieldset disabled={!!busy || !canEdit}>
-                <legend>Make the words yours.</legend>
+                <legend>{tr('Make the words yours.')}</legend>
                 {value && selected ? (
                   <>
                     <label className="pro-field">
-                      Replacement text
+                      {tr('Replacement text')}
                       <textarea
-                        aria-label="Replacement text"
+                        aria-label={tr('Replacement text')}
                         value={value.text}
                         rows={3}
                         maxLength={2000}
@@ -670,7 +687,7 @@ export function ProTextEditor() {
                     </label>
                     <FontPicker
                       key={selected.id}
-                      label="Replacement font"
+                      label={tr('Replacement font')}
                       value={value.font}
                       original={selected}
                       onChange={(font) => update({ font })}
@@ -678,7 +695,7 @@ export function ProTextEditor() {
                     />
                     <div className="pro-style-fields">
                       <label className="pro-field">
-                        Size
+                        {tr('Size')}
                         <PdfTextSizeInput
                           key={selected.id}
                           block={selected}
@@ -687,7 +704,7 @@ export function ProTextEditor() {
                         />
                       </label>
                       <label className="pro-field">
-                        Color
+                        {tr('Color')}
                         <input
                           type="color"
                           value={value.color}
@@ -696,12 +713,13 @@ export function ProTextEditor() {
                       </label>
                     </div>
                     <p className="pro-font-note">
-                      The original font is preserved where available. Missing characters use a
-                      matching font automatically.
+                      {tr(
+                        'The original font is preserved where available. Missing characters use a matching font automatically.',
+                      )}
                     </p>
                     <button className="text-link" onClick={() => update({ text: '' })}>
                       <Trash2 size={14} />
-                      Delete this text
+                      {tr('Delete this text')}
                     </button>
                   </>
                 ) : (
@@ -709,8 +727,8 @@ export function ProTextEditor() {
                     <PencilLine size={25} />
                     <p>
                       {inspection
-                        ? 'Choose a text block to edit its words and style.'
-                        : 'Enable text editing to see available text blocks.'}
+                        ? tr('Choose a text block to edit its words and style.')
+                        : tr('Enable text editing to see available text blocks.')}
                     </p>
                   </div>
                 )}
@@ -720,7 +738,7 @@ export function ProTextEditor() {
                   onClick={() => void apply()}
                 >
                   <Check size={16} />
-                  Update PDF preview
+                  {tr('Update PDF preview')}
                 </button>
               </fieldset>
               {inspection && (
@@ -728,10 +746,10 @@ export function ProTextEditor() {
                   <details className="pro-find-replace">
                     <summary>
                       <ReplaceAll size={16} />
-                      Find & replace
+                      {tr('Find & replace')}
                     </summary>
                     <label className="pro-field">
-                      Find
+                      {tr('Find')}
                       <input
                         value={find}
                         onChange={(e) => setFind(e.target.value)}
@@ -740,7 +758,7 @@ export function ProTextEditor() {
                       />
                     </label>
                     <label className="pro-field">
-                      Replace with
+                      {tr('Replace with')}
                       <input
                         value={replace}
                         onChange={(e) => setReplace(e.target.value)}
@@ -754,21 +772,23 @@ export function ProTextEditor() {
                         checked={matchCase}
                         onChange={(e) => setMatchCase(e.target.checked)}
                       />
-                      Match case
+                      {tr('Match case')}
                     </label>
                     <button
                       className="button secondary full"
                       disabled={!find || !!busy || !canEdit}
                       onClick={replaceMatches}
                     >
-                      Replace across document
+                      {tr('Replace across document')}
                     </button>
-                    <small>Finds matches within editable text blocks, across all pages.</small>
+                    <small>
+                      {tr('Finds matches within editable text blocks, across all pages.')}
+                    </small>
                   </details>
                   <div className="pro-block-list">
                     <h3>
                       <Search size={14} />
-                      {blocksOnPage.length} text blocks on this page
+                      {blocksOnPage.length} {tr('text blocks on this page')}
                     </h3>
                     {blocksOnPage.length ? (
                       blocksOnPage.map((block) => (
@@ -784,8 +804,9 @@ export function ProTextEditor() {
                       ))
                     ) : (
                       <p>
-                        No supported text on this page. It may be scanned, outlined, clipped, or
-                        inside artwork. OCR is not included.
+                        {tr(
+                          'No supported text on this page. It may be scanned, outlined, clipped, or inside artwork. OCR is not included.',
+                        )}
                       </p>
                     )}
                   </div>
@@ -805,7 +826,7 @@ export function ProTextEditor() {
           e.target.value = '';
           if (!selected) return;
           if (!/\.pdf$/i.test(selected.name) || selected.size > 10 * 1024 * 1024) {
-            setError('Choose a PDF smaller than 10 MB.');
+            setError(tr('Choose a PDF smaller than 10 MB.'));
             return;
           }
           await clearProDraft().catch(() => {});
@@ -818,25 +839,28 @@ export function ProTextEditor() {
       {busy && (
         <p className="pro-processing" role="status">
           <Loader2 size={16} className="spin" />
-          {busy}
+          {tr(busy)}
         </p>
       )}
       {error && (
         <p role="alert" className="error-message">
-          {error}
+          {tr(error)}
         </p>
       )}
       {notice && (
         <p role="status" className="pro-notice">
           <Check size={15} />
-          {notice}
+          {tr(notice)}
         </p>
       )}
       <p className="service-note">
-        Text is edited in separate blocks; paragraphs do not reflow automatically. Replacement text
-        currently supports Latin characters.{' '}
-        {inspection?.skipped ? `${inspection.skipped} complex objects were left unchanged. ` : ''}
-        Text deletion is not secure redaction. Keep an original and review the exported PDF.
+        {tr(
+          'Text is edited in separate blocks; paragraphs do not reflow automatically. Replacement text currently supports Latin characters.',
+        )}{' '}
+        {inspection?.skipped
+          ? tr('{value0} complex objects were left unchanged. ', { value0: inspection.skipped })
+          : ''}
+        {tr('Text deletion is not secure redaction. Keep an original and review the exported PDF.')}
       </p>
       <DownloadGate
         tool="edit-pdf-text"

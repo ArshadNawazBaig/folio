@@ -54,10 +54,10 @@ export function calendarGrid(month: string) {
   return Array.from({ length: 42 }, (_, index) => calendarAddDays(`${month}-01`, index - offset));
 }
 
-export function calendarLabel(value: string, full = false) {
+export function calendarLabel(value: string, full = false, locale = 'en-US') {
   const date = calendarDate(value);
   return date
-    ? new Intl.DateTimeFormat('en-US', {
+    ? new Intl.DateTimeFormat(locale, {
         timeZone: 'UTC',
         year: 'numeric',
         month: full ? 'long' : 'short',

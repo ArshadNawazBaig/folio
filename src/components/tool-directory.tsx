@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { useUiTranslation, useUiLocale } from './ui-language';
+import { localizedHref } from '@/lib/i18n/translate';
 import Form from 'next/form';
 import { useState } from 'react';
 import { Search } from 'lucide-react';
@@ -16,6 +18,9 @@ export function ToolDirectory({
   directory: ReturnType<typeof toolDirectory>;
   catalog: ToolSummary[];
 }) {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
   const [query, setQuery] = useState(initial.q);
   const d = toolDirectory(
     catalog,
@@ -25,15 +30,17 @@ export function ToolDirectory({
     },
     initial.conversionOnly,
   );
-  const link = (category = d.category, q = d.q) => directoryHref(d.path, { q, category });
+  const link = (category = d.category, q = d.q) => directoryHref(href(d.path), { q, category });
   return (
     <div className="tool-directory">
       <div className="directory-controls">
         <div className="directory-tool-heading">
           <h2>
-            {d.conversionOnly ? 'What would you like to convert?' : 'What would you like to do?'}
+            {tr(
+              d.conversionOnly ? 'What would you like to convert?' : 'What would you like to do?',
+            )}
           </h2>
-          <Form className="directory-search" action={d.path} prefetch={false} scroll={false}>
+          <Form className="directory-search" action={href(d.path)} prefetch={false} scroll={false}>
             {d.category && <input type="hidden" name="category" value={d.category} />}
             <ToolSearch
               name="q"
@@ -44,7 +51,7 @@ export function ToolDirectory({
           </Form>
         </div>
         {!d.conversionOnly && (
-          <nav className="category-tabs" aria-label="Filter tools">
+          <nav className="category-tabs" aria-label={tr('Filter tools')}>
             {['', ...categories].map((category) => (
               <Link
                 prefetch={false}
@@ -53,28 +60,30 @@ export function ToolDirectory({
                 key={category}
                 className={category === d.category ? 'active' : ''}
               >
-                {category || 'All tools'}
+                {tr(category || 'All tools')}
               </Link>
             ))}
           </nav>
         )}
       </div>
       <div className="directory-result-count" role="status">
-        {d.total} {d.total === 1 ? 'tool' : 'tools'} found{d.q ? ` for “${d.q}”` : ''}.
+        {d.q
+          ? tr('{count} tools found for “{query}”.', { count: d.total, query: d.q })
+          : tr(d.total === 1 ? '{count} tool found.' : '{count} tools found.', { count: d.total })}
       </div>
       <ToolGrid tools={d.tools} className="directory-grid" cardClassName="directory-card" />
       {!d.tools.length && (
         <div className="directory-empty">
           <Search size={30} />
-          <h2>A different word might do it.</h2>
-          <p>Try “merge”, “smaller”, “signature”, or “image”.</p>
+          <h2>{tr('A different word might do it.')}</h2>
+          <p>{tr('Try “merge”, “smaller”, “signature”, or “image”.')}</p>
           <Link
             prefetch={false}
             className="button secondary"
-            href={d.path}
+            href={href(d.path)}
             onClick={(event) => {
               if (
-                initial.canonical === d.path &&
+                initial.canonical === href(d.path) &&
                 !event.metaKey &&
                 !event.ctrlKey &&
                 !event.shiftKey &&
@@ -85,7 +94,7 @@ export function ToolDirectory({
               }
             }}
           >
-            Show all tools
+            {tr('Show all tools')}
           </Link>
         </div>
       )}

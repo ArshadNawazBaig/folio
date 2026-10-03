@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   ArrowDown,
   ArrowUp,
@@ -20,6 +20,9 @@ import type { PDFDocumentProxy } from 'pdfjs-dist';
 import type { Tool } from '@/lib/tools';
 import { editorTools } from '@/lib/tools';
 import { UploadArea } from './upload';
+import { useUiTranslation } from './ui-language';
+import { stageDocumentHandoff, takeDocumentHandoff } from '@/lib/document-handoff';
+import { splitLanguagePath } from '@/lib/i18n/config';
 import { PdfCanvas } from './pdf-canvas';
 import { Dropdown } from './dropdown';
 import { Pagination } from './pagination';
@@ -40,7 +43,9 @@ import {
 } from '@/lib/utils';
 import type { PdfInput, PdfOperation, PdfOptions, PdfOutput } from '@/lib/types';
 export function ToolProcessor({ tool }: { tool: Tool }) {
+  const t = useUiTranslation();
   const router = useRouter();
+  const pathname = usePathname();
   const slug = tool.processor || tool.slug;
   const [files, setFiles] = useState<PdfInput[]>([]);
   const [count, setCount] = useState(0);
@@ -71,6 +76,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
   const [resolution, setResolution] = useState(1.5);
   const [imageQuality, setImageQuality] = useState(0.9);
   const abort = useRef<AbortController | null>(null);
+  const incomingHandoff = useRef<ReturnType<typeof takeDocumentHandoff> | null>(null);
   const version = useRef(0);
   const images = slug === 'image-to-pdf';
   const hasFiles = files.length > 0;
@@ -132,9 +138,25 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
     return () => observer.disconnect();
   }, [hasFiles]);
   useEffect(() => {
-    const pending = getPendingDocument();
-    if (pending && !images) setFiles([{ ...pending, type: 'application/pdf' }]);
-    return () => abort.current?.abort();
+    let active = true;
+    const token = new URLSearchParams(window.location.search).get('handoff');
+    const pending = token
+      ? (incomingHandoff.current ??= takeDocumentHandoff(token))
+      : Promise.resolve(getPendingDocument());
+    pending
+      .then((file) => {
+        if (!active || images) return;
+        if (file) setFiles([{ ...file, type: 'application/pdf' }]);
+        else if (token)
+          setError('This file transfer has expired. Choose your PDF again to open it.');
+      })
+      .catch((error) => {
+        if (active) setError(friendlyError(error));
+      });
+    return () => {
+      active = false;
+      abort.current?.abort();
+    };
   }, [images]);
   useEffect(() => {
     if (!files[0] || images) {
@@ -174,14 +196,14 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
     abort.current = controller;
     try {
       if (selected.length + (multi ? files.length : 0) > 20)
-        throw new Error('Add up to 20 files at a time.');
+        throw new Error(t('Add up to 20 files at a time.'));
       const incoming = multi ? selected : selected.slice(0, 1);
       if (
         incoming.reduce((s, f) => s + f.size, 0) +
           (multi ? files.reduce((s, f) => s + f.bytes.length, 0) : 0) >
         MAX_BATCH_SIZE
       )
-        throw new Error('Keep the combined file size under 150 MB.');
+        throw new Error(t('Keep the combined file size under 150 MB.'));
       for (const f of incoming) {
         if (f.size > MAX_FILE_SIZE) throw new Error(`${f.name} is larger than 50 MB.`);
         if (!f.size) throw new Error(`${f.name} is empty. Choose a file with content.`);
@@ -193,7 +215,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
           throw new Error(`${f.name}: choose one of the image formats listed above.`);
       }
       setBusy(true);
-      setStatus('Reading your files…');
+      setStatus(t('Reading your files…'));
       const next: PdfInput[] = [];
       for (const f of incoming) {
         controller.signal.throwIfAborted();
@@ -225,7 +247,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
       if (token === version.current) setFiles((current) => (multi ? [...current, ...next] : next));
     } catch (e) {
       if (token === version.current)
-        setError(controller.signal.aborted ? 'Processing cancelled.' : friendlyError(e));
+        setError(controller.signal.aborted ? t('Processing cancelled.') : friendlyError(e));
     } finally {
       if (token === version.current) {
         setBusy(false);
@@ -241,23 +263,33 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
     });
     setResult(null);
   }
-  function openEditor(bytes = files[0]?.bytes, name = files[0]?.name) {
+  async function openEditor(bytes = files[0]?.bytes, name = files[0]?.name) {
     if (!bytes) return;
-    setPendingDocument({ bytes, name });
-    router.push(
-      `/workspace?mode=${slug === 'sign-pdf' ? 'signature' : slug === 'create-pdf-form' ? 'field' : 'select'}`,
-    );
+    setError('');
+    setBusy(true);
+    try {
+      const query = new URLSearchParams({
+        mode: slug === 'sign-pdf' ? 'signature' : slug === 'create-pdf-form' ? 'field' : 'select',
+      });
+      if (splitLanguagePath(pathname).locale !== 'en')
+        query.set('handoff', await stageDocumentHandoff({ bytes, name }));
+      else setPendingDocument({ bytes, name });
+      router.push(`/workspace?${query}`);
+    } catch (error) {
+      setError(friendlyError(error));
+      setBusy(false);
+    }
   }
   async function process() {
     if (busy) return;
     if (editor) {
-      openEditor();
+      await openEditor();
       return;
     }
     setError('');
     setResult(null);
     setBusy(true);
-    setStatus('Working on your document…');
+    setStatus(t('Working on your document…'));
     setProgress(null);
     const controller = new AbortController();
     abort.current = controller;
@@ -386,9 +418,9 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
         controller.signal.throwIfAborted();
         setResult(output);
       }
-      setStatus('Your document is ready.');
+      setStatus(t('Your document is ready.'));
     } catch (e) {
-      setError(controller.signal.aborted ? 'Processing cancelled.' : friendlyError(e));
+      setError(controller.signal.aborted ? t('Processing cancelled.') : friendlyError(e));
       setStatus('');
     } finally {
       setBusy(false);
@@ -417,8 +449,8 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
     (slug !== 'merge-pdf' || files.length >= 2);
   return (
     <div className={`processor ${files.length ? 'has-files' : ''}`}>
-      <ol className="processor-steps" aria-label="Document workflow">
-        {['Choose files', 'Adjust & preview', 'Download'].map((label, index) => (
+      <ol className="processor-steps" aria-label={t('Document workflow')}>
+        {[t('Choose files'), t('Adjust & preview'), t('Download')].map((label, index) => (
           <li
             key={label}
             aria-current={index === (result ? 2 : files.length ? 1 : 0) ? 'step' : undefined}
@@ -440,34 +472,36 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                   ? 'PNG images'
                   : tool.accept === 'image/jpeg'
                     ? 'JPG images'
-                    : 'JPG, PNG and WEBP'
+                    : t('JPG, PNG and WEBP')
                 : undefined
             }
             busy={busy}
           />
           {busy && (
             <button className="button ghost" onClick={() => abort.current?.abort()}>
-              Cancel processing
+              {t('Cancel processing')}
             </button>
           )}
           <div className="local-notice">
             <ShieldCheck size={15} />
             {editor
-              ? 'Your document will be saved privately when you open the editor.'
-              : 'Processed on your device. Your document stays yours.'}
+              ? t('Your document will be saved privately when you open the editor.')
+              : t('Processed on your device. Your document stays yours.')}
           </div>
         </>
       ) : (
         <div className="processor-grid">
           <div className="processor-controls">
             <div className="panel-heading">
-              <h2>{multi ? 'Your files' : 'Your document'}</h2>
+              <h2>{multi ? t('Your files') : t('Your document')}</h2>
               <span>
                 {multi
-                  ? `${files.length} ${files.length === 1 ? 'file' : 'files'}`
+                  ? t(files.length === 1 ? '{count} file' : '{count} files', {
+                      count: files.length,
+                    })
                   : count
-                    ? `${count} ${count === 1 ? 'page' : 'pages'}`
-                    : 'Reading…'}
+                    ? t(count === 1 ? '{count} page' : '{count} pages', { count })
+                    : t('Reading…')}
               </span>
             </div>
             <div className="file-list">
@@ -486,7 +520,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                       <>
                         <button
                           className="icon-button"
-                          aria-label={`Move ${f.name} up`}
+                          aria-label={t('Move {name} up', { name: f.name })}
                           disabled={i === 0 || busy}
                           onClick={() => move(i, -1)}
                         >
@@ -494,7 +528,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                         </button>
                         <button
                           className="icon-button"
-                          aria-label={`Move ${f.name} down`}
+                          aria-label={t('Move {name} down', { name: f.name })}
                           disabled={i === files.length - 1 || busy}
                           onClick={() => move(i, 1)}
                         >
@@ -504,7 +538,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                     )}
                     <button
                       className="icon-button"
-                      aria-label={`Remove ${f.name}`}
+                      aria-label={t('Remove {name}', { name: f.name })}
                       disabled={busy}
                       onClick={() => {
                         setFiles(files.filter((_, n) => n !== i));
@@ -524,7 +558,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
             {multi && (
               <label className="add-file-button">
                 <Plus size={16} />
-                Add more files
+                {t('Add more files')}
                 <input
                   type="file"
                   accept={
@@ -541,37 +575,40 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
               </label>
             )}
             <fieldset className="tool-settings" disabled={busy}>
-              <legend>Make it your own</legend>
+              <legend>{t('Make it your own')}</legend>
               {!editor && !['merge-pdf', 'compress-pdf', 'image-to-pdf'].includes(slug) && (
                 <label>
-                  Pages
+                  {t('Pages')}
                   <input
-                    aria-label="Pages"
+                    aria-label={t('Pages')}
                     aria-describedby="page-range-help"
                     value={range}
                     onChange={(e) => {
                       setRange(e.target.value);
                       setResult(null);
                     }}
-                    placeholder={`All ${count || ''} ${count === 1 ? 'page' : 'pages'}`}
+                    placeholder={t('All {count} pages', { count: count || '' })}
                     aria-invalid={selectedPages === null}
                   />
                   <small id="page-range-help">
                     {selectedPages === null
-                      ? 'Enter a valid range within this document, such as 1-3, 5.'
-                      : `Leave blank for all pages, or use 1-3, 5, 8-10. ${selectedPages.length} pages selected.`}
+                      ? t('Enter a valid range within this document, such as 1-3, 5.')
+                      : t(
+                          'Leave blank for all pages, or use 1-3, 5, 8-10. {count} pages selected.',
+                          { count: selectedPages.length },
+                        )}
                   </small>
                 </label>
               )}
               {slug === 'split-pdf' && (
                 <Dropdown
-                  label="Output"
+                  label={t('Output')}
                   value={split}
                   onValueChange={setSplit}
                   disabled={busy}
                   options={[
-                    { value: 'range', label: 'Selected pages in one PDF' },
-                    { value: 'all', label: 'One PDF per selected page (ZIP)' },
+                    { value: 'range', label: t('Selected pages in one PDF') },
+                    { value: 'all', label: t('One PDF per selected page (ZIP)') },
                   ]}
                 />
               )}
@@ -591,11 +628,11 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
               {slug === 'watermark-pdf' && (
                 <>
                   <label>
-                    Watermark text
+                    {t('Watermark text')}
                     <input value={text} onChange={(e) => setText(e.target.value)} maxLength={100} />
                   </label>
                   <label>
-                    Watermark color
+                    {t('Watermark color')}
                     <input
                       type="color"
                       value={textColor}
@@ -604,7 +641,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                   </label>
                   <div className="two-fields">
                     <label>
-                      Text size
+                      {t('Text size')}
                       <input
                         type="number"
                         min="8"
@@ -630,7 +667,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
               )}
               {slug === 'page-numbers' && (
                 <label>
-                  Start numbering at
+                  {t('Start numbering at')}
                   <input
                     type="number"
                     min="1"
@@ -641,7 +678,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
               )}
               {slug === 'crop-pdf' && (
                 <label>
-                  Trim each edge (points)
+                  {t('Trim each edge (points)')}
                   <input
                     type="number"
                     min="0"
@@ -649,18 +686,18 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                     value={margin}
                     onChange={(e) => setMargin(Number(e.target.value))}
                   />
-                  <small>72 points = 1 inch. Cropping does not redact hidden content.</small>
+                  <small>{t('72 points = 1 inch. Cropping does not redact hidden content.')}</small>
                 </label>
               )}
               {images && (
                 <Dropdown
-                  label="Page size"
+                  label={t('Page size')}
                   value={a4 ? 'a4' : 'fit'}
                   onValueChange={(value) => setA4(value === 'a4')}
                   disabled={busy}
                   options={[
-                    { value: 'a4', label: 'A4 — centered with margins' },
-                    { value: 'fit', label: 'Fit each image' },
+                    { value: 'a4', label: t('A4 — centered with margins') },
+                    { value: 'fit', label: t('Fit each image') },
                   ]}
                 />
               )}
@@ -693,40 +730,45 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
               )}
               {slug === 'compress-pdf' && (
                 <div className="setting-note">
-                  <strong>Lossless optimization</strong>
+                  <strong>{t('Lossless optimization')}</strong>
                   <p>
-                    Keep text and image resolution intact. Already optimized files may not get
-                    smaller.
+                    {t(
+                      'Keep text and image resolution intact. Already optimized files may not get smaller.',
+                    )}
                   </p>
                 </div>
               )}
               {editor && (
                 <div className="setting-note">
-                  <strong>Your workspace is ready.</strong>
-                  <p>Add your finishing touches, arrange pages, and export when it feels right.</p>
+                  <strong>{t('Your workspace is ready.')}</strong>
+                  <p>
+                    {t(
+                      'Add your finishing touches, arrange pages, and export when it feels right.',
+                    )}
+                  </p>
                 </div>
               )}
             </fieldset>
             <button className="button primary full" disabled={busy || !canRun} onClick={process}>
               {busy ? <Loader2 className="spin" size={18} /> : null}
-              {busy ? 'Working on it…' : tool.action}
+              {busy ? t('Working on it…') : tool.action}
               {!busy && <ArrowRight size={17} />}
             </button>
             {busy && (
               <button className="button ghost full" onClick={() => abort.current?.abort()}>
-                Cancel processing
+                {t('Cancel processing')}
               </button>
             )}
             <div className="local-notice">
               <ShieldCheck size={14} />
               {editor
-                ? 'Open the editor to save privately and start editing.'
-                : 'No upload. No account. Just your document.'}
+                ? t('Open the editor to save privately and start editing.')
+                : t('No upload. No account. Just your document.')}
             </div>
           </div>
           <div className="processor-preview" ref={previewRoot}>
             {(resultViewer || imageOutputs.length > 0) && (
-              <div className="processor-compare" aria-label="Compare document">
+              <div className="processor-compare" aria-label={t('Compare document')}>
                 <button
                   aria-pressed={previewTab === 'original'}
                   onClick={() => {
@@ -734,7 +776,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                     setPage(1);
                   }}
                 >
-                  Original
+                  {t('Original')}
                 </button>
                 <button
                   aria-pressed={previewTab === 'result'}
@@ -743,18 +785,20 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                     setPage(1);
                   }}
                 >
-                  Result
+                  {t('Result')}
                 </button>
               </div>
             )}
             {displayedViewer || displayingImages ? (
               <>
                 <div className="preview-heading">
-                  <span>{previewTab === 'result' ? 'Result preview' : 'Original preview'}</span>
+                  <span>
+                    {previewTab === 'result' ? t('Result preview') : t('Original preview')}
+                  </span>
                   <div>
                     <button
                       className="icon-button"
-                      aria-label="Previous preview page"
+                      aria-label={t('Previous preview page')}
                       disabled={previewPage === 1}
                       onClick={() => setPage(previewPage - 1)}
                     >
@@ -765,7 +809,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                     </span>
                     <button
                       className="icon-button"
-                      aria-label="Next preview page"
+                      aria-label={t('Next preview page')}
                       disabled={previewPage >= previewCount}
                       onClick={() => setPage(previewPage + 1)}
                     >
@@ -777,7 +821,9 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                   className="processor-page"
                   tabIndex={0}
                   role="region"
-                  aria-label={previewTab === 'result' ? 'Result preview' : 'Original PDF preview'}
+                  aria-label={
+                    previewTab === 'result' ? t('Result preview') : t('Original PDF preview')
+                  }
                 >
                   {displayingImages ? (
                     <img
@@ -801,15 +847,13 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                 <span className="tool-icon">
                   <FileText size={40} />
                 </span>
-                <h3>
-                  {files.length} image{files.length !== 1 ? 's' : ''}. One document.
-                </h3>
-                <p>Each image gets its own page, in the order shown.</p>
+                <h3>{t('{count} images. One document.', { count: files.length })}</h3>
+                <p>{t('Each image gets its own page, in the order shown.')}</p>
               </div>
             ) : (
               <div className="preview-loading">
                 <Loader2 className="spin" />
-                <p>Preparing your preview…</p>
+                <p>{t('Preparing your preview…')}</p>
               </div>
             )}
           </div>
@@ -818,7 +862,11 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
       {error && (
         <div className="error-message processor-message" role="alert">
           <span>{error}</span>
-          <button className="icon-button" aria-label="Dismiss error" onClick={() => setError('')}>
+          <button
+            className="icon-button"
+            aria-label={t('Dismiss error')}
+            onClick={() => setError('')}
+          >
             <X size={16} />
           </button>
         </div>
@@ -831,7 +879,11 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
           <Loader2 size={16} className="spin" />
           {status}
           {progress && (
-            <progress value={progress.done} max={progress.total} aria-label="Pages processed" />
+            <progress
+              value={progress.done}
+              max={progress.total}
+              aria-label={t('Pages processed')}
+            />
           )}
         </div>
       )}
@@ -841,12 +893,19 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
             <Check size={24} />
           </div>
           <div>
-            <h3>{result.note ? 'Your original is the best fit.' : 'All done. Nicely handled.'}</h3>
-            <p>{result.note || `${result.name} · ${formatBytes(result.bytes.length)}`}</p>
+            <h3>
+              {result.note ? t('Your original is the best fit.') : t('All done. Nicely handled.')}
+            </h3>
+            <p>
+              {(result.note && t(result.note)) ||
+                `${result.name} · ${formatBytes(result.bytes.length)}`}
+            </p>
             {slug === 'compress-pdf' && !result.note && (
               <small>
                 {formatBytes(files[0].bytes.length)} → {formatBytes(result.bytes.length)} ·{' '}
-                {Math.round((1 - result.bytes.length / files[0].bytes.length) * 100)}% smaller
+                {t('{percent}% smaller', {
+                  percent: Math.round((1 - result.bytes.length / files[0].bytes.length) * 100),
+                })}
               </small>
             )}
           </div>
@@ -856,7 +915,7 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
               onClick={() => download(result.bytes, result.name, result.type)}
             >
               <Download size={16} />
-              Download{' '}
+              {t('Download')}{' '}
               {result.type === 'application/pdf'
                 ? 'PDF'
                 : result.type.includes('zip')
@@ -865,14 +924,15 @@ export function ToolProcessor({ tool }: { tool: Tool }) {
                     ? result.type === 'image/png'
                       ? 'PNG'
                       : 'JPG'
-                    : 'text'}
+                    : t('text')}
             </button>
             {result.type === 'application/pdf' && (
               <button
                 className="button ghost"
                 onClick={() => openEditor(result.bytes, result.name)}
               >
-                Continue in editor <ArrowRight size={15} />
+                {t('Continue in editor')}
+                <ArrowRight size={15} />
               </button>
             )}
           </div>

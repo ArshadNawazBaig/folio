@@ -1,4 +1,5 @@
 'use client';
+import { useUiTranslation } from '../ui-language';
 import { Pagination } from '../pagination';
 import { useRecordPagination } from '../use-record-pagination';
 import { useEffect, useState } from 'react';
@@ -15,6 +16,8 @@ import {
 import type { DocumentSummary } from '@/lib/types';
 import s from './dashboard.module.css';
 export function LegacyDraftImport({ refresh }: { refresh: () => Promise<void> }) {
+  const tr = useUiTranslation();
+
   const [drafts, setDrafts] = useState<DocumentSummary[]>([]);
   const [recoveries, setRecoveries] = useState<LegacyRecovery[]>([]);
   const [expanded, setExpanded] = useState(false);
@@ -85,7 +88,9 @@ export function LegacyDraftImport({ refresh }: { refresh: () => Promise<void> })
       await migrateLegacyRecovery(draft);
       setRecoveries((current) => current.filter((item) => item.kind !== draft.kind));
       setNotice(
-        `Your recovery draft is saved in cloud storage. Open ${draft.kind === 'pro-text' ? 'Edit PDF text' : draft.kind.replaceAll('-', ' ')} to continue working.`,
+        tr('Your recovery draft is saved in cloud storage. Open {tool} to continue working.', {
+          tool: tr(draft.kind === 'pro-text' ? 'Edit PDF text' : draft.kind.replaceAll('-', ' ')),
+        }),
       );
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Your older recovery draft could not be moved.');
@@ -99,27 +104,34 @@ export function LegacyDraftImport({ refresh }: { refresh: () => Promise<void> })
     <div className={s.legacyImport}>
       {notice && (
         <p role="status" className={s.notice}>
-          {notice}
+          {tr(notice)}
         </p>
       )}
       {error && (
         <p role="alert" className="error-message">
-          {error}
+          {tr(error)}
         </p>
       )}
       {!!count && (
         <>
-          <h3>Move your older drafts to cloud storage.</h3>
+          <h3>{tr('Move your older drafts to cloud storage.')}</h3>
           <p className={s.deviceNote}>
-            {count} older draft{count === 1 ? '' : 's'} found in this browser. Each PDF, including
-            its edits, is removed from the browser only after a successful upload to your account.
+            {tr(
+              count === 1
+                ? '{count} older draft found in this browser.'
+                : '{count} older drafts found in this browser.',
+              { count },
+            )}{' '}
+            {tr(
+              'Each PDF, including its edits, is removed from the browser only after a successful upload to your account.',
+            )}
           </p>
           <button
             className="text-link"
             aria-expanded={expanded}
             onClick={() => setExpanded(!expanded)}
           >
-            {expanded ? 'Hide older drafts' : 'Review older drafts'}
+            {expanded ? tr('Hide older drafts') : tr('Review older drafts')}
           </button>
           {expanded && (
             <div className={s.fileList}>
@@ -128,7 +140,9 @@ export function LegacyDraftImport({ refresh }: { refresh: () => Promise<void> })
                   <FileText size={20} />
                   <div className={s.fileName}>
                     <strong>{doc.name}</strong>
-                    <small>{doc.pageCount} pages</small>
+                    <small>
+                      {doc.pageCount} {tr('pages')}
+                    </small>
                   </div>
                   <button
                     className="button secondary"
@@ -136,7 +150,7 @@ export function LegacyDraftImport({ refresh }: { refresh: () => Promise<void> })
                     onClick={() => void move(doc.id)}
                   >
                     <CloudUpload size={16} />
-                    {busy === doc.id ? 'Moving…' : 'Move to cloud'}
+                    {busy === doc.id ? tr('Moving…') : tr('Move to cloud')}
                   </button>
                 </div>
               ))}
@@ -150,7 +164,9 @@ export function LegacyDraftImport({ refresh }: { refresh: () => Promise<void> })
                     <FileText size={20} />
                     <div className={s.fileName}>
                       <strong>{draft.name}</strong>
-                      <small>Checkout recovery · {draft.kind.replaceAll('-', ' ')}</small>
+                      <small>
+                        {tr('Checkout recovery ·')} {draft.kind.replaceAll('-', ' ')}
+                      </small>
                     </div>
                     <button
                       className="button secondary"
@@ -158,11 +174,11 @@ export function LegacyDraftImport({ refresh }: { refresh: () => Promise<void> })
                       onClick={() => void moveRecovery(draft)}
                     >
                       <CloudUpload size={16} />
-                      {busy === draft.kind ? 'Moving…' : 'Move recovery to cloud'}
+                      {busy === draft.kind ? tr('Moving…') : tr('Move recovery to cloud')}
                     </button>
                   </div>
                 ))}
-              <Pagination {...pagination} disabled={!!busy} label="Older drafts pagination" />
+              <Pagination {...pagination} disabled={!!busy} label={tr('Older drafts pagination')} />
             </div>
           )}
         </>

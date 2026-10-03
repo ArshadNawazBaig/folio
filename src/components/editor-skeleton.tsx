@@ -1,3 +1,6 @@
+'use client';
+
+import { useUiTranslation } from '@/components/ui-language';
 import { Logo } from './logo';
 import { Skeleton, SkeletonLines, LoadingLabel } from './skeleton';
 
@@ -19,9 +22,11 @@ export function EditorContentSkeleton({
   sidebar?: boolean;
   properties?: boolean;
 }) {
+  const tr = useUiTranslation();
+
   return (
     <>
-      <LoadingLabel>Opening your PDF workspace…</LoadingLabel>
+      <LoadingLabel>{tr('Opening your PDF workspace…')}</LoadingLabel>
       <div className="editor-toolbar editor-skeleton-toolbar" aria-hidden="true">
         {Array.from({ length: 14 }, (_, i) => (
           <div key={i}>

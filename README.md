@@ -141,8 +141,10 @@ The lint configuration permits App Router metadata exports. React's blanket sync
 
 ## Structure
 
-- `src/app/(public)`: marketing, tool landing pages, forms, guides, and privacy information.
-- `src/app/(workspace)`: noindex editor, local document library, and super admin dashboard.
+- `src/app/(english)/(public)`: English marketing, tool landing pages, forms, guides, and privacy information; existing public URLs are preserved.
+- `src/app/(english)/(workspace)`: noindex editor, document library, and super admin dashboard.
+- `src/app/(international)`: shared public pages, the full tool catalog, guides, and private account pages in 11 additional languages.
+- `src/lib/i18n`: language dictionaries, translated-route coverage, and regional SEO alternates; validate with `npm run test:i18n`.
 - `src/components`: application and document UI.
 - `src/lib/pdf-engine.ts`: document mutations and exports, isolated from the UI.
 - `src/workers/pdf.worker.ts`: background worker for PDF mutations.

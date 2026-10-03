@@ -124,17 +124,21 @@ test('guest sign-out retries on failure, clears the session and updates other op
   );
   fail = false;
   await signOut.click();
-  for (const tab of [page, other]) {
+  async function expectSignedOutNavigation(tab: typeof page) {
     await expect(tab).toHaveURL(/\/account$/);
-    const header = tab.locator('.header-actions');
+    const account = tab.locator('.header-actions a.header-account');
+    await expect(account).toHaveCount(1);
+    // At phone widths account navigation lives in the mobile menu beside the language selector.
+    const mobile = !(await account.isVisible());
+    if (mobile) await tab.getByRole('button', { name: 'Open navigation', exact: true }).click();
+    const header = tab.locator(mobile ? '.mobile-nav' : '.header-actions');
     await expect(header.getByRole('link', { name: 'Sign in', exact: true })).toBeVisible();
     await expect(header.getByRole('link', { name: 'Dashboard', exact: true })).toHaveCount(0);
   }
+  for (const tab of [page, other]) await expectSignedOutNavigation(tab);
   expect((await context.cookies()).find((entry) => entry.name === cookie.name)).toBeUndefined();
   await page.reload();
-  await expect(
-    page.locator('.header-actions').getByRole('link', { name: 'Sign in', exact: true }),
-  ).toBeVisible();
+  await expectSignedOutNavigation(page);
   await page.getByRole('button', { name: 'Continue as guest', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Your guest workspace.' })).toBeVisible();
   expect((await context.cookies()).find((entry) => entry.name === cookie.name)?.value).not.toBe(

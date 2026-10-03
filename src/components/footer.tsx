@@ -1,79 +1,88 @@
+'use client';
+import { localizedHref } from '@/lib/i18n/translate';
+import { useUiLocale, useUiTranslation } from './ui-language';
 import Link from 'next/link';
 import { ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { Logo } from './logo';
 export function Footer() {
+  const locale = useUiLocale();
+  const tr = useUiTranslation();
+  const href = (path: string) => localizedHref(locale, path);
   return (
-    <footer className="site-footer">
+    <footer className="site-footer" lang={locale}>
       <div className="footer-top container">
         <div className="footer-brand">
-          <Logo light />
+          <Logo light href={href('/')} label={tr('Folio home')} />
           <p>
-            A little less paperwork.
-            <br />A little more possibility.
+            {tr('A little less paperwork.')}
+            <br />
+            {tr('A little more possibility.')}
           </p>
           <span className="privacy-tag">
             <ShieldCheck size={15} />
-            Made for your peace of mind.
+            {tr('Made for your peace of mind.')}
           </span>
         </div>
         <div>
-          <h3>Make it yours</h3>
-          <Link prefetch={false} href="/edit-pdf">
-            Edit PDF
+          <h3>{tr('Make it yours')}</h3>
+          <Link prefetch={false} href={href('/edit-pdf')}>
+            {tr('Edit PDF')}
           </Link>
-          <Link prefetch={false} href="/edit-pdf-text">
-            PDF text editor
+          <Link prefetch={false} href={href('/edit-pdf-text')}>
+            {tr('PDF text editor')}
           </Link>
-          <Link prefetch={false} href="/merge-pdf">
-            Merge PDF
+          <Link prefetch={false} href={href('/merge-pdf')}>
+            {tr('Merge PDF')}
           </Link>
-          <Link prefetch={false} href="/compress-pdf">
-            Compress PDF
+          <Link prefetch={false} href={href('/compress-pdf')}>
+            {tr('Compress PDF')}
           </Link>
-          <Link prefetch={false} href="/sign-pdf">
-            Fill & sign
+          <Link prefetch={false} href={href('/sign-pdf')}>
+            {tr('Fill & sign')}
           </Link>
-          <Link prefetch={false} href="/signature-generator">
-            Signature generator
-          </Link>
-        </div>
-        <div>
-          <h3>Find your format</h3>
-          <Link prefetch={false} href="/compress-images">
-            Image compressor
-          </Link>
-          <Link prefetch={false} href="/pdf-to-jpg">
-            PDF to JPG
-          </Link>
-          <Link prefetch={false} href="/pdf-to-png">
-            PDF to PNG
-          </Link>
-          <Link prefetch={false} href="/image-to-pdf">
-            Image to PDF
-          </Link>
-          <Link prefetch={false} href="/pdf-to-text">
-            PDF to text
+          <Link prefetch={false} href={href('/signature-generator')}>
+            {tr('Signature generator')}
           </Link>
         </div>
         <div>
-          <h3>Around Folio</h3>
-          <Link href="/tools">
-            Explore all tools <ArrowUpRight size={13} />
+          <h3>{tr('Find your format')}</h3>
+          <Link prefetch={false} href={href('/compress-images')}>
+            {tr('Image compressor')}
           </Link>
-          <Link href="/guides">Helpful guides</Link>
-          <Link href="/blog">The Folio blog</Link>
-          <Link href="/pricing">Pricing</Link>
-          <Link href="/support">Contact support</Link>
-          <Link href="/about">About Folio</Link>
-          <Link href="/privacy">Your privacy</Link>
-          <Link href="/terms">Terms of service</Link>
-          <Link href="/security">Report a security issue</Link>
-          <a href="/feed.xml">Subscribe via RSS</a>
+          <Link prefetch={false} href={href('/pdf-to-jpg')}>
+            {tr('PDF to JPG')}
+          </Link>
+          <Link prefetch={false} href={href('/pdf-to-png')}>
+            {tr('PDF to PNG')}
+          </Link>
+          <Link prefetch={false} href={href('/image-to-pdf')}>
+            {tr('Image to PDF')}
+          </Link>
+          <Link prefetch={false} href={href('/pdf-to-text')}>
+            {tr('PDF to text')}
+          </Link>
+        </div>
+        <div>
+          <h3>{tr('Around Folio')}</h3>
+          <Link href={href('/tools')}>
+            {tr('Explore all tools')} <ArrowUpRight size={13} />
+          </Link>
+          <Link href={href('/guides')}>{tr('Helpful guides')}</Link>
+          <Link href={href('/blog')}>{tr('The Folio blog')}</Link>
+          <Link href={href('/pricing')}>{tr('Pricing')}</Link>
+          <Link href={href('/support')}>{tr('Contact support')}</Link>
+          <Link href={href('/about')}>{tr('About Folio')}</Link>
+          <Link href={href('/privacy')}>{tr('Your privacy')}</Link>
+          <Link href={href('/terms')}>{tr('Terms of service')}</Link>
+          <Link href={href('/security')}>{tr('Report a security issue')}</Link>
+          <a href={href('/feed.xml')}>{tr('Subscribe via RSS')}</a>
         </div>
       </div>
       <div className="footer-bottom container">
-        <span>© {new Date().getFullYear()} Folio. Thoughtfully put together.</span>
-        <span>Designed for the details.</span>
+        <span>
+          {tr('©')} {new Date().getFullYear()} {tr('Folio.')} {tr('Thoughtfully put together.')}
+        </span>
+        <span>{tr('Designed for the details.')}</span>
       </div>
     </footer>
   );

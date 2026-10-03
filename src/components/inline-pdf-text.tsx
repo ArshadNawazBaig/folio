@@ -1,4 +1,5 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
 
 import {
   useEffect,
@@ -182,6 +183,8 @@ export function InlinePdfText({
   redo: () => void;
   save: () => void;
 }) {
+  const tr = useUiTranslation();
+
   const [geometry, setGeometry] = useState<Record<string, Geometry>>({});
   const documentFonts = useDocumentFonts(Object.values(changes).map((change) => change.font));
   const copySourcesKey = JSON.stringify([
@@ -574,13 +577,13 @@ export function InlinePdfText({
         <TextPreviewImage
           className="inline-pdf-preview"
           image={visiblePreview.image}
-          alt="PDF page with your text changes"
+          alt={tr('PDF page with your text changes')}
         />
       )}
       {needsImage && !visiblePreview && Object.keys(changes).length > 0 && !error && (
         <div
           className="inline-preview-loading"
-          aria-label="Restoring your text edits"
+          aria-label={tr('Restoring your text edits')}
           aria-busy="true"
         >
           <PdfPageSkeleton />
@@ -662,8 +665,8 @@ export function InlinePdfText({
                     left: Math.max(-27, -(box.left + shift.x) * scale),
                     top: Math.max(-5, -(box.top + shift.y) * scale),
                   }}
-                  aria-label={`Move text: ${block.text}`}
-                  title="Drag to move text. Arrow keys move it; Shift moves farther."
+                  aria-label={tr('Move text: {value0}', { value0: block.text })}
+                  title={tr('Drag to move text. Arrow keys move it; Shift moves farther.')}
                   disabled={disabled || !inkRemoved}
                   onPointerDown={(event) => startDrag(event, block)}
                   onPointerMove={(event) => {
@@ -719,7 +722,7 @@ export function InlinePdfText({
                   {!inkRemoved && (
                     <span
                       className="inline-text-preparing"
-                      aria-label="Preparing text for editing"
+                      aria-label={tr('Preparing text for editing')}
                     />
                   )}
                   {!inkRemoved && error && (
@@ -728,12 +731,12 @@ export function InlinePdfText({
                       onPointerDown={(event) => event.stopPropagation()}
                       onClick={() => setPreviewRetry((attempt) => attempt + 1)}
                     >
-                      Retry editing
+                      {tr('Retry editing')}
                     </button>
                   )}
                   <input
                     className="inline-text-input"
-                    aria-label={`Edit original text: ${block.text}`}
+                    aria-label={tr('Edit original text: {value0}', { value0: block.text })}
                     value={value.text}
                     maxLength={2000}
                     style={{
@@ -814,8 +817,8 @@ export function InlinePdfText({
                             }
                           : undefined
                       }
-                      aria-label={`Edit text: ${block.text}`}
-                      title="Click to edit this text"
+                      aria-label={tr('Edit text: {value0}', { value0: block.text })}
+                      title={tr('Click to edit this text')}
                       onPointerEnter={(event) => {
                         if (event.pointerType === 'mouse' || event.pointerType === 'pen')
                           prepareSelection(block);
@@ -844,24 +847,24 @@ export function InlinePdfText({
           <span role="alert">
             {documentFonts.error}
             <button className="text-link" onClick={documentFonts.retry}>
-              Retry fonts
+              {tr('Retry fonts')}
             </button>
           </span>
         )}
         {error ? (
           <>
             <span role="alert">
-              {error}{' '}
+              {tr(error)}{' '}
               {!visiblePreview && Object.keys(changes).length > 0
-                ? 'Showing the original page. Your edits are still here.'
-                : 'Your edits are still here.'}
+                ? tr('Showing the original page. Your edits are still here.')
+                : tr('Your edits are still here.')}
             </span>
             <button
               className="text-link"
               onPointerDown={(event) => event.stopPropagation()}
               onClick={() => setPreviewRetry((attempt) => attempt + 1)}
             >
-              Retry text preview
+              {tr('Retry text preview')}
             </button>
           </>
         ) : (

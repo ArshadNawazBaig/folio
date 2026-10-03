@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation, useUiLocale } from '../ui-language';
+import { localizedHref } from '@/lib/i18n/translate';
 import Link from 'next/link';
 import { isLemonUrl } from '@/lib/lemon-squeezy';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -25,6 +27,10 @@ type BillingDetails = {
   } | null;
 };
 export function DashboardBilling({ checkoutSuccess }: { checkoutSuccess: boolean }) {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
+
   const { access, refresh, loading: accessLoading } = useAccount();
   const [details, setDetails] = useState<BillingDetails | null>(null);
   const [busy, setBusy] = useState(false);
@@ -59,7 +65,7 @@ export function DashboardBilling({ checkoutSuccess }: { checkoutSuccess: boolean
     }
   }
   const expiry = access.expiresAt
-    ? new Date(access.expiresAt).toLocaleString(undefined, {
+    ? new Date(access.expiresAt).toLocaleString(locale, {
         dateStyle: 'medium',
         timeStyle: 'short',
       })
@@ -69,18 +75,19 @@ export function DashboardBilling({ checkoutSuccess }: { checkoutSuccess: boolean
     <div className={s.settingsStack}>
       {checkoutSuccess && (
         <p role="status" className={s.notice}>
-          Thanks for checking out. Your plan updates once payment is confirmed. Refresh your
-          subscription if it hasn’t appeared yet.
+          {tr(
+            'Thanks for checking out. Your plan updates once payment is confirmed. Refresh your subscription if it hasn’t appeared yet.',
+          )}
         </p>
       )}
       {error && (
         <p role="alert" className="error-message">
-          {error}
+          {tr(error)}
         </p>
       )}
       <section className={`${s.card} ${s.planCard}`}>
         <div>
-          <span className={s.eyebrow}>YOUR CURRENT PLAN</span>
+          <span className={s.eyebrow}>{tr('YOUR CURRENT PLAN')}</span>
           <h2>
             <Gem size={27} />
             {accessLoading ? (
@@ -88,53 +95,56 @@ export function DashboardBilling({ checkoutSuccess }: { checkoutSuccess: boolean
             ) : access.pro ? (
               'Folio Pro'
             ) : (
-              'Folio Free'
+              tr('Folio Free')
             )}
           </h2>
           <p>
             {accessLoading ? (
               <Skeleton width="85%" height={12} />
             ) : access.pro ? (
-              'All available Pro tools and Pro downloads are included.'
+              tr('All available Pro tools and Pro downloads are included.')
             ) : (
-              'Free tools and downloads, plus a private home for your PDFs.'
+              tr('Free tools and downloads, plus a private home for your PDFs.')
             )}
           </p>
           {expiry && (
             <p className={s.planDate}>
               {access.cancelAtPeriodEnd
-                ? 'Access ends'
+                ? tr('Access ends')
                 : access.courtesy
-                  ? 'Courtesy access ends'
+                  ? tr('Courtesy access ends')
                   : access.trial
-                    ? 'Introductory period ends'
-                    : 'Paid access until'}{' '}
+                    ? tr('Introductory period ends')
+                    : tr('Paid access until')}{' '}
               <strong>{expiry}</strong>.
             </p>
           )}
           {access.pro && !access.courtesy && !access.cancelAtPeriodEnd && access.renewalLabel && (
             <p>
-              {access.trial ? 'Then ' : 'Subscription price: '}
-              {access.renewalLabel} USD/month, billed automatically. Cancel in Manage billing before
-              renewal to avoid the next charge.
+              {access.trial ? tr('Then ') : tr('Subscription price: ')}
+              {tr(
+                '{price} USD/month, billed automatically. Cancel in Manage billing before renewal to avoid the next charge.',
+                { price: access.renewalLabel },
+              )}
             </p>
           )}
           {access.cancelAtPeriodEnd && (
             <p className={s.notice}>
-              Your cancellation is scheduled. You can manage it in the billing portal.
+              {tr('Your cancellation is scheduled. You can manage it in the billing portal.')}
             </p>
           )}
           {(status === 'past_due' || status === 'unpaid') && (
             <p role="status" className={s.notice}>
-              A payment needs attention. Open Manage billing to review your payment method and
-              invoices.
+              {tr(
+                'A payment needs attention. Open Manage billing to review your payment method and invoices.',
+              )}
             </p>
           )}
         </div>
         <div className={s.planActions}>
           {!access.pro && (
-            <Link className="button primary" href="/pricing">
-              Explore Pro plans <ArrowRight size={16} />
+            <Link className="button primary" href={href('/pricing')}>
+              {tr('Explore Pro plans')} <ArrowRight size={16} />
             </Link>
           )}
           <button
@@ -145,7 +155,7 @@ export function DashboardBilling({ checkoutSuccess }: { checkoutSuccess: boolean
               void load();
             }}
           >
-            <RefreshCw size={16} /> Refresh subscription
+            <RefreshCw size={16} /> {tr('Refresh subscription')}
           </button>
         </div>
       </section>
@@ -153,19 +163,20 @@ export function DashboardBilling({ checkoutSuccess }: { checkoutSuccess: boolean
         <span className={s.cardIcon}>
           <CreditCard size={23} />
         </span>
-        <h2>Billing, without the back-and-forth.</h2>
+        <h2>{tr('Billing, without the back-and-forth.')}</h2>
         <p>
-          View and download invoices, update your payment method, and manage or cancel your
-          subscription in the secure billing portal.
+          {tr(
+            'View and download invoices, update your payment method, and manage or cancel your subscription in the secure billing portal.',
+          )}
         </p>
         <div className={s.billingFeatures}>
-          <span>Invoices & receipts</span>
-          <span>Payment methods</span>
-          <span>Subscription & cancellation</span>
+          <span>{tr('Invoices & receipts')}</span>
+          <span>{tr('Payment methods')}</span>
+          <span>{tr('Subscription & cancellation')}</span>
         </div>
         {!details && !error ? (
           <div className={s.billingLoading} aria-busy="true">
-            <LoadingLabel>Loading billing details…</LoadingLabel>
+            <LoadingLabel>{tr('Loading billing details…')}</LoadingLabel>
             <Skeleton width={172} height={44} radius={7} />
             <p className={s.muted}>
               <Skeleton width="72%" height={11} />
@@ -177,31 +188,35 @@ export function DashboardBilling({ checkoutSuccess }: { checkoutSuccess: boolean
             disabled={busy || !details?.hasCustomer}
             onClick={() => void portal()}
           >
-            {busy ? 'Opening billing…' : 'Manage billing'}
+            {busy ? tr('Opening billing…') : tr('Manage billing')}
             <ArrowUpRight size={16} />
           </button>
         )}
         {details && !details.hasCustomer && (
           <p className={s.muted}>
-            You don’t have a billing account yet. It’s created when you begin checkout.
+            {tr('You don’t have a billing account yet. It’s created when you begin checkout.')}
           </p>
         )}
         {error && (
           <button className="text-link" onClick={() => void load()}>
-            Retry billing details
+            {tr('Retry billing details')}
           </button>
         )}
       </section>
       <p className={s.muted}>
-        Need help with a charge?{' '}
-        <Link className="text-link" href="/dashboard?view=support">
-          Contact support <ArrowRight size={14} />
+        {tr('Need help with a charge?')}{' '}
+        <Link className="text-link" href={href('/dashboard?view=support')}>
+          {tr('Contact support')} <ArrowRight size={14} />
         </Link>
       </p>
     </div>
   );
 }
 export function DashboardSettings() {
+  const tr = useUiTranslation();
+  const locale = useUiLocale();
+  const href = (path: string) => localizedHref(locale, path);
+
   const { user } = useAccount();
   const [name, setName] = useState(displayName(user?.user_metadata));
   const [company, setCompany] = useState(
@@ -253,12 +268,12 @@ export function DashboardSettings() {
     <div className={s.settingsStack}>
       {notice && (
         <p role="status" className={s.notice}>
-          {notice}
+          {tr(notice)}
         </p>
       )}
       {error && (
         <p role="alert" className="error-message">
-          {error}
+          {tr(error)}
         </p>
       )}
       <section className={s.card}>
@@ -267,14 +282,14 @@ export function DashboardSettings() {
             {displayName(user?.user_metadata).slice(0, 1).toUpperCase()}
           </span>
           <div>
-            <h2>Your profile</h2>
-            <p>The details that make this space yours.</p>
+            <h2>{tr('Your profile')}</h2>
+            <p>{tr('The details that make this space yours.')}</p>
           </div>
         </div>
         <form className={s.profileForm} onSubmit={save}>
           <div className={s.fieldGrid}>
             <label className={s.field}>
-              Full name
+              {tr('Full name')}
               <input
                 name="name"
                 autoComplete="name"
@@ -285,7 +300,7 @@ export function DashboardSettings() {
               />
             </label>
             <label className={s.field}>
-              Company <span className={s.optional}>(optional)</span>
+              {tr('Company')} <span className={s.optional}>{tr('(optional)')}</span>
               <input
                 name="organization"
                 autoComplete="organization"
@@ -296,7 +311,7 @@ export function DashboardSettings() {
             </label>
           </div>
           <label className={s.field}>
-            Email address
+            {tr('Email address')}
             <input
               type="email"
               readOnly
@@ -305,12 +320,13 @@ export function DashboardSettings() {
             />
           </label>
           <p id="profile-email-help" className={s.muted}>
-            Your sign-in email is managed by your login provider. Contact support if you need help
-            changing accounts.
+            {tr(
+              'Your sign-in email is managed by your login provider. Contact support if you need help changing accounts.',
+            )}
           </p>
           <div className="form-actions">
             <button className="button primary" disabled={busy || !name.trim()}>
-              {busy ? 'Saving…' : 'Save profile'}
+              {busy ? tr('Saving…') : tr('Save profile')}
               <ArrowRight size={16} />
             </button>
           </div>
@@ -320,35 +336,35 @@ export function DashboardSettings() {
         <span className={s.cardIcon}>
           <LockKeyhole size={23} />
         </span>
-        <h2>Sign-in & security</h2>
+        <h2>{tr('Sign-in & security')}</h2>
         <div className={s.securityRow}>
           <div>
-            <strong>{google ? 'Google sign-in connected' : 'Email link sign-in'}</strong>
+            <strong>{google ? tr('Google sign-in connected') : tr('Email link sign-in')}</strong>
             <p>
               {google
-                ? 'Use your Google account to sign in securely.'
-                : 'Use the secure sign-in link sent to your email.'}
+                ? tr('Use your Google account to sign in securely.')
+                : tr('Use the secure sign-in link sent to your email.')}
             </p>
           </div>
           <ShieldCheck size={22} />
         </div>
         <div className={s.securityRow}>
           <div>
-            <strong>Signed in somewhere else?</strong>
-            <p>End other sessions while keeping this browser signed in.</p>
+            <strong>{tr('Signed in somewhere else?')}</strong>
+            <p>{tr('End other sessions while keeping this browser signed in.')}</p>
           </div>
           <button
             className="button secondary"
             disabled={busy}
             onClick={() => dialog.current?.showModal()}
           >
-            Sign out other sessions
+            {tr('Sign out other sessions')}
           </button>
         </div>
         <p className={s.muted}>
-          Member since{' '}
+          {tr('Member since')}{' '}
           {user?.created_at
-            ? new Date(user.created_at).toLocaleDateString(undefined, {
+            ? new Date(user.created_at).toLocaleDateString(locale, {
                 month: 'long',
                 year: 'numeric',
               })
@@ -357,17 +373,18 @@ export function DashboardSettings() {
         </p>
       </section>
       <section className={s.card}>
-        <h2>Your data, your control.</h2>
+        <h2>{tr('Your data, your control.')}</h2>
         <p>
-          Cloud files are private to your account. You can download or delete them in My files. New
-          saves go to cloud storage. Unsaved changes stay in the current tab until you save.
+          {tr(
+            'Cloud files are private to your account. You can download or delete them in My files. New saves go to cloud storage. Unsaved changes stay in the current tab until you save.',
+          )}
         </p>
         <div className={s.inlineActions}>
-          <Link className="text-link" href="/dashboard?view=files">
-            Manage your files <ArrowRight size={15} />
+          <Link className="text-link" href={href('/dashboard?view=files')}>
+            {tr('Manage your files')} <ArrowRight size={15} />
           </Link>
-          <Link className="text-link" href="/dashboard?view=support">
-            Request account deletion <ArrowUpRight size={15} />
+          <Link className="text-link" href={href('/dashboard?view=support')}>
+            {tr('Request account deletion')} <ArrowUpRight size={15} />
           </Link>
         </div>
       </section>
@@ -380,16 +397,17 @@ export function DashboardSettings() {
         }}
       >
         <header className="dialog-header">
-          <h2 id="sessions-dialog-title">Sign out other sessions?</h2>
+          <h2 id="sessions-dialog-title">{tr('Sign out other sessions?')}</h2>
         </header>
         <div className="dialog-body">
           <p>
-            Other browsers and devices will need to sign in again after their current access tokens
-            expire. This browser stays signed in.
+            {tr(
+              'Other browsers and devices will need to sign in again after their current access tokens expire. This browser stays signed in.',
+            )}
           </p>
           {error && (
             <p role="alert" className="error-message">
-              {error}
+              {tr(error)}
             </p>
           )}
         </div>
@@ -399,14 +417,14 @@ export function DashboardSettings() {
             disabled={busy}
             onClick={() => dialog.current?.close()}
           >
-            Cancel
+            {tr('Cancel')}
           </button>
           <button
             className="button primary"
             disabled={busy}
             onClick={() => void endOtherSessions()}
           >
-            {busy ? 'Signing out…' : 'Confirm sign-out'}
+            {busy ? tr('Signing out…') : tr('Confirm sign-out')}
           </button>
         </footer>
       </dialog>

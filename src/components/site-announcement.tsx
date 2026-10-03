@@ -1,6 +1,10 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import { useEffect, useState } from 'react';
 export function SiteAnnouncement() {
+  const tr = useUiTranslation();
+
   const [text, setText] = useState('');
   useEffect(() => {
     let cancelled = false;
@@ -16,7 +20,7 @@ export function SiteAnnouncement() {
   }, []);
   return text ? (
     <div className="site-announcement" role="status">
-      {text}
+      {tr(text)}
     </div>
   ) : null;
 }

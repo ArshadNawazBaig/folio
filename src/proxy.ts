@@ -2,8 +2,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getServiceSettings } from '@/lib/server/platform';
 import { siteUrl } from '@/lib/seo';
 import { legacyPublicRedirect } from '@/lib/site-config';
+import { splitLanguagePath } from '@/lib/i18n/config';
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const resourcePath = splitLanguagePath(pathname).path;
   const destination = legacyPublicRedirect(request.nextUrl, request.method, process.env);
   if (destination) return NextResponse.redirect(destination, 308);
   const next = () => {
@@ -17,8 +19,9 @@ export async function proxy(request: NextRequest) {
     return next();
   // Admin recovery, support, sign-in, cancellation, and signed payment events stay reachable.
   if (
+    splitLanguagePath(pathname).path === '/dashboard' ||
     /^\/(admin|account|dashboard|auth|maintenance|support|security|terms|privacy)(\/|$)/.test(
-      pathname,
+      resourcePath,
     ) ||
     /^\/api\/(admin|support|account|workspaces)(\/|$)/.test(pathname) ||
     ['/api/billing/webhook', '/api/billing/portal'].includes(pathname)

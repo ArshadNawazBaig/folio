@@ -1,4 +1,5 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
 
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { X } from 'lucide-react';
@@ -19,6 +20,8 @@ export function ConfirmDialog({
   onCancel: () => void;
   children?: ReactNode;
 }) {
+  const tr = useUiTranslation();
+
   const id = useId();
   const dialog = useRef<HTMLDialogElement>(null);
   const cancelButton = useRef<HTMLButtonElement>(null);
@@ -77,11 +80,11 @@ export function ConfirmDialog({
       }}
     >
       <header className="dialog-header">
-        <h2 id={`${id}-title`}>{title}</h2>
+        <h2 id={`${id}-title`}>{tr(title)}</h2>
         <button
           type="button"
           className="icon-button"
-          aria-label="Close confirmation"
+          aria-label={tr('Close confirmation')}
           onClick={onCancel}
         >
           <X size={19} aria-hidden="true" />
@@ -93,7 +96,7 @@ export function ConfirmDialog({
       </div>
       <footer className="dialog-footer">
         <button ref={cancelButton} type="button" className="button secondary" onClick={onCancel}>
-          Keep editing
+          {tr('Keep editing')}
         </button>
         <button type="button" className="button primary" onClick={onConfirm}>
           {confirmLabel}

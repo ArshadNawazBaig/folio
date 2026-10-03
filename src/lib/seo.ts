@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { seoConfiguration } from './site-config';
+import { languageAlternates } from './i18n/config';
 
 export const { siteUrl, isIndexable } = seoConfiguration(process.env);
 export const brand = 'Folio';
@@ -26,7 +27,11 @@ export function pageMetadata(
     title,
     description,
     authors: [{ name: brand, url: `${siteUrl}/about` }],
-    alternates: { canonical: path, types: { 'application/rss+xml': '/feed.xml' } },
+    alternates: {
+      canonical: path,
+      languages: languageAlternates(path, siteUrl),
+      types: { 'application/rss+xml': '/feed.xml' },
+    },
     robots: { index: isIndexable && index, follow: isIndexable && index },
     ...(isIndexable && index
       ? {

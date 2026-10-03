@@ -5,6 +5,7 @@ export default defineConfig({
   testMatch: [
     'auth-connected.spec.ts',
     'guest-dashboard.spec.ts',
+    'dashboard-i18n.spec.ts',
     'short-links.spec.ts',
     'admin-activity.spec.ts',
   ],

@@ -1,4 +1,6 @@
 'use client';
+import { useUiTranslation } from '@/components/ui-language';
+
 import { useEffect, useRef, useState } from 'react';
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
 import { PdfPageSkeleton } from './editor-skeleton';
@@ -22,10 +24,14 @@ export function PdfCanvas({
   onPreviewError?: (message: string) => void;
   aspectRatio?: number;
 }) {
+  const tr = useUiTranslation();
+
   const container = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(!lazy);
   const [error, setError] = useState('');
-  const [text, setText] = useState('Loading page text…');
+  const [text, setText] = useState<{ content: string } | { message: string }>({
+    message: 'Loading page text…',
+  });
   const [retry, setRetry] = useState(0);
   const [rendered, setRendered] = useState<{
     document: PDFDocumentProxy;
@@ -96,21 +102,22 @@ export function PdfCanvas({
   useEffect(() => {
     if (decorative || (lazy && !visible)) return;
     let cancelled = false;
-    setText('Loading page text…');
+    setText({ message: 'Loading page text…' });
     // Accessibility text is independent of the rendered image and does not
     // need to be extracted again on every zoom. Its failure is not a preview error.
     void document
       .getPage(page)
       .then((pdfPage) => pdfPage.getTextContent())
       .then((content) => {
-        if (!cancelled)
+        if (!cancelled) {
+          const extracted = content.items.map((item) => ('str' in item ? item.str : '')).join(' ');
           setText(
-            content.items.map((item) => ('str' in item ? item.str : '')).join(' ') ||
-              'This page has no selectable text.',
+            extracted ? { content: extracted } : { message: 'This page has no selectable text.' },
           );
+        }
       })
       .catch(() => {
-        if (!cancelled) setText('Text is unavailable for this page.');
+        if (!cancelled) setText({ message: 'Text is unavailable for this page.' });
       });
     return () => {
       cancelled = true;
@@ -126,12 +133,16 @@ export function PdfCanvas({
       {!hasPreview && !error && (
         <>
           <PdfPageSkeleton />
-          {!decorative && <LoadingLabel>Rendering page {String(page)}…</LoadingLabel>}
+          {!decorative && (
+            <LoadingLabel>
+              {tr('Rendering page')} {String(page)}…
+            </LoadingLabel>
+          )}
         </>
       )}
       {error && !onPreviewError && !decorative && (
         <div className="pdf-preview-error error-message" role="alert">
-          <span>{error}</span>
+          <span>{tr(error)}</span>
           <button
             className="text-link"
             onPointerDown={(event) => event.stopPropagation()}
@@ -140,13 +151,13 @@ export function PdfCanvas({
               setRetry((value) => value + 1);
             }}
           >
-            Retry preview
+            {tr('Retry preview')}
           </button>
         </div>
       )}
       {!decorative && (
         <span className="sr-only">
-          Page {page}: {text}
+          {tr('Page')} {page}: {'content' in text ? text.content : tr(text.message)}
         </span>
       )}
     </div>

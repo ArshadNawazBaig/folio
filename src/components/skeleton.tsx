@@ -1,3 +1,5 @@
+'use client';
+import { useUiTranslation } from './ui-language';
 import { PAGE_SIZE } from '@/lib/pagination.mjs';
 import type { CSSProperties, ReactNode } from 'react';
 import s from './skeleton.module.css';
@@ -24,9 +26,10 @@ export function Skeleton({
 }
 
 export function LoadingLabel({ children }: { children: ReactNode }) {
+  const tr = useUiTranslation();
   return (
     <span className="sr-only" role="status">
-      {children}
+      {typeof children === 'string' ? tr(children) : children}
     </span>
   );
 }
@@ -66,10 +69,16 @@ export function SignInSkeleton({ description = false }: { description?: boolean 
   );
 }
 
-export function TicketListSkeleton({ count = PAGE_SIZE }: { count?: number }) {
+export function TicketListSkeleton({
+  count = PAGE_SIZE,
+  label = 'Loading conversations…',
+}: {
+  count?: number;
+  label?: string;
+}) {
   return (
     <div className="admin-ticket-list" aria-busy="true">
-      <LoadingLabel>Loading conversations…</LoadingLabel>
+      <LoadingLabel>{label}</LoadingLabel>
       {Array.from({ length: count }, (_, i) => (
         <div className={s.ticket} key={i} aria-hidden="true">
           <strong>
@@ -84,10 +93,16 @@ export function TicketListSkeleton({ count = PAGE_SIZE }: { count?: number }) {
   );
 }
 
-export function ThreadSkeleton({ count = PAGE_SIZE }: { count?: number }) {
+export function ThreadSkeleton({
+  count = PAGE_SIZE,
+  label = 'Loading conversation…',
+}: {
+  count?: number;
+  label?: string;
+}) {
   return (
     <div className="support-thread" aria-busy="true">
-      <LoadingLabel>Loading conversation…</LoadingLabel>
+      <LoadingLabel>{label}</LoadingLabel>
       {Array.from({ length: count }, (_, i) => (
         <article key={i} className={i ? 'staff' : ''} aria-hidden="true">
           <strong>
