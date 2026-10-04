@@ -99,7 +99,7 @@ Before sending a copy outside your review group, remove notes that were only int
 
 ### Can I review a PDF for free?
 
-Folio allows free annotations such as added text, highlights, and comments, with free download when the document only contains those supported free changes. Editing the original PDF text and certain other operations use paid export. Check the [current pricing and feature limits](/pricing) if the review also requires those changes.
+Folio’s annotations, highlights, comments, original-text editing, and finished downloads are all free. Every account includes 1 GB of private storage. Check the [available tools and file limits](/tools) if the review also requires those changes.
 
 ### Why can the recipient see a marker but not my comment?
 

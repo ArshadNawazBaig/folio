@@ -1,5 +1,4 @@
-import { requireUser } from '@/lib/server/auth';
-import { consumeProRequest } from '@/lib/server/billing';
+import { authorizeToolDownload } from '@/lib/server/tool-download';
 import { apiError, ApiError } from '@/lib/server/http';
 import { runProPdf } from '@/lib/server/pro-pdf';
 import { readProUpload } from '@/lib/server/pro-upload';
@@ -8,9 +7,8 @@ export const runtime = 'nodejs';
 export const maxDuration = 45;
 export async function POST(request: Request) {
   try {
-    const user = await requireUser(request);
     await assertServiceAvailable();
-    await consumeProRequest(user.id);
+    await authorizeToolDownload(request);
     const { file, job } = await readProUpload(request);
     if (job.operation !== 'edit' && job.operation !== 'protect')
       throw new ApiError(400, 'Choose a PDF download operation.');
@@ -19,7 +17,9 @@ export async function POST(request: Request) {
       return new Response(Buffer.from(result.bytes, 'base64'), {
         headers: {
           'Content-Type': 'application/pdf',
-          'Content-Disposition': 'attachment; filename="folio-pro.pdf"',
+          'Cache-Control': 'private, no-store',
+          'X-Content-Type-Options': 'nosniff',
+          'Content-Disposition': 'attachment; filename="folio.pdf"',
         },
       });
     return Response.json(result);

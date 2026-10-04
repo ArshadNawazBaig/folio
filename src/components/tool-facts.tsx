@@ -1,3 +1,4 @@
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import { translator, type PageLanguage } from '@/lib/i18n/translate';
 import Link from 'next/link';
 import { downloadFact, toolFacts } from '@/lib/tool-facts';
@@ -37,7 +38,7 @@ export function ToolFacts({ tool, messages = {} }: PageLanguage & { tool: Tool }
           ))}
         </dl>
         <p className={styles.links}>
-          <Link href="/pricing">{tr('Current plans')}</Link>
+          {!FREE_LAUNCH && <Link href="/pricing">{tr('Current plans')}</Link>}
           <Link href="/privacy">{tr('Full privacy details')}</Link>
         </p>
       </div>

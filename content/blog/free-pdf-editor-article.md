@@ -4,18 +4,18 @@ By Folio Editorial
 
 You have a PDF to complete, a few blank spaces to fill, and no reason to print it. A free PDF editor can handle that kind of work: add your answers, mark an instruction, place a visual signature, and download the completed document.
 
-There is one distinction to understand before you start. Adding information to a page is different from rewriting words already in the PDF. Folio’s additions, annotations, visual signatures, and form downloads are free. Downloading changes to original PDF text requires premium access. This guide focuses on the jobs you can finish with the free tools.
+Adding information to a page is different from rewriting words already in the PDF, and both workflows are free in Folio. You can download additions, annotations, visual signatures, forms, and original-text changes without payment. Every account includes 1 GB of private storage. This guide helps you choose the right editing tool for the task.
 
 ## What can you do with a free PDF editor?
 
-| Task                                               | How to handle it in Folio | Free finished PDF?                      |
-| -------------------------------------------------- | ------------------------- | --------------------------------------- |
-| Write a name or answer in a blank space            | Add Text                  | Yes.                                    |
-| Complete supported interactive fields              | Fill existing fields      | Yes.                                    |
-| Highlight, draw, or add a comment                  | Annotation tools          | Yes.                                    |
-| Place a drawn, typed, or uploaded visual signature | Sign                      | Yes.                                    |
-| Add text fields or checkboxes to a form            | Form tools                | Yes.                                    |
-| Replace words that were already in the document    | Edit Text                 | Premium access is required at download. |
+| Task                                               | How to handle it in Folio | Free finished PDF?                    |
+| -------------------------------------------------- | ------------------------- | ------------------------------------- |
+| Write a name or answer in a blank space            | Add Text                  | Yes.                                  |
+| Complete supported interactive fields              | Fill existing fields      | Yes.                                  |
+| Highlight, draw, or add a comment                  | Annotation tools          | Yes.                                  |
+| Place a drawn, typed, or uploaded visual signature | Sign                      | Yes.                                  |
+| Add text fields or checkboxes to a form            | Form tools                | Yes.                                  |
+| Replace words that were already in the document    | Edit Text                 | Yes, including original-text changes. |
 
 Free exports do not receive a Folio watermark. File and storage limits still apply, so free access should not be read as unlimited capacity. The main editor accepts a PDF up to 50 MB; some other operations have smaller limits.
 
@@ -66,7 +66,7 @@ For a signature image to use elsewhere, the separate [signature generator](/sign
 
 If the address already printed on a document is wrong, placing a new text box on top does not reliably replace it. Old characters can remain visible around the new ones, and the old information may still exist beneath a cover. Use original-text editing when supported, or correct the source document and export a fresh PDF.
 
-If you only need free additions, you do not need to activate Edit Text. If you make an original-text change and later decide against it, undo that change before downloading. Folio checks the actual changes in the finished document, so merely opening the Edit Text mode does not trigger paid export.
+Use Add Text for a new note or answer and Edit Text for a correction to supported original words. Both are free to use and download. If a change does not look right, undo it, adjust it, and check the finished PDF.
 
 ### Treating an eraser or white box as secure redaction
 
@@ -100,7 +100,7 @@ Your additions should be checked in the saved result. Different document structu
 
 ### What if I need to rewrite several paragraphs?
 
-Ask for the original editable document if it is available. A word processor can move paragraphs and adjust page flow more naturally than editing separate text objects inside a PDF. For a small supported correction in Folio, use Edit Text and review the [paid download terms](/pricing) before relying on that export.
+Ask for the original editable document if it is available. A word processor can move paragraphs and adjust page flow more naturally than editing separate text objects inside a PDF. For a small supported correction in Folio, use Edit Text and review the [text editor’s capabilities](/edit-pdf-text) before relying on that export.
 
 For a form entry, note, or visual signature, you can keep the task simple: [open the free PDF editor](/edit-pdf), make the addition, and inspect the downloaded copy. You should leave with a document that is complete and easy for its next reader to use.
 

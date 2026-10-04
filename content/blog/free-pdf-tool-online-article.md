@@ -25,11 +25,11 @@ You can find those options in [Folio’s tool directory](/tools). Choose the out
 
 ## What “free” means for the task you are doing
 
-Check whether the finished file can be downloaded for free, not just whether the upload or preview is free. Also check watermarks, file limits, and whether an account is required for that particular workflow. A successful preview is only useful if you can obtain the output you need.
+All available Folio tools include free finished downloads. Before starting, check the file limits, supported formats, and whether your workflow needs account saving. Review the exported file to confirm that it matches the preview and the result you need.
 
 In Folio, standalone merging, splitting, rotating, organizing, PDF optimization, PDF-to-image conversion, image-to-PDF conversion, and selectable-text extraction have free downloads. Added text, annotations, visual signatures, and PDF form work also download free, without a Folio watermark.
 
-Replacing or otherwise changing original PDF text requires premium access when downloading the edited document. Password-protected exports are also paid. Office conversions and translation require both a connected processing service and paid export access. Those are separate capabilities; a free page-organizing tool does not imply that every operation on the site is free. [The pricing page](/pricing) describes current access.
+Original-text editing and password-protected downloads are free too. Office conversions and translation are free when their processing services are connected; check availability before starting. Every account includes 1 GB of private storage. [The tool directory](/tools) lists the available tools.
 
 ## Match the tool to the part of the document that needs changing
 

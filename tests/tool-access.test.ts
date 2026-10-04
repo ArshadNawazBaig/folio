@@ -8,53 +8,28 @@ import {
   toolDownloadAccess,
 } from '../src/lib/tool-access';
 
-test('only advanced downloads are paid; ordinary editor and native tools remain free', () => {
+test('every catalogue download is free during launch', () => {
   assert.deepEqual(
-    tools
-      .filter((tool) => tool.premium)
-      .map((tool) => tool.slug)
-      .sort(),
-    [
-      'edit-pdf-text',
-      'pdf-to-excel',
-      'pdf-to-powerpoint',
-      'pdf-to-word',
-      'protect-pdf',
-      'translate-pdf',
-    ],
+    tools.filter((tool) => tool.premium),
+    [],
   );
-  assert.equal(toolDownloadAccess('edit-pdf'), 'mixed');
-  for (const slug of [
-    'sign-pdf',
-    'create-pdf-form',
-    'compress-pdf',
-    'pdf-to-text',
-    'enhance-image',
-    'create-qr-code',
-  ])
-    assert.equal(toolDownloadAccess(slug), 'free');
+  for (const tool of tools) assert.equal(toolDownloadAccess(tool.slug), 'free');
   // A prototype key or a new, unclassified tool cannot silently become a free download.
   for (const slug of ['constructor', '__proto__', 'new-converter'])
     assert.throws(() => toolDownloadAccess(slug), /Missing download policy/);
 });
 
-test('pricing only promises enabled premium tools, including newly connected converters', () => {
-  assert.deepEqual(availablePremiumToolNames(tools), ['PDF text editor', 'Protect PDF']);
-  const connected = tools.map((tool) => ({
-    ...tool,
-    available: tool.available || tool.slug === 'pdf-to-word',
-  }));
-  assert.deepEqual(availablePremiumToolNames(connected), [
-    'PDF text editor',
-    'Protect PDF',
-    'PDF to Word',
-  ]);
-  assert.ok(!availablePremiumToolNames(connected).includes('Translate PDF'));
+test('no pricing offers are advertised even when a remote provider is connected', () => {
+  assert.deepEqual(availablePremiumToolNames(tools), []);
+  assert.deepEqual(
+    availablePremiumToolNames(tools.map((tool) => ({ ...tool, available: true }))),
+    [],
+  );
 });
 
-test('all paid remote exports explain the matching file format at the download gate', () => {
+test('remote downloads are free while dormant billing retains the matching file formats', () => {
   for (const slug of remoteTools) {
-    assert.equal(toolDownloadAccess(slug), 'premium');
+    assert.equal(toolDownloadAccess(slug), 'free');
     assert.ok(premiumDownloads[slug].reason.includes('requires a premium plan'));
     assert.ok(premiumDownloads[slug].format.startsWith(outputFormats[slug].label));
   }

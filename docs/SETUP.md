@@ -1,5 +1,7 @@
 # Connect Folio
 
+**Free launch:** all available tools and options are currently free; accounts and guest workspaces receive 1 GB. The pricing distinctions below describe the retained paid-mode implementation. Apply migration 016 before deploying this release; see [FREE-LAUNCH.md](FREE-LAUNCH.md).
+
 The application code runs locally now. Google sign-in, live administration, purchases, translation, and Office conversion require your service accounts. Use `npm run check:setup` to check which credentials are present in your workspace. Do not send private keys in chat; put them in `.env.local` or your deployment's secret settings.
 
 ## 1. Supabase and Google sign-in

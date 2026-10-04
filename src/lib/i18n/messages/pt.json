@@ -1,6 +1,6 @@
 {
   "title": "Ferramentas PDF grátis — Editar, Juntar, Dividir e Assinar",
-  "description": "Edite, junte, divida, comprima e assine PDF online com o Folio. Anotações e ferramentas de páginas gratuitas.",
+  "description": "Edite, assine, junte, divida e proteja PDFs gratuitamente. Cada conta inclui 1 GB de armazenamento privado.",
   "eyebrow": "FERRAMENTAS PDF SEM COMPLICAÇÕES.",
   "heading": "Uma forma mais simples de trabalhar com PDF.",
   "intro": "Edite, assine e organize documentos no navegador. Escolha uma ferramenta para começar.",
@@ -31,11 +31,11 @@
   "footer": "Menos papelada. Mais possibilidades.",
   "local": "Processado no navegador. Sem envio de ficheiros.",
   "cloud": "Os documentos do editor são guardados num espaço privado na nuvem. Os ficheiros de convidados expiram após 24 horas.",
-  "pricingNote": "As anotações e ferramentas de páginas são gratuitas. Descarregar alterações ao texto original requer um plano pago.",
+  "pricingNote": "Todas as ferramentas são gratuitas. Sem necessidade de subscrição.",
   "faq": [
     [
       "O Folio é gratuito?",
-      "Adicionar texto, anotações e assinaturas visuais, juntar e dividir PDF e converter imagens em PDF é gratuito. Descarregar alterações ao texto original requer um plano pago. Os downloads gratuitos não incluem marca de água do Folio."
+      "Edite, assine, junte, divida e proteja PDFs gratuitamente. Cada conta inclui 1 GB de armazenamento privado."
     ],
     [
       "Onde são processados os ficheiros?",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "Editar PDF",
-      "description": "Adicione texto, destaques, anotações e assinaturas visuais. Descarregue os acrescentos gratuitamente; alterações ao texto original requerem um plano pago.",
+      "description": "Edite, assine, junte, divida e proteja PDFs gratuitamente. Cada conta inclui 1 GB de armazenamento privado.",
       "detail": "Abra um PDF para adicionar texto e rever páginas. Pode editar texto original compatível, mas os parágrafos não se reorganizam automaticamente. Pode anotar digitalizações; o OCR não está incluído.",
       "action": "Abrir no editor",
       "steps": [

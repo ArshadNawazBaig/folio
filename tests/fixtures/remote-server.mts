@@ -99,11 +99,14 @@ try {
     const opened = openResult(result.artifact);
     assert.deepEqual(opened.bytes, Buffer.from(tool === 'translate-pdf' ? pdf : office));
     assert.ok(result.expiresAt > Date.now() + 86_000_000);
-    assert.equal(
-      (await exportApi.POST(jsonRequest('/api/documents/export', { artifact: result.artifact })))
-        .status,
-      401,
+    const exported = await exportApi.POST(
+      jsonRequest('/api/documents/export', { artifact: result.artifact }),
     );
+    if (process.env.NEXT_PUBLIC_FREE_LAUNCH === 'false') assert.equal(exported.status, 401);
+    else {
+      assert.equal(exported.status, 200);
+      assert.deepEqual(Buffer.from(await exported.arrayBuffer()), opened.bytes);
+    }
     const preview = await previewApi.POST(
       jsonRequest('/api/documents/preview', { artifact: result.artifact, page: 1 }),
     );

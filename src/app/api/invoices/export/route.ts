@@ -1,5 +1,4 @@
-import { requireUser } from '@/lib/server/auth';
-import { consumeProRequest } from '@/lib/server/billing';
+import { authorizeToolDownload } from '@/lib/server/tool-download';
 import { apiError, ApiError } from '@/lib/server/http';
 import { assertServiceAvailable } from '@/lib/server/platform';
 import { invoiceBody, invoiceHeaders, premiumInvoicePdf } from '@/lib/server/invoices';
@@ -10,11 +9,10 @@ export const maxDuration = 60;
 export async function POST(request: Request) {
   try {
     await assertServiceAvailable();
-    const user = await requireUser(request);
     const { document } = await invoiceBody(request);
     const issues = invoiceIssues(document);
     if (issues.length) throw new ApiError(400, issues[0]);
-    await consumeProRequest(user.id);
+    await authorizeToolDownload(request);
     let result;
     try {
       result = await premiumInvoicePdf(document);

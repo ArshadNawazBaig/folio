@@ -2,7 +2,7 @@ import test from 'node:test';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-test('real server handlers enforce admin roles, support ownership, Pro downloads, and maintenance recovery', async () => {
+test('real server handlers enforce admin roles, support ownership, legacy paid downloads, and maintenance recovery', async () => {
   await promisify(execFile)(
     process.execPath,
     [
@@ -11,6 +11,6 @@ test('real server handlers enforce admin roles, support ownership, Pro downloads
       'tsx',
       fileURLToPath(new URL('./fixtures/platform-server.mts', import.meta.url)),
     ],
-    { timeout: 60000 },
+    { timeout: 60000, env: { ...process.env, NEXT_PUBLIC_FREE_LAUNCH: 'false' } },
   );
 });

@@ -1,3 +1,4 @@
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import type { Tool } from '@/lib/tools';
 import {
   translator,
@@ -59,7 +60,7 @@ export function ToolPageContent({
             url: `${siteUrl}${href(`/${t.slug}`)}`,
             description: t.description,
             publisher: { '@id': `${siteUrl}/#organization` },
-            ...(t.premium
+            ...(!FREE_LAUNCH && t.premium
               ? {}
               : { offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } }),
           }}
@@ -93,7 +94,7 @@ export function ToolPageContent({
               <ShieldCheck size={14} /> {tr('Free PDF downloads')}
             </span>
             <i /> {tr('Live invoice preview')}
-            <i /> {tr('Optional Pro features')}
+            <i /> {tr(FREE_LAUNCH ? 'All designs included' : 'Optional Pro features')}
           </div>
         ) : t.processor === 'shortener' ? (
           <div className="tool-benefits">
@@ -102,11 +103,12 @@ export function ToolPageContent({
               {tr('Saved to your account')}
             </span>
             <i />
-            {tr('Free & Pro plans')}
+            {tr(FREE_LAUNCH ? 'All options are free' : 'Free & Pro plans')}
             <i />
             {tr('QR downloads included')}
           </div>
-        ) : t.premium && t.available ? (
+        ) : (isRemoteTool(t.slug) || ['edit-pdf-text', 'protect-pdf'].includes(t.slug)) &&
+          t.available ? (
           <div className="tool-benefits">
             <span>
               <ShieldCheck size={14} />

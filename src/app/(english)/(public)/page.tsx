@@ -2,12 +2,12 @@ import { pageMetadata } from '@/lib/seo';
 import { HomePageContent } from '@/components/home-page-content';
 const title = 'Free Online PDF Tools — Edit, Merge, Compress & Sign';
 const description =
-  'Add text, sign, merge, split and convert images to PDF online. Annotation downloads are free; original-text changes require a paid plan.';
+  'Edit text, sign, merge, split and convert images to PDF online. All available tools and downloads are free, with 1 GB of storage per account.';
 export const metadata = pageMetadata(title, description, '/', true, {
   title: 'Folio — Free Online PDF Tools',
   description: 'Free tools to add text, sign, merge and split PDFs with Folio.',
   twitterDescription:
-    'Add text, sign, merge, split and convert images to PDF with Folio in your browser. Download annotations free without a Folio watermark. Original-text changes require a paid plan.',
+    'Edit text, sign, merge, split and convert images to PDF with Folio. All available tools and downloads are free, with 1 GB of storage per account.',
 });
 // Public copy and provider availability are shared across visitors. Regenerate
 // periodically; account state and the maintenance gate remain request-specific.

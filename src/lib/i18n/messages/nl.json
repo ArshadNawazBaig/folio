@@ -1,6 +1,6 @@
 {
   "title": "Gratis PDF-tools — Bewerken, Samenvoegen, Splitsen en Ondertekenen",
-  "description": "Bewerk, combineer, splits, comprimeer en onderteken PDF’s online met Folio. Gratis annotaties en paginagereedschap.",
+  "description": "Bewerk, onderteken, combineer, splits en beveilig PDF’s gratis. Elk account heeft 1 GB privéopslag.",
   "eyebrow": "PDF-TOOLS ZONDER GEDOE.",
   "heading": "Eenvoudiger werken met PDF’s.",
   "intro": "Bewerk, onderteken en orden documenten in je browser. Kies een hulpmiddel en ga aan de slag.",
@@ -31,11 +31,11 @@
   "footer": "Minder papierwerk. Meer mogelijkheden.",
   "local": "Verwerkt in je browser. Geen bestandsupload.",
   "cloud": "Documenten in de editor worden in privécloudopslag bewaard. Gastbestanden verlopen na 24 uur.",
-  "pricingNote": "Annotaties en paginagereedschap zijn gratis. Voor het downloaden van wijzigingen aan oorspronkelijke tekst is een betaald abonnement nodig.",
+  "pricingNote": "Alle tools zijn gratis. Geen abonnement nodig.",
   "faq": [
     [
       "Is Folio gratis?",
-      "Tekst, annotaties en zichtbare handtekeningen toevoegen, PDF’s samenvoegen en splitsen en afbeeldingen naar PDF omzetten is gratis. Wijzigingen aan oorspronkelijke tekst downloaden vereist een betaald abonnement. Gratis downloads hebben geen Folio-watermerk."
+      "Bewerk, onderteken, combineer, splits en beveilig PDF’s gratis. Elk account heeft 1 GB privéopslag."
     ],
     [
       "Waar worden bestanden verwerkt?",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "PDF bewerken",
-      "description": "Voeg tekst, markeringen, annotaties en zichtbare handtekeningen toe. Download toevoegingen gratis; wijzigingen aan oorspronkelijke tekst zijn betaald.",
+      "description": "Bewerk, onderteken, combineer, splits en beveilig PDF’s gratis. Elk account heeft 1 GB privéopslag.",
       "detail": "Open je PDF om tekst toe te voegen en pagina’s te bekijken. Ondersteunde oorspronkelijke tekst is bewerkbaar, maar alinea’s lopen niet automatisch door. Scans kunnen worden geannoteerd; OCR is niet inbegrepen.",
       "action": "Openen in editor",
       "steps": [

@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { PGlite } from '@electric-sql/pglite';
 import { cloudTestSchema } from './fixtures/cloud-schema';
-import { FREE_STORAGE_LIMIT } from '../src/lib/cloud-types';
+import { LEGACY_FREE_STORAGE_LIMIT as FREE_STORAGE_LIMIT } from '../src/lib/access-policy';
 
 test('guest libraries enforce 100 MB, isolate owners, expire after 24 hours and safely transfer all files that fit', async () => {
   const db = new PGlite();

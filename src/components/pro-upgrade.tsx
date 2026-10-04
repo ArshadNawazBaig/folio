@@ -1,4 +1,5 @@
 'use client';
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import { useUiTranslation, useLocalizedHref } from '@/components/ui-language';
 
 import Link from 'next/link';
@@ -6,6 +7,7 @@ import { ArrowRight, Check, Gem, LockKeyhole } from 'lucide-react';
 export function ProUpgrade({ compact = false }: { compact?: boolean }) {
   const tr = useUiTranslation();
   const href = useLocalizedHref();
+  if (FREE_LAUNCH) return null;
 
   return (
     <div className={`pro-upgrade ${compact ? 'compact' : ''}`}>

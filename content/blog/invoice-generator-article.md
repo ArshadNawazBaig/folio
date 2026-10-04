@@ -70,19 +70,19 @@ Folio displays the payment information you supply. It does not collect the payme
 
 ## Choose a design that suits the document
 
-For a first invoice, a clear name, readable descriptions, and a visible balance matter more than decorative detail. Start with Classic or Minimal if you want a free PDF. Both support a logo and the preset accent colors.
+For a first invoice, a clear name, readable descriptions, and a visible balance matter more than decorative detail. All 12 designs are free. Start with Classic or Minimal for a simple layout, then add your logo and preferred colors.
 
-Pro adds 10 designs: Studio, Editorial, Executive, Ledger, Atelier, Horizon, Blueprint, Meridian, Statement, and Monogram. Preview a few with your real descriptions. A compact table may suit an invoice with many items, while a more prominent header may suit a short project invoice.
+Alongside Classic and Minimal, 10 more designs are free: Studio, Editorial, Executive, Ledger, Atelier, Horizon, Blueprint, Meridian, Statement, and Monogram. Preview a few with your real descriptions. A compact table may suit an invoice with many items, while a more prominent header may suit a short project invoice.
 
-Other Pro options include a custom brand color, a payment-link QR code, a custom footer, and saving invoices to your account. These are optional additions to the free invoice workflow. If you preview a Pro design and decide to stay with free features, Download free version prepares a copy with free settings while keeping your working design. The [pricing page](/pricing) lists current plan details.
+Custom brand colors, payment-link QR codes, custom footers, and account saving are also free. Choose any design and download it with your selected settings. Sign in to save and update up to 200 invoices in your private library. The [invoice generator](/invoice-generator) includes these features for free.
 
 ## Keep an editable draft as well as the PDF
 
 A PDF is the copy to send. An invoice draft is the copy to keep for future changes. Before closing the editor, open File and choose Draft backup. This downloads a JSON file containing the editable invoice. Later, use File → Import draft to continue working.
 
-Free work is held in the current tab; it is not automatically saved to an online library or browser storage. Keep the backup somewhere private because it contains the invoice details. With Pro, Save to account stores the draft in your private invoice library. Choose it again after making changes you want to keep.
+Free work is held in the current tab; it is not automatically saved to an online library or browser storage. Keep the backup somewhere private because it contains the invoice details. After signing in, Save to account stores the draft in your private invoice library for free. Choose it again after making changes you want to keep.
 
-Free PDFs are generated on your device. Pro PDF exports are processed by Folio, and library storage happens when you choose Save to account. A successful download by itself does not save an editable invoice to your dashboard.
+Classic and Minimal PDFs with preset options are generated on your device. Other designs and custom options are processed by Folio. All exports are free, and library storage happens when you choose Save to account. A successful download by itself does not save an editable invoice to your dashboard.
 
 ## Send a useful message with the checked attachment
 
@@ -110,7 +110,7 @@ This is a practical review checklist, not a universal legal template. Required i
 
 ### Can I make an invoice without creating an account?
 
-Yes. You can use the free designs, download the PDF, and keep a draft backup without signing in. Account saving requires an account with Pro access.
+Yes. You can use the free designs, download the PDF, and keep a draft backup without signing in. Sign in to save invoices to your free account.
 
 ### Does downloading the invoice prove that the client paid?
 

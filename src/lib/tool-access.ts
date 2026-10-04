@@ -1,3 +1,4 @@
+import { FREE_LAUNCH } from './access-policy';
 /**
  * Access to finished downloads, never to editing or previews.
  * Server export endpoints still verify the subscription independently.
@@ -82,7 +83,7 @@ export function toolDownloadAccess(slug: string): ToolDownloadAccess {
   const access = downloadAccess.get(slug);
   // A new tool must make an explicit access decision before joining the catalogue.
   if (!access) throw new Error(`Missing download policy for tool: ${slug}`);
-  return access;
+  return FREE_LAUNCH ? 'free' : access;
 }
 
 export function availablePremiumToolNames(

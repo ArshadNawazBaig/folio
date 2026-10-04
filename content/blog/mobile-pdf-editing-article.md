@@ -37,7 +37,7 @@ With Edit Text active, select the text block you want to change and enter the re
 
 Check names, dates, spacing, and line endings after each change. If you need to rewrite several paragraphs, ask for the original Word or other editable source file. Making the changes there and exporting a new PDF is usually easier than rebuilding the layout on a small screen.
 
-Folio’s added text, annotations, visual signatures, and form tools have free downloads. Downloading a PDF with changes to its original text requires premium access. Editing and previewing come before that download check; opening Edit Text alone does not make an otherwise free export paid. See [the current plans](/pricing) before starting work that depends on a paid export.
+All available Folio tools and downloads are free, including added text, original-text editing, annotations, visual signatures, forms, and password protection. Every account includes 1 GB of private storage. See [the available tools](/tools) and check the file and processing limits before starting.
 
 ## How to edit a PDF on iPhone
 
@@ -105,7 +105,7 @@ Keep a downloaded copy of anything you need to retain, and do not treat the edit
 
 ### How do I edit a PDF on my phone for free?
 
-For an empty field, note, highlight, or visual signature, use a suitable free annotation or form tool. Folio offers free downloads for those changes without adding a Folio watermark. Replacing the document’s original text is a different operation and requires premium access for the finished Folio export.
+For an empty field, note, highlight, or visual signature, use a suitable free annotation or form tool. Folio offers free downloads for those changes without adding a Folio watermark. Replacing the document’s original text is a different operation, and its finished download is also free.
 
 ### Can I edit a PDF document on my phone without an app?
 

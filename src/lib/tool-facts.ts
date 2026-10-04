@@ -1,3 +1,4 @@
+import { FREE_LAUNCH } from './access-policy';
 import { toolDownloadAccess } from './tool-access';
 
 type ToolFacts = {
@@ -20,15 +21,15 @@ export const toolFacts: Record<string, ToolFacts> = {
   'invoice-generator': {
     question: 'How do I create a free invoice PDF?',
     answer:
-      'Open the invoice editor, enter your business and customer details, add line items, and review the live totals. Choose Classic or Minimal with a preset color, then download your invoice PDF for free. A logo, tax, discounts, shipping, and deposits are included.',
+      'Open the invoice editor, enter your business and customer details, add line items, and review the live totals. Choose any design and brand color, then download your invoice PDF for free. A logo, tax, discounts, shipping, and deposits are included.',
     input:
       'Business and customer details, invoice dates, up to 50 line items, and an optional logo.',
     output:
       'A watermark-free PDF in A4 or US Letter, plus an optional JSON draft backup for later editing.',
     processing:
-      'Free PDFs are generated in your browser. Pro exports are processed in server memory. Only Save to account stores invoice contents in the private Pro library. Unsaved drafts are lost when the tab closes or refreshes.',
+      'Classic and Minimal PDFs are generated in your browser. Other designs are processed in server memory. All exports are free. Only Save to account stores invoice contents in your private library. Unsaved drafts are lost when the tab closes or refreshes.',
     limits:
-      '24 currencies; one invoice-level tax rate with per-item exemptions. Up to 200 saved invoices with Pro. No automatic currency conversion, payment collection, email sending, tax filing, or payment-status synchronization. Some writing systems are not supported by the PDF font.',
+      '24 currencies; one invoice-level tax rate with per-item exemptions. Sign in to save up to 200 invoices for free. No automatic currency conversion, payment collection, email sending, tax filing, or payment-status synchronization. Some writing systems are not supported by the PDF font.',
   },
   'compress-images': {
     question: 'How can I compress images to a file-size limit without uploading them?',
@@ -57,32 +58,32 @@ export const toolFacts: Record<string, ToolFacts> = {
   'url-shortener': {
     question: 'What is included with a free short link?',
     answer:
-      'Save up to 10 short links in your free account, copy them, and download QR codes. Folio Pro adds custom aliases, editable destinations, and up to 1,000 saved links.',
-    input: 'An HTTP or HTTPS website address, plus an optional title and Pro alias.',
+      'Save up to 1,000 short links in your free account, with custom aliases, editable destinations, and QR downloads.',
+    input: 'An HTTP or HTTPS website address, plus an optional title and custom alias.',
     output: 'A shareable short URL and optional PNG or SVG QR code.',
     processing:
       'URLs, titles, aliases, and creation dates are stored in your account. The public redirect does not require sign-in. QR images are generated in your browser.',
     limits:
-      'Sign-in required. URLs up to 2,048 characters; aliases 3–48 letters, numbers, or hyphens. Up to 20 new links per minute, and 100 per day on Free or 1,000 on Pro. Deleted aliases remain reserved.',
+      'Sign-in required. URLs up to 2,048 characters; aliases 3–48 letters, numbers, or hyphens. Up to 20 new links per minute, and 1,000 per day. Deleted aliases remain reserved.',
   },
   'edit-pdf': {
     question: 'What can I edit in a PDF for free?',
     answer:
-      'Folio’s free PDF editor adds text, highlights, images, shapes, visual signatures and form fields, and organizes pages. These changes download without a Folio watermark. Replacing words already in the PDF uses the original-text editor and requires a paid plan at download.',
+      'Folio’s free PDF editor adds text, highlights, images, shapes, visual signatures and form fields, and organizes pages. These changes download without a Folio watermark. Replacing words already in the PDF uses the original-text editor and is free to download.',
     input: 'PDF documents, including scans for annotations.',
     output: 'A PDF with your additions and page changes.',
     processing: editorProcessing,
     limits:
-      'Up to 50 MB per PDF. Guest storage is 100 MB. Scanned words cannot be replaced without OCR, which Folio does not include. Covering text is not secure redaction.',
+      'Up to 50 MB per PDF. Guest storage is 1 GB. Scanned words cannot be replaced without OCR, which Folio does not include. Covering text is not secure redaction.',
   },
   'edit-pdf-text': {
     question: 'Can I change words already in a PDF?',
     answer:
-      'Folio’s PDF text editor replaces supported original text blocks and offers font, size, color, and find-and-replace controls. Preview the result before a paid download. Scans and outlined letters are not editable text, and paragraphs do not automatically reflow.',
+      'Folio’s PDF text editor replaces supported original text blocks and offers font, size, color, and find-and-replace controls. Preview the result before downloading for free. Scans and outlined letters are not editable text, and paragraphs do not automatically reflow.',
     input: 'A text-based PDF with supported text blocks.',
     output: 'A PDF containing your original-text changes.',
     processing:
-      'Text processing sends the PDF to Folio. Signed-in checkout recovery saves the source and edits privately; recovery expires after seven days, but failed cleanup can leave a stored copy. The main editor has separate automatic cloud saving.',
+      'Text processing sends the PDF to Folio. The standalone tool keeps unsaved work in the current tab. The main editor has separate automatic cloud saving. Older saved recovery copies expire after seven days, but failed cleanup can leave a stored copy.',
     limits:
       'This standalone text tool accepts PDFs up to 10 MB and 100 pages. Fonts may need substitution. Text deletion does not sanitize the document for secure redaction.',
   },
@@ -124,7 +125,7 @@ export const toolFacts: Record<string, ToolFacts> = {
     output: 'A PDF with your visual signature and completed fields.',
     processing: editorProcessing,
     limits:
-      'Up to 50 MB per PDF. Guest storage is 100 MB. Use the recipient’s specified signing service if they require certificate-based signatures.',
+      'Up to 50 MB per PDF. Guest storage is 1 GB. Use the recipient’s specified signing service if they require certificate-based signatures.',
   },
   'image-to-pdf': {
     question: 'How can I turn photos or receipts into one PDF?',
@@ -149,7 +150,7 @@ export const toolFacts: Record<string, ToolFacts> = {
   'protect-pdf': {
     question: 'How does Folio password-protect a PDF?',
     answer:
-      'Folio’s Protect PDF tool creates a copy with AES-256 encryption and an opening password. Downloading the protected copy requires a paid plan. Keep the original and your password separately; Folio cannot recover a forgotten password.',
+      'Folio’s Protect PDF tool creates a copy with AES-256 encryption and an opening password. Downloading the protected copy is free. Keep the original and your password separately; Folio cannot recover a forgotten password.',
     input: 'An unencrypted, unsigned PDF and an opening password.',
     output: 'A PDF that requires your password to open.',
     processing:
@@ -160,6 +161,8 @@ export const toolFacts: Record<string, ToolFacts> = {
 };
 
 export function downloadFact(slug: string) {
+  if (FREE_LAUNCH)
+    return 'All downloads and options are free. Sign in only to save files, invoices, or short links to your account.';
   if (slug === 'invoice-generator')
     return 'Classic and Minimal PDFs with preset colors are free. Premium designs, custom branding, payment QR codes, and account saving require Pro.';
   if (slug === 'compress-images')
@@ -171,6 +174,6 @@ export function downloadFact(slug: string) {
   const access = toolDownloadAccess(slug);
   if (access === 'premium') return 'A paid plan is required to download the processed result.';
   if (access === 'mixed')
-    return 'Annotations and page changes download free. Original-text changes require a paid plan.';
+    return 'Annotations and page changes download free. Original-text changes are free.';
   return 'Free for this tool. Adding original-text changes in the editor requires a paid download.';
 }

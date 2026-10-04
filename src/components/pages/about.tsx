@@ -81,7 +81,7 @@ export default function About({ locale = 'en', messages = {} }: PageLanguage = {
       </p>
       <p>
         {tr(
-          'Free downloads and paid exports are identified in the relevant guides. Publication and update dates describe the article, not a promise that every PDF will produce the same result. If a step is unclear or a tool behaves differently on your file,',
+          'Available downloads and processing limits are identified in the relevant guides. Publication and update dates describe the article, not a promise that every PDF will produce the same result. If a step is unclear or a tool behaves differently on your file,',
         )}{' '}
         <Link href={href('/support')}>{tr('report the issue to support')}</Link>{' '}
         {tr('so we can investigate.')}

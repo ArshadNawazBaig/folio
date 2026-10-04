@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import { connection } from 'next/server';
 import { translator, localizedHref, type PageLanguage } from '@/lib/i18n/translate';
 import { Pricing } from '@/components/pricing';
@@ -13,6 +15,12 @@ export async function generateMetadata({ locale = 'en', messages = {} }: PageLan
   await connection();
   const tr = translator(messages);
 
+  if (FREE_LAUNCH)
+    return pageMetadata(
+      tr('Free tools'),
+      tr('All tools are free. Every account includes 1 GB of private storage.'),
+      localizedHref(locale, '/tools'),
+    );
   const { catalog } = await getPlatform();
   return pageMetadata(
     tr('{name} Pricing — {amount}/Month', {
@@ -23,7 +31,8 @@ export async function generateMetadata({ locale = 'en', messages = {} }: PageLan
     localizedHref(locale, '/pricing'),
   );
 }
-export default async function PricingPage({ messages = {} }: PageLanguage = {}) {
+export default async function PricingPage({ locale = 'en', messages = {} }: PageLanguage = {}) {
+  if (FREE_LAUNCH) redirect(localizedHref(locale, '/tools'));
   await connection();
   const tr = translator(messages);
 

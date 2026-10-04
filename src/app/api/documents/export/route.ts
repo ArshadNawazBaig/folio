@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { requireUser } from '@/lib/server/auth';
-import { consumeProRequest } from '@/lib/server/billing';
+import { authorizeToolDownload } from '@/lib/server/tool-download';
 import { assertServiceAvailable } from '@/lib/server/platform';
 import { openResult } from '@/lib/server/result-artifact';
 import { ApiError, apiError, boundedBody } from '@/lib/server/http';
@@ -8,9 +7,8 @@ import { REMOTE_MAX_ARTIFACT_BODY, outputFormats } from '@/lib/remote-types';
 export const runtime = 'nodejs';
 export async function POST(request: Request) {
   try {
-    const user = await requireUser(request);
     await assertServiceAvailable();
-    await consumeProRequest(user.id);
+    await authorizeToolDownload(request);
     const parsed = z
       .object({ artifact: z.string().max(REMOTE_MAX_ARTIFACT_BODY) })
       .strict()

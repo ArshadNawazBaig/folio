@@ -140,31 +140,24 @@ test('free invoice calculations, editable draft round-trip, and real mobile PDF 
   ).toBe(false);
 });
 
-test('premium design previews explain the paywall and offer a working free fallback', async ({
-  page,
-  isMobile,
-}) => {
+test('all invoice designs export freely without a payment gate', async ({ page, isMobile }) => {
   await page.goto('/invoice-editor');
   await page.getByRole('button', { name: 'Try a sample' }).click();
   await section(page, 'Design');
-  await page.getByRole('button', { name: /Studio PRO/ }).click();
-  await page.getByRole('button', { name: 'Download with Pro', exact: true }).click();
-  const gate = page.getByRole('dialog', { name: 'Take your work with you.' });
-  await expect(gate).toBeVisible();
-  await expect(gate).toContainText('invoice PDF');
-  await gate.getByRole('button', { name: 'Keep editing', exact: true }).last().click();
+  await page.getByRole('button', { name: /^Studio/ }).click();
   const free = await downloadFrom(page, isMobile, () =>
-    page.getByRole('button', { name: 'Download free version', exact: true }).click(),
+    page.getByRole('button', { name: 'Download PDF', exact: true }).click(),
   );
+  await expect(page.getByRole('dialog', { name: 'Take your work with you.' })).toBeHidden();
   expect((await PDFDocument.load(free.bytes)).getPageCount()).toBeGreaterThan(0);
-  await expect(page.getByRole('button', { name: /Studio PRO/ })).toHaveAttribute(
+  await expect(page.getByRole('button', { name: /^Studio/ })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
   expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
 });
 
-test('ten Pro designs are selectable, previewable on mobile, and keep the invoice intact', async ({
+test('all advanced designs are free, previewable on mobile, and keep the invoice intact', async ({
   page,
   isMobile,
 }, testInfo) => {
@@ -174,18 +167,16 @@ test('ten Pro designs are selectable, previewable on mobile, and keep the invoic
   const premium = invoiceTemplates.filter((design) => design.pro);
   expect(premium.length).toBeGreaterThanOrEqual(10);
   await expect(
-    page.getByText('2 free designs and 10 Pro designs.', { exact: false }),
+    page.getByText('All invoice designs are free. Choose any style.', { exact: false }),
   ).toBeVisible();
   const preview = page.getByRole('article', { name: 'Invoice live preview', includeHidden: true });
   for (const design of premium) {
-    const choice = page.getByRole('button', { name: new RegExp(`^${design.name} PRO`) });
+    const choice = page.getByRole('button', { name: new RegExp(`^${design.name}`) });
     await choice.click();
     await expect(choice).toHaveAttribute('aria-pressed', 'true');
     await expect(preview).toHaveAttribute('data-template', design.id);
     await expect(preview).toContainText('North & Form Studio');
-    await expect(
-      page.getByRole('button', { name: 'Download with Pro', exact: true }),
-    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Download PDF', exact: true })).toBeVisible();
     if (isMobile) await page.getByRole('button', { name: 'Live preview', exact: true }).click();
     await expect(preview).toBeVisible();
     expect(
@@ -193,28 +184,25 @@ test('ten Pro designs are selectable, previewable on mobile, and keep the invoic
     ).toBe(true);
     if (isMobile) await page.getByRole('button', { name: 'Edit invoice', exact: true }).click();
   }
-  await page.getByRole('button', { name: /^Horizon PRO/ }).click();
+  await page.getByRole('button', { name: /^Horizon/ }).click();
   await page.getByLabel('Custom brand color', { exact: true }).fill('#ffffff');
   if (isMobile) await page.getByRole('button', { name: 'Live preview', exact: true }).click();
   expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
-  await page.getByRole('button', { name: 'Download with Pro', exact: true }).click();
-  const gate = page.getByRole('dialog', { name: 'Take your work with you.' });
-  await expect(gate).toBeVisible();
-  await gate.getByRole('button', { name: 'Keep editing', exact: true }).last().click();
   const free = await downloadFrom(page, isMobile, () =>
-    page.getByRole('button', { name: 'Download free version', exact: true }).click(),
+    page.getByRole('button', { name: 'Download PDF', exact: true }).click(),
   );
+  await expect(page.getByRole('dialog', { name: 'Take your work with you.' })).toBeHidden();
   expect((await PDFDocument.load(free.bytes)).getPageCount()).toBeGreaterThan(0);
   await expect(preview).toHaveAttribute('data-template', 'horizon');
   if (isMobile) await page.getByRole('button', { name: 'Edit invoice', exact: true }).click();
-  await page.getByRole('button', { name: /^Studio PRO/ }).scrollIntoViewIfNeeded();
+  await page.getByRole('button', { name: /^Studio/ }).scrollIntoViewIfNeeded();
   await page.screenshot({
     path: `test-results/invoice/${testInfo.project.name}-pro-designs.png`,
     fullPage: true,
   });
 });
 
-test('Pro saves, reopens, updates and deletes invoices; article explains actual functionality', async ({
+test('free accounts save, reopen, update and delete invoices; article explains actual functionality', async ({
   page,
   isMobile,
   baseURL,
@@ -223,7 +211,7 @@ test('Pro saves, reopens, updates and deletes invoices; article explains actual 
   await page.route('**/api/account/access', (route) =>
     route.fulfill({
       json: {
-        pro: true,
+        pro: false,
         trial: false,
         expiresAt: null,
         cancelAtPeriodEnd: false,
@@ -293,7 +281,7 @@ test('Pro saves, reopens, updates and deletes invoices; article explains actual 
   await page.getByRole('button', { name: 'Save to account', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Invoice saved privately');
   await section(page, 'Design');
-  await page.getByRole('button', { name: /Studio PRO/ }).click();
+  await page.getByRole('button', { name: /^Studio/ }).click();
   await downloadFrom(page, isMobile, () =>
     page.getByRole('button', { name: 'Download PDF', exact: true }).click(),
   );

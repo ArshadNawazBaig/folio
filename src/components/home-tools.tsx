@@ -100,7 +100,7 @@ export function HomeTools({
           </div>
         )}
         <div className={styles.toolFootnote}>
-          <p>{tr('Annotations and page tools are free. Original-text changes require Pro.')}</p>
+          <p>{tr('Annotations and page tools are free. Original-text changes are free too.')}</p>
           <Link prefetch={false} href={href('/tools')}>
             {tr('Explore all tools')} <ArrowUpRight size={16} aria-hidden="true" />
           </Link>

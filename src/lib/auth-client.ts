@@ -1,4 +1,5 @@
 'use client';
+import { FREE_LAUNCH } from './access-policy';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { authCallbackUrl } from './auth-navigation';
 let client: SupabaseClient | undefined;
@@ -95,6 +96,24 @@ export async function accountFetch(url: string, init: RequestInit = {}) {
     throw new AccountRequestError(
       response.status,
       data.error || 'This request could not be completed.',
+    );
+  }
+  return response;
+}
+
+/** Optional authentication for free exports; accountFetch remains mandatory for private data. */
+export async function toolDownloadFetch(url: string, init: RequestInit = {}) {
+  if (!FREE_LAUNCH) return accountFetch(url, init);
+  const client = await existingAuthClient();
+  const session = client ? (await client.auth.getSession()).data.session : null;
+  const headers = new Headers(init.headers);
+  if (session) headers.set('Authorization', `Bearer ${session.access_token}`);
+  const response = await fetch(url, { ...init, headers, cache: 'no-store' });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new AccountRequestError(
+      response.status,
+      data.error || 'This document could not be downloaded.',
     );
   }
   return response;

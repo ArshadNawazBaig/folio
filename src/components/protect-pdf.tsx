@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Download, Eye, EyeOff, LockKeyhole, Upload } from 'lucide-react';
 import { useAccount } from './account-provider';
 import { DownloadGate } from './download-gate';
-import { accountFetch, AccountRequestError } from '@/lib/auth-client';
+import { toolDownloadFetch, AccountRequestError } from '@/lib/auth-client';
 import { baseName, download, formatBytes } from '@/lib/utils';
 import { getPendingDocument } from '@/lib/storage';
 export function ProtectPdf() {
@@ -67,7 +67,7 @@ export function ProtectPdf() {
       const form = new FormData();
       form.append('file', file);
       form.append('job', JSON.stringify({ operation: 'protect', password }));
-      const response = await accountFetch('/api/pro/pdf', { method: 'POST', body: form });
+      const response = await toolDownloadFetch('/api/pro/pdf', { method: 'POST', body: form });
       download(await response.blob(), `${baseName(file.name)}-protected.pdf`);
       setPassword('');
       setConfirm('');

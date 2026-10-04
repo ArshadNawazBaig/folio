@@ -1,11 +1,12 @@
 'use client';
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { accountFetch, existingAuthClient, AUTH_CLIENT_READY } from '@/lib/auth-client';
 import type { AccountAccess } from '@/lib/pro-types';
 import { workspaceRequest, WORKSPACE_SESSION_EVENT } from '@/lib/workspace-request';
 const freeAccess: AccountAccess = {
-  pro: false,
+  pro: FREE_LAUNCH,
   expiresAt: null,
   cancelAtPeriodEnd: false,
   billingReady: false,
@@ -123,7 +124,7 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       if (current === generation.current) {
         setAccess(freeAccess);
-        setError(e instanceof Error ? e.message : 'Your subscription could not be verified.');
+        setError(e instanceof Error ? e.message : 'Your account could not be verified.');
       }
       return freeAccess;
     } finally {
@@ -191,7 +192,7 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
         guestLoading,
         continueAsGuest,
         signOutGuest,
-        access,
+        access: FREE_LAUNCH ? { ...access, pro: true } : access,
         loading,
         configured: !!(
           process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY

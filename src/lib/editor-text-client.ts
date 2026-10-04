@@ -1,5 +1,5 @@
 'use client';
-import { accountFetch, AccountRequestError } from './auth-client';
+import { toolDownloadFetch, AccountRequestError } from './auth-client';
 import { runPdf } from './pdf-client';
 import { arrangedTextChanges, hasTextChanges, withoutTextChanges } from './editor-text';
 import type { EditorState } from './types';
@@ -15,7 +15,7 @@ export async function requestTextPdf(
   form.append('file', new Blob([bytes.slice().buffer], { type: 'application/pdf' }), name);
   form.append('job', JSON.stringify(job));
   const response = paid
-    ? await accountFetch('/api/pro/pdf', { method: 'POST', body: form, signal })
+    ? await toolDownloadFetch('/api/pro/pdf', { method: 'POST', body: form, signal })
     : await fetch('/api/pro/preview', { method: 'POST', body: form, signal });
   if (!response.ok) {
     const result = await response.json().catch(() => ({}));

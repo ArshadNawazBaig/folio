@@ -14,7 +14,7 @@ Three further articles cover the requested free PDF keywords with separate pract
 
 The source is a backup for an explicit import, not a runtime fallback. After import, manage the live posts through `/admin/blog`; edits there remain authoritative. Existing posts, edited drafts, and trashed posts are never overwritten by the importer.
 
-The invoice generator article follows a first freelance invoice from an approved project to a checked PDF and a client email. It includes clearer item descriptions, a new deposit example, free and Pro design choices, draft backups, and FAQs. Read the [article preview](invoice-generator-article.md) and [editorial notes](invoice-generator-research.md). Its blog slug is `first-freelance-invoice-with-free-invoice-generator`. It complements the existing `/guides/create-professional-invoice-online` walkthrough with a client-handoff focus.
+The invoice generator article follows a first freelance invoice from an approved project to a checked PDF and a client email. It includes clearer item descriptions, a new deposit example, all 12 free design choices, draft backups, and FAQs. Read the [article preview](invoice-generator-article.md) and [editorial notes](invoice-generator-research.md). Its blog slug is `first-freelance-invoice-with-free-invoice-generator`. It complements the existing `/guides/create-professional-invoice-online` walkthrough with a client-handoff focus.
 
 From the project root:
 
@@ -68,3 +68,5 @@ Covers come from the free Unsplash photo pages linked inside the articles, not U
 | Free PDF Tool Online: Choose the Right Tool for Your Task          | Estée Janssens     | [Planner and pens](https://unsplash.com/photos/white-printing-paper-and-blue-pen-NzukYmIQOps)                                     |
 | Free PDF Editor: Add Text, Fill Forms, and Sign a PDF              | Kelly Sikkema      | [Notebook and pen](https://unsplash.com/photos/photo-of-a-paper-and-pen-Hrh1E3T8nQc)                                              |
 | PDF Editor Online: Prepare a Document for Review and Sharing       | Sarah Elizabeth    | [Writing at a meeting](https://unsplash.com/photos/person-holding-pen-writing-on-paper-O3gOgPB4sRU)                               |
+
+The October 4, 2026 free-access review updated the published articles and these source copies. All available tools and downloads are free, with 1 GB of private storage per account. Paid-plan comparisons and pricing links have been removed from current articles. Research notes document earlier checks and are not the current access policy.

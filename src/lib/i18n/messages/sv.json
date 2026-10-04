@@ -1,6 +1,6 @@
 {
   "title": "Gratis PDF-verktyg — Redigera, Slå ihop, Dela och Signera",
-  "description": "Redigera, slå ihop, dela, komprimera och signera PDF-filer online med Folio. Gratis anteckningar och sidverktyg.",
+  "description": "Redigera, signera, slå ihop, dela och skydda PDF-filer gratis. Varje konto har 1 GB privat lagring.",
   "eyebrow": "PDF-VERKTYG UTAN KRÅNGEL.",
   "heading": "Ett enklare sätt att arbeta med PDF.",
   "intro": "Redigera, signera och ordna dokument i webbläsaren. Välj ett verktyg och kom igång.",
@@ -31,11 +31,11 @@
   "footer": "Mindre pappersarbete. Fler möjligheter.",
   "local": "Bearbetas i webbläsaren. Ingen filuppladdning.",
   "cloud": "Dokument i redigeraren sparas i privat molnlagring. Gästfiler upphör efter 24 timmar.",
-  "pricingNote": "Anteckningar och sidverktyg är gratis. Nedladdning av ändringar i originaltext kräver en betald plan.",
+  "pricingNote": "Alla verktyg är gratis. Ingen prenumeration behövs.",
   "faq": [
     [
       "Är Folio gratis?",
-      "Att lägga till text, anteckningar och synliga underskrifter, slå ihop och dela PDF samt konvertera bilder till PDF är gratis. Nedladdning av ändringar i originaltext kräver en betald plan. Gratis nedladdningar har ingen Folio-vattenstämpel."
+      "Redigera, signera, slå ihop, dela och skydda PDF-filer gratis. Varje konto har 1 GB privat lagring."
     ],
     [
       "Var bearbetas mina filer?",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "Redigera PDF",
-      "description": "Lägg till text, markeringar, anteckningar och synliga underskrifter. Ladda ner tilläggen gratis; ändringar i originaltext kräver en betald plan.",
+      "description": "Redigera, signera, slå ihop, dela och skydda PDF-filer gratis. Varje konto har 1 GB privat lagring.",
       "detail": "Öppna en PDF för att lägga till text och granska sidor. Originaltext som stöds kan redigeras, men stycken flödar inte om automatiskt. Skannade sidor kan kommenteras; OCR ingår inte.",
       "action": "Öppna i redigeraren",
       "steps": [

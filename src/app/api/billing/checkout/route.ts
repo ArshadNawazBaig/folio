@@ -1,3 +1,4 @@
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { adminDb, requireUser } from '@/lib/server/auth';
@@ -11,6 +12,8 @@ import { offerTerms } from '@/lib/platform';
 export const runtime = 'nodejs';
 export async function POST(request: Request) {
   try {
+    if (FREE_LAUNCH)
+      throw new ApiError(409, 'All tools are currently free. No payment is required.');
     const user = await requireUser(request);
     await assertServiceAvailable();
     if (!billingReady()) throw new ApiError(503, 'Checkout is not connected yet.');

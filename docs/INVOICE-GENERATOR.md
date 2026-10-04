@@ -1,5 +1,7 @@
 # Invoice generator
 
+**Free launch:** all available tools and options are currently free; accounts and guest workspaces receive 1 GB. The pricing distinctions below describe the retained paid-mode implementation. Apply migration 016 before deploying this release; see [FREE-LAUNCH.md](FREE-LAUNCH.md).
+
 Public tool page: `/invoice-generator`. Dedicated editor: `/invoice-editor`. Original guide: `/guides/create-professional-invoice-online`. Dashboard library: `/dashboard?view=invoices`.
 
 The public page introduces the tool and links to the full-screen editor. The editor has its own header, toolbar, independently scrollable editing and preview panels, and a persistent PDF download bar. The File menu groups duplicate, import, draft backup, and saved invoices. Currency, discount, tax, and paper size use the shared Folio dropdowns; currency also supports search. Phones switch between editing and preview. It does not include the public navigation, article, or footer. Saved invoice links use `/invoice-editor?invoice=<id>`; previous `/invoice-generator?invoice=<id>` links redirect there. The editor returns noindex and private cache headers.

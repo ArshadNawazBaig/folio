@@ -206,7 +206,7 @@ export const guides: Guide[] = [
     category: 'Document privacy',
     readTime: '4 min read',
     published: '2026-09-18',
-    updated: '2026-09-18',
+    updated: '2026-10-04',
     tool: 'merge-pdf',
     relatedTools: [
       'edit-pdf',
@@ -225,7 +225,7 @@ export const guides: Guide[] = [
         title: 'Which PDF tasks can I finish without a document upload?',
         text: 'Use the standalone Merge PDF, Split PDF, Compress PDF, PDF to JPG, PDF to PNG, Image to PDF, or PDF to Text tool when that task is all you need. These tools read and process document contents in your browser and let you download the result directly. The website still loads scripts, fonts and viewer assets over the network. Local document processing does not mean the website is an offline application. Choosing to open the result in the main editor starts a different workflow with a private cloud upload.',
         table: {
-          caption: 'How Folio handles files by workflow — checked September 18, 2026',
+          caption: 'How Folio handles files by workflow — checked October 4, 2026',
           columns: ['Workflow', 'Where the document goes', 'What to expect'],
           rows: [
             {
@@ -249,7 +249,7 @@ export const guides: Guide[] = [
               href: '/edit-pdf-text#tool-facts',
               cells: [
                 'The PDF is sent to Folio for text processing.',
-                'Signed-in checkout recovery expires after seven days; stored copies may remain if cleanup fails. Paid download required.',
+                'Downloads are free. The standalone tool keeps unsaved work in the current tab; the main editor saves to private cloud storage.',
               ],
             },
             {
@@ -257,7 +257,7 @@ export const guides: Guide[] = [
               href: '/protect-pdf#tool-facts',
               cells: [
                 'The PDF and opening password are sent to Folio for processing in server memory.',
-                'The tool does not persist the file or password in document storage. Hosting may buffer requests. Paid download required.',
+                'Downloads are free. The tool does not persist the file or password in document storage. Hosting may buffer requests.',
               ],
             },
           ],
@@ -265,15 +265,15 @@ export const guides: Guide[] = [
       },
       {
         title: 'Does using the editor as a guest keep the PDF on my device?',
-        text: 'No. Guest access removes the need to sign in before starting; it does not disable uploads. The editor saves the source PDF and workspace changes privately so the same browser can recover work after a refresh. Guest storage is 100 MB, with a 50 MB limit per PDF and a 24-hour workspace expiry. A session cookie provides access. Clearing cookies can remove that access without deleting the cloud copy. Expired files are removed by scheduled cleanup, with a grace period and retries; expiry is not a promise of immediate physical deletion. Signing in attaches the open workspace to your account and removes its guest expiry.',
+        text: 'No. Guest access removes the need to sign in before starting; it does not disable uploads. The editor saves the source PDF and workspace changes privately so the same browser can recover work after a refresh. Guest storage is 1 GB, with a 50 MB limit per PDF and a 24-hour workspace expiry. A session cookie provides access. Clearing cookies can remove that access without deleting the cloud copy. Expired files are removed by scheduled cleanup, with a grace period and retries; expiry is not a promise of immediate physical deletion. Signing in attaches the open workspace to your account and removes its guest expiry.',
         links: [{ label: 'Workspace storage and deletion details', href: '/privacy' }],
       },
       {
         title: 'What changes when I use original-text editing or conversion?',
-        text: 'Adding a new text annotation and replacing an existing word are different operations. Original-text processing sends the PDF to Folio, and downloading those changes requires a paid plan. Password protection also uses Folio’s server and sends the opening password. When connected, translation and Office conversion send the PDF through Folio to the provider named in the workspace. Review that provider before starting processing. Free previews or guest access do not imply that document processing is local. The main editor’s cloud saving also applies when you use original-text features inside that workspace.',
+        text: 'Adding a new text annotation and replacing an existing word are different operations. Original-text processing sends the PDF to Folio, and downloading those changes is free. Password protection also uses Folio’s server and sends the opening password. When connected, translation and Office conversion send the PDF through Folio to the provider named in the workspace. Review that provider before starting processing. Free previews or guest access do not imply that document processing is local. The main editor’s cloud saving also applies when you use original-text features inside that workspace.',
         links: [
           { label: 'Original-text editing capabilities', href: '/edit-pdf-text#tool-facts' },
-          { label: 'Current free and paid download policies', href: '/pricing' },
+          { label: 'Explore free tools', href: '/tools' },
         ],
       },
       {
@@ -305,7 +305,7 @@ export const guides: Guide[] = [
     category: 'Choosing your tools',
     readTime: '7 min read',
     published: '2026-09-17',
-    updated: '2026-09-21',
+    updated: '2026-10-04',
     tool: 'edit-pdf',
     relatedTools: ['sign-pdf', 'merge-pdf', 'split-pdf', 'image-to-pdf', 'compress-pdf'],
     summary:
@@ -327,7 +327,7 @@ export const guides: Guide[] = [
               href: '/edit-pdf',
               cells: [
                 'Adding text, annotations and visual signatures in a browser.',
-                'Free annotation and page-tool downloads without a Folio watermark. Original-text downloads require a paid plan. Guest editor storage is 100 MB with a 24-hour expiry; drafts are uploaded privately.',
+                'Free annotation and page-tool downloads without a Folio watermark. Original-text downloads are free. Guest editor storage is 1 GB with a 24-hour expiry; drafts are uploaded privately.',
               ],
             },
             {
@@ -359,7 +359,7 @@ export const guides: Guide[] = [
               href: 'https://www.adobe.com/acrobat/online/pdf-editor.html',
               cells: [
                 'Comments, text boxes, highlights and drawings in a browser.',
-                'Adobe’s free online editor supports markup with an Adobe account. Changing existing body text is not part of that free editor; check the paid offering for that task.',
+                'Adobe’s free online editor supports markup with an Adobe account.',
               ],
             },
           ],
@@ -367,11 +367,11 @@ export const guides: Guide[] = [
       },
       {
         title: 'Can I download a PDF for free without a watermark?',
-        text: 'An editor may let you preview a feature without including the finished download in its free tier. Check for payment requirements, export watermarks, file-size limits, and any sign-in requirement. Try a small, non-sensitive sample first: add a note, download it, and open it in another PDF reader. In Folio, added text, highlights, images, shapes, visual signatures, form fields, and page organization include free PDF downloads without a Folio watermark. Downloads containing original-text changes require a paid plan. Mixing a free annotation with an original-text change therefore makes that document’s export a paid workflow; you can undo the original-text change to keep an annotation-only export free.',
+        text: 'An editor may let you preview a feature without including the finished download in its free tier. Check for payment requirements, export watermarks, file-size limits, and any sign-in requirement. Try a small, non-sensitive sample first: add a note, download it, and open it in another PDF reader. In Folio, added text, highlights, images, shapes, visual signatures, form fields, and page organization include free PDF downloads without a Folio watermark. Downloads containing original-text changes are free. Both types of changes can be downloaded together for free.',
       },
       {
         title: 'Do I need to add text or replace the original words?',
-        text: 'Use Add Text for a comment, date, name, or other addition. It places a new text box on the page without changing the words underneath. In Folio, choose Add Text, click the page, type your note, and adjust its position or appearance. Use Edit Text to replace supported words already in the PDF. That feature preserves the original appearance where the embedded font allows, but downloading those changes requires a plan. A white rectangle over a sentence does not securely remove it. If the document is a scan or its letters are drawn as shapes, it needs OCR or another reconstruction step; Folio’s original-text editor does not include OCR.',
+        text: 'Use Add Text for a comment, date, name, or other addition. It places a new text box on the page without changing the words underneath. In Folio, choose Add Text, click the page, type your note, and adjust its position or appearance. Use Edit Text to replace supported words already in the PDF. That feature preserves the original appearance where the embedded font allows, and downloading those changes is free. A white rectangle over a sentence does not securely remove it. If the document is a scan or its letters are drawn as shapes, it needs OCR or another reconstruction step; Folio’s original-text editor does not include OCR.',
         links: [
           { label: 'How to add text to a PDF for free', href: '/guides/how-to-add-text-to-a-pdf' },
           { label: 'Why some PDF text cannot be edited', href: '/guides/why-cant-i-edit-pdf-text' },
@@ -389,7 +389,7 @@ export const guides: Guide[] = [
               href: '/edit-pdf',
               cells: [
                 'Add text or annotations in the online editor.',
-                'Annotations download free. Downloading original-text changes requires a paid plan; editor drafts use private cloud storage.',
+                'Annotations download free. Downloading original-text changes is free; editor drafts use private cloud storage.',
               ],
             },
             {
@@ -429,7 +429,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'Understand guest storage and file privacy',
-        text: 'A tool that runs in a browser does not necessarily keep every file on your device. Folio’s editor automatically uploads documents and recovery drafts to private cloud storage. Guests can start without Google sign-in, receive 100 MB of storage, and have a 24-hour file expiry. When that space is full, delete old files before uploading more. Sign in to keep files in your account and access them across devices. Standalone merge, split, and image tools process files in the browser; server-assisted features use Folio or connected document services. Choose a workflow that fits your document’s confidentiality requirements, and keep your own original copy.',
+        text: 'A tool that runs in a browser does not necessarily keep every file on your device. Folio’s editor automatically uploads documents and recovery drafts to private cloud storage. Guests can start without Google sign-in, receive 1 GB of storage, and have a 24-hour file expiry. When that space is full, delete old files before uploading more. Sign in to keep files in your account and access them across devices. Standalone merge, split, and image tools process files in the browser; server-assisted features use Folio or connected document services. Choose a workflow that fits your document’s confidentiality requirements, and keep your own original copy.',
       },
       {
         title: 'How should I evaluate a top PDF editor before using it?',
@@ -446,7 +446,7 @@ export const guides: Guide[] = [
             label: 'Editing PDFs on iPhone and Android',
             href: '/guides/how-to-edit-a-pdf-on-mobile',
           },
-          { label: 'Folio free and paid plans', href: '/pricing' },
+          { label: 'Folio free tools', href: '/tools' },
         ],
       },
       {
@@ -463,13 +463,13 @@ export const guides: Guide[] = [
     category: 'Editing',
     readTime: '4 min read',
     published: '2026-09-14',
-    updated: '2026-09-15',
+    updated: '2026-10-04',
     tool: 'edit-pdf',
     relatedTools: ['edit-pdf-text', 'organize-pdf', 'sign-pdf'],
     sections: [
       {
         title: 'Start with the right kind of edit',
-        text: 'A PDF captures the appearance of a document. The free Folio editor adds annotations, text, images, shapes, and visual signatures. Choose Edit Text in the same workspace to replace supported original text blocks, with font, size, color, and find-and-replace controls. You can edit and preview first; original-text changes require a premium plan only at download. It does not reflow paragraphs or recognize scanned text. For extensive paragraph changes, editing the source document and exporting a fresh PDF is often the better fit.',
+        text: 'A PDF captures the appearance of a document. The free Folio editor adds annotations, text, images, shapes, and visual signatures. Choose Edit Text in the same workspace to replace supported original text blocks, with font, size, color, and find-and-replace controls. You can edit and preview first; original-text changes are free to download. It does not reflow paragraphs or recognize scanned text. For extensive paragraph changes, editing the source document and exporting a fresh PDF is often the better fit.',
       },
       {
         title: 'Give each addition a clear purpose',
@@ -481,7 +481,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'Save a draft, then check the export',
-        text: 'The editor automatically uploads your PDF and saves a recovery workspace to private cloud storage. Use Save now to request a save, then wait for All changes saved before refreshing or leaving. Guests have 100 MB of storage and their files expire after 24 hours. Google sign-in opens separately so the editor remains open; signing in lets you keep files in your account. Download PDF creates your finished file. Added annotations, forms, and signatures export for free when no original-text changes remain. Check the downloaded pages in a PDF reader and keep an original copy.',
+        text: 'The editor automatically uploads your PDF and saves a recovery workspace to private cloud storage. Use Save now to request a save, then wait for All changes saved before refreshing or leaving. Guests have 1 GB of storage and their files expire after 24 hours. Google sign-in opens separately so the editor remains open; signing in lets you keep files in your account. Download PDF creates your finished file. Added annotations, forms, signatures, and original-text changes all export for free. Check the downloaded pages in a PDF reader and keep an original copy.',
       },
     ],
   },
@@ -489,15 +489,15 @@ export const guides: Guide[] = [
     slug: 'how-to-add-text-to-a-pdf',
     title: 'How to Add Text to a PDF Online for Free',
     description:
-      'Type a name, date, answer or note onto a PDF. Position and style your text, save a draft, and download an annotation-only PDF for free without a Folio watermark.',
+      'Type a name, date, answer or note onto a PDF. Position and style your text, save a draft, and download your PDF for free without a Folio watermark.',
     category: 'Editing',
     readTime: '3 min read',
     published: '2026-09-18',
-    updated: '2026-09-18',
+    updated: '2026-10-04',
     tool: 'edit-pdf',
     relatedTools: ['sign-pdf', 'create-pdf-form', 'edit-pdf-text'],
     summary:
-      'Open a PDF in Folio, choose Add Text, click or tap the page, and type. Added text can be moved and styled. Downloads containing only additions, annotations, forms and page changes are free without a Folio watermark. Replacing the original words is a separate editing feature with paid downloads.',
+      'Open a PDF in Folio, choose Add Text, click or tap the page, and type. Added text can be moved and styled. Additions, annotations, forms, page changes, and original-text replacements all download for free without a Folio watermark.',
     sections: [
       {
         title: 'How do I type on a PDF?',
@@ -513,7 +513,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'Can I add text without changing the original PDF text?',
-        text: 'Yes. Add Text creates a separate addition; it does not replace the words beneath it. That makes it useful for a response beside a paragraph or a date in a blank space. If you need to correct an existing sentence, choose Edit Text instead and select a supported original block. Downloading original-text replacements requires a paid Folio plan. A scan contains an image of text, so adding a new box does not make its printed words editable or searchable.',
+        text: 'Yes. Add Text creates a separate addition; it does not replace the words beneath it. That makes it useful for a response beside a paragraph or a date in a blank space. If you need to correct an existing sentence, choose Edit Text instead and select a supported original block. Downloading original-text replacements is free. A scan contains an image of text, so adding a new box does not make its printed words editable or searchable.',
         links: [
           {
             label: 'Understand scans and uneditable text',
@@ -531,7 +531,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'Is the finished download free and without a watermark?',
-        text: 'Folio does not add a watermark to free annotation downloads. A document containing added text, highlights, images, shapes, signatures, form fields and page changes can be downloaded for free. If you also replace original PDF text, the combined download requires a paid plan. Undo those original-text changes if you only need the free additions. The preview and the downloaded PDF should both be reviewed; saving a cloud draft and downloading a finished copy are separate actions.',
+        text: 'Folio does not add a watermark to free annotation downloads. A document containing added text, highlights, images, shapes, signatures, form fields and page changes can be downloaded for free. If you also replace original PDF text, the combined download is free. The preview and the downloaded PDF should both be reviewed; saving a cloud draft and downloading a finished copy are separate actions.',
         links: [
           {
             label: 'Compare free PDF editor features and limits',
@@ -541,7 +541,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'How do I keep the changes for later?',
-        text: 'Folio’s editor uploads the PDF and saves a recovery draft to private cloud storage. Wait for All changes saved before refreshing or leaving, or use Save now to request a save. Guests have 100 MB of storage and a 24-hour file expiry; signing in lets you keep files in an account and open them across devices. Download your finished copy before a guest file expires. Adding a white cover over sensitive words does not securely redact them, and changes to an already digitally signed document can invalidate that signature.',
+        text: 'Folio’s editor uploads the PDF and saves a recovery draft to private cloud storage. Wait for All changes saved before refreshing or leaving, or use Save now to request a save. Guests have 1 GB of storage and a 24-hour file expiry; signing in lets you keep files in an account and open them across devices. Download your finished copy before a guest file expires. Adding a white cover over sensitive words does not securely redact them, and changes to an already digitally signed document can invalidate that signature.',
       },
     ],
   },
@@ -589,7 +589,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'When should I switch to a desktop PDF editor?',
-        text: 'A phone is useful for a short note or signature, but long, image-heavy PDFs can exceed its available memory. Detailed page rearrangement and precise changes to original text are easier on a larger screen. Folio’s Edit Text feature supports many original text blocks, but it does not provide OCR for scans or automatic paragraph reflow. You can preview supported original-text edits on the page; downloading them requires a paid plan. If a file repeatedly fails on mobile, keep the original and try a desktop browser instead of repeatedly uploading it.',
+        text: 'A phone is useful for a short note or signature, but long, image-heavy PDFs can exceed its available memory. Detailed page rearrangement and precise changes to original text are easier on a larger screen. Folio’s Edit Text feature supports many original text blocks, but it does not provide OCR for scans or automatic paragraph reflow. You can preview supported original-text edits on the page; downloading them is free. If a file repeatedly fails on mobile, keep the original and try a desktop browser instead of repeatedly uploading it.',
         links: [
           {
             label: 'Choose a PDF editor for your document',
@@ -626,7 +626,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'Use Edit Text for existing words and Add Text for additions',
-        text: 'In Folio, open the PDF, select Edit Text in the toolbar, wait for the selectable blocks, then click the words on the page. Type directly in the selected block and use Properties to adjust its appearance. On a phone, open Properties with the sidebar control when needed. Add Text creates a separate box for a date, note or answer. It is useful even when the underlying page is scanned. Added text and annotations include free downloads; exporting changes to original PDF text requires a paid plan. Keep an original copy and review the exported document.',
+        text: 'In Folio, open the PDF, select Edit Text in the toolbar, wait for the selectable blocks, then click the words on the page. Type directly in the selected block and use Properties to adjust its appearance. On a phone, open Properties with the sidebar control when needed. Add Text creates a separate box for a date, note or answer. It is useful even when the underlying page is scanned. Added text and annotations include free downloads; exporting changes to original PDF text is free. Keep an original copy and review the exported document.',
         links: [
           { label: 'Open the PDF text editor', href: '/edit-pdf-text' },
           { label: 'Add text and annotations for free', href: '/edit-pdf' },
@@ -931,7 +931,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'Check the download and keep the right original',
-        text: 'A PDF containing only added signatures, annotations, and form values downloads for free. Changes to original PDF text use premium downloads. Open the exported copy to confirm the signature is visible and the page order is correct. Folio visual signatures do not create a digital certificate or verify identity. If the recipient asks for certificate-based signing or a particular signing platform, use that process. Keep an unsigned original and check the editor save status before closing your workspace.',
+        text: 'A PDF containing only added signatures, annotations, and form values downloads for free. Changes to original PDF text download for free. Open the exported copy to confirm the signature is visible and the page order is correct. Folio visual signatures do not create a digital certificate or verify identity. If the recipient asks for certificate-based signing or a particular signing platform, use that process. Keep an unsigned original and check the editor save status before closing your workspace.',
       },
     ],
   },
@@ -1051,7 +1051,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'Download and test the protected copy',
-        text: 'You can choose your file and configure protection before paying. Downloading the encrypted copy requires a premium plan. Sign-in and checkout open separately so the current workspace stays open. After access is confirmed, request the protected download, then open that file in a PDF reader and confirm it asks for the correct password. Folio uses AES-256 encryption for this copy. Send the password through a separate channel when that fits your sharing process.',
+        text: 'Choose your file, configure protection, and download the encrypted copy for free, then open that file in a PDF reader and confirm it asks for the correct password. Folio uses AES-256 encryption for this copy. Send the password through a separate channel when that fits your sharing process.',
       },
       {
         title: 'Understand what protection does and does not change',

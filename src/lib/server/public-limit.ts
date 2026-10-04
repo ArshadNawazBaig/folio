@@ -4,7 +4,7 @@ import { ApiError } from './http';
 // Multi-instance production deployments also need an ingress rate limiter.
 const windows = new Map<string, { minute: number; count: number }>();
 export function publicLimit(
-  bucket: 'preview' | 'support' | 'remote' | 'workspace',
+  bucket: 'preview' | 'support' | 'remote' | 'workspace' | 'download',
   limit = bucket === 'preview' ? 90 : 20,
 ) {
   const minute = Math.floor(Date.now() / 60000);

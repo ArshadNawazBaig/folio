@@ -1,4 +1,5 @@
 'use client';
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import { localizedHref } from '@/lib/i18n/translate';
 import { useUiLocale, useUiTranslation } from './ui-language';
 import Link from 'next/link';
@@ -69,7 +70,7 @@ export function Footer() {
           </Link>
           <Link href={href('/guides')}>{tr('Helpful guides')}</Link>
           <Link href={href('/blog')}>{tr('The Folio blog')}</Link>
-          <Link href={href('/pricing')}>{tr('Pricing')}</Link>
+          {!FREE_LAUNCH && <Link href={href('/pricing')}>{tr('Pricing')}</Link>}
           <Link href={href('/support')}>{tr('Contact support')}</Link>
           <Link href={href('/about')}>{tr('About Folio')}</Link>
           <Link href={href('/privacy')}>{tr('Your privacy')}</Link>

@@ -1,4 +1,5 @@
 'use client';
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import { useUiTranslation } from '@/components/ui-language';
 
 import { useEffect, useRef, useState } from 'react';
@@ -8,7 +9,10 @@ import { Pricing } from './pricing';
 import { useAccount } from './account-provider';
 import { premiumDownloads, type PremiumDownloadTool } from '@/lib/tool-access';
 import s from './download-gate.module.css';
-export function DownloadGate({
+export function DownloadGate(props: React.ComponentProps<typeof PaidDownloadGate>) {
+  return FREE_LAUNCH ? null : <PaidDownloadGate {...props} />;
+}
+function PaidDownloadGate({
   open,
   onClose,
   onReady,

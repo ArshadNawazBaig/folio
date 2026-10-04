@@ -1,4 +1,5 @@
 'use client';
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import { useUiTranslation, useUiLocale } from '../ui-language';
 import { localizedHref } from '@/lib/i18n/translate';
 import Link from 'next/link';
@@ -26,7 +27,19 @@ type BillingDetails = {
     cancel_at_period_end: boolean;
   } | null;
 };
-export function DashboardBilling({ checkoutSuccess }: { checkoutSuccess: boolean }) {
+export function DashboardBilling(props: { checkoutSuccess: boolean }) {
+  return FREE_LAUNCH ? <FreeAccountAllowance /> : <PaidDashboardBilling {...props} />;
+}
+function FreeAccountAllowance() {
+  const tr = useUiTranslation();
+  return (
+    <section>
+      <h2>{tr('All tools are free')}</h2>
+      <p>{tr('Every account includes 1 GB of private storage. No subscription needed.')}</p>
+    </section>
+  );
+}
+function PaidDashboardBilling({ checkoutSuccess }: { checkoutSuccess: boolean }) {
   const tr = useUiTranslation();
   const locale = useUiLocale();
   const href = (path: string) => localizedHref(locale, path);

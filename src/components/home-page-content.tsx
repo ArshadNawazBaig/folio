@@ -28,7 +28,7 @@ import { locales } from '@/lib/i18n/config';
 import styles from '@/components/home.module.css';
 const title = 'Free Online PDF Tools — Edit, Merge, Compress & Sign';
 const description =
-  'Add text, sign, merge, split and convert images to PDF online. Annotation downloads are free; original-text changes require a paid plan.';
+  'Add text, sign, merge, split and convert images to PDF online. Annotation downloads are free; original-text changes are free.';
 export function HomePageContent({
   locale = 'en',
   messages = {},
@@ -182,15 +182,15 @@ export function HomePageContent({
           items={[
             [
               'What can I do with these online PDF tools?',
-              'Add text, highlights, images, and signatures; fill forms; merge, split, and organize pages; or convert PDF pages to images. These workflows include free downloads. Original-text editing can be tried in the editor, but downloading those changes requires a paid plan. Password-protected, translated, and Office-converted downloads also require a paid plan when available.',
+              'Add text, highlights, images, and signatures; fill forms; merge, split, and organize pages; or convert PDF pages to images. These workflows include free downloads. Original-text editing can be tried in the editor, and downloading those changes is free. Password-protected, translated, and Office-converted downloads also are free when available.',
             ],
             [
               'Do I need to install software or create an account?',
-              'Use Folio in your browser without installing software. You can start as a guest without Google sign-in. Guest editor files use private cloud storage, with 100 MB of space and a 24-hour expiry. Sign in to keep your documents and access them across your devices.',
+              'Use Folio in your browser without installing software. You can start as a guest without Google sign-in. Guest editor files use private cloud storage, with 1 GB of space and a 24-hour expiry. Sign in to keep your documents and access them across your devices.',
             ],
             [
               'Can I open and read a PDF online?',
-              'Yes. Open a PDF in the editor, move between pages and use the zoom controls to read it. Viewing does not require a paid plan. Editor documents are saved in private cloud storage; guest files expire after 24 hours.',
+              'Yes. Open a PDF in the editor, move between pages and use the zoom controls to read it. Viewing does not are free. Editor documents are saved in private cloud storage; guest files expire after 24 hours.',
             ],
             [
               'Where do my documents go?',

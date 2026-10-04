@@ -191,25 +191,25 @@ export const starterPosts: EditorialPost[] = [
       ),
       h('Choose a design that suits the document'),
       p(
-        'For a first invoice, a clear name, readable descriptions, and a visible balance matter more than decorative detail. Start with Classic or Minimal if you want a free PDF. Both support a logo and the preset accent colors.',
+        'For a first invoice, a clear name, readable descriptions, and a visible balance matter more than decorative detail. All 12 designs are free. Start with Classic or Minimal for a simple layout, then add your logo and preferred colors.',
       ),
       p(
-        'Pro adds 10 designs: Studio, Editorial, Executive, Ledger, Atelier, Horizon, Blueprint, Meridian, Statement, and Monogram. Preview a few with your real descriptions. A compact table may suit an invoice with many items, while a more prominent header may suit a short project invoice.',
+        'Alongside Classic and Minimal, 10 more designs are free: Studio, Editorial, Executive, Ledger, Atelier, Horizon, Blueprint, Meridian, Statement, and Monogram. Preview a few with your real descriptions. A compact table may suit an invoice with many items, while a more prominent header may suit a short project invoice.',
       ),
       p(
-        'Other Pro options include a custom brand color, a payment-link QR code, a custom footer, and saving invoices to your account. These are optional additions to the free invoice workflow. If you preview a Pro design and decide to stay with free features, Download free version prepares a copy with free settings while keeping your working design. The ',
-        link('pricing page', '/pricing'),
-        ' lists current plan details.',
+        'Custom brand colors, payment-link QR codes, custom footers, and account saving are also free. Choose any design and download it with your selected settings. Sign in to save and update up to 200 invoices in your private library. The ',
+        link('invoice generator', '/invoice-generator'),
+        ' includes these features for free.',
       ),
       h('Keep an editable draft as well as the PDF'),
       p(
         'A PDF is the copy to send. An invoice draft is the copy to keep for future changes. Before closing the editor, open File and choose Draft backup. This downloads a JSON file containing the editable invoice. Later, use File → Import draft to continue working.',
       ),
       p(
-        'Free work is held in the current tab; it is not automatically saved to an online library or browser storage. Keep the backup somewhere private because it contains the invoice details. With Pro, Save to account stores the draft in your private invoice library. Choose it again after making changes you want to keep.',
+        'Free work is held in the current tab; it is not automatically saved to an online library or browser storage. Keep the backup somewhere private because it contains the invoice details. After signing in, Save to account stores the draft in your private invoice library for free. Choose it again after making changes you want to keep.',
       ),
       p(
-        'Free PDFs are generated on your device. Pro PDF exports are processed by Folio, and library storage happens when you choose Save to account. A successful download by itself does not save an editable invoice to your dashboard.',
+        'Classic and Minimal PDFs with preset options are generated on your device. Other designs and custom options are processed by Folio. All exports are free, and library storage happens when you choose Save to account. A successful download by itself does not save an editable invoice to your dashboard.',
       ),
       h('Send a useful message with the checked attachment'),
       p(
@@ -243,7 +243,7 @@ export const starterPosts: EditorialPost[] = [
       h('Questions that come up on a first invoice'),
       h('Can I make an invoice without creating an account?', 3),
       p(
-        'Yes. You can use the free designs, download the PDF, and keep a draft backup without signing in. Account saving requires an account with Pro access.',
+        'Yes. You can use the free designs, download the PDF, and keep a draft backup without signing in. Sign in to save invoices to your free account.',
       ),
       h('Does downloading the invoice prove that the client paid?', 3),
       p(
@@ -342,7 +342,7 @@ export const starterPosts: EditorialPost[] = [
         'Save now stores your editing progress so you can continue working. A successful save and a downloaded PDF serve different purposes: one preserves the workspace, while the other gives you the document to share. If saving reports an error, keep the tab open and retry before refreshing.',
       ),
       p(
-        'Open the downloaded file and inspect every changed page. Confirm the wording, compare fonts, and check that new text does not overlap a page number or image. If the document uses a paid download feature, Folio presents the current plan options when you request the finished file.',
+        'Open the downloaded file and inspect every changed page. Confirm the wording, compare fonts, and check that new text does not overlap a page number or image. All available editing features and finished downloads are free.',
       ),
       p(
         'Start with ',
@@ -796,7 +796,7 @@ export const starterPosts: EditorialPost[] = [
           'Choose your PDF and inspect the original page preview.',
           'Set Original language and Translate into, then start translation.',
           'Wait for the translated result and review the corresponding pages alongside the original. On a smaller screen, switch between the original and translation views.',
-          'Check every page before downloading. If a paid download is required, review the plan shown at that step.',
+          'Check every page before downloading. Translation downloads are free when the processing service is available.',
         ],
         true,
       ),
@@ -912,7 +912,7 @@ export const starterPosts: EditorialPost[] = [
       p(
         'Folio’s standalone generator makes static codes. For an editable destination, create a link with the ',
         link('URL Shortener', '/url-shortener'),
-        ' and use its Generate QR option. Folio Pro lets you update that saved link’s destination while keeping the same short address and QR image. Free accounts can also generate short-link QR codes, but destination editing requires Pro.',
+        ' and use its Generate QR option. You can update that saved link’s destination while keeping the same short address and QR image. QR downloads, custom aliases, and destination editing are all free.',
       ),
       h('How to create a QR code for a website link'),
       list(
@@ -1011,7 +1011,7 @@ export const starterPosts: EditorialPost[] = [
       coverAlt: 'A person in a mustard sweater works on a laptop at a wooden table.',
       seoTitle: 'How to Shorten a URL: Free Links, Custom Aliases & QR Codes',
       seoDescription:
-        'Learn how to shorten a URL, save links, and download QR codes. See Folio’s free limits, Pro custom aliases, editable destinations, and practical sharing tips.',
+        'Shorten URLs, save up to 1,000 links, choose custom aliases, edit destinations, and download QR codes for free. Practical tips for sharing links with Folio.',
       featured: false,
     },
     {
@@ -1024,17 +1024,17 @@ export const starterPosts: EditorialPost[] = [
         'You paste an event registration link into an invitation and it takes up three lines. The address contains a form ID, several parameters, and nothing a guest could comfortably type from a poster. A short link can give that address a tidier way to travel.',
       ),
       p(
-        'To shorten a URL in Folio, sign in, open the URL Shortener, paste your destination, and select Shorten link. The result is saved to your account, ready to copy or turn into a QR code. Free accounts can keep up to 10 saved links; Pro adds custom aliases, editable destinations, and room for 1,000.',
+        'To shorten a URL in Folio, sign in, open the URL Shortener, paste your destination, and select Shorten link. The result is saved to your account, ready to copy or turn into a QR code. Free accounts can keep up to 1,000 saved links, including custom aliases and editable destinations.',
       ),
       p(
-        'The useful question is what happens after you share it. Can you find the link next month? Will you need to change where it goes? Is the address clear enough for someone reading it off a slide? Those choices determine whether a basic free link is enough.',
+        'The useful question is what happens after you share it. Can you find the link next month? Will you need to change where it goes? Is the address clear enough for someone reading it off a slide? Those choices help you choose an alias and destination that will remain useful.',
       ),
       h('What is a URL shortener, and how does it work?'),
       p(
         'A URL shortener saves a destination address and gives it another address on the shortening service. When someone opens the new link, the service redirects their browser to the destination. The original page stays where it is; the shortener keeps the connection between the two addresses.',
       ),
       p(
-        'For example, a Pro custom alias might give a Folio link the ending /s/autumn-workshop. That is an illustrative alias, subject to availability. The actual link includes Folio’s full domain before that path. It can be easier to read than a long registration URL, although an already brief original address may be shorter than the generated link.',
+        'For example, a custom alias might give a Folio link the ending /s/autumn-workshop. That is an illustrative alias, subject to availability. The actual link includes Folio’s full domain before that path. It can be easier to read than a long registration URL, although an already brief original address may be shorter than the generated link.',
       ),
       p(
         'A short link is useful in a message, presentation, handout, or QR code. In an ordinary website paragraph, a descriptive text link such as “Register for the workshop” may already solve the presentation problem. Shortening is most useful when you also want a saved link, a recognizable alias, or a destination you can update.',
@@ -1046,7 +1046,7 @@ export const starterPosts: EditorialPost[] = [
           'Sign in to your Folio account. The shortener saves links to accounts, including free accounts; guest access does not create saved short links.',
           'Paste the original address into Destination URL. Open it separately first to check that it reaches the intended page.',
           'Add an optional Title, such as “October workshop registration,” so you can recognize it in your list later.',
-          'Leave Custom alias blank for a generated alias. If you have Pro, you can choose an available custom alias instead.',
+          'Leave Custom alias blank for a generated alias. You can also choose an available custom alias for free.',
           'Select Shorten link, then Copy link. Open the copied address in a fresh tab and check the destination.',
           'Use Open My links to return to your saved collection. You can search by title, alias, or destination.',
         ],
@@ -1058,29 +1058,29 @@ export const starterPosts: EditorialPost[] = [
       p(
         'For public sharing, check the destination while signed out of its website. A short link to a private form or file still leads to a private form or file. Your Folio link list belongs to your account, but anyone who receives an active short link can follow it; the destination’s own access rules then apply.',
       ),
-      h('Free URL shortener vs. Pro: what do you need?'),
+      h('What is included in the free URL shortener?'),
       table(
-        ['Feature', 'Folio Free', 'Folio Pro'],
+        ['Feature', 'Included for free'],
         [
-          ['Saved short links', 'Up to 10', 'Up to 1,000'],
-          ['Automatically generated aliases', 'Included', 'Included'],
-          ['Choose a custom alias', 'Not included', 'Included'],
-          ['Edit the destination of an existing link', 'Not included', 'Included'],
-          ['Edit titles and search saved links', 'Included', 'Included'],
-          ['Download a short link’s QR code as PNG or SVG', 'Included', 'Included'],
+          ['Saved short links', 'Up to 1,000'],
+          ['Automatically generated aliases', 'Included'],
+          ['Choose a custom alias', 'Included'],
+          ['Edit the destination of an existing link', 'Included'],
+          ['Edit titles and search saved links', 'Included'],
+          ['Download a short link’s QR code as PNG or SVG', 'Included'],
         ],
       ),
       p(
-        'The limits refer to saved links, not a new monthly allowance. A free account is a useful fit for a small collection of stable destinations. Pro becomes useful when you manage more links, want a readable alias, or need to change a destination after sharing. See the ',
-        link('current pricing plans', '/pricing'),
-        ' for subscription details.',
+        'Each free account can save up to 1,000 links, including custom aliases and editable destinations. This is a saved-link limit, not a monthly allowance. Use the ',
+        link('URL shortener', '/url-shortener'),
+        ' to manage your links.',
       ),
       h('Choose a custom alias you can live with'),
       p(
         'An alias is the ending of your short link. Your optional title helps you organize the link inside Folio; changing that title does not change the shared address. A custom alias gives the address itself a name you choose.',
       ),
       p(
-        'Folio Pro aliases use 3–48 lowercase letters, numbers, or hyphens, and must start and end with a letter or number. They must also be available. Once created, an alias cannot be changed or reused, even after you delete the link, so check the spelling before saving.',
+        'Folio custom aliases use 3–48 lowercase letters, numbers, or hyphens, and must start and end with a letter or number. They must also be available. Once created, an alias cannot be changed or reused, even after you delete the link, so check the spelling before saving.',
       ),
       list([
         'Use a clear purpose: team-handbook tells someone more than document-final-2.',
@@ -1093,10 +1093,10 @@ export const starterPosts: EditorialPost[] = [
       ),
       h('Turn a short link into a QR code'),
       p(
-        'After creating a link, choose Generate QR beside its details. Download PNG for a layout that accepts ordinary images, or SVG for a design workflow that supports vector graphics. Both options are available for free and Pro short links.',
+        'After creating a link, choose Generate QR beside its details. Download PNG for a layout that accepts ordinary images, or SVG for a design workflow that supports vector graphics. Both options are included for free.',
       ),
       p(
-        'This QR code contains the saved short address. With Pro, you can edit the destination in My links and keep using the same QR image. Imagine a printed workshop poster whose registration form needs replacing: update the saved link, then scan the original poster to confirm that it opens the new form.',
+        'This QR code contains the saved short address. You can edit the destination for free in My links and keep using the same QR image. Imagine a printed workshop poster whose registration form needs replacing: update the saved link, then scan the original poster to confirm that it opens the new form.',
       ),
       p(
         'For a direct website, plain-text, or Wi-Fi code, you can also use the separate ',
@@ -1124,7 +1124,7 @@ export const starterPosts: EditorialPost[] = [
         'Give each link a title you will recognize later. “Workshop registration — October 2026” is easier to find than “New link.” My links lets you search titles, aliases, and destinations, which helps when you remember the form service but not the name you gave the link.',
       ),
       p(
-        'When a campaign ends, check where its address still appears before removing it. Old emails, printed cards, and downloaded PDFs can keep circulating. Deleting a saved link permanently stops that short address and its QR code from working, and its alias stays reserved. With Pro, updating the destination to a useful follow-up page may be a better choice.',
+        'When a campaign ends, check where its address still appears before removing it. Old emails, printed cards, and downloaded PDFs can keep circulating. Deleting a saved link permanently stops that short address and its QR code from working, and its alias stays reserved. Updating the destination to a useful follow-up page is free and may be a better choice.',
       ),
       h('Questions about short links'),
       h('Do Folio short links expire?', 3),
@@ -1133,7 +1133,7 @@ export const starterPosts: EditorialPost[] = [
       ),
       h('Can I change the destination after sharing?', 3),
       p(
-        'Yes, with Folio Pro. Edit the saved link in My links, update Destination URL, and save. The short address and its QR code remain the same. Free accounts can edit the organizational title, but changing an existing destination requires Pro.',
+        'Yes, for free. Edit the saved link in My links, update Destination URL, and save. The short address and its QR code remain the same. You can also edit its organizational title.',
       ),
       h('Does the person opening my link need a Folio account?', 3),
       p(
@@ -1694,9 +1694,9 @@ export const starterPosts: EditorialPost[] = [
         'Check names, dates, spacing, and line endings after each change. If you need to rewrite several paragraphs, ask for the original Word or other editable source file. Making the changes there and exporting a new PDF is usually easier than rebuilding the layout on a small screen.',
       ),
       p(
-        'Folio’s added text, annotations, visual signatures, and form tools have free downloads. Downloading a PDF with changes to its original text requires premium access. Editing and previewing come before that download check; opening Edit Text alone does not make an otherwise free export paid. See ',
-        link('the current plans', '/pricing'),
-        ' before starting work that depends on a paid export.',
+        'All available Folio tools and downloads are free, including added text, original-text editing, annotations, visual signatures, forms, and password protection. Every account includes 1 GB of private storage. See ',
+        link('the available tools', '/tools'),
+        ' and check the file and processing limits before starting.',
       ),
       h('How to edit a PDF on iPhone'),
       p(
@@ -1817,7 +1817,7 @@ export const starterPosts: EditorialPost[] = [
       h('Questions about editing files on a phone'),
       h('How do I edit a PDF on my phone for free?', 3),
       p(
-        'For an empty field, note, highlight, or visual signature, use a suitable free annotation or form tool. Folio offers free downloads for those changes without adding a Folio watermark. Replacing the document’s original text is a different operation and requires premium access for the finished Folio export.',
+        'For an empty field, note, highlight, or visual signature, use a suitable free annotation or form tool. Folio offers free downloads for those changes without adding a Folio watermark. Replacing the document’s original text is a different operation, and its finished download is also free.',
       ),
       h('Can I edit a PDF document on my phone without an app?', 3),
       p(
@@ -1915,15 +1915,15 @@ export const starterPosts: EditorialPost[] = [
       ),
       h('What “free” means for the task you are doing'),
       p(
-        'Check whether the finished file can be downloaded for free, not just whether the upload or preview is free. Also check watermarks, file limits, and whether an account is required for that particular workflow. A successful preview is only useful if you can obtain the output you need.',
+        'All available Folio tools include free finished downloads. Before starting, check the file limits, supported formats, and whether your workflow needs account saving. Review the exported file to confirm that it matches the preview and the result you need.',
       ),
       p(
         'In Folio, standalone merging, splitting, rotating, organizing, PDF optimization, PDF-to-image conversion, image-to-PDF conversion, and selectable-text extraction have free downloads. Added text, annotations, visual signatures, and PDF form work also download free, without a Folio watermark.',
       ),
       p(
-        'Replacing or otherwise changing original PDF text requires premium access when downloading the edited document. Password-protected exports are also paid. Office conversions and translation require both a connected processing service and paid export access. Those are separate capabilities; a free page-organizing tool does not imply that every operation on the site is free. ',
-        link('The pricing page', '/pricing'),
-        ' describes current access.',
+        'Original-text editing and password-protected downloads are free too. Office conversions and translation are free when their processing services are connected; check availability before starting. Every account includes 1 GB of private storage. ',
+        link('The tool directory', '/tools'),
+        ' lists the available tools.',
       ),
       h('Match the tool to the part of the document that needs changing'),
       h('Use page tools when the content is already correct', 3),
@@ -2066,7 +2066,7 @@ export const starterPosts: EditorialPost[] = [
         'You have a PDF to complete, a few blank spaces to fill, and no reason to print it. A free PDF editor can handle that kind of work: add your answers, mark an instruction, place a visual signature, and download the completed document.',
       ),
       p(
-        'There is one distinction to understand before you start. Adding information to a page is different from rewriting words already in the PDF. Folio’s additions, annotations, visual signatures, and form downloads are free. Downloading changes to original PDF text requires premium access. This guide focuses on the jobs you can finish with the free tools.',
+        'Adding information to a page is different from rewriting words already in the PDF, and both workflows are free in Folio. You can download additions, annotations, visual signatures, forms, and original-text changes without payment. Every account includes 1 GB of private storage. This guide helps you choose the right editing tool for the task.',
       ),
       h('What can you do with a free PDF editor?'),
       table(
@@ -2080,7 +2080,7 @@ export const starterPosts: EditorialPost[] = [
           [
             'Replace words that were already in the document',
             'Edit Text',
-            'Premium access is required at download.',
+            'Yes, including original-text changes.',
           ],
         ],
       ),
@@ -2153,7 +2153,7 @@ export const starterPosts: EditorialPost[] = [
         'If the address already printed on a document is wrong, placing a new text box on top does not reliably replace it. Old characters can remain visible around the new ones, and the old information may still exist beneath a cover. Use original-text editing when supported, or correct the source document and export a fresh PDF.',
       ),
       p(
-        'If you only need free additions, you do not need to activate Edit Text. If you make an original-text change and later decide against it, undo that change before downloading. Folio checks the actual changes in the finished document, so merely opening the Edit Text mode does not trigger paid export.',
+        'Use Add Text for a new note or answer and Edit Text for a correction to supported original words. Both are free to use and download. If a change does not look right, undo it, adjust it, and check the finished PDF.',
       ),
       h('Treating an eraser or white box as secure redaction', 3),
       p(
@@ -2193,7 +2193,7 @@ export const starterPosts: EditorialPost[] = [
       h('What if I need to rewrite several paragraphs?', 3),
       p(
         'Ask for the original editable document if it is available. A word processor can move paragraphs and adjust page flow more naturally than editing separate text objects inside a PDF. For a small supported correction in Folio, use Edit Text and review the ',
-        link('paid download terms', '/pricing'),
+        link('text editor’s capabilities', '/edit-pdf-text'),
         ' before relying on that export.',
       ),
       p(
@@ -2380,8 +2380,8 @@ export const starterPosts: EditorialPost[] = [
       h('Questions about reviewing a PDF online'),
       h('Can I review a PDF for free?', 3),
       p(
-        'Folio allows free annotations such as added text, highlights, and comments, with free download when the document only contains those supported free changes. Editing the original PDF text and certain other operations use paid export. Check the ',
-        link('current pricing and feature limits', '/pricing'),
+        'Folio’s annotations, highlights, comments, original-text editing, and finished downloads are all free. Every account includes 1 GB of private storage. Check the ',
+        link('available tools and file limits', '/tools'),
         ' if the review also requires those changes.',
       ),
       h('Why can the recipient see a marker but not my comment?', 3),

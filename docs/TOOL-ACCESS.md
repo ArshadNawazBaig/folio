@@ -1,5 +1,7 @@
 # Tool access policy
 
+**Free launch:** all available tools and options are currently free; accounts and guest workspaces receive 1 GB. The pricing distinctions below describe the retained paid-mode implementation. Apply migration 016 before deploying this release; see [FREE-LAUNCH.md](FREE-LAUNCH.md).
+
 For file tools, editing, configuration, and previews are available before purchase. Ask for a plan when someone downloads a premium file result. Do not add premium badges, locked controls, or upgrade prompts to file-tool discovery or editing. Show the applicable feature and full renewal terms in the download dialog; keep the document open through sign-in and checkout.
 
 URL shortening uses account entitlements: Free includes 10 saved links, random aliases, titles, deletion, and PNG/SVG QR downloads. Pro includes 1,000 saved links, custom aliases, and destination editing. Both plans require sign-in. Pro gates apply to creation or destination updates, not QR downloads. Existing links survive downgrade; new links must fit the current limit. Aliases remain reserved after deletion. See [SHORT-LINKS.md](SHORT-LINKS.md) for deployment and limits.

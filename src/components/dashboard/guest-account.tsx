@@ -1,4 +1,5 @@
 'use client';
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import { useUiTranslation, useUiLocale } from '../ui-language';
 import { localizedHref } from '@/lib/i18n/translate';
 import Link from 'next/link';
@@ -11,7 +12,7 @@ export function GuestAccount({ view }: { view: 'billing' | 'settings' }) {
   const locale = useUiLocale();
   const href = (path: string) => localizedHref(locale, path);
 
-  const billing = view === 'billing';
+  const billing = !FREE_LAUNCH && view === 'billing';
   const benefits = billing
     ? [
         'Everyday PDF tools, free to use',
@@ -57,7 +58,7 @@ export function GuestAccount({ view }: { view: 'billing' | 'settings' }) {
           <div>
             <Cloud size={18} aria-hidden="true" />
             <div>
-              <strong>{tr('100 MB')}</strong>
+              <strong>{tr(FREE_LAUNCH ? '1 GB' : '100 MB')}</strong>
               <span>{tr('Private guest storage')}</span>
             </div>
           </div>

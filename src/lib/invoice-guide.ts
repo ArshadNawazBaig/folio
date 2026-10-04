@@ -8,11 +8,11 @@ export const invoiceGuide: Guide = {
   category: 'More possibilities',
   readTime: '9 min read',
   published: '2026-09-29',
-  updated: '2026-09-29',
+  updated: '2026-10-04',
   tool: 'invoice-generator',
   relatedTools: ['merge-pdf', 'compress-pdf'],
   summary:
-    'To make an invoice in Folio, open the invoice editor and add your business and customer details, enter an invoice number and dates, then list the products or services you are billing for. Review tax, discounts, shipping, and any payment already received. Choose a design and download the PDF. Classic and Minimal designs with preset colors are free, including a logo and no watermark. Download a separate draft backup if you want to edit it later; Pro also lets you save invoices in your account.',
+    'To make an invoice in Folio, open the invoice editor and add your business and customer details, enter an invoice number and dates, then list the products or services you are billing for. Review tax, discounts, shipping, and any payment already received. All 12 designs, custom colors, logos, payment QR codes, and watermark-free PDF downloads are free. Download a separate draft backup if you want to edit it later; a free account also lets you save up to 200 invoices.',
   sections: [
     {
       title: 'A useful invoice answers the customer’s next question',
@@ -114,59 +114,21 @@ export const invoiceGuide: Guide = {
       text: 'Enter a deposit you have actually received in Amount already paid. Keep the full agreed work in the item list so the customer can see the total and the remaining balance together. Adding a negative “deposit” item as well would count the payment twice. If the entered payment exceeds the total, Folio shows an overpayment credit instead of a negative balance due. Check whether you entered the correct amount before treating it as a real credit. These figures are entered manually: the invoice generator does not connect to your bank, verify that funds arrived, or automatically update payment status. A zero balance in the document reflects the numbers you supplied; downloading a PDF is not evidence that a payment took place.',
     },
     {
-      title: 'Choose the free features or add Pro where it helps',
-      text: 'You can make a complete, professional invoice without paying for a design upgrade. Classic and Minimal include a logo, preset accent colors, itemized charges, taxes, discounts, shipping, payment details, and a watermark-free PDF. Pro is useful when you want a different presentation or a reusable account library. You can preview the premium design controls before deciding. If you prefer to stay with the free tier, Download free version exports a copy using free design settings; it does not erase your working design.',
-      table: {
-        caption: 'Free invoice maker and Folio Pro',
-        columns: ['Feature', 'Free', 'Pro'],
-        rows: [
-          {
-            name: 'Invoice PDF',
-            cells: [
-              'Classic and Minimal with preset colors; no watermark.',
-              'Includes the free designs plus 10 Pro layouts: Studio, Editorial, Executive, Ledger, Atelier, Horizon, Blueprint, Meridian, Statement, and Monogram.',
-            ],
-          },
-          {
-            name: 'Business details and calculations',
-            cells: [
-              'Logo, 50 items, 24 currencies, tax, discounts, shipping, and deposits.',
-              'The same core calculation tools.',
-            ],
-          },
-          {
-            name: 'Payment information',
-            cells: [
-              'Written instructions and an existing HTTPS payment link.',
-              'Add a scannable QR code for that link.',
-            ],
-          },
-          {
-            name: 'Brand details',
-            cells: ['Five preset accent colors.', 'A custom brand color and repeated PDF footer.'],
-          },
-          {
-            name: 'Edit again later',
-            cells: [
-              'Download and import a JSON draft backup.',
-              'Also save and update up to 200 invoices in your account.',
-            ],
-          },
-        ],
-      },
-      links: [{ label: 'Compare current Folio plans', href: '/pricing' }],
+      title: 'Choose any design for free',
+      text: 'All 12 invoice designs are free, including custom brand colors, a repeated footer, payment QR codes, logos, taxes, discounts, shipping, and deposits. Download a watermark-free PDF or a JSON draft backup. Sign in to save and update up to 200 invoices in your private account library. Review the final PDF before sharing it.',
+      links: [{ label: 'Open the invoice editor', href: '/invoice-editor' }],
     },
     {
       title: 'Add payment instructions that work outside your own browser',
-      text: 'Read your payment instructions as if you were the customer. Is the destination clear? Is the currency stated? Does the recipient need to include the invoice number as a payment reference? You can paste a full HTTPS checkout link you already use. Pro can turn that link into a QR code on the invoice. Scan the downloaded code with another device and check the destination and payee before sharing it. A QR code makes a link easier to open; it does not create a payment account, validate the recipient, or make a transaction secure by itself. Avoid using a checkout URL that only works while you are signed in to your own account. Folio does not collect card details or handle payments between you and your customer.',
+      text: 'Read your payment instructions as if you were the customer. Is the destination clear? Is the currency stated? Does the recipient need to include the invoice number as a payment reference? You can paste a full HTTPS checkout link you already use. You can turn that link into a QR code on the invoice for free. Scan the downloaded code with another device and check the destination and payee before sharing it. A QR code makes a link easier to open; it does not create a payment account, validate the recipient, or make a transaction secure by itself. Avoid using a checkout URL that only works while you are signed in to your own account. Folio does not collect card details or handle payments between you and your customer.',
     },
     {
       title: 'Keep a PDF for sending and a draft for editing',
-      text: 'The PDF is the finished document your customer can read. The JSON draft contains the editable fields, calculation settings, and logo. Use Draft backup to save that second file, then Import draft when you want to continue working. Keep it somewhere private because it can contain customer addresses and payment instructions. Free drafts are not automatically saved online or in browser storage; closing or refreshing an unsaved tab can lose them. With Pro, Save to account stores the full draft privately, and My invoices in the dashboard lets you open or delete it later. Saving is explicit, so use Save to account again after making changes. If two tabs edit the same saved invoice, a conflicting save is stopped rather than silently replacing the other version. Back up your current draft before reopening the latest saved copy.',
+      text: 'The PDF is the finished document your customer can read. The JSON draft contains the editable fields, calculation settings, and logo. Use Draft backup to save that second file, then Import draft when you want to continue working. Keep it somewhere private because it can contain customer addresses and payment instructions. Free drafts are not automatically saved online or in browser storage; closing or refreshing an unsaved tab can lose them. After signing in, Save to account stores the full draft privately, and My invoices in the dashboard lets you open or delete it later. Saving is explicit, so use Save to account again after making changes. If two tabs edit the same saved invoice, a conflicting save is stopped rather than silently replacing the other version. Back up your current draft before reopening the latest saved copy.',
     },
     {
       title: 'Reuse an invoice without reusing its mistakes',
-      text: 'Duplicate invoice carries the details into a new working copy, clears the amount paid, and updates its dates. It suggests the next number when the old number ends in digits, but it does not reserve a unique invoice number across your business. Check the number, customer, dates, prices, project reference, and payment destination every time. A copied deposit or old rate is easy to overlook, which is why a final review matters even for familiar clients. If Pro expires, you can still open and delete your saved invoices, download draft backups, and export with free design options. Saving new versions and downloading premium designs require active Pro access. The library stores drafts, not a complete accounting ledger or an automatic record of what you sent.',
+      text: 'Duplicate invoice carries the details into a new working copy, clears the amount paid, and updates its dates. It suggests the next number when the old number ends in digits, but it does not reserve a unique invoice number across your business. Check the number, customer, dates, prices, project reference, and payment destination every time. A copied deposit or old rate is easy to overlook, which is why a final review matters even for familiar clients. All account saving, draft backups, and PDF designs are free. The library stores drafts, not a complete accounting ledger or an automatic record of what you sent.',
     },
     {
       title: 'Check the downloaded file before you send it',

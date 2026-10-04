@@ -1,4 +1,5 @@
 'use client';
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import Link from 'next/link';
 import { useUiTranslation, useUiLocale } from './ui-language';
 import { signInHref } from '@/lib/auth-navigation';
@@ -18,7 +19,7 @@ const nav = [
   ['Invoice', '/invoice-generator'],
   ['Compressor', '/compress-images'],
   ['URL Shortener', '/url-shortener'],
-  ['Pricing', '/pricing'],
+  ...(!FREE_LAUNCH ? [['Pricing', '/pricing']] : []),
   ['Guides', '/guides'],
   ['Blog', '/blog'],
 ];

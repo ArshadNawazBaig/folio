@@ -1,4 +1,5 @@
 'use client';
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import { useUiTranslation, useLocalizedHref, useUiLocale } from '@/components/ui-language';
 
 import Link from 'next/link';
@@ -47,7 +48,7 @@ import { InvoicePreview } from './invoice-preview';
 import { InvoiceDesignThumbnail } from './invoice-design-thumbnail';
 import { proInvoiceDesignCount } from '@/lib/invoice-designs';
 import { Logo } from './logo';
-import { accountFetch } from '@/lib/auth-client';
+import { accountFetch, toolDownloadFetch } from '@/lib/auth-client';
 import { signInHref } from '@/lib/auth-navigation';
 import { download } from '@/lib/utils';
 import {
@@ -114,6 +115,7 @@ function Field({ label, children, hint }: { label: string; children: ReactNode; 
 }
 function ProBadge() {
   const tr = useUiTranslation();
+  if (FREE_LAUNCH) return null;
 
   return (
     <span className={s.proBadge}>
@@ -444,7 +446,7 @@ export function InvoiceGenerator() {
     setBusy('Preparing your PDF…');
     try {
       if (pro) {
-        const response = await accountFetch('/api/invoices/export', {
+        const response = await toolDownloadFetch('/api/invoices/export', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ document }),
@@ -748,7 +750,7 @@ export function InvoiceGenerator() {
                 <strong>{tr('Your invoices, ready next time.')}</strong>
                 <p>
                   {tr(
-                    'Pro saves up to 200 invoices in your private account. Free PDF downloads and draft backups are always available.',
+                    'Sign in to save up to 200 invoices in your private account for free. PDF downloads and draft backups are also free.',
                   )}
                 </p>
               </div>
@@ -1218,8 +1220,14 @@ export function InvoiceGenerator() {
                       <span className="eyebrow">{tr('THE FINISHING TOUCH')}</span>
                       <h2>{tr('Good work. Well presented.')}</h2>
                       <p>
-                        {tr('2 free designs and')} {proInvoiceDesignCount}{' '}
-                        {tr('Pro designs. Preview any style before downloading.')}
+                        {FREE_LAUNCH ? (
+                          tr('All invoice designs are free. Choose any style.')
+                        ) : (
+                          <>
+                            {tr('2 free designs and')} {proInvoiceDesignCount}{' '}
+                            {tr('Pro designs. Preview any style before downloading.')}
+                          </>
+                        )}
                       </p>
                     </div>
                     <LayoutTemplate size={28} />
@@ -1238,7 +1246,11 @@ export function InvoiceGenerator() {
                         </div>
                         <span className={s.templateName}>
                           {tr(template.name)}
-                          {template.pro ? <ProBadge /> : <small>{tr('FREE')}</small>}
+                          {!FREE_LAUNCH && template.pro ? (
+                            <ProBadge />
+                          ) : (
+                            <small>{tr('FREE')}</small>
+                          )}
                         </span>
                         <small>{tr(template.description)}</small>
                         {invoice.template === template.id && (
@@ -1264,7 +1276,9 @@ export function InvoiceGenerator() {
                       ))}
                     </div>
                   </div>
-                  <Field label={tr('Custom brand color · Pro')}>
+                  <Field
+                    label={tr(FREE_LAUNCH ? 'Custom brand color' : 'Custom brand color · Pro')}
+                  >
                     <div className={s.customColor}>
                       <input
                         aria-label={tr('Custom brand color')}
@@ -1289,7 +1303,7 @@ export function InvoiceGenerator() {
                     />
                   </div>
                   <Field
-                    label={tr('Custom footer · Pro')}
+                    label={tr(FREE_LAUNCH ? 'Custom footer' : 'Custom footer · Pro')}
                     hint="A short business tagline or registration detail, repeated on every PDF page."
                   >
                     <input
@@ -1298,14 +1312,14 @@ export function InvoiceGenerator() {
                       onChange={(e) => patch('footer', e.target.value)}
                     />
                   </Field>
-                  {!!proFeatures.length && (
+                  {!FREE_LAUNCH && !!proFeatures.length && (
                     <div className={s.designNotice}>
                       <Palette size={18} />
                       <p>
                         {tr('This design uses')}{' '}
                         {proFeatures.map((feature) => tr(feature)).join(', ')}.{' '}
                         {access.pro
-                          ? tr('Included in your Pro plan.')
+                          ? tr(FREE_LAUNCH ? 'Included for free.' : 'Included in your Pro plan.')
                           : tr(
                               'Preview freely. Pro is required for this PDF; a free version is also available below.',
                             )}
@@ -1370,7 +1384,7 @@ export function InvoiceGenerator() {
           <small>
             {invoice.items.length} {tr('line')}{' '}
             {invoice.items.length === 1 ? tr('item') : tr('items')} ·{' '}
-            {proFeatures.length ? tr('Pro design') : tr('Free PDF · no watermark')}
+            {!FREE_LAUNCH && proFeatures.length ? tr('Pro design') : tr('Free PDF · no watermark')}
           </small>
         </div>
         <div className={s.exportActions}>

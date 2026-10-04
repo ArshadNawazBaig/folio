@@ -1,6 +1,6 @@
 {
   "title": "Herramientas PDF gratis — Editar, Unir, Dividir y Firmar",
-  "description": "Edita, une, divide, comprime y firma archivos PDF en línea con Folio. Anotaciones y herramientas de páginas gratuitas.",
+  "description": "Edita, firma, une, divide y protege PDF gratis. Cada cuenta incluye 1 GB de almacenamiento privado.",
   "eyebrow": "HERRAMIENTAS PDF SIN COMPLICACIONES.",
   "heading": "Una forma más sencilla de trabajar con PDF.",
   "intro": "Edita, firma y organiza tus documentos en el navegador. Elige una herramienta y empieza.",
@@ -31,11 +31,11 @@
   "footer": "Menos papeleo. Más posibilidades.",
   "local": "Procesado en tu navegador. Sin subir archivos.",
   "cloud": "Los documentos del editor se guardan en almacenamiento privado en la nube. Los archivos de invitados caducan a las 24 horas.",
-  "pricingNote": "Las anotaciones y las herramientas de páginas son gratuitas. Descargar cambios en el texto original requiere un plan de pago.",
+  "pricingNote": "Todas las herramientas son gratis. No necesitas suscripción.",
   "faq": [
     [
       "¿Folio es gratis?",
-      "Añadir texto, anotaciones y firmas visuales, unir y dividir PDF y convertir imágenes a PDF es gratis. Descargar cambios en el texto original requiere un plan de pago. Las descargas gratuitas no incluyen una marca de agua de Folio."
+      "Edita, firma, une, divide y protege PDF gratis. Cada cuenta incluye 1 GB de almacenamiento privado."
     ],
     [
       "¿Dónde se procesan mis archivos?",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "Editar PDF",
-      "description": "Añade texto, resaltados, anotaciones y firmas visuales. Descarga tus añadidos gratis; los cambios en el texto original requieren un plan de pago.",
+      "description": "Edita, firma, une, divide y protege PDF gratis. Cada cuenta incluye 1 GB de almacenamiento privado.",
       "detail": "Abre un PDF para añadir texto y revisar páginas. También puedes editar texto original compatible, pero los párrafos no se redistribuyen automáticamente. Puedes anotar páginas escaneadas; no se incluye OCR.",
       "action": "Abrir en el editor",
       "steps": [

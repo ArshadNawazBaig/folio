@@ -179,7 +179,7 @@ export const nativeTools: Tool[] = [
     name: 'URL shortener',
     short: 'Short links. Ready to share.',
     description:
-      'Turn long URLs into short links, save them in your account, and generate QR codes. Go Pro for custom aliases and editable destinations.',
+      'Turn long URLs into short links, save them in your account, and generate QR codes. Custom aliases and editable destinations are included for free.',
     category: 'More possibilities',
     icon: 'link',
     color: 'orange',
@@ -188,23 +188,23 @@ export const nativeTools: Tool[] = [
     processor: 'shortener',
     steps: [
       'Sign in and paste the destination URL.',
-      'Create a random short link or choose a custom alias with Pro.',
+      'Create a random short link or choose a custom alias for free.',
       'Copy your link, download its QR code, or manage it in My links.',
     ],
     detail:
-      'Free accounts can save 10 links. Pro includes 1,000 saved links, custom aliases, and destination changes that keep your short link and QR code working. Both plans include PNG and SVG QR downloads. Your list is private; shared links are public. Deleting a link disables its redirect and QR code. Aliases are permanent and cannot be reused after deletion.',
+      'Free accounts include 1,000 saved links, custom aliases, and destination changes that keep your short link and QR code working. PNG and SVG QR downloads are included. Your list is private; shared links are public. Deleting a link disables its redirect and QR code. Aliases are permanent and cannot be reused after deletion.',
     faq: [
       [
         'Do I need an account?',
         'Yes. Sign in for free so your links are saved in My links and available across your devices.',
       ],
       [
-        'What happens when my Pro plan ends?',
-        'Existing links and QR codes keep working, including custom aliases. You can rename or delete links. Creating links above the Free limit, choosing custom aliases, or changing destinations requires Pro.',
+        'Will my saved links keep working?',
+        'Existing links and QR codes keep working, including custom aliases. You can rename or delete links. Custom aliases and destination changes are free; the limit is 1,000 saved links per account.',
       ],
       [
         'Can I change a link after sharing it?',
-        'With Pro, edit its destination from My links. The short URL and QR code stay the same. Titles can be changed on either plan. Aliases cannot be changed.',
+        'Edit its destination for free from My links. The short URL and QR code stay the same. Titles can be changed too. Aliases cannot be changed.',
       ],
       [
         'Are links private or password protected?',

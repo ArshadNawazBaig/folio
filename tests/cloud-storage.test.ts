@@ -1,9 +1,10 @@
+import { LEGACY_FREE_STORAGE_LIMIT as FREE_STORAGE_LIMIT } from '../src/lib/access-policy';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 import { cloudTestSchema } from './fixtures/cloud-schema';
-import { CLOUD_FILE_LIMIT, FREE_STORAGE_LIMIT, pdfName } from '../src/lib/cloud-types';
+import { CLOUD_FILE_LIMIT, pdfName } from '../src/lib/cloud-types';
 const alice = '00000000-0000-4000-8000-000000000001';
 const bob = '00000000-0000-4000-8000-000000000002';
 test('private storage enforces ownership even with broad existing bucket policies', async () => {

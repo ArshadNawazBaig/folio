@@ -1,4 +1,5 @@
 'use client';
+import { FREE_LAUNCH } from '@/lib/access-policy';
 
 import { useUiTranslation, useLocalizedHref } from '@/components/ui-language';
 import Link from 'next/link';
@@ -31,7 +32,12 @@ export function InvoiceLauncher() {
             <Check size={16} /> {tr('Free PDF downloads without a watermark')}
           </li>
           <li>
-            <Check size={16} /> {tr('10 premium designs and account saving with Pro')}
+            <Check size={16} />{' '}
+            {tr(
+              FREE_LAUNCH
+                ? 'All designs and account saving included for free'
+                : '10 premium designs and account saving with Pro',
+            )}
           </li>
         </ul>
         <Link href={href('/invoice-editor')} className="button primary">

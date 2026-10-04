@@ -4,7 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { PGlite } from '@electric-sql/pglite';
 import { cloudTestSchema } from './fixtures/cloud-schema';
-import { FREE_STORAGE_LIMIT, PRO_STORAGE_LIMIT } from '../src/lib/cloud-types';
+import { PRO_STORAGE_LIMIT } from '../src/lib/cloud-types';
+import { LEGACY_FREE_STORAGE_LIMIT as FREE_STORAGE_LIMIT } from '../src/lib/access-policy';
 
 test('plan storage quotas cover exact uploads, drafts, expiry, deletion and concurrent reservations', async () => {
   const db = new PGlite();

@@ -1,6 +1,7 @@
+import { FREE_LAUNCH, LAUNCH_STORAGE_LIMIT, LEGACY_FREE_STORAGE_LIMIT } from './access-policy';
 export const CLOUD_BUCKET = 'folio-documents';
 export const CLOUD_FILE_LIMIT = 50 * 1024 * 1024;
-export const FREE_STORAGE_LIMIT = 100 * 1024 * 1024;
+export const FREE_STORAGE_LIMIT = FREE_LAUNCH ? LAUNCH_STORAGE_LIMIT : LEGACY_FREE_STORAGE_LIMIT;
 export const PRO_STORAGE_LIMIT = 1024 * 1024 * 1024;
 export const CLOUD_FILE_COUNT = 200;
 export type StorageUsage = {

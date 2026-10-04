@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { pageMetadata } from '@/lib/seo';
 
 export const metadata = pageMetadata(
-  'Terms of Service — Accounts, Files & Billing',
-  'Read Folio’s service terms covering document use, guest storage, paid downloads, subscription renewals, cancellation, and support.',
+  'Terms of Service — Free Tools, Accounts & Files',
+  'Read Folio’s service terms covering free tools, document use, private storage, accounts, and support.',
   '/terms',
 );
 
@@ -20,15 +20,13 @@ export default function TermsPage({ locale = 'en', messages = {} }: PageLanguage
           {tr('Terms for')} <em>{tr('using Folio.')}</em>
         </h1>
         <p>
-          {tr('Updated')} <time dateTime="2026-09-18">{tr('September 18, 2026')}</time>.
+          {tr('Updated')} <time dateTime="2026-10-04">{tr('October 4, 2026')}</time>.
         </p>
       </header>
       <p>
         {tr(
-          'These terms describe use of Folio at thebestfreepdf.com, including its PDF tools, accounts, cloud storage, and paid downloads. The',
-        )}{' '}
-        <Link href={href('/pricing')}>{tr('pricing page')}</Link>{' '}
-        {tr('and checkout show the offer available when you subscribe.')}
+          'These terms describe use of Folio at thebestfreepdf.com, including its free tools, accounts, and private cloud storage.',
+        )}
       </p>
       <h2>{tr('Your documents and account.')}</h2>
       <p>
@@ -36,33 +34,16 @@ export default function TermsPage({ locale = 'en', messages = {} }: PageLanguage
           'Only upload and process documents you own or have permission to use. You remain responsible for their contents and for how you use and share the results. Keep your sign-in details private and sign out on shared devices. Do not access another person’s account or files, bypass access controls, or disrupt the service.',
         )}
       </p>
-      <h2>{tr('Free tools and paid downloads.')}</h2>
+      <h2>{tr('All tools are currently free.')}</h2>
       <p>
         {tr(
-          'Available free workflows include adding text and annotations, visual signatures, and page tools. You can try original-text editing before purchasing; downloading a document with original-text changes requires paid access. Password-protected downloads also require a plan. Check the tool’s availability and the download message before purchasing.',
-        )}
-      </p>
-      <h2>{tr('Subscriptions, renewals, and cancellation.')}</h2>
-      <p>
-        {tr(
-          'Lemon Squeezy provides hosted checkout and billing. Review the amount, currency, taxes, introductory period, and renewal price displayed at checkout before confirming payment. A paid introductory offer renews into the stated monthly subscription unless cancelled before renewal. Monthly subscriptions also renew automatically unless cancelled.',
-        )}
-      </p>
-      <p>
-        {tr('Manage your subscription and stop renewal through billing in your')}{' '}
-        <Link href={href('/dashboard')}>{tr('dashboard')}</Link>
-        {tr(
-          '. Cancellation stops future renewals; it does not itself issue a refund. For a payment or refund question,',
-        )}{' '}
-        <Link href={href('/support')}>{tr('contact support')}</Link>{' '}
-        {tr(
-          'with your order reference. Do not send card details. These service terms do not replace the purchase terms displayed by Lemon Squeezy or any applicable consumer rights.',
+          'All available tools, downloads, invoice designs, and account options are free during this launch period. No payment or subscription is required. Tool availability, file sizes, and processing limits still apply. Pricing may be introduced in a future release; using the free service does not automatically enroll you in a paid plan.',
         )}
       </p>
       <h2>{tr('Storage and saved work.')}</h2>
       <p>
         {tr(
-          'Free accounts and guests have 100 MB of private storage. Guest files expire after 24 hours and are tied to the browser session. The paid introductory period includes 1 GB; a paid monthly subscription includes unlimited total storage while its entitlement is active. Individual-file and processing limits still apply. If your account reaches its current storage allowance, delete older files before uploading more.',
+          'Every account and guest workspace includes 1 GB of private storage. Guest files expire after 24 hours and are tied to the browser session. Sign in to keep files in your account. Individual-file and processing limits still apply. If your account reaches its current storage allowance, delete older files before uploading more.',
         )}
       </p>
       <p>
@@ -79,7 +60,7 @@ export default function TermsPage({ locale = 'en', messages = {} }: PageLanguage
       </p>
       <h2>{tr('Help with the service.')}</h2>
       <p>
-        {tr('If a feature, saved file, or subscription is not working as expected,')}{' '}
+        {tr('If a feature or saved file is not working as expected,')}{' '}
         <Link href={href('/support')}>{tr('contact Folio support')}</Link>
         {tr(
           '. Include the relevant tool and a description of the issue without sharing confidential documents or account credentials.',

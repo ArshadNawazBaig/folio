@@ -1,3 +1,4 @@
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import type { MetadataRoute } from 'next';
 import { isIndexable, siteUrl } from '@/lib/seo';
 import { serverTools } from '@/lib/server/tool-catalog';
@@ -23,7 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       '/privacy',
       '/terms',
       '/security',
-      '/pricing',
+      ...(!FREE_LAUNCH ? ['/pricing'] : []),
     ].map((path) => ({
       url: `${siteUrl}${path || '/'}`,
       alternates: { languages: languageAlternates(path || '/', siteUrl) },
@@ -38,6 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((locale) => locale !== 'en')
       .flatMap((locale) =>
         translatedPaths
+          .filter((path) => !FREE_LAUNCH || path !== '/pricing')
           .filter((path) => !tools.some((tool) => path === `/${tool.slug}` && !tool.available))
           .map((path) => ({
             url: `${siteUrl}${languagePath(locale, path)}`,

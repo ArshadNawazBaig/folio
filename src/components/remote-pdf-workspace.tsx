@@ -25,7 +25,7 @@ import {
 import { loadViewer } from '@/lib/pdf-viewer';
 import { getPendingDocument } from '@/lib/storage';
 import { download, formatBytes, friendlyError } from '@/lib/utils';
-import { accountFetch, AccountRequestError } from '@/lib/auth-client';
+import { toolDownloadFetch, AccountRequestError } from '@/lib/auth-client';
 import { saveRemoteDraft, readRemoteDraft, clearRemoteDraft } from '@/lib/remote-draft';
 import type { TextPreview } from '@/lib/pro-types';
 import { useAccount } from './account-provider';
@@ -243,7 +243,7 @@ export function RemotePdfWorkspace({
     setBusy('Preparing your download…');
     setError('');
     try {
-      const response = await accountFetch('/api/documents/export', {
+      const response = await toolDownloadFetch('/api/documents/export', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ artifact: result.artifact }),

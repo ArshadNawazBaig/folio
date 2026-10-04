@@ -27,7 +27,7 @@ import { TextPreviewImage } from './text-preview-image';
 import { usePdfPreviewWidth } from '@/lib/use-pdf-preview-width';
 import { PdfTextSizeInput } from './pdf-text-size-input';
 import { defaultTextChange as defaultChange, unchangedText } from '@/lib/editor-text';
-import { accountFetch, AccountRequestError } from '@/lib/auth-client';
+import { toolDownloadFetch, AccountRequestError } from '@/lib/auth-client';
 import { saveProDraft, readProDraft, clearProDraft } from '@/lib/pro-draft';
 import { loadViewer } from '@/lib/pdf-viewer';
 import { getPendingDocument } from '@/lib/storage';
@@ -322,7 +322,11 @@ export function ProTextEditor() {
       }
       return response;
     }
-    return accountFetch('/api/pro/pdf', { method: 'POST', body: form, signal: controller.signal });
+    return toolDownloadFetch('/api/pro/pdf', {
+      method: 'POST',
+      body: form,
+      signal: controller.signal,
+    });
   }
   async function inspect() {
     if (!file || !canEdit || file.bytes.length > 10 * 1024 * 1024) return;

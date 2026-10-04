@@ -94,7 +94,7 @@ export function InvoiceLibrary() {
       <p>
         {!user
           ? tr(
-              'Create and download invoices for free. Sign in with Pro to save drafts across devices.',
+              'Create and download invoices for free. Sign in for free to save drafts across devices.',
             )
           : access.pro
             ? tr('{value0} of 200 saved invoices. Saving is always your choice.', { value0: total })

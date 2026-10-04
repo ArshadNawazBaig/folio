@@ -1,4 +1,5 @@
 'use client';
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import { useUiTranslation, useUiLocale } from './ui-language';
 import { localizedHref } from '@/lib/i18n/translate';
 import Link from 'next/link';
@@ -123,7 +124,7 @@ function LinkWorkspace({ manage }: { manage: boolean }) {
                   />
                 </label>
                 <label>
-                  {tr('Custom alias')} <span className={s.pro}>{tr('PRO')}</span>
+                  {tr('Custom alias')} {!FREE_LAUNCH && <span className={s.pro}>{tr('PRO')}</span>}
                   <input
                     name="alias"
                     placeholder={access.pro ? tr('my-link') : tr('Available with Pro')}
@@ -180,7 +181,7 @@ function LinkWorkspace({ manage }: { manage: boolean }) {
               <Check size={17} />
               {tr('{count} saved links on {plan}', {
                 count: limit.toLocaleString(locale),
-                plan: access.pro ? 'Pro' : tr('Free'),
+                plan: !FREE_LAUNCH && access.pro ? 'Pro' : tr('Free'),
               })}
             </li>
             <li>

@@ -5,7 +5,7 @@ import { languageAlternates } from './i18n/config';
 export const { siteUrl, isIndexable } = seoConfiguration(process.env);
 export const brand = 'Folio';
 export const productDescription =
-  'Folio is a browser-based PDF toolkit for annotations, visual signatures, page organization, merging, splitting and conversion. Annotation and page-tool downloads are free; original-text edits and password protection require a paid download. The editor saves documents to private cloud storage.';
+  'Folio is a browser-based PDF toolkit for annotations, visual signatures, page organization, merging, splitting and conversion. Annotation and page-tool downloads are free; original-text edits and password protection are free to download. The editor saves documents to private cloud storage.';
 
 type SocialCopy = {
   title?: string;

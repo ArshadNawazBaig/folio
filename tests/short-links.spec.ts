@@ -104,7 +104,7 @@ test('free short links save to My links, copy, produce scannable QR downloads, a
     .getByLabel('Destination URL', { exact: true })
     .fill('https://example.com/a-long-document-url');
   await page.getByLabel('Title (optional)').fill('Project launch');
-  await expect(page.getByLabel('Custom alias')).toBeDisabled();
+  await expect(page.getByLabel('Custom alias')).toBeEnabled();
   await page.getByRole('button', { name: 'Shorten link', exact: true }).click();
   const result = page.getByRole('region', { name: 'New short link' });
   await expect(result).toContainText('Your link is ready and saved.');
@@ -140,7 +140,7 @@ test('free short links save to My links, copy, produce scannable QR downloads, a
   await page.reload();
   await page.getByRole('button', { name: 'Edit Project launch', exact: true }).click();
   const dialog = page.getByRole('dialog');
-  await expect(dialog.getByLabel('Destination URL')).toBeDisabled();
+  await expect(dialog.getByLabel('Destination URL')).toBeEnabled();
   await dialog.getByLabel('Title', { exact: true }).fill('Renamed launch');
   await dialog.getByRole('button', { name: 'Save changes' }).click();
   await expect(page.getByRole('article').filter({ hasText: 'Renamed launch' })).toBeVisible();
@@ -161,7 +161,7 @@ test('free short links save to My links, copy, produce scannable QR downloads, a
   ).toBeVisible();
 });
 
-test('Pro supports custom aliases, destination changes, search, and pagination', async ({
+test('free accounts support custom aliases, destination changes, search, and pagination', async ({
   page,
 }) => {
   const fixture = await linkFixture(page, true);
@@ -198,10 +198,6 @@ test('Pro supports custom aliases, destination changes, search, and pagination',
   );
   await expect(page.getByRole('region', { name: 'New short link' })).toContainText('/s/my-launch');
   await page.goto('/pricing');
-  await expect(
-    page.getByText('10 saved short links with random aliases', { exact: true }),
-  ).toBeVisible();
-  await expect(
-    page.getByText('1,000 saved short links with custom aliases', { exact: true }),
-  ).toBeVisible();
+  await expect(page).toHaveURL(/\/tools$/);
+  await expect(page.locator('.price-card')).toHaveCount(0);
 });

@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures/editor-storage';
 import { readFile } from 'node:fs/promises';
 
-test('free annotations download after selecting original text and after undoing premium edits', async ({
+test('annotations and original text edits both download free without opening a payment gate', async ({
   page,
 }) => {
   let paidRequests = 0;
@@ -32,16 +32,21 @@ test('free annotations download after selecting original text and after undoing 
   await target.click();
   await original.fill('A different place');
   await original.press('Enter');
+  const editedDownload = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download PDF', exact: true }).click();
+  const editedBytes = new Uint8Array(await readFile((await (await editedDownload).path())!));
+  const { getDocument: readPdf } = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  const editedTask = readPdf({ data: editedBytes, useSystemFonts: true });
+  try {
+    const content = await (await (await editedTask.promise).getPage(1)).getTextContent();
+    const text = content.items.map((item) => ('str' in item ? item.str : '')).join(' ');
+    expect(text).toContain('A different place');
+    expect(text).toContain('My free annotation');
+  } finally {
+    await editedTask.destroy();
+  }
   const gate = page.locator('.download-gate');
-  await expect(gate).toBeVisible();
-  await expect(
-    gate.getByText('This document includes changes to original PDF text.', { exact: false }),
-  ).toBeVisible();
-  await gate
-    .locator('.gate-actions')
-    .getByRole('button', { name: 'Keep editing', exact: true })
-    .click();
+  await expect(gate).toBeHidden();
   await page.getByRole('toolbar').getByRole('button', { name: 'Undo', exact: true }).click();
   const lastDownload = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download PDF', exact: true }).click();
@@ -58,39 +63,18 @@ test('free annotations download after selecting original text and after undoing 
   } finally {
     await task.destroy();
   }
-  expect(paidRequests).toBe(0);
+  expect(paidRequests).toBe(1);
 });
 
-test('pricing separates free downloads, available premium features and disconnected services', async ({
+test('pricing routes redirect to tools and no plan is advertised on desktop or mobile', async ({
   page,
 }) => {
-  await page.goto('/pricing');
-  const free = page
-    .locator('.price-card')
-    .filter({ has: page.getByRole('heading', { name: 'Folio Free', exact: true }) });
-  await expect(free).toContainText('Compress images, adjust photos, and create QR codes');
-  await expect(free).toContainText('Free downloads without a subscription or added watermark.');
-  const paid = page.locator('.price-card.featured');
-  await expect(paid).toContainText('Replace and delete existing PDF text');
-  await expect(paid).not.toContainText('PDF to Word downloads');
-  await page.getByText('Which premium tools can I use today?', { exact: true }).click();
-  await expect(
-    page.getByText('Available now: PDF text editor, Protect PDF.', { exact: false }),
-  ).toBeVisible();
-  await expect(
-    page.getByText(
-      'Currently unavailable: Translate PDF, PDF to Word, PDF to Excel, PDF to PowerPoint.',
-      { exact: false },
-    ),
-  ).toBeVisible();
-  await page.getByText('When does my edited PDF need a premium plan?', { exact: true }).click();
-  await expect(
-    page.getByText(
-      'Opening Edit Text or selecting a text block does not make a free document paid.',
-      { exact: false },
-    ),
-  ).toBeVisible();
+  for (const path of ['/pricing', '/fr/pricing']) {
+    await page.goto(path);
+    await expect(page).toHaveURL(new RegExp(path.replace('pricing', 'tools') + '$'));
+    await expect(page.locator('a[href$="/pricing"]')).toHaveCount(0);
+    await expect(page.locator('.price-card')).toHaveCount(0);
+  }
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await expect(page.getByRole('heading', { name: 'Folio Free', exact: true })).toBeVisible();
 });

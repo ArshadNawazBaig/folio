@@ -1,6 +1,6 @@
 {
   "title": "Strumenti PDF gratuiti — Modifica, Unisci, Dividi e Firma",
-  "description": "Modifica, unisci, dividi, comprimi e firma PDF online con Folio. Annotazioni e strumenti per le pagine gratuiti.",
+  "description": "Modifica, firma, unisci, dividi e proteggi i PDF gratis. Ogni account include 1 GB di spazio privato.",
   "eyebrow": "STRUMENTI PDF SENZA COMPLICAZIONI.",
   "heading": "Un modo più semplice di lavorare con i PDF.",
   "intro": "Modifica, firma e organizza i documenti nel browser. Scegli uno strumento e inizia.",
@@ -31,11 +31,11 @@
   "footer": "Meno scartoffie. Più possibilità.",
   "local": "Elaborato nel browser. Nessun caricamento del file.",
   "cloud": "I documenti nell’editor sono salvati in uno spazio cloud privato. I file degli ospiti scadono dopo 24 ore.",
-  "pricingNote": "Annotazioni e strumenti per le pagine sono gratuiti. Scaricare modifiche al testo originale richiede un piano a pagamento.",
+  "pricingNote": "Tutti gli strumenti sono gratuiti. Nessun abbonamento necessario.",
   "faq": [
     [
       "Folio è gratuito?",
-      "Aggiungere testo, annotazioni e firme visive, unire e dividere PDF e convertire immagini in PDF è gratuito. Scaricare modifiche al testo originale richiede un piano a pagamento. I download gratuiti non hanno filigrane Folio."
+      "Modifica, firma, unisci, dividi e proteggi i PDF gratis. Ogni account include 1 GB di spazio privato."
     ],
     [
       "Dove vengono elaborati i file?",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "Modifica PDF",
-      "description": "Aggiungi testo, evidenziazioni, annotazioni e firme visive. Scarica le aggiunte gratis; le modifiche al testo originale richiedono un piano a pagamento.",
+      "description": "Modifica, firma, unisci, dividi e proteggi i PDF gratis. Ogni account include 1 GB di spazio privato.",
       "detail": "Apri un PDF per aggiungere testo e controllare le pagine. Puoi modificare il testo originale supportato, ma i paragrafi non si ridispongono automaticamente. Puoi annotare scansioni; l’OCR non è incluso.",
       "action": "Apri nell’editor",
       "steps": [

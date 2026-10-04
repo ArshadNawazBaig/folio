@@ -1,6 +1,6 @@
 {
   "title": "Kostenlose PDF-Tools — Bearbeiten, Zusammenfügen & Teilen",
-  "description": "PDFs mit Folio online bearbeiten, zusammenfügen, teilen, komprimieren und unterschreiben. Kostenlose Anmerkungen und Seitenwerkzeuge.",
+  "description": "PDFs kostenlos bearbeiten, unterschreiben, zusammenführen, teilen und schützen. Jedes Konto enthält 1 GB privaten Speicher.",
   "eyebrow": "PDF-TOOLS. EINFACH UND UNKOMPLIZIERT.",
   "heading": "Einfacher mit PDFs arbeiten.",
   "intro": "Bearbeiten, unterschreiben und organisieren Sie Ihre Dokumente direkt im Browser. Wählen Sie ein Werkzeug und legen Sie los.",
@@ -31,11 +31,11 @@
   "footer": "Weniger Papierkram. Mehr Möglichkeiten.",
   "local": "Verarbeitung im Browser. Kein Datei-Upload.",
   "cloud": "Dokumente im Editor werden in einem privaten Cloud-Speicher gespeichert. Gastdateien verfallen nach 24 Stunden.",
-  "pricingNote": "Anmerkungen und Seitenwerkzeuge sind kostenlos. Der Download von Änderungen am Originaltext erfordert einen kostenpflichtigen Tarif.",
+  "pricingNote": "Alle Werkzeuge sind kostenlos. Kein Abonnement erforderlich.",
   "faq": [
     [
       "Ist Folio kostenlos?",
-      "Text, Anmerkungen und sichtbare Unterschriften hinzufügen, PDFs zusammenfügen und teilen sowie Bilder in PDFs umwandeln ist kostenlos. Der Download von Änderungen am Originaltext ist kostenpflichtig. Kostenlose Downloads enthalten kein Folio-Wasserzeichen."
+      "PDFs kostenlos bearbeiten, unterschreiben, zusammenführen, teilen und schützen. Jedes Konto enthält 1 GB privaten Speicher."
     ],
     [
       "Wo werden meine Dateien verarbeitet?",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "PDF bearbeiten",
-      "description": "Fügen Sie Text, Markierungen, Anmerkungen und sichtbare Unterschriften hinzu. Ergänzungen laden Sie kostenlos herunter; Änderungen am Originaltext sind kostenpflichtig.",
+      "description": "PDFs kostenlos bearbeiten, unterschreiben, zusammenführen, teilen und schützen. Jedes Konto enthält 1 GB privaten Speicher.",
       "detail": "Öffnen Sie eine PDF im Editor, um Text hinzuzufügen und Seiten zu prüfen. Unterstützter Originaltext lässt sich bearbeiten, Absätze werden jedoch nicht automatisch neu umbrochen. Scans können kommentiert werden; OCR ist nicht enthalten.",
       "action": "Im Editor öffnen",
       "steps": [

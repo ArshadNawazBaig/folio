@@ -1,6 +1,6 @@
 {
   "title": "Outils PDF gratuits — Modifier, Fusionner, Diviser et Signer",
-  "description": "Modifiez, fusionnez, divisez, compressez et signez vos PDF en ligne avec Folio. Annotations et outils de pages gratuits.",
+  "description": "Modifiez, signez, fusionnez, divisez et protégez vos PDF gratuitement. Chaque compte inclut 1 Go de stockage privé.",
   "eyebrow": "LES PDF, EN TOUTE SIMPLICITÉ.",
   "heading": "Une façon plus simple de travailler avec vos PDF.",
   "intro": "Modifiez, signez et organisez vos documents dans votre navigateur. Choisissez un outil pour commencer.",
@@ -31,11 +31,11 @@
   "footer": "Moins de paperasse. Plus de possibilités.",
   "local": "Traitement dans votre navigateur. Aucun envoi de fichier.",
   "cloud": "Les documents de l’éditeur sont enregistrés dans un stockage cloud privé. Les fichiers des invités expirent après 24 heures.",
-  "pricingNote": "Les annotations et les outils de pages sont gratuits. Le téléchargement des modifications du texte d’origine nécessite une formule payante.",
+  "pricingNote": "Tous les outils sont gratuits. Aucun abonnement nécessaire.",
   "faq": [
     [
       "Folio est-il gratuit ?",
-      "L’ajout de texte, d’annotations et de signatures visuelles, la fusion, la division et la conversion d’images en PDF sont gratuits. Télécharger des modifications du texte d’origine nécessite une formule payante. Aucun filigrane Folio n’est ajouté aux téléchargements gratuits."
+      "Modifiez, signez, fusionnez, divisez et protégez vos PDF gratuitement. Chaque compte inclut 1 Go de stockage privé."
     ],
     [
       "Où mes fichiers sont-ils traités ?",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "Modifier un PDF",
-      "description": "Ajoutez du texte, des surlignages, des annotations et des signatures visuelles. Téléchargez vos ajouts gratuitement ; les modifications du texte d’origine sont payantes.",
+      "description": "Modifiez, signez, fusionnez, divisez et protégez vos PDF gratuitement. Chaque compte inclut 1 Go de stockage privé.",
       "detail": "Ouvrez un PDF dans l’éditeur pour ajouter du texte et vérifier les pages. Le texte d’origine compatible peut être modifié, mais les paragraphes ne se réorganisent pas automatiquement. Les scans peuvent être annotés ; l’OCR n’est pas inclus.",
       "action": "Ouvrir dans l’éditeur",
       "steps": [

@@ -1,3 +1,4 @@
+import { FREE_LAUNCH } from '../access-policy';
 import 'server-only';
 import { adminDb, authReady } from './auth';
 import { ApiError } from './http';
@@ -20,7 +21,7 @@ import { money, type PricingCatalog } from '../platform';
 import { getPlatform } from './platform';
 import type { ProPlan } from '../pro-types';
 export function billingReady() {
-  return authReady() && lemonConfigured();
+  return !FREE_LAUNCH && authReady() && lemonConfigured();
 }
 export async function catalogForPrice(priceId: string): Promise<PricingCatalog | null> {
   if (!priceId.startsWith('lemon_')) return null;
@@ -33,6 +34,22 @@ export async function catalogForPrice(priceId: string): Promise<PricingCatalog |
   return data?.terms || null;
 }
 export async function accessFor(userId: string) {
+  if (FREE_LAUNCH) {
+    const { data, error } = await adminDb()
+      .from('super_admins')
+      .select('user_id')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (error) throw new ApiError(503, 'Your account could not be verified.');
+    return {
+      pro: true,
+      expiresAt: null,
+      cancelAtPeriodEnd: false,
+      billingReady: false,
+      trial: false,
+      admin: !!data,
+    };
+  }
   const { data, error } = await adminDb()
     .from('billing_subscriptions')
     .select('status,paid_until,current_period_end,cancel_at_period_end,price_id')
@@ -163,6 +180,8 @@ export async function changeSubscription(
   operation: 'cancel_end' | 'cancel_now' | 'resume',
   eventId: string,
 ) {
+  if (FREE_LAUNCH && operation === 'resume')
+    throw new ApiError(409, 'All tools are currently free. No payment is required.');
   if (!/^lemon_[1-9]\d*$/.test(id)) throw new ApiError(400, 'Choose a Lemon Squeezy subscription.');
   const providerId = id.slice(6),
     db = adminDb();

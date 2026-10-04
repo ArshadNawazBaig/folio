@@ -26,7 +26,7 @@ export const tools: Tool[] = [
     name: 'Invoice generator',
     short: 'Good work deserves a great invoice.',
     description:
-      'Create a professional invoice with a live preview, your logo, itemized charges, taxes, discounts, and payment details. Download a clean PDF for free, or add premium designs and a private invoice library with Pro.',
+      'Create a professional invoice with a live preview, your logo, itemized charges, taxes, discounts, and payment details. All designs, custom branding, and downloads are free. Sign in to save invoices in your private library.',
     icon: 'invoice',
     category: 'More possibilities',
     color: 'sage',
@@ -36,22 +36,22 @@ export const tools: Tool[] = [
     steps: [
       'Open the invoice editor and add your business, customer, invoice number, and dates.',
       'List the work, adjust tax and discounts, and choose your design.',
-      'Review the live preview and download a PDF. Pro can also save the draft to your account.',
+      'Review the live preview and download a PDF. Sign in to save the draft to your account for free.',
     ],
     detail:
-      'Build an invoice that is clear to read and easy to pay. Folio calculates totals as you type, supports 24 currencies, separates deposits from the remaining balance, and continues long invoices onto additional PDF pages. Free downloads include your logo and no Folio watermark. Pro adds Studio and Editorial layouts, custom colors and footers, payment QR codes, and up to 200 explicitly saved invoices. Folio does not send invoices, collect payments, calculate jurisdiction-specific tax obligations, or automatically track payment status.',
+      'Build an invoice that is clear to read and easy to pay. Folio calculates totals as you type, supports 24 currencies, separates deposits from the remaining balance, and continues long invoices onto additional PDF pages. Free downloads include your logo and no Folio watermark. All layouts, custom colors and footers, payment QR codes, and up to 200 explicitly saved invoices are included for free. Folio does not send invoices, collect payments, calculate jurisdiction-specific tax obligations, or automatically track payment status.',
     faq: [
       [
         'Is this invoice generator free?',
-        'Yes. Create and download Classic or Minimal invoice PDFs with preset colors, a logo, up to 50 line items, tax, discounts, shipping, notes, and deposits. No account or watermark is required. Premium design options and account saving require Pro.',
+        'Yes. Create and download Classic or Minimal invoice PDFs with preset colors, a logo, up to 50 line items, tax, discounts, shipping, notes, and deposits. No account or watermark is required. All design options are free, and signing in lets you save invoices to your account.',
       ],
       [
-        'Which invoice features require Pro?',
-        'Studio and Editorial PDF layouts, a custom brand color, a payment QR code, a custom footer, and saving or updating up to 200 invoices in your account. You can preview design options before upgrading. A free-version download removes premium styling and extras from the exported copy.',
+        'Which invoice features are included for free?',
+        'Studio and Editorial PDF layouts, a custom brand color, a payment QR code, a custom footer, and saving or updating up to 200 invoices in your account. All these options are free. Sign in to save or update invoices in your account.',
       ],
       [
         'Can I edit my invoice later?',
-        'Download a JSON draft backup and import it into this tool later, or choose Save to account with Pro. A PDF is a finished document, not an editable invoice draft. Unsaved work stays only in the current tab.',
+        'Download a JSON draft backup and import it into this tool later, or choose Save to account after signing in. A PDF is a finished document, not an editable invoice draft. Unsaved work stays only in the current tab.',
       ],
       [
         'How are discounts and taxes calculated?',
@@ -59,11 +59,11 @@ export const tools: Tool[] = [
       ],
       [
         'Can I add a payment link or QR code?',
-        'Paste an existing HTTPS checkout link for free. Pro can encode it as a QR code. Folio does not create a payment account, process the payment, verify the payee, or mark an invoice paid automatically.',
+        'Paste an existing HTTPS checkout link for free. You can also add it as a QR code for free. Folio does not create a payment account, process the payment, verify the payee, or mark an invoice paid automatically.',
       ],
       [
         'Will my invoice be saved online?',
-        'Free PDF creation happens in your browser. Premium PDF export sends the invoice to Folio for processing without saving it to the invoice library. Only Save to account stores its contents, including the logo and payment instructions, in your private library. Downloaded copies remain on your device.',
+        'Classic and Minimal PDF creation happens in your browser. Exporting other PDF designs sends the invoice to Folio for processing without saving it to the invoice library. Only Save to account stores its contents, including the logo and payment instructions, in your private library. Downloaded copies remain on your device.',
       ],
       [
         'Can I use this on my phone?',
@@ -85,7 +85,7 @@ export const tools: Tool[] = [
     name: 'Edit PDF',
     short: 'Make it yours. Every last detail.',
     description:
-      'Add text, highlight, annotate and sign PDFs online for free. Download your additions for free; changes to original PDF text require a paid plan.',
+      'Add text, highlight, annotate and sign PDFs online for free. Download your additions for free; changes to original PDF text are free.',
     icon: 'edit',
     category: 'Edit & organize',
     color: 'orange',
@@ -101,11 +101,11 @@ export const tools: Tool[] = [
     faq: [
       [
         'Is this PDF editor free to use and download?',
-        'Yes for added text, highlights, images, shapes, signatures, form fields, and page organization. Download these changes without a subscription or a Folio watermark. Replacing original PDF text is available to try, but downloading a document with those changes requires a paid plan.',
+        'Yes for added text, highlights, images, shapes, signatures, form fields, and page organization. Download these changes without a subscription or a Folio watermark. Replacing original PDF text and downloading those changes are also free.',
       ],
       [
         'Can I change the original text?',
-        'Yes. Select Edit Text in the same editor, click a supported text block, and type directly on the page. Font, size and color controls are available. Paragraphs do not automatically reflow. You can preview changes before buying; downloading original-text changes requires a paid plan.',
+        'Yes. Select Edit Text in the same editor, click a supported text block, and type directly on the page. Font, size and color controls are available. Paragraphs do not automatically reflow. You can preview changes before downloading; downloading original-text changes is free.',
       ],
       [
         'Will my file be uploaded?',
@@ -113,11 +113,11 @@ export const tools: Tool[] = [
       ],
       [
         'Can I edit a PDF without signing in?',
-        'You can start as a guest without Google sign-in. Guest editor documents are saved privately with a 100 MB storage allowance and expire after 24 hours. Sign in to keep your files and open them on another device.',
+        'You can start as a guest without Google sign-in. Guest editor documents are saved privately with a 1 GB storage allowance and expire after 24 hours. Sign in to keep your files and open them on another device.',
       ],
       [
         'Does the free PDF editor add a watermark?',
-        'No Folio watermark is added to free downloads. Added text, annotations, visual signatures, forms and page changes can be exported for free. If the document also contains replacements of original PDF text, its download requires a paid plan.',
+        'No Folio watermark is added to free downloads. Added text, annotations, visual signatures, forms and page changes can be exported for free. If the document also contains replacements of original PDF text, its download is free.',
       ],
       [
         'Can I edit a PDF on Windows, Mac, iPhone or Android?',

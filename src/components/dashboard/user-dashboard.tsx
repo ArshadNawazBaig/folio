@@ -1,4 +1,5 @@
 'use client';
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import { useUiTranslation, useUiLocale } from '../ui-language';
 import { localizedHref } from '@/lib/i18n/translate';
 import Link from 'next/link';
@@ -55,8 +56,11 @@ const navigation = [
   { id: 'settings', label: 'Account settings', icon: Settings },
   { id: 'support', label: 'Help & support', icon: MessageSquare },
 ] as const;
+const visibleNavigation = navigation.filter((item) => !FREE_LAUNCH || item.id !== 'billing');
 type Props = { view: DashboardView; adminRequired: boolean; checkoutSuccess: boolean };
-export function UserDashboard(props: Props) {
+export function UserDashboard(input: Props) {
+  const props =
+    FREE_LAUNCH && input.view === 'billing' ? { ...input, view: 'settings' as const } : input;
   const { user, loading } = useAccount();
   if (loading && !user) return <DashboardLoading view={props.view} />;
   // Reset every private view and in-flight result when the account changes.
@@ -73,7 +77,7 @@ function DashboardLoading({ view }: { view: DashboardView }) {
         <Logo light href={href('/')} label={tr('Folio home')} />
         <p className={s.navLabel}>{tr('YOUR WORKSPACE')}</p>
         <div className={s.navigation} aria-hidden="true">
-          {navigation.map(({ id, icon: Icon }) => (
+          {visibleNavigation.map(({ id, icon: Icon }) => (
             <div className={s.navSkeleton} key={id}>
               <Icon size={18} />
               <Skeleton width={100} height={12} />
@@ -295,7 +299,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
         <Logo light href={href('/')} label={tr('Folio home')} />
         <p className={s.navLabel}>{tr('YOUR WORKSPACE')}</p>
         <nav ref={navigationRef} aria-label={tr('Dashboard navigation')} className={s.navigation}>
-          {navigation.map(({ id, label, icon: Icon }) => (
+          {visibleNavigation.map(({ id, label, icon: Icon }) => (
             <Link
               key={id}
               href={href(id === 'overview' ? '/dashboard' : `/dashboard?view=${id}`)}
@@ -393,7 +397,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                 </span>
                 <span className={s.profileCopy}>
                   <strong>{name}</strong>
-                  <small>{access.pro ? tr('Folio Pro') : tr('Folio Free')}</small>
+                  <small>{!FREE_LAUNCH && access.pro ? tr('Folio Pro') : tr('Folio Free')}</small>
                 </span>
                 <ChevronDown size={16} className={s.profileChevron} aria-hidden="true" />
               </Menu.Trigger>
@@ -407,7 +411,9 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                   <Menu.Popup className={s.accountMenu} aria-label={tr('Account menu')}>
                     <div className={s.accountMenuIdentity}>
                       <strong>{name}</strong>
-                      <small>{access.pro ? tr('Folio Pro') : tr('Folio Free')}</small>
+                      <small>
+                        {!FREE_LAUNCH && access.pro ? tr('Folio Pro') : tr('Folio Free')}
+                      </small>
                     </div>
                     <Menu.LinkItem
                       className={s.accountMenuItem}
@@ -454,7 +460,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
           {guest && !['links', 'invoices'].includes(view) && (
             <div className={s.guestNotice}>
               <div>
-                <strong>{tr('100 MB, ready to use.')}</strong>
+                <strong>{tr(FREE_LAUNCH ? '1 GB, ready to use.' : '100 MB, ready to use.')}</strong>
                 <p id="guest-session-details">
                   {tr(
                     'Your files are private to this browser and expire 24 hours after upload. Sign in before they expire to keep them in your account. Signing out or clearing your browser cookies removes access to guest files.',
@@ -505,17 +511,19 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                   </div>
                   <ArrowUpRight size={16} />
                 </Link>
-                <Link href={href('/dashboard?view=billing')}>
+                <Link href={href(FREE_LAUNCH ? '/tools' : '/dashboard?view=billing')}>
                   <span className={s.metricIcon}>
                     <CreditCard size={21} />
                   </span>
                   <div>
-                    <span>{tr('Your plan')}</span>
+                    <span>{tr(FREE_LAUNCH ? 'Your tools' : 'Your plan')}</span>
                     <strong>
                       {accountLoading ? (
                         <Skeleton width={110} height="1em" />
                       ) : accountError ? (
                         tr('Unavailable')
+                      ) : FREE_LAUNCH ? (
+                        tr('All tools are free')
                       ) : access.pro ? (
                         'Folio Pro'
                       ) : (
@@ -523,11 +531,13 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
                       )}
                     </strong>
                     <small>
-                      {access.trial
-                        ? tr('Introductory period')
-                        : access.cancelAtPeriodEnd
-                          ? tr('Cancellation scheduled')
-                          : tr('Manage your membership')}
+                      {FREE_LAUNCH
+                        ? tr('No subscription needed')
+                        : access.trial
+                          ? tr('Introductory period')
+                          : access.cancelAtPeriodEnd
+                            ? tr('Cancellation scheduled')
+                            : tr('Manage your membership')}
                     </small>
                   </div>
                   <ArrowUpRight size={16} />

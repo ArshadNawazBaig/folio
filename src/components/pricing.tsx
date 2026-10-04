@@ -1,4 +1,5 @@
 'use client';
+import { FREE_LAUNCH } from '@/lib/access-policy';
 import { useUiTranslation, useLocalizedHref } from '@/components/ui-language';
 
 import Link from 'next/link';
@@ -24,7 +25,10 @@ import { Skeleton, LoadingLabel } from './skeleton';
 import { localizedOfferTerms } from '@/lib/i18n/format';
 import s from './pricing.module.css';
 import c from './pricing-compact.module.css';
-export function Pricing({
+export function Pricing(props: React.ComponentProps<typeof PaidPricing>) {
+  return FREE_LAUNCH ? null : <PaidPricing {...props} />;
+}
+function PaidPricing({
   initialCatalog = DEFAULT_CATALOG,
   compact = false,
   checkoutInNewTab = false,

@@ -26,12 +26,12 @@ export default function Privacy({ messages = {} }: PageLanguage = {}) {
       <h2>{tr('Invoice saving is your choice.')}</h2>
       <p>
         {tr(
-          'Invoice drafts stay in the current tab until you download a draft backup or explicitly choose Save to account. Free PDF exports are generated in your browser. Premium exports send the invoice details, logo, and payment instructions to Folio for processing in server memory; exporting does not create a saved invoice record. Hosting infrastructure may buffer requests. No invoice content is automatically saved in browser storage.',
+          'Invoice drafts stay in the current tab until you download a draft backup or explicitly choose Save to account. Classic and Minimal PDFs are generated in your browser. Other designs send the invoice details, logo, and payment instructions to Folio for processing in server memory; exporting does not create a saved invoice record. Hosting infrastructure may buffer requests. No invoice content is automatically saved in browser storage.',
         )}
       </p>
       <p>
         {tr(
-          'Save to account stores the full invoice, including customer details, logos, and payment instructions, in a private Supabase record. Pro accounts can keep up to 200 invoices. Only the owning account can read and manage its library through the application. Authorized service operators retain infrastructure access. You can read and delete saved invoices after Pro ends; creating or updating saved invoices requires current Pro access. Deleting an account removes its saved invoice records. PDF and JSON files downloaded to your device are separate copies. Folio does not send invoices or collect customer payments.',
+          'Save to account stores the full invoice, including customer details, logos, and payment instructions, in a private Supabase record. Every account can keep up to 200 invoices for free. Only the owning account can read and manage its library through the application. Authorized service operators retain infrastructure access. Sign in to create, read, update, and delete your saved invoices. Deleting an account removes its saved invoice records. PDF and JSON files downloaded to your device are separate copies. Folio does not send invoices or collect customer payments.',
         )}
       </p>
       <h2>{tr('Standalone signature images stay in your tab.')}</h2>
@@ -87,7 +87,7 @@ export default function Privacy({ messages = {} }: PageLanguage = {}) {
       </p>
       <p>
         {tr(
-          'At checkout, signed-in users’ text-editing recovery drafts are saved in private Supabase Storage. They contain the source PDF, text inspection, and edits, and are not restored after seven days. Folio attempts to remove the recovery copy after a successful download or when you choose another PDF. Failed deletions may require a retry or operator cleanup. Opening passwords are never saved. Other standalone tools keep guest work in the current tab; the main editor uses the guest recovery described above. Clearing browser data does not remove cloud copies.',
+          'Text-editing recovery drafts saved during earlier checkout flows remain in private Supabase Storage until removed. Free downloads do not start a checkout recovery save. They contain the source PDF, text inspection, and edits, and are not restored after seven days. Folio attempts to remove the recovery copy after a successful download or when you choose another PDF. Failed deletions may require a retry or operator cleanup. Opening passwords are never saved. Other standalone tools keep guest work in the current tab; the main editor uses the guest recovery described above. Clearing browser data does not remove cloud copies.',
         )}
       </p>
       <h2>{tr('Short links are saved to your account.')}</h2>
@@ -98,7 +98,7 @@ export default function Privacy({ messages = {} }: PageLanguage = {}) {
       </p>
       <p>
         {tr(
-          'Deleting a link removes its destination and title and stops the redirect. Account deletion removes saved links and creation counters. Only the alias remains reserved to prevent another account from reusing an old shared address. Existing links keep working after a Pro plan expires unless deleted or the account is suspended.',
+          'Deleting a link removes its destination and title and stops the redirect. Account deletion removes saved links and creation counters. Only the alias remains reserved to prevent another account from reusing an old shared address. Existing links keep working unless deleted or the account is suspended.',
         )}
       </p>
       <h2>{tr('Support and administration records.')}</h2>
@@ -122,7 +122,7 @@ export default function Privacy({ messages = {} }: PageLanguage = {}) {
       <h2>{tr('Translation and Office conversion use document services.')}</h2>
       <p>
         {tr(
-          'When their services are connected, choosing Translate sends your PDF through Folio to Google Cloud Translation; choosing an Office conversion sends it to ConvertAPI. The workspace identifies the provider before upload. Folio processes files in memory and requests conversion without provider file storage. Provider infrastructure and service terms govern their processing. Prepared output is encrypted and returned to your browser with a 24-hour download expiry. Translation previews are readable images. At the download prompt, the encrypted file and preview are saved to private cloud storage for signed-in users. Expired copies are not restored; they are replaced by a new recovery draft or removed after a successful download, with operator cleanup for failed deletions. Folio checks paid access on the server before decrypting downloads. Standalone OCR is not included.',
+          'When their services are connected, choosing Translate sends your PDF through Folio to Google Cloud Translation; choosing an Office conversion sends it to ConvertAPI. The workspace identifies the provider before upload. Folio processes files in memory and requests conversion without provider file storage. Provider infrastructure and service terms govern their processing. Prepared output is encrypted and returned to your browser with a 24-hour download expiry. Translation previews are readable images. Recovery copies saved during earlier checkout flows may include the encrypted file and preview. Free downloads do not start a checkout recovery save. Expired copies are not restored; they are replaced by a new recovery draft or removed after a successful download, with operator cleanup for failed deletions. Downloads are free; encrypted results are validated on the server before download. Standalone OCR is not included.',
         )}
       </p>
       <h2>{tr('A shared device needs a little care.')}</h2>
