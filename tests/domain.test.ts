@@ -11,11 +11,11 @@ const oldOrigin = 'https://folio-pdf-kappa.vercel.app';
 test('direct Railway requests use the public host despite an internal Next.js URL', () => {
   const canonical = new URL(env.NEXT_PUBLIC_SITE_URL).hostname;
   for (const headers of [
-    { host: 'thebestfreepdf.com' },
-    { host: 'THEBESTFREEPDF.COM:443' },
-    { host: '0.0.0.0:3000', 'x-forwarded-host': 'thebestfreepdf.com' },
+    new Headers({ host: 'thebestfreepdf.com' }),
+    new Headers({ host: 'THEBESTFREEPDF.COM:443' }),
+    new Headers({ host: '0.0.0.0:3000', 'x-forwarded-host': 'thebestfreepdf.com' }),
   ])
-    assert.equal(publicRequestHostname(new Headers(headers), '0.0.0.0'), canonical);
+    assert.equal(publicRequestHostname(headers, '0.0.0.0'), canonical);
   assert.notEqual(
     publicRequestHostname(new Headers({ host: 'folio-production-7dd2.up.railway.app' }), '0.0.0.0'),
     canonical,
