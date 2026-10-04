@@ -10,8 +10,13 @@ export async function proxy(request: NextRequest) {
   if (destination) return NextResponse.redirect(destination, 308);
   const next = () => {
     const response = NextResponse.next();
+    // The domain proxy supplies the public host. This affects indexing only.
+    const publicHost = request.headers.get('x-folio-public-host') || request.nextUrl.hostname;
     // Production deployment aliases must not compete with the preferred public domain.
-    if (process.env.VERCEL_ENV && request.nextUrl.hostname !== new URL(siteUrl).hostname)
+    if (
+      (process.env.VERCEL_ENV || process.env.RAILWAY_ENVIRONMENT_ID) &&
+      publicHost !== new URL(siteUrl).hostname
+    )
       response.headers.set('X-Robots-Tag', 'noindex, nofollow');
     return response;
   };

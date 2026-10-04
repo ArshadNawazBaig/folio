@@ -2,6 +2,60 @@
 
 Preferred public origin: `https://thebestfreepdf.com`.
 
+## Railway origin with GoDaddy DNS — October 4, 2026
+
+Railway project: [folio](https://railway.com/project/aa399ba8-748d-454b-8f5f-24a83d0075cc).
+Service: `folio`, environment: `production`, port: `3000`.
+Application origin: `https://folio-production-7dd2.up.railway.app`.
+
+The public address remains `https://thebestfreepdf.com`. GoDaddy manages DNS
+through `ns11.domaincontrol.com` and `ns12.domaincontrol.com`, and its existing
+records point to Vercel. Vercel terminates HTTPS and forwards requests to Railway
+using the project-level routing rule **Folio Railway origin**. Railway runs the
+application and PDF workers. Keep the Vercel project and domain connection active.
+
+The routing rule matches the exact host `thebestfreepdf.com` and regex path `^/(.*)$`,
+rewrites to `https://folio-production-7dd2.up.railway.app/$1`, and sets the
+request header `x-folio-public-host=thebestfreepdf.com`. The application uses that
+header only to distinguish public-domain indexing from direct Railway alias
+requests. It is not an authentication or authorization header.
+
+Railway's production variables are
+`NEXT_PUBLIC_SITE_URL=https://thebestfreepdf.com` and `NEXT_PUBLIC_INDEXABLE=true`.
+The public domain keeps indexable metadata; the Railway alias receives a
+`noindex` header. `www` continues to redirect to the root domain with paths and
+queries preserved. The Vercel routing rule is restricted to the public root host,
+so legacy Vercel sessions and preview deployments keep their existing behavior.
+
+[Vercel external rewrites](https://vercel.com/docs/routing/rewrites) preserve the
+browser URL and proxy requests to the external origin. The proxy has a
+[120-second request timeout](https://vercel.com/docs/limits#proxied-request-timeout).
+The current PDF worker timeout is 30 seconds; longer future jobs will need
+background processing or another ingress arrangement.
+
+The Supabase callback check accepts `https://thebestfreepdf.com/auth/callback`.
+The existing Lemon Squeezy webhook already uses this domain. Billing remains in
+test mode. Keeping this origin preserves the browser's existing account and guest
+cookies when requests move to Railway.
+
+Verification passed on the live root domain: valid HTTPS, Railway response
+headers, correct canonical metadata, a 6 MB PDF upload, server PDF previews,
+browser PDF merging and a six-page download, secure HttpOnly guest cookies, and
+`www` path/query preservation. Direct Railway requests remain `noindex`.
+The active rule matches only the root hostname; no test-header condition remains.
+
+Manage or roll back the domain routing from the linked workspace:
+
+```sh
+npx vercel routes inspect 'Folio Railway origin'
+npx vercel routes disable 'Folio Railway origin' --yes
+npx vercel routes publish --yes
+```
+
+Disabling and publishing this rule restores the Vercel application behind the
+same domain. Deploy application updates to Railway with
+`npx @railway/cli up --service folio`.
+
 ## Domain migration — September 17, 2026
 
 - The apex domain serves Folio over HTTPS. Vercel reports DNS configured with no conflicts.

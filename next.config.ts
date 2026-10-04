@@ -77,6 +77,12 @@ const config: NextConfig = {
   },
   async redirects() {
     return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www\\.thebestfreepdf\\.com' }],
+        destination: 'https://thebestfreepdf.com/:path*',
+        permanent: true,
+      },
       { source: '/security.txt', destination: '/.well-known/security.txt', permanent: true },
       {
         source: '/apple-touch-icon-precomposed.png',
