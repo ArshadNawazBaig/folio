@@ -74,7 +74,7 @@ export const toolFacts: Record<string, ToolFacts> = {
     output: 'A PDF with your additions and page changes.',
     processing: editorProcessing,
     limits:
-      'Up to 50 MB per PDF. Guest storage is 1 GB. Scanned words cannot be replaced without OCR, which Folio does not include. Covering text is not secure redaction.',
+      'Up to 50 MB per PDF. Guest storage is 100 MB. Scanned words cannot be replaced without OCR, which Folio does not include. Covering text is not secure redaction.',
   },
   'edit-pdf-text': {
     question: 'Can I change words already in a PDF?',
@@ -125,7 +125,7 @@ export const toolFacts: Record<string, ToolFacts> = {
     output: 'A PDF with your visual signature and completed fields.',
     processing: editorProcessing,
     limits:
-      'Up to 50 MB per PDF. Guest storage is 1 GB. Use the recipient’s specified signing service if they require certificate-based signatures.',
+      'Up to 50 MB per PDF. Guest storage is 100 MB. Use the recipient’s specified signing service if they require certificate-based signatures.',
   },
   'image-to-pdf': {
     question: 'How can I turn photos or receipts into one PDF?',

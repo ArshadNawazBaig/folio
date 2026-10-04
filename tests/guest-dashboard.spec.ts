@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures/editor-storage';
 import { mockGoogle } from './fixtures/auth';
 import { createSample } from '../src/lib/sample';
-import { FREE_STORAGE_LIMIT } from '../src/lib/cloud-types';
+import { FREE_STORAGE_LIMIT, GUEST_STORAGE_LIMIT } from '../src/lib/cloud-types';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile } from 'node:fs/promises';
 
@@ -224,8 +224,8 @@ test('simultaneous guest dashboard tabs share one private browser session', asyn
         files: [],
         storage: {
           used: 0,
-          limit: FREE_STORAGE_LIMIT,
-          available: FREE_STORAGE_LIMIT,
+          limit: GUEST_STORAGE_LIMIT,
+          available: GUEST_STORAGE_LIMIT,
           full: false,
           recovery: [],
         },

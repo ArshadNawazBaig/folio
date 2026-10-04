@@ -142,7 +142,9 @@ export function SignInForm({
             {busy === 'guest' ? tr('Opening your dashboard…') : tr('Continue as guest')}
             <ArrowRight size={16} />
           </button>
-          <p>{tr('1 GB of private storage in this browser. Guest files expire after 24 hours.')}</p>
+          <p>
+            {tr('100 MB of private storage in this browser. Guest files expire after 24 hours.')}
+          </p>
         </div>
       )}
       {error && (

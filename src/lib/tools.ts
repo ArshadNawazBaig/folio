@@ -113,7 +113,7 @@ export const tools: Tool[] = [
       ],
       [
         'Can I edit a PDF without signing in?',
-        'You can start as a guest without Google sign-in. Guest editor documents are saved privately with a 1 GB storage allowance and expire after 24 hours. Sign in to keep your files and open them on another device.',
+        'You can start as a guest without Google sign-in. Guest editor documents are saved privately with a 100 MB storage allowance and expire after 24 hours. Sign in to keep your files and open them on another device.',
       ],
       [
         'Does the free PDF editor add a watermark?',

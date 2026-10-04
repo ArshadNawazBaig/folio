@@ -4,10 +4,10 @@ import { readFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { PGlite } from '@electric-sql/pglite';
 import { cloudTestSchema } from './fixtures/cloud-schema';
-import { FREE_STORAGE_LIMIT } from '../src/lib/cloud-types';
+import { FREE_STORAGE_LIMIT, GUEST_STORAGE_LIMIT } from '../src/lib/cloud-types';
 
 // Exercise the actual migration and database enforcement, without live user data.
-test('free launch gives all accounts and guests 1 GB, unlocks account features, and preserves access controls', async () => {
+test('free launch gives accounts 1 GB and guests 100 MB, unlocks account features, and preserves access controls', async () => {
   const db = new PGlite();
   const owner = randomUUID(),
     other = randomUUID(),
@@ -45,13 +45,72 @@ test('free launch gives all accounts and guests 1 GB, unlocks account features, 
       "insert into billing_subscriptions(user_id,stripe_subscription_id,price_id,status,paid_until,current_period_end,monthly_paid) values($1,'sub_month','price_month','active',now()+interval '30 days',now()+interval '30 days',true)",
       [paid],
     );
+    // Reducing the guest quota must preserve existing files and permit sign-in.
+    const legacyGuest = 'd'.repeat(64);
+    const legacyIds = [randomUUID(), randomUUID(), randomUUID()];
+    for (const [i, id] of legacyIds.entries()) {
+      await db.query("select reserve_editor_workspace(null,$1,$2,'Legacy.pdf',$3)", [
+        legacyGuest,
+        id,
+        (i === 2 ? 1 : 50) * MB,
+      ]);
+    }
+    await db.query(
+      'update cloud_documents set status=\'ready\',workspace=\'{"note":"Saved before the quota change"}\' where guest_hash=$1',
+      [legacyGuest],
+    );
+    await db.exec('reset role');
+    await db.exec(
+      await readFile(
+        new URL('../supabase/migrations/017_guest_storage_limit.sql', import.meta.url),
+        'utf8',
+      ),
+    );
+    await db.exec('set role service_role');
+    assert.equal(
+      (
+        await db.query<{ n: number }>(
+          'select count(*)::int n from cloud_documents where guest_hash=$1',
+          [legacyGuest],
+        )
+      ).rows[0].n,
+      3,
+    );
+    await assert.rejects(
+      db.query("select reserve_editor_workspace(null,$1,$2,'Extra.pdf',1)", [
+        legacyGuest,
+        randomUUID(),
+      ]),
+      /storage_limit/,
+    );
+    await assert.rejects(
+      db.query("select save_editor_workspace(null,$1,$2,0,$3,'Legacy.pdf',$4)", [
+        legacyGuest,
+        legacyIds[0],
+        JSON.stringify({ note: 'x'.repeat(200) }),
+        randomUUID(),
+      ]),
+      /storage_limit/,
+    );
+    await db.query("select save_editor_workspace(null,$1,$2,0,'{}','Legacy.pdf',$3)", [
+      legacyGuest,
+      legacyIds[0],
+      randomUUID(),
+    ]);
+    const claimed = (
+      await db.query<{ value: { claimed: number; remaining: number } }>(
+        'select claim_guest_workspaces($1,$2) value',
+        [other, legacyGuest],
+      )
+    ).rows[0].value;
+    assert.deepEqual(claimed, { claimed: 3, remaining: 0 });
     for (const actor of [owner, other, paid, null]) {
       const { rows } = await db.query<{ quota: number }>(
         'select account_storage_limit($1)::float8 quota',
         [actor],
       );
-      assert.equal(rows[0].quota, FREE_STORAGE_LIMIT);
-      assert.equal(rows[0].quota, 1073741824);
+      assert.equal(rows[0].quota, actor ? FREE_STORAGE_LIMIT : GUEST_STORAGE_LIMIT);
+      assert.equal(rows[0].quota, actor ? 1073741824 : 104857600);
     }
     await assert.rejects(
       db.exec('update platform_settings set purchases_enabled=true'),
@@ -66,8 +125,8 @@ test('free launch gives all accounts and guests 1 GB, unlocks account features, 
       ).rows[0].doc;
     // Metadata reservations do not allocate real gigabyte-sized files.
     for (const actor of [owner, null]) {
-      for (let i = 0; i < 20; i++) await reserve(actor, 50 * MB);
-      await reserve(actor, 23 * MB);
+      for (let i = 0; i < (actor ? 20 : 1); i++) await reserve(actor, 50 * MB);
+      await reserve(actor, (actor ? 23 : 49) * MB);
       const results = await Promise.allSettled([reserve(actor, MB), reserve(actor, MB)]);
       assert.equal(
         results.filter((r) => r.status === 'fulfilled').length,

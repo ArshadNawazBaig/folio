@@ -1,7 +1,7 @@
 import { test as base, expect, type BrowserContext } from '@playwright/test';
 import type { WorkspaceSnapshot } from '../../src/lib/workspace-types';
 import { PAGE_SIZE } from '../../src/lib/pagination.mjs';
-import { FREE_STORAGE_LIMIT } from '../../src/lib/cloud-types';
+import { GUEST_STORAGE_LIMIT } from '../../src/lib/cloud-types';
 type FileRecord = {
   id: string;
   name: string;
@@ -156,9 +156,9 @@ export async function mockWorkspaceStorage(context: BrowserContext) {
           readyCount: files.filter((file) => file.status === 'ready').length,
           storage: {
             used,
-            limit: FREE_STORAGE_LIMIT,
-            available: Math.max(0, FREE_STORAGE_LIMIT - used),
-            full: used >= FREE_STORAGE_LIMIT,
+            limit: GUEST_STORAGE_LIMIT,
+            available: Math.max(0, GUEST_STORAGE_LIMIT - used),
+            full: used >= GUEST_STORAGE_LIMIT,
             recovery: [],
           },
         },

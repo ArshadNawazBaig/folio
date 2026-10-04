@@ -36,6 +36,7 @@ import { claimGuestWorkspaces, workspaceRequest } from '@/lib/workspace-client';
 import { displayName, type DashboardView } from '@/lib/dashboard';
 import {
   FREE_STORAGE_LIMIT,
+  GUEST_STORAGE_LIMIT,
   PRO_STORAGE_LIMIT,
   storageLabel,
   type StorageUsage,
@@ -270,7 +271,13 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
       ? tr('Your account')
       : accountName;
   const bytes = storage?.used ?? files.reduce((n, f) => n + f.size + (f.workspace_size || 0), 0);
-  const capacity = storage ? storage.limit : access.pro ? PRO_STORAGE_LIMIT : FREE_STORAGE_LIMIT;
+  const capacity = storage
+    ? storage.limit
+    : guest
+      ? GUEST_STORAGE_LIMIT
+      : access.pro
+        ? PRO_STORAGE_LIMIT
+        : FREE_STORAGE_LIMIT;
   const titles = {
     overview: guest
       ? tr('Your guest workspace.')
@@ -462,7 +469,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
           {guest && !['links', 'invoices'].includes(view) && (
             <div className={s.guestNotice}>
               <div>
-                <strong>{tr(FREE_LAUNCH ? '1 GB, ready to use.' : '100 MB, ready to use.')}</strong>
+                <strong>{tr('100 MB, ready to use.')}</strong>
                 <p id="guest-session-details">
                   {tr(
                     'Your files are private to this browser and expire 24 hours after upload. Sign in before they expire to keep them in your account. Signing out or clearing your browser cookies removes access to guest files.',

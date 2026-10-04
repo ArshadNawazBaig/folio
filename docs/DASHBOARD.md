@@ -1,6 +1,6 @@
 # Customer dashboard and private PDFs
 
-**Free launch:** all available tools and options are currently free; accounts and guest workspaces receive 1 GB. The pricing distinctions below describe the retained paid-mode implementation. Apply migration 016 before deploying this release; see [FREE-LAUNCH.md](FREE-LAUNCH.md).
+**Free launch:** all available tools and options are currently free; signed-in accounts receive 1 GB and guest workspaces receive 100 MB. The pricing distinctions below describe the retained paid-mode implementation. Apply migrations 016 and 017 before deploying this release; see [FREE-LAUNCH.md](FREE-LAUNCH.md).
 
 Everyone can open `/dashboard`. Guests receive a browser-private workspace; signed-in customers see their account library. Verified super admins still land at `/admin`; they can open their personal workspace at `/dashboard`. A requested billing, files, or links tab survives Google/email sign-in. Dashboard pages and APIs are private, uncached, and marked `noindex`.
 

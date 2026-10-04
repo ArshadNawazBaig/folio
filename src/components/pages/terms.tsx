@@ -43,7 +43,7 @@ export default function TermsPage({ locale = 'en', messages = {} }: PageLanguage
       <h2>{tr('Storage and saved work.')}</h2>
       <p>
         {tr(
-          'Every account and guest workspace includes 1 GB of private storage. Guest files expire after 24 hours and are tied to the browser session. Sign in to keep files in your account. Individual-file and processing limits still apply. If your account reaches its current storage allowance, delete older files before uploading more.',
+          'Guest workspaces include 100 MB of private storage. Signed-in accounts include 1 GB. Guest files expire after 24 hours and are tied to the browser session. Sign in to keep files in your account. Individual-file and processing limits still apply. If your account reaches its current storage allowance, delete older files before uploading more.',
         )}
       </p>
       <p>

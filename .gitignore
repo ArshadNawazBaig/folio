@@ -41,3 +41,6 @@ test-results-blog
 test-results-design
 test-results-downloads
 test-results-i18n
+
+# Supabase CLI local cache
+supabase/.temp/

@@ -7,7 +7,7 @@ import {
   CLOUD_BUCKET,
   CLOUD_FILE_LIMIT,
   CLOUD_FILE_COUNT,
-  FREE_STORAGE_LIMIT,
+  GUEST_STORAGE_LIMIT,
   type CloudDocument,
   pdfName,
 } from '@/lib/cloud-types';
@@ -52,9 +52,9 @@ export async function GET(request: Request) {
         readyCount: files.filter((file) => file.status === 'ready').length,
         storage: {
           used,
-          limit: FREE_STORAGE_LIMIT,
-          available: Math.max(0, FREE_STORAGE_LIMIT - used),
-          full: used >= FREE_STORAGE_LIMIT || files.length >= CLOUD_FILE_COUNT,
+          limit: GUEST_STORAGE_LIMIT,
+          available: Math.max(0, GUEST_STORAGE_LIMIT - used),
+          full: used >= GUEST_STORAGE_LIMIT || files.length >= CLOUD_FILE_COUNT,
           recovery: [],
         },
       },

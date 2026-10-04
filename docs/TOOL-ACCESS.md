@@ -1,6 +1,6 @@
 # Tool access policy
 
-**Free launch:** all available tools and options are currently free; accounts and guest workspaces receive 1 GB. The pricing distinctions below describe the retained paid-mode implementation. Apply migration 016 before deploying this release; see [FREE-LAUNCH.md](FREE-LAUNCH.md).
+**Free launch:** all available tools and options are currently free; signed-in accounts receive 1 GB and guest workspaces receive 100 MB. The pricing distinctions below describe the retained paid-mode implementation. Apply migrations 016 and 017 before deploying this release; see [FREE-LAUNCH.md](FREE-LAUNCH.md).
 
 For file tools, editing, configuration, and previews are available before purchase. Ask for a plan when someone downloads a premium file result. Do not add premium badges, locked controls, or upgrade prompts to file-tool discovery or editing. Show the applicable feature and full renewal terms in the download dialog; keep the document open through sign-in and checkout.
 

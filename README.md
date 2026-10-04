@@ -2,7 +2,7 @@
 
 Live website: [thebestfreepdf.com](https://thebestfreepdf.com). The application runs on Railway, with Vercel DNS and domain registration at GoDaddy. See [custom domain configuration](docs/CUSTOM-DOMAIN.md) for direct routing and migration status.
 
-Current release: all available tools and options are free, with 1 GB of private storage per account and guest workspace. Apply migration 016 before deploying. See [Free launch](docs/FREE-LAUNCH.md) for rollout, verification, and future pricing. Earlier billing sections describe the retained paid-mode implementation.
+Current release: all available tools and options are free, with 100 MB of private storage for guests and 1 GB per signed-in account. Apply migrations 016 and 017 before deploying. See [Free launch](docs/FREE-LAUNCH.md) for rollout, verification, and future pricing. Earlier billing sections describe the retained paid-mode implementation.
 
 A document application built with Next.js 16 App Router, React 19, and TypeScript. Public pages have server-rendered HTML and metadata. Local tool pages are prerendered; service-dependent pages and pricing use current server configuration. Free document tools run locally in the browser; Folio Pro adds server processing with Lemon Squeezy subscriptions and Supabase accounts.
 

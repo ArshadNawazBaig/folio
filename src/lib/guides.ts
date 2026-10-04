@@ -265,7 +265,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'Does using the editor as a guest keep the PDF on my device?',
-        text: 'No. Guest access removes the need to sign in before starting; it does not disable uploads. The editor saves the source PDF and workspace changes privately so the same browser can recover work after a refresh. Guest storage is 1 GB, with a 50 MB limit per PDF and a 24-hour workspace expiry. A session cookie provides access. Clearing cookies can remove that access without deleting the cloud copy. Expired files are removed by scheduled cleanup, with a grace period and retries; expiry is not a promise of immediate physical deletion. Signing in attaches the open workspace to your account and removes its guest expiry.',
+        text: 'No. Guest access removes the need to sign in before starting; it does not disable uploads. The editor saves the source PDF and workspace changes privately so the same browser can recover work after a refresh. Guest storage is 100 MB, with a 50 MB limit per PDF and a 24-hour workspace expiry. A session cookie provides access. Clearing cookies can remove that access without deleting the cloud copy. Expired files are removed by scheduled cleanup, with a grace period and retries; expiry is not a promise of immediate physical deletion. Signing in attaches the open workspace to your account and removes its guest expiry.',
         links: [{ label: 'Workspace storage and deletion details', href: '/privacy' }],
       },
       {
@@ -327,7 +327,7 @@ export const guides: Guide[] = [
               href: '/edit-pdf',
               cells: [
                 'Adding text, annotations and visual signatures in a browser.',
-                'Free annotation and page-tool downloads without a Folio watermark. Original-text downloads are free. Guest editor storage is 1 GB with a 24-hour expiry; drafts are uploaded privately.',
+                'Free annotation and page-tool downloads without a Folio watermark. Original-text downloads are free. Guest editor storage is 100 MB with a 24-hour expiry; drafts are uploaded privately.',
               ],
             },
             {
@@ -429,7 +429,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'Understand guest storage and file privacy',
-        text: 'A tool that runs in a browser does not necessarily keep every file on your device. Folio’s editor automatically uploads documents and recovery drafts to private cloud storage. Guests can start without Google sign-in, receive 1 GB of storage, and have a 24-hour file expiry. When that space is full, delete old files before uploading more. Sign in to keep files in your account and access them across devices. Standalone merge, split, and image tools process files in the browser; server-assisted features use Folio or connected document services. Choose a workflow that fits your document’s confidentiality requirements, and keep your own original copy.',
+        text: 'A tool that runs in a browser does not necessarily keep every file on your device. Folio’s editor automatically uploads documents and recovery drafts to private cloud storage. Guests can start without Google sign-in, receive 100 MB of storage, and have a 24-hour file expiry. When that space is full, delete old files before uploading more. Sign in to keep files in your account and access them across devices. Standalone merge, split, and image tools process files in the browser; server-assisted features use Folio or connected document services. Choose a workflow that fits your document’s confidentiality requirements, and keep your own original copy.',
       },
       {
         title: 'How should I evaluate a top PDF editor before using it?',
@@ -481,7 +481,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'Save a draft, then check the export',
-        text: 'The editor automatically uploads your PDF and saves a recovery workspace to private cloud storage. Use Save now to request a save, then wait for All changes saved before refreshing or leaving. Guests have 1 GB of storage and their files expire after 24 hours. Google sign-in opens separately so the editor remains open; signing in lets you keep files in your account. Download PDF creates your finished file. Added annotations, forms, signatures, and original-text changes all export for free. Check the downloaded pages in a PDF reader and keep an original copy.',
+        text: 'The editor automatically uploads your PDF and saves a recovery workspace to private cloud storage. Use Save now to request a save, then wait for All changes saved before refreshing or leaving. Guests have 100 MB of storage and their files expire after 24 hours. Google sign-in opens separately so the editor remains open; signing in lets you keep files in your account. Download PDF creates your finished file. Added annotations, forms, signatures, and original-text changes all export for free. Check the downloaded pages in a PDF reader and keep an original copy.',
       },
     ],
   },
@@ -541,7 +541,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'How do I keep the changes for later?',
-        text: 'Folio’s editor uploads the PDF and saves a recovery draft to private cloud storage. Wait for All changes saved before refreshing or leaving, or use Save now to request a save. Guests have 1 GB of storage and a 24-hour file expiry; signing in lets you keep files in an account and open them across devices. Download your finished copy before a guest file expires. Adding a white cover over sensitive words does not securely redact them, and changes to an already digitally signed document can invalidate that signature.',
+        text: 'Folio’s editor uploads the PDF and saves a recovery draft to private cloud storage. Wait for All changes saved before refreshing or leaving, or use Save now to request a save. Guests have 100 MB of storage and a 24-hour file expiry; signing in lets you keep files in an account and open them across devices. Download your finished copy before a guest file expires. Adding a white cover over sensitive words does not securely redact them, and changes to an already digitally signed document can invalidate that signature.',
       },
     ],
   },

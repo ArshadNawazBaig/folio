@@ -186,7 +186,7 @@ export function HomePageContent({
             ],
             [
               'Do I need to install software or create an account?',
-              'Use Folio in your browser without installing software. You can start as a guest without Google sign-in. Guest editor files use private cloud storage, with 1 GB of space and a 24-hour expiry. Sign in to keep your documents and access them across your devices.',
+              'Use Folio in your browser without installing software. You can start as a guest without Google sign-in. Guest editor files use private cloud storage, with 100 MB of space and a 24-hour expiry. Sign in to keep your documents and access them across your devices.',
             ],
             [
               'Can I open and read a PDF online?',

@@ -58,7 +58,7 @@ export function GuestAccount({ view }: { view: 'billing' | 'settings' }) {
           <div>
             <Cloud size={18} aria-hidden="true" />
             <div>
-              <strong>{tr(FREE_LAUNCH ? '1 GB' : '100 MB')}</strong>
+              <strong>{tr('100 MB')}</strong>
               <span>{tr('Private guest storage')}</span>
             </div>
           </div>

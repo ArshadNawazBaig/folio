@@ -33,7 +33,9 @@ for (const locale of locales) {
       page.getByRole('button', { name: messages['Upload PDF'], exact: true }),
     ).toBeEnabled();
     await expect(page.locator('.site-header, .site-footer')).toHaveCount(0);
-    await expect(page.locator('aside nav a')).toHaveCount(7);
+    await expect(page.locator('aside nav a')).toHaveCount(6);
+    await expect(page.locator('main')).toContainText(messages['100 MB, ready to use.']);
+    await expect(page.locator('aside')).toContainText(messages['100 MB']);
     await expect(page.locator('header summary')).toContainText(locale.toUpperCase());
     await page.locator('header summary').click();
     await expect(page.locator('header a[hreflang]')).toHaveCount(12);
@@ -124,6 +126,8 @@ test('translated dashboard sign-in and account tabs keep their language and user
   await page.locator('header a[lang="fr"]').click();
   await expect(page).toHaveURL('/fr/dashboard?view=settings');
   await expect(page.getByLabel(fr['Full name'], { exact: true })).toHaveValue('Fixture User');
+  await expect(page.locator('aside')).toContainText(fr['1 GB']);
+  await expect(page.locator('main')).not.toContainText(fr['100 MB, ready to use.']);
   await expect(page.getByLabel(fr['Email address'], { exact: true })).toHaveValue(
     'customer@example.test',
   );
@@ -135,7 +139,6 @@ test('translated dashboard sign-in and account tabs keep their language and user
   for (const [view, title] of [
     ['links', 'Good links. All together.'],
     ['invoices', 'Good work, clearly billed.'],
-    ['billing', 'Your plan, your choice.'],
     ['support', 'A little help, right here.'],
   ]) {
     await page.locator(`aside a[href="/fr/dashboard?view=${view}"]`).click();
@@ -151,15 +154,19 @@ test('translated dashboard sign-in and account tabs keep their language and user
   await page.getByRole('menuitem', { name: fr['Profile settings'], exact: true }).click();
   await expect(page).toHaveURL('/fr/dashboard?view=settings');
   await expect(page.getByLabel(fr['Full name'], { exact: true })).toHaveValue('Fixture User');
+  await expect(page.locator('aside')).toContainText(fr['1 GB']);
+  await expect(page.locator('main')).not.toContainText(fr['100 MB, ready to use.']);
   await page.reload();
   await expect(page.locator('header summary')).toContainText('FR');
 
   // Unprefixed redirects and bookmarks restore the preference, including the selected tab.
-  await page.goto('/dashboard?view=billing#main');
-  await expect(page).toHaveURL('/fr/dashboard?view=billing#main');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(fr['Your plan, your choice.']);
+  await page.goto('/dashboard?view=files#main');
+  await expect(page).toHaveURL('/fr/dashboard?view=files#main');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    fr['A home for your documents.'],
+  );
   await page.locator('header summary').click();
   await page.locator('header a[lang="en"]').click();
-  await expect(page).toHaveURL('/dashboard?view=billing#main');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your plan, your choice.');
+  await expect(page).toHaveURL('/dashboard?view=files#main');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('A home for your documents.');
 });

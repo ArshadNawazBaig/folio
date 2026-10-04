@@ -1,6 +1,6 @@
 # URL shortener
 
-**Free launch:** all available tools and options are currently free; accounts and guest workspaces receive 1 GB. The pricing distinctions below describe the retained paid-mode implementation. Apply migration 016 before deploying this release; see [FREE-LAUNCH.md](FREE-LAUNCH.md).
+**Free launch:** all available tools and options are currently free; signed-in accounts receive 1 GB and guest workspaces receive 100 MB. The pricing distinctions below describe the retained paid-mode implementation. Apply migrations 016 and 017 before deploying this release; see [FREE-LAUNCH.md](FREE-LAUNCH.md).
 
 The public tool is `/url-shortener`; account management is `/dashboard?view=links`.
 Shared links use `${NEXT_PUBLIC_SITE_URL}/s/{alias}`. PNG and SVG QR codes encode that short URL.
