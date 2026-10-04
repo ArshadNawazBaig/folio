@@ -2,6 +2,8 @@
 
 Preferred public origin: `https://thebestfreepdf.com`.
 
+Source repository: [ArshadNawazBaig/folio](https://github.com/ArshadNawazBaig/folio), branch `main`. The `erushbaig` collaborator account has push access. The local checkout uses that account for GitHub authentication and new commits; existing commit authorship is preserved.
+
 ## Railway origin with GoDaddy DNS — October 4, 2026
 
 Railway project: [folio](https://railway.com/project/aa399ba8-748d-454b-8f5f-24a83d0075cc).
