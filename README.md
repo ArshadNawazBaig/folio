@@ -1,6 +1,6 @@
 # Folio
 
-Live website: [thebestfreepdf.com](https://thebestfreepdf.com). The application runs on Railway; GoDaddy DNS and the existing Vercel HTTPS routing serve the root domain. See [custom domain configuration](docs/CUSTOM-DOMAIN.md).
+Live website: [thebestfreepdf.com](https://thebestfreepdf.com). The application runs on Railway, with Vercel DNS and domain registration at GoDaddy. See [custom domain configuration](docs/CUSTOM-DOMAIN.md) for direct routing and migration status.
 
 Current release: all available tools and options are free, with 1 GB of private storage per account and guest workspace. Apply migration 016 before deploying. See [Free launch](docs/FREE-LAUNCH.md) for rollout, verification, and future pricing. Earlier billing sections describe the retained paid-mode implementation.
 

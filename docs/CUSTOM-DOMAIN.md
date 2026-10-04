@@ -4,7 +4,7 @@ Preferred public origin: `https://thebestfreepdf.com`.
 
 Source repository: [ArshadNawazBaig/folio](https://github.com/ArshadNawazBaig/folio), branch `main`. The `erushbaig` collaborator account has push access. The local checkout uses that account for GitHub authentication and new commits; existing commit authorship is preserved.
 
-## Direct Railway domain — prepared October 4, 2026
+## Direct Railway domain — October 4, 2026
 
 The owner requested the same setup as `messivsronaldo17.com`. That domain uses
 Vercel nameservers, an apex ALIAS pointing to Railway, and Railway's domain
@@ -15,7 +15,7 @@ production service, targeting port `3000`. Its Railway domain ID is
 `2ba0312b-77b5-4ccc-a444-1f10555ce31d` and routing target is
 `lrtso5oo.up.railway.app`.
 
-The Vercel DNS zone is prepared with these records:
+The Vercel DNS zone contains these records:
 
 | Name | Type | Purpose or target |
 | --- | --- | --- |
@@ -31,18 +31,17 @@ resolves to Railway, both verification TXT records are present, and the existing
 DMARC and `www` records match GoDaddy. No MX or AAAA records were returned for the
 root, and no DNSSEC DS record was found at the time of preparation.
 
-**Pending:** the registrar still delegates to `ns11.domaincontrol.com` and
-`ns12.domaincontrol.com`. The owner must change the nameservers in GoDaddy to
-`ns1.vercel-dns.com` and `ns2.vercel-dns.com`. Domain registration stays at
-GoDaddy; DNS management moves to Vercel. The available GoDaddy integration
-supports domain search and purchases, not nameserver management.
+The owner changed the nameservers in GoDaddy to `ns1.vercel-dns.com` and
+`ns2.vercel-dns.com`. The `.com` registry confirms the new delegation, and Railway
+has verified domain ownership. Domain registration stays at GoDaddy; DNS
+management is now at Vercel.
 
-Until that change propagates, Railway reports domain ownership and certificate
-verification pending, and the existing Vercel HTTPS proxy below serves visitors.
-Keep that proxy active during the transition. After the delegation changes,
-verify Railway ownership, the TLS certificate, the public canonical URL and
-indexing headers, and the `www` redirect. Do not replace the ALIAS with a fixed
-Railway IP address.
+Railway is issuing the HTTPS certificate. Recursive DNS caches may temporarily
+retain the former GoDaddy nameservers or Vercel proxy address. Keep the existing
+proxy active for those cached requests. The `www` redirect has been verified
+with path and query preservation. After certificate issuance, verify the direct
+Railway connection, public canonical URL and indexing headers, and a PDF download.
+Do not replace the ALIAS with a fixed Railway IP address.
 
 ```sh
 npx @railway/cli domain status thebestfreepdf.com --service folio --environment production --json
@@ -50,15 +49,16 @@ dig +short NS thebestfreepdf.com
 curl -I https://thebestfreepdf.com
 ```
 
-## Railway origin with GoDaddy DNS — October 4, 2026
+## Previous proxy route and migration fallback — October 4, 2026
 
 Railway project: [folio](https://railway.com/project/aa399ba8-748d-454b-8f5f-24a83d0075cc).
 Service: `folio`, environment: `production`, port: `3000`.
 Application origin: `https://folio-production-7dd2.up.railway.app`.
 
-The public address remains `https://thebestfreepdf.com`. GoDaddy manages DNS
-through `ns11.domaincontrol.com` and `ns12.domaincontrol.com`, and its existing
-records point to Vercel. Vercel terminates HTTPS and forwards requests to Railway
+The public address remains `https://thebestfreepdf.com`. Before the nameserver
+change, GoDaddy managed DNS through `ns11.domaincontrol.com` and
+`ns12.domaincontrol.com`, with records pointing to Vercel. Requests that still
+reach that address use this fallback: Vercel terminates HTTPS and forwards requests to Railway
 using the project-level routing rule **Folio Railway origin**. Railway runs the
 application and PDF workers. Keep the Vercel project and domain connection active.
 
@@ -100,8 +100,9 @@ npx vercel routes disable 'Folio Railway origin' --yes
 npx vercel routes publish --yes
 ```
 
-Disabling and publishing this rule restores the Vercel application behind the
-same domain. Deploy application updates to Railway with
+Disabling and publishing this rule restores the Vercel application for requests
+that reach the old proxy address; it does not change the new Railway DNS route.
+Deploy application updates to Railway with
 `npx @railway/cli up --service folio`.
 
 ## Domain migration — September 17, 2026
