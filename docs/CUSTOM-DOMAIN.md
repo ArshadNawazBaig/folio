@@ -4,6 +4,52 @@ Preferred public origin: `https://thebestfreepdf.com`.
 
 Source repository: [ArshadNawazBaig/folio](https://github.com/ArshadNawazBaig/folio), branch `main`. The `erushbaig` collaborator account has push access. The local checkout uses that account for GitHub authentication and new commits; existing commit authorship is preserved.
 
+## Direct Railway domain — prepared October 4, 2026
+
+The owner requested the same setup as `messivsronaldo17.com`. That domain uses
+Vercel nameservers, an apex ALIAS pointing to Railway, and Railway's domain
+verification TXT record.
+
+`thebestfreepdf.com` is now registered as a custom domain on Railway's `folio`
+production service, targeting port `3000`. Its Railway domain ID is
+`2ba0312b-77b5-4ccc-a444-1f10555ce31d` and routing target is
+`lrtso5oo.up.railway.app`.
+
+The Vercel DNS zone is prepared with these records:
+
+| Name | Type | Purpose or target |
+| --- | --- | --- |
+| `@` | ALIAS | `lrtso5oo.up.railway.app` |
+| `_railway-verify` | TXT | Railway's verification value for this custom domain |
+| `@` | TXT | Existing Google site verification, copied from GoDaddy DNS |
+| `_dmarc` | TXT | Existing DMARC policy, copied unchanged |
+| `_domainconnect` | CNAME | `_domainconnect.gd.domaincontrol.com.` |
+| `www` | CNAME | `a8eb7bd5ce318416.vercel-dns-017.com.`; retains the existing redirect to the root domain |
+
+Both `ns1.vercel-dns.com` and `ns2.vercel-dns.com` were queried directly: the apex
+resolves to Railway, both verification TXT records are present, and the existing
+DMARC and `www` records match GoDaddy. No MX or AAAA records were returned for the
+root, and no DNSSEC DS record was found at the time of preparation.
+
+**Pending:** the registrar still delegates to `ns11.domaincontrol.com` and
+`ns12.domaincontrol.com`. The owner must change the nameservers in GoDaddy to
+`ns1.vercel-dns.com` and `ns2.vercel-dns.com`. Domain registration stays at
+GoDaddy; DNS management moves to Vercel. The available GoDaddy integration
+supports domain search and purchases, not nameserver management.
+
+Until that change propagates, Railway reports domain ownership and certificate
+verification pending, and the existing Vercel HTTPS proxy below serves visitors.
+Keep that proxy active during the transition. After the delegation changes,
+verify Railway ownership, the TLS certificate, the public canonical URL and
+indexing headers, and the `www` redirect. Do not replace the ALIAS with a fixed
+Railway IP address.
+
+```sh
+npx @railway/cli domain status thebestfreepdf.com --service folio --environment production --json
+dig +short NS thebestfreepdf.com
+curl -I https://thebestfreepdf.com
+```
+
 ## Railway origin with GoDaddy DNS — October 4, 2026
 
 Railway project: [folio](https://railway.com/project/aa399ba8-748d-454b-8f5f-24a83d0075cc).
