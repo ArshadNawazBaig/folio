@@ -36,12 +36,28 @@ The owner changed the nameservers in GoDaddy to `ns1.vercel-dns.com` and
 has verified domain ownership. Domain registration stays at GoDaddy; DNS
 management is now at Vercel.
 
-Railway is issuing the HTTPS certificate. Recursive DNS caches may temporarily
-retain the former GoDaddy nameservers or Vercel proxy address. Keep the existing
-proxy active for those cached requests. The `www` redirect has been verified
-with path and query preservation. After certificate issuance, verify the direct
-Railway connection, public canonical URL and indexing headers, and a PDF download.
+Railway reports verified ownership and a valid Let's Encrypt certificate for
+`thebestfreepdf.com`, expiring January 2, 2027. A direct TLS connection to the
+Railway edge verified the certificate without bypassing certificate checks.
+Recursive DNS caches may temporarily retain the former GoDaddy nameservers or
+Vercel proxy address; keep the existing proxy active for those cached requests.
 Do not replace the ALIAS with a fixed Railway IP address.
+
+Production deployment `7513877c-435c-4203-8f94-ffd6088f96d0` also fixes host
+detection for direct Railway requests. Next.js can expose its internal listening
+address in `request.nextUrl`, so the indexing check now resolves the public host
+from request headers. The existing proxy marker remains supported.
+
+Direct browser checks passed for the homepage, tool directory, PDF protection,
+blog article, and French guide: HTTP 200, Railway origin, correct canonical URLs,
+and no public noindex header. Health, free-access billing responses, private API
+authentication, robots.txt, and sitemap checks passed. A synthetic PDF was
+uploaded, password-protected, downloaded, and opened successfully; it was not
+saved to account storage. No browser runtime errors occurred. Eight focused
+domain/SEO tests, TypeScript, lint, and the Railway production build passed.
+The Railway alias and private account page retain noindex headers. The old proxy
+still serves HTTP 200 for cached DNS, and `www` redirects to the root domain with
+HTTP 308 while preserving the path and query.
 
 ```sh
 npx @railway/cli domain status thebestfreepdf.com --service folio --environment production --json
