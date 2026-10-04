@@ -396,5 +396,10 @@
   "Loading conversations…": "Indlæser samtaler...",
   "Loading conversation…": "Indlæser samtale...",
   "pending": "Afventer",
-  "resolved": "Løst"
+  "resolved": "Løst",
+  "Every account includes 1 GB of private storage. No subscription needed.": "Hver konto har 1 GB privat lagerplads. Intet abonnement nødvendigt.",
+  "All available Pro tools and Pro downloads are included.": "Alle tilgængelige Pro-værktøjer og Pro-downloads er inkluderet.",
+  "Free tools and downloads, plus a private home for your PDFs.": "Gratis værktøjer og downloads plus et privat hjem til dine PDF-filer.",
+  "1 GB, ready to use.": "1 GB, klar til brug.",
+  "1 GB": "1 GB"
 }

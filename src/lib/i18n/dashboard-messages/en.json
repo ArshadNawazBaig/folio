@@ -396,5 +396,10 @@
   "Loading conversations…": "Loading conversations…",
   "Loading conversation…": "Loading conversation…",
   "pending": "pending",
-  "resolved": "resolved"
+  "resolved": "resolved",
+  "Every account includes 1 GB of private storage. No subscription needed.": "Every account includes 1 GB of private storage. No subscription needed.",
+  "All available Pro tools and Pro downloads are included.": "All available Pro tools and Pro downloads are included.",
+  "Free tools and downloads, plus a private home for your PDFs.": "Free tools and downloads, plus a private home for your PDFs.",
+  "1 GB, ready to use.": "1 GB, ready to use.",
+  "1 GB": "1 GB"
 }

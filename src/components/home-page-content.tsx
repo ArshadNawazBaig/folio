@@ -182,7 +182,7 @@ export function HomePageContent({
           items={[
             [
               'What can I do with these online PDF tools?',
-              'Add text, highlights, images, and signatures; fill forms; merge, split, and organize pages; or convert PDF pages to images. These workflows include free downloads. Original-text editing can be tried in the editor, and downloading those changes is free. Password-protected, translated, and Office-converted downloads also are free when available.',
+              'Add text, highlights, images, and signatures; fill forms; merge, split, and organize pages; or convert PDF pages to images. These workflows include free downloads. Original-text editing can be tried in the editor, and downloading those changes is free. Password-protected, translated, and Office-converted downloads are also free when available.',
             ],
             [
               'Do I need to install software or create an account?',
@@ -190,7 +190,7 @@ export function HomePageContent({
             ],
             [
               'Can I open and read a PDF online?',
-              'Yes. Open a PDF in the editor, move between pages and use the zoom controls to read it. Viewing does not are free. Editor documents are saved in private cloud storage; guest files expire after 24 hours.',
+              'Yes. Open a PDF in the editor, move between pages and use the zoom controls to read it. Viewing is free. Editor documents are saved in private cloud storage; guest files expire after 24 hours.',
             ],
             [
               'Where do my documents go?',

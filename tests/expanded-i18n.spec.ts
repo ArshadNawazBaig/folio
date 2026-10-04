@@ -19,7 +19,7 @@ async function messages(locale: string): Promise<Record<string, string>> {
   };
 }
 const pages = [
-  ['/pricing', 'Start with the essentials.'],
+  ['/tools', 'What would you like to do?'],
   ['/invoice-generator', 'Invoice generator'],
   ['/compress-images', 'Image compressor'],
   ['/url-shortener', 'URL shortener'],

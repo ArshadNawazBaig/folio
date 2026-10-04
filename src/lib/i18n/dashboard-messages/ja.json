@@ -396,5 +396,10 @@
   "Loading conversations…": "会話を読み込んでいます…",
   "Loading conversation…": "会話を読み込んでいます…",
   "pending": "保留中",
-  "resolved": "解決済み"
+  "resolved": "解決済み",
+  "Every account includes 1 GB of private storage. No subscription needed.": "各アカウントに1 GBの非公開ストレージが付属します。サブスクリプションは不要です。",
+  "All available Pro tools and Pro downloads are included.": "利用可能なすべての Pro ツールと Pro ダウンロードが含まれています。",
+  "Free tools and downloads, plus a private home for your PDFs.": "無料のツールとダウンロード、さらに PDF 用の専用ホーム。",
+  "1 GB, ready to use.": "1 GB、すぐに使用できます。",
+  "1 GB": "1GB"
 }

@@ -280,7 +280,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
     files: 'A home for your documents.',
     links: 'Good links. All together.',
     invoices: 'Good work, clearly billed.',
-    billing: 'Your plan, your choice.',
+    billing: FREE_LAUNCH ? 'Your tools' : 'Your plan, your choice.',
     settings: 'Make yourself at home.',
     support: 'A little help, right here.',
   };
@@ -289,7 +289,9 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
     files: 'Private PDFs, ready whenever you need them.',
     links: 'Shorten a URL, share a QR code, and keep every link in one place.',
     invoices: 'Create an invoice, revisit a draft, and keep your billing details organized.',
-    billing: 'Manage your subscription, payments, and invoices.',
+    billing: FREE_LAUNCH
+      ? 'Free tools and downloads, plus a private home for your PDFs.'
+      : 'Manage your subscription, payments, and invoices.',
     settings: 'Keep your profile up to date and manage your sessions.',
     support: 'Ask a question and follow your conversations with our team.',
   };
@@ -328,7 +330,7 @@ function DashboardContent({ view, adminRequired, checkoutSuccess }: Props) {
               ) : (
                 tr('{used} of {capacity}', {
                   used: bytes ? formatBytes(bytes) : '0 KB',
-                  capacity: storageLabel(capacity),
+                  capacity: tr(storageLabel(capacity)),
                 })
               )}
             </span>
