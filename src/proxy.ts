@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getServiceSettings } from '@/lib/server/platform';
 import { siteUrl } from '@/lib/seo';
-import { legacyPublicRedirect } from '@/lib/site-config';
+import { legacyPublicRedirect, publicRequestHostname } from '@/lib/site-config';
 import { splitLanguagePath } from '@/lib/i18n/config';
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -10,8 +10,7 @@ export async function proxy(request: NextRequest) {
   if (destination) return NextResponse.redirect(destination, 308);
   const next = () => {
     const response = NextResponse.next();
-    // The domain proxy supplies the public host. This affects indexing only.
-    const publicHost = request.headers.get('x-folio-public-host') || request.nextUrl.hostname;
+    const publicHost = publicRequestHostname(request.headers, request.nextUrl.hostname);
     // Production deployment aliases must not compete with the preferred public domain.
     if (
       (process.env.VERCEL_ENV || process.env.RAILWAY_ENVIRONMENT_ID) &&

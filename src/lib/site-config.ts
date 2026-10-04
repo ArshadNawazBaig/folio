@@ -11,6 +11,19 @@ export function seoConfiguration(env: Record<string, string | undefined>) {
   };
 }
 
+// A self-hosted Next.js request URL can contain the internal listening address.
+// Resolve the visitor-facing host for indexing; this is not an authorization check.
+export function publicRequestHostname(headers: Headers, fallback: string) {
+  const host =
+    headers.get('x-folio-public-host') || headers.get('x-forwarded-host') || headers.get('host');
+  if (!host) return fallback;
+  try {
+    return new URL(`https://${host.split(',')[0].trim()}`).hostname;
+  } catch {
+    return fallback;
+  }
+}
+
 // Keep legacy private sessions on their original origin: browser cookies and
 // OAuth state cannot be transferred by a cross-domain redirect.
 export function legacyPublicRedirect(

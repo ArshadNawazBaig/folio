@@ -1,12 +1,50 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { legacyPublicRedirect } from '../src/lib/site-config';
+import { legacyPublicRedirect, publicRequestHostname } from '../src/lib/site-config';
 
 const env = {
   VERCEL_ENV: 'production',
   NEXT_PUBLIC_SITE_URL: 'https://thebestfreepdf.com',
 };
 const oldOrigin = 'https://folio-pdf-kappa.vercel.app';
+
+test('direct Railway requests use the public host despite an internal Next.js URL', () => {
+  const canonical = new URL(env.NEXT_PUBLIC_SITE_URL).hostname;
+  for (const headers of [
+    { host: 'thebestfreepdf.com' },
+    { host: 'THEBESTFREEPDF.COM:443' },
+    { host: '0.0.0.0:3000', 'x-forwarded-host': 'thebestfreepdf.com' },
+  ])
+    assert.equal(publicRequestHostname(new Headers(headers), '0.0.0.0'), canonical);
+  assert.notEqual(
+    publicRequestHostname(new Headers({ host: 'folio-production-7dd2.up.railway.app' }), '0.0.0.0'),
+    canonical,
+  );
+});
+
+test('the existing domain proxy and forwarded host chains retain the public hostname', () => {
+  const canonical = new URL(env.NEXT_PUBLIC_SITE_URL).hostname;
+  assert.equal(
+    publicRequestHostname(
+      new Headers({
+        host: 'folio-production-7dd2.up.railway.app',
+        'x-forwarded-host': 'folio-production-7dd2.up.railway.app',
+        'x-folio-public-host': canonical,
+      }),
+      '0.0.0.0',
+    ),
+    canonical,
+  );
+  assert.equal(
+    publicRequestHostname(new Headers({ 'x-forwarded-host': `${canonical}, internal` }), '0.0.0.0'),
+    canonical,
+  );
+  assert.equal(publicRequestHostname(new Headers(), 'localhost'), 'localhost');
+  assert.equal(
+    publicRequestHostname(new Headers({ host: 'invalid host' }), 'localhost'),
+    'localhost',
+  );
+});
 
 test('legacy public links move to the canonical origin with their paths and queries', () => {
   for (const path of [
