@@ -1,7 +1,7 @@
 // Search titles describe the actual task and omit branding; the layout adds Folio once.
 export const toolSearchTitles: Record<string, string> = {
   'invoice-generator': 'Free Invoice Generator — Create & Download Invoice PDFs',
-  'edit-pdf': 'Free Online PDF Editor — Add Text, Annotate & Sign',
+  'edit-pdf': 'Free Online PDF Editor — No Sign Up',
   'edit-pdf-text': 'Edit PDF Text Online for Free — Change Original Text',
   'protect-pdf': 'Password Protect PDF for Free — AES-256 Encryption',
   'merge-pdf': 'Merge PDF Online — Combine PDF Files for Free',
@@ -36,7 +36,7 @@ export const toolSearchDescriptions: Record<string, string> = {
   'invoice-generator':
     'Create a free invoice PDF with your logo, line items, tax and discounts. Choose any design and download without a watermark. Sign in to save drafts.',
   'edit-pdf':
-    'Edit PDFs online for free. Add text, highlights, images and signatures, then download without a Folio watermark. Guest editor files save privately for 24 hours.',
+    'Free online PDF editor with no sign up. Add text, annotate and sign, then download without a Folio watermark. Guest files save privately for 24 hours.',
   'edit-pdf-text':
     'Change existing PDF text for free. Edit supported text blocks, adjust fonts and colors, or find and replace words. Preview your edits before downloading.',
   'protect-pdf':

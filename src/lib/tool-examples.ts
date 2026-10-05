@@ -26,7 +26,7 @@ export const toolExamples: Record<string, ToolExample> = {
     updated: '2026-10-05',
     title: 'Add a note to a PDF without changing the original wording',
     scenario:
-      'You have a project packet and want to add a review note beside its budget. Use an annotation when the existing words should stay intact.',
+      'Use this free online PDF editor with no sign up to add a review note beside the budget in a project packet. Open the practice PDF as a guest; annotations leave the existing words intact.',
     settings: [
       ['Tool', 'Add text'],
       ['Example note', 'Please confirm the material quantities.'],
@@ -34,7 +34,7 @@ export const toolExamples: Record<string, ToolExample> = {
     ],
     check:
       'Download the PDF and open it again. Confirm that the note is readable and does not cover the budget. Use PDF text editor when you need to replace the original words.',
-    note: 'The editor saves your document privately in cloud storage, including guest workspaces. An annotation placed over sensitive text is not secure redaction.',
+    note: 'Editing and downloading do not require an account. Guest workspaces have 100 MB of private cloud storage and expire after 24 hours. Sign in to keep files beyond the guest period or access them on another device. An annotation placed over sensitive text is not secure redaction.',
     samples: [packet],
   },
   'edit-pdf-text': {

@@ -16,10 +16,14 @@ invoices and image tools discoverable without interacting with filters. Related-
 now connect useful workflows: QR codes to short links, image conversion to compression,
 and invoices to signatures and QR codes.
 
-The [keyword map](SEO-KEYWORD-MAP.csv) now contains **188 distinct query candidates**, including
+The [keyword map](SEO-KEYWORD-MAP.csv) now contains **189 distinct query candidates**, including
 destinations for all 28 tools. The earlier map covered only 12 tool destinations. These are
 product-fit search targets, not measured demand, keyword difficulty or achieved rankings.
 No keyword meta tags or duplicate pages were created for these variations.
+
+The requested “free online pdf editor no sign up” query targets the existing `/edit-pdf`
+page. Its English search title, description and practical example now explain editing and
+downloading as a guest, with the 100 MB private storage allowance and 24-hour expiry stated.
 
 | Group                        | Tools covered                                                                                                              | Example query targets                                                                 |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |

@@ -20,7 +20,9 @@ On October 5, we ran **28 web searches, one for each tool**, and opened the firs
 
 The [28-row competitor research CSV](SEO-COMPETITOR-RESEARCH.csv) records the exact query, date, reviewed URL, two additional returned URLs, practical opportunity and product limitation for every tool. Search-provider ordering is an observed snapshot. It is **not** an independently verified Google position, a country-specific top-three report, a search-volume estimate or a keyword-difficulty score. Provider claims were read, not performance-tested. Some results came from smaller publishers; their appearance does not prove authority or a successful business.
 
-The [188-query keyword map](SEO-KEYWORD-MAP.csv) assigns query candidates to existing relevant destinations. Do not call those phrases “trending” or “high volume” without actual evidence. Refine the map with the supplied Search Console observations and future page-filtered queries. These artifacts separate research observations from our implementation choices.
+The [189-query keyword map](SEO-KEYWORD-MAP.csv) assigns query candidates to existing relevant destinations. Do not call those phrases “trending” or “high volume” without actual evidence. Refine the map with the supplied Search Console observations and future page-filtered queries. These artifacts separate research observations from our implementation choices.
+
+The owner-requested query **“free online pdf editor no sign up”** maps to `/edit-pdf`. Its English search title, description and visible example explain guest editing and free downloads without an account. Keep the 100 MB guest storage allowance and 24-hour expiry clear. Account saving across devices remains a separate benefit. This addition does not change the data-supported mobile-guide priority or create another landing page.
 
 ## Evidence behind the fast-ranking examples
 
