@@ -1,10 +1,8 @@
 import { test, expect } from './fixtures/editor-storage';
 import { mockGoogle } from './fixtures/auth';
 import { saveDirectDownload, saveDownload, watchDownloads } from './fixtures/download';
-import { outputFormats, remoteTools } from '../src/lib/remote-types';
 import { FREE_STORAGE_LIMIT } from '../src/lib/cloud-types';
 import { PDFDocument } from 'pdf-lib';
-import JSZip from 'jszip';
 import sharp from 'sharp';
 import jsQR from 'jsqr';
 
@@ -46,62 +44,6 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole('button', { name: 'Continue with Google' }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
 });
-
-for (const tool of remoteTools)
-  test(`${tool} preserves the original and the prepared export MIME, filename and bytes`, async ({
-    page,
-  }) => {
-    const format = outputFormats[tool];
-    // Conversion correctness belongs to provider tests; these bytes expose delivery corruption or a wrong MIME.
-    const zip = new JSZip().file('download-fixture.txt', `Prepared ${format.label} fixture`);
-    const output =
-      tool === 'translate-pdf' ? bytes : await zip.generateAsync({ type: 'nodebuffer' });
-    const filename = `report-converted.${format.extension}`;
-    await page.route('**/api/capabilities', (route) =>
-      route.fulfill({ json: { tools: { [tool]: true } } }),
-    );
-    await page.route('**/api/documents/process', (route) =>
-      route.fulfill({
-        json: {
-          tool,
-          artifact: 'download-test-artifact',
-          filename,
-          size: output.length,
-          pages: 1,
-          expiresAt: Date.now() + 86400000,
-          source: 'auto',
-          target: 'es',
-          ...(tool === 'translate-pdf'
-            ? {
-                preview: {
-                  preview:
-                    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j26kAAAAASUVORK5CYII=',
-                  width: 1,
-                  height: 1,
-                  page: 0,
-                },
-              }
-            : {}),
-        },
-      }),
-    );
-    await page.route('**/api/documents/export', async (route) => {
-      expect(route.request().headers().authorization).toMatch(/^Bearer /);
-      await route.fulfill({ body: output, contentType: format.mime });
-    });
-    await page.goto(`/${tool}`);
-    await page.locator('input[type=file]').first().setInputFiles(upload);
-    expect((await saveDownload(page, 'Save original', 'application/pdf')).bytes).toEqual(bytes);
-    await page
-      .getByRole('button', {
-        name: tool === 'translate-pdf' ? 'Translate PDF' : `Convert to ${format.label}`,
-        exact: true,
-      })
-      .click();
-    const file = await saveDownload(page, `Download ${format.label}`, format.mime);
-    expect(file.name).toBe(filename);
-    expect(file.bytes).toEqual(output);
-  });
 
 test('password protection delivers the server response and can save the original copy', async ({
   page,

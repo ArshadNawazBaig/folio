@@ -1,10 +1,183 @@
 # SEO implementation and launch setup
 
+## Current search review — October 5, 2026
+
+### Full tool catalog scope
+
+The owner's follow-up explicitly includes every tool, not only the initial PDF priorities.
+The implementation covers **all 28 tool routes**. PDF translation and the three Office
+converters were removed at the owner’s request because their external processing is paid.
+Their English and translated URLs return 404, all discovery links and SEO targets are
+removed, and the old processing endpoint returns 410 without contacting providers.
+
+Every tool has a task-specific title and concise search description. The homepage links
+directly to every available tool in six translated groups. This makes QR codes, short links,
+invoices and image tools discoverable without interacting with filters. Related-tool links
+now connect useful workflows: QR codes to short links, image conversion to compression,
+and invoices to signatures and QR codes.
+
+The [keyword map](SEO-KEYWORD-MAP.csv) now contains **188 distinct query candidates**, including
+destinations for all 28 tools. The earlier map covered only 12 tool destinations. These are
+product-fit search targets, not measured demand, keyword difficulty or achieved rankings.
+No keyword meta tags or duplicate pages were created for these variations.
+
+| Group                        | Tools covered                                                                                                              | Example query targets                                                                 |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| PDF editing and organization | Editor, original-text editor, merge, split, compress, organize, rotate, crop, watermark, page numbers, password protection | edit PDF text online free; add page numbers after cover; watermark selected PDF pages |
+| PDF and image conversion     | PDF to JPG, PNG and text; images, JPG and PNG to PDF; merge images                                                         | PDF to PNG 300 DPI; screenshots to PDF; extract selectable text                       |
+| Images                       | Image compression, image enhancement, JPG to WebP, WebP to JPG                                                             | compress image to 20 KB; batch WebP to JPG; adjust photo brightness                   |
+| Signatures and forms         | Signature generator, PDF signing, fillable form builder                                                                    | transparent signature PNG; sign PDF online free; create fillable PDF                  |
+| Invoices                     | Invoice generator                                                                                                          | free invoice generator; invoice maker with logo; freelance invoice PDF                |
+| Links and QR codes           | URL shortener, QR code generator                                                                                           | custom short link free; editable short URL; Wi-Fi QR code; QR code SVG download       |
+
+Measure each group's pages separately in Search Console; a PDF-only query filter would hide
+progress on the other tools. For example, compare queries matching
+`(invoice|qr|shorten|webp|image|photo|signature)` as well as PDF queries, and inspect the actual
+landing pages. Groups overlap, so do not add their totals together as if they were exclusive.
+Use the same date, country and device filters for each comparison.
+
+Expand examples and seek relevant editorial mentions across all six groups as evidence
+develops. Existing invoice, signature, image compression, QR and short-link blog articles
+already provide supporting content; improve those before producing similar articles.
+Preserve actual limits: image enhancement is not AI upscaling, merged images become PDF
+pages rather than a collage, short links require an account, and scans need OCR elsewhere.
+The [Google title guidance](https://developers.google.com/search/docs/appearance/title-link)
+and [link guidance](https://developers.google.com/search/docs/crawling-indexing/links-crawlable)
+support clear page identities and crawlable links; they do not promise rankings.
+
+### Audit evidence and indexing follow-up
+
+The owner confirms Search Console is connected and is the dashboard used to check traffic.
+On October 5, the owner inspected the homepage and reported **“URL is on Google”**. The homepage
+is therefore confirmed indexed by that report. The owner also supplied seven performance CSVs,
+analyzed privately on October 5. The chart covers September 16–October 3, despite the “Last 28
+days” filter label. Mobile editing is the strongest visible task cluster; the mobile guide is
+the most visible page. Global query and page exports do not establish their exact pairing.
+Tool-page URL Inspection states have not been supplied. **The live HTTP audit cannot tell us
+how many pages Google has indexed or why impressions are low.** The September 26 entry in this repository
+records an earlier owner-reported baseline of 9 clicks and 45 impressions in seven days; it is
+not a current measurement. A public `site:` search returned no results during this review,
+which is not a substitute for Search Console URL Inspection.
+
+The production crawl checked **676 sitemap URLs plus one blog pagination URL**. All returned
+200, had self-canonical URLs and indexable directives, and had discoverable internal links.
+Robots and sitemap were accessible, private routes returned noindex, and the missing-page
+probe returned 404. HTTP and www redirected to the preferred HTTPS apex. Sample requests
+using a Googlebot user agent also succeeded; this does not establish access from Google's
+actual crawler infrastructure. The 676 sitemap URLs consist of 71 English pages and 55 pages
+in each of 11 other languages. Full pre-change evidence was written to
+`/tmp/pdf-seo-live-audit.json` during the review.
+
+The old audit reported 34 issues: 11 real duplicate descriptions between a translated
+homepage and its editor, and 23 identical titles across different languages. Shared words
+such as Spanish/Portuguese tool names are not an error merely because they match. The audit
+now compares metadata within each language and validates self-referencing and reciprocal
+hreflang destinations. Its JSON output includes descriptions, language groups and request
+durations; durations are local observations, not Core Web Vitals.
+
+### Changes prepared in this checkout
+
+- Every English tool page now includes an original practical example with settings, an output
+  check and accurate limitations. Five new fictional practice files support the instructions.
+  The [current strategy](SEO-KEYWORD-PLAN.md) and [28-tool research CSV](SEO-COMPETITOR-RESEARCH.csv)
+  record October 5 competitor observations, priorities and a free four-week promotion plan.
+- English tool sitemap entries use the actual update date of their practical example. The
+  date is editorial data and does not change on each request or leak to unchanged translations.
+- `npm run seo:opportunities -- export.zip --help` documents the offline Search Console
+  CSV/ZIP analyzer. It identifies review candidates from supplied observations and keeps
+  query and page tables separate. The owner's real exports were analyzed locally; the raw
+  data, JSON analysis and HTML report remain outside the repository.
+- The existing English mobile guide now includes Android/iPhone steps, original-text editing,
+  a fictional practice file and download troubleshooting. Its visible date, Article metadata,
+  sitemap and feed reflect the revision. Unchanged translations keep their reviewed edition.
+- The homepage explicitly identifies the free online PDF toolkit in its visible headline,
+  preserving the existing design and translating the headline in all supported languages.
+- Homepage metadata and WebPage structured data share the same description, including the
+  translated pages. Editor descriptions are now distinct from homepage descriptions.
+- Home/tool reading links, tool privacy links, guide table links, guide breadcrumbs and
+  guide collections point to the selected language's real URLs.
+- The original-text editor search title now states that it is free.
+- Browser coverage checks the distinct descriptions in all 12 languages and checks
+  English, German and Japanese discovery without JavaScript at a mobile viewport.
+- An existing missing-page heading spacing bug and a stale paid-download test expectation
+  were corrected while running the SEO regression suite.
+
+These are local changes until deployed. They fix observable issues; they do not establish
+that those issues caused the low traffic or promise a position in Google.
+
+### Establish the actual bottleneck first
+
+1. In Search Console, record the **Pages** indexed/not-indexed counts and leading exclusion
+   reasons. In **Sitemaps**, confirm the submitted `sitemap.xml` has status **Success** and
+   inspect its last-read date. A submission alone is not evidence of indexing.
+2. Inspect `/`, `/edit-pdf`, `/edit-pdf-text`, `/merge-pdf` and `/signature-generator`.
+   Record last crawl, indexing permission and Google-selected canonical. If a page is
+   excluded, use **Test live URL** and compare the fetched HTML with the actual page.
+3. Address the reported reason: robots/noindex/5xx failures need technical fixes;
+   unexpected canonicals need duplicate-content analysis; “Discovered” or “Crawled —
+   currently not indexed” needs a review of discovery, distinct usefulness and Google’s
+   chosen pages. Do not delete translations or redirect articles based only on guesswork.
+4. Preserve the supplied performance baseline and add a Queries export filtered to the mobile
+   guide URL. The supplied global tables cannot be joined into query/page pairs. Keep date,
+   search-type, country and device filters consistent for follow-up comparisons. Missing
+   queries cannot be classified as branded, nonbranded or owner traffic. Page-level impressions
+   also use different aggregation from chart totals; do not add all tables together.
+5. Use Search Console as the organic-search baseline, as confirmed by the owner. It does not
+   count all visits or completed downloads. The live apex runs on Railway, while
+   `RootDocument` mounts Vercel Analytics only when `VERCEL=1`; that separate instrumentation
+   gap does not explain the owner's Search Console figures.
+
+Latest validation: production build (727 static pages), TypeScript, lint and all 20 SEO/blog/
+retired-tool browser checks passed. Browser coverage includes all 28 examples in the initial
+HTML, every linked practice download, mobile/desktop accessibility, and an actual JPG export
+below 20 KB using the published practice image. A focused PDF export test confirms the new
+rotation and cover-skipping numbering examples produce the stated results. Earlier SEO,
+internationalization and provider-removal unit checks are recorded in this task's history.
+No deployment, outreach or Search Console indexing request was made during this change.
+
+Fast-ranking follow-up validation: four offline CSV/ZIP analysis tests using synthetic fixtures
+and the sitemap browser check passed, followed by lint, TypeScript and a fresh 727-page
+production build. The analyzer subsequently processed the owner's real exports. Live checks still found the old tool directory and no
+new practical examples on the two sampled pages; production publishing approval is pending.
+
+Performance-export follow-up validation: 17 SEO/internationalization/content-discovery unit
+checks and five browser checks passed, along with lint, TypeScript and a new 727-page
+production build. The browser checks cover initial HTML, the revised guide's date/schema/
+sitemap, its practice download, phone layout/accessibility and unchanged German content/date.
+The private HTML report was also checked at desktop and mobile widths with no external
+requests. Current HTTP/www redirects and the guide's HTTPS canonical were verified; the
+historical HTTP performance row did not reproduce a current redirect problem. These checks
+do not establish real-device behavior or a ranking change. The release is still local.
+
+### Search growth priorities
+
+The [current all-tool strategy](SEO-KEYWORD-PLAN.md) supersedes the earlier PDF-only
+promotion order. It includes the dated 28-tool competitor evidence, every tool's supporting
+query, a free four-week work schedule, three demonstration drafts and individual resource
+outreach copy. No outreach has been sent.
+
+The supplied performance data changes the first priority to mobile PDF editing. Start with
+the revised guide and its practice task. Preserve the early QR-code result and observe the
+compression troubleshooting guide; their small samples do not establish repeatable wins.
+Image compression, transparent signature PNGs, cover-skipping numbering and PDF-to-PNG at
+300 DPI remain secondary demonstrations based on product fit. All 28 tools retain their own
+examples and remain in the plan; missing rows do not prove a tool is unindexed.
+
+Use current Search Console data to choose subsequent work. Homepage indexing and a dated
+performance baseline are available; individual tool URL Inspection states remain unknown. Reassess weekly and
+compare equal periods. Keep all supporting queries on their relevant existing pages rather
+than creating repetitive landing pages. The PDF compressor performs structural optimization;
+the image compressor's KB targets must not be advertised as PDF compression features.
+
+**Current pricing overrides historical notes below:** all available tools and downloads are
+free under the current launch policy. Earlier instructions about paid original-text exports
+describe an older release and must not be used as current product copy.
+
 ## International languages — October 3, 2026
 
 The language selector offers English, German, French, Dutch, Spanish, Italian, Portuguese, Swedish, Norwegian Bokmål, Danish, Japanese and Korean. English keeps its existing URLs. The other languages use `/de`, `/fr`, `/nl`, `/es`, `/it`, `/pt`, `/sv`, `/nb`, `/da`, `/ja` and `/ko`.
 
-Each language includes the homepage, tool directories, all 32 tool landing pages, forms, pricing, 17 guides, about, privacy, terms, security, and the blog interface. Headings, descriptions, instructions, FAQs, forms, tool controls, and download controls use the selected language. Private dashboard, account, support, and maintenance routes have localized URLs. The PDF workspace and invoice editor keep their existing private URLs and translate their controls using the saved language preference. User-entered text, uploaded documents, and CMS-authored blog articles retain their original content; the blog navigation and surrounding interface are translated. Unconnected tools remain noindex and absent from the sitemap.
+Each language includes the homepage, tool directories, all 28 tool landing pages, forms, pricing, 17 guides, about, privacy, terms, security, and the blog interface. Headings, descriptions, instructions, FAQs, forms, tool controls, and download controls use the selected language. Private dashboard, account, support, and maintenance routes have localized URLs. The PDF workspace and invoice editor keep their existing private URLs and translate their controls using the saved language preference. User-entered text, uploaded documents, and CMS-authored blog articles retain their original content; the blog navigation and surrounding interface are translated. Removed translation and Office-conversion URLs return 404 and are absent from the sitemap.
 
 Translated public pages have its own canonical, translated search/social copy, server-rendered HTML language, and language-tagged structured data. Equivalent pages have reciprocal language and regional `hreflang` links, an English `x-default`, and sitemap entries. Region tags share a language URL; there are no duplicate country-only pages. Visitors choose their language through crawlable links, with no IP-based or browser-language redirects. The browser remembers an explicit choice in `folio-language` local storage. Later unprefixed visits to translated routes return to the saved language, preserving queries and fragments; choosing English explicitly resets that preference. Private editors retain their URLs and use the selected interface language without resetting navigation or sending language changes to the homepage. Search crawlers without a saved choice still receive each URL’s original server-rendered content. This follows [Google’s multilingual-site guidance](https://developers.google.com/search/docs/specialty/international/managing-multi-regional-sites).
 
@@ -48,7 +221,7 @@ Run `npm run test:seo` for local browser coverage and `npm run seo:audit -- http
 6. `/robots.txt` prevents indexing of development/preview deployments. Production allows public crawling and lists the sitemap.
 7. `/workspace`, `/documents`, `/dashboard`, `/account`, `/admin`, `/support`, `/maintenance`, and `/auth/callback` have noindex/nofollow metadata and X-Robots-Tag headers. API routes also have noindex headers. Private routes use no-store response headers and stay out of the sitemap. No user document contents are server-rendered. Noindex routes remain crawlable so crawlers can read their directives; robots.txt is not an access control.
 8. Unconnected translation and Office conversion pages use noindex/nofollow and stay out of the sitemap until the associated tools work.
-9. Legacy `/pdf-editor`, `/pdf-forms`, and `/translate-pdf-page` URLs redirect permanently to their canonical replacements. Unknown routes return actual 404 responses.
+9. Legacy `/pdf-editor` and `/pdf-forms` URLs redirect permanently to their canonical replacements. Unknown routes return actual 404 responses.
 10. The site uses a semantic main region, a single primary heading per public page, descriptive links, accessible controls, responsive layouts, reduced-motion handling, locally hosted fonts with swap, and original SVG artwork. PDF engines are loaded only for document workflows.
 11. Static icons and a web manifest identify the product. Search Console verification can be configured through an environment variable.
 

@@ -4,7 +4,7 @@
   "eyebrow": "PDF-VERKTYG UTAN KRÅNGEL.",
   "heading": "Ett enklare sätt att arbeta med PDF.",
   "intro": "Redigera, signera och ordna dokument i webbläsaren. Välj ett verktyg och kom igång.",
-  "tools": "PDF-verktyg",
+  "tools": "Gratis onlineverktyg — PDF, bilder, fakturor och QR-koder",
   "home": "Hem",
   "language": "Språk",
   "skip": "Hoppa till innehållet",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "Redigera PDF",
-      "description": "Redigera, signera, slå ihop, dela och skydda PDF-filer gratis. Varje konto har 1 GB privat lagring.",
+      "description": "Redigera PDF-text, kommentera, fyll i formulär och signera gratis online. Ladda ned utan Folio-vattenstämpel. Gästfiler sparas privat i 24 timmar.",
       "detail": "Öppna en PDF för att lägga till text och granska sidor. Originaltext som stöds kan redigeras, men stycken flödar inte om automatiskt. Skannade sidor kan kommenteras; OCR ingår inte.",
       "action": "Öppna i redigeraren",
       "steps": [
@@ -206,5 +206,5 @@
     "Sharing is unavailable right now. Use Download file instead.": "Delning är inte tillgänglig. Använd Ladda ner fil.",
     "The file was handed to your selected app. You can keep working here.": "Filen har skickats till den valda appen. Du kan fortsätta arbeta här."
   },
-  "directoryDescription": "Välj ett verktyg för att redigera, slå ihop, dela, komprimera eller signera PDF och konvertera bilder. Tydliga steg för varje uppgift."
+  "directoryDescription": "Upptäck gratis verktyg för PDF-redigering, bildkonvertering och komprimering, fakturor, signaturer, QR-koder och korta länkar. Hitta verktyget för din uppgift."
 }

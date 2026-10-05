@@ -6,7 +6,7 @@ Current release: all available tools and options are free, with 100 MB of privat
 
 A document application built with Next.js 16 App Router, React 19, and TypeScript. Public pages have server-rendered HTML and metadata. Local tool pages are prerendered; service-dependent pages and pricing use current server configuration. Free document tools run locally in the browser; Folio Pro adds server processing with Lemon Squeezy subscriptions and Supabase accounts.
 
-See [docs/SETUP.md](docs/SETUP.md) to connect Google login, assign the super admin, enable Lemon Squeezy, and configure translation/conversion providers. Run `npm run check:setup` to see which credentials are still missing.
+See [docs/SETUP.md](docs/SETUP.md) to connect Google login, assign the super admin, and review deployment setup. Run `npm run check:setup` to see which credentials are still missing.
 
 ## Run locally
 
@@ -50,7 +50,7 @@ The source file on the user's device stays unchanged. Free document processing r
 
 The editor toolbar exposes Move, Undo/Redo, Add Text, Edit Text, Eraser, Highlight, Pencil, Image, Ellipse, Cross, Check, Sign, Annotations, Links, More tools, Page layout, and Manage pages. Custom menus provide shape/signature choices, form fields, annotation review, and page operations. Move pans the page; added items remain draggable. Arrow keys navigate toolbar buttons and menus. The toolbar scrolls horizontally on narrow screens. Edit Text edits supported original text directly in the same workspace; premium downloads retain their server payment checks.
 
-For provider-backed tools, see the [processing service setup guide](docs/PROCESSING-SERVICES.md). CloudConvert supports the existing PDF-to-Word, Excel and PowerPoint routes; Google Cloud handles document translation. Full competitor tool coverage and large-file background processing remain work in progress, as recorded in the [tool review](docs/reviews/TOOL-COVERAGE.md).
+PDF translation and PDF-to-Word, Excel, and PowerPoint were removed because they require paid external processing. The remaining 28 tools do not need those provider connections. See [processing services](docs/PROCESSING-SERVICES.md).
 
 The [tool access policy](docs/TOOL-ACCESS.md) defines free and premium downloads. Editing and previews stay available before purchase; the pricing page lists enabled features separately from tools that still need a service connection.
 
@@ -60,7 +60,6 @@ The [tool access policy](docs/TOOL-ACCESS.md) defines free and premium downloads
 - Search 1,817 Google Font families for original-text edits, added text, and signatures, with available weights and italics. Fonts load on demand and are embedded in exported PDFs; choices survive cloud save and refresh. See [document font setup and caching](docs/document-fonts.md).
 - Find and replace text across pages, undo/redo changes, preview the resulting PDF, and download it.
 - Add an AES-256 opening password to a PDF.
-- Translate PDFs with Google Cloud Translation and convert to Word, Excel, and PowerPoint with ConvertAPI when configured. Prepare without sign-in; download with Pro.
 - Sign in with Google or email links, subscribe through Lemon Squeezy Checkout, and manage billing through Lemon Squeezy's portal.
 - Enforce paid access and processing quotas on the server using verified accounts and signed subscription webhooks.
 
@@ -90,7 +89,7 @@ The super admin **Blog posts** workspace at `/admin/blog` includes a rich post e
 
 ## Current boundaries
 
-Translation and PDF-to-Word, Excel, and PowerPoint have implemented provider integrations and download recovery. Their service credentials have not been connected here. Unconfigured services keep processing disabled, allow original previews, and are excluded from indexing and the sitemap. See the setup guide for provider limits and connected verification.
+Removed translation and Office-conversion URLs return 404 and are excluded from navigation and the sitemap. The retired processing endpoint returns 410; configured provider keys cannot enable it.
 
 OCR, Office-to-PDF, automatic paragraph reflow, certificate signatures, password removal, and secure redaction are not implemented. Cropping and text deletion are **not secure redaction**. Visual signatures do not create digital certificates. Replacement text supports Latin characters with original, standard PDF, or selected Google fonts; unsupported characters generate an actionable error. The source PDF can contain other scripts.
 
@@ -132,7 +131,7 @@ See [docs/DESIGN.md](docs/DESIGN.md) for shared interface patterns and the deskt
 
 For repeatable tool checks without production credentials, use `npm run test:tools`.
 
-`npm run test:downloads` checks saved file contents, names, and MIME types in emulated iPhone WebKit, Android Chromium, and desktop Chromium. It covers the shared mobile save/share dialog, standalone tools, signatures, QR codes, image ZIPs, text, PDFs, and account downloads. Account and document-provider responses use fixtures; browser processing and downloads run normally. Install Chromium and WebKit with `npx playwright install chromium webkit` first. Emulation does not replace checking the operating system's Files/Share sheet on physical phones.
+`npm run test:downloads` checks saved file contents, names, and MIME types in emulated iPhone WebKit, Android Chromium, and desktop Chromium. It covers the shared mobile save/share dialog, standalone tools, signatures, QR codes, image ZIPs, text, PDFs, and account downloads. Account responses use fixtures; browser processing and downloads run normally. Install Chromium and WebKit with `npx playwright install chromium webkit` first. Emulation does not replace checking the operating system's Files/Share sheet on physical phones.
 It runs the real PDF/image engines with local service fixtures on port 3001, using
 `.next-auth-tests` and leaving the normal dev server alone. Run it sequentially
 with the auth, design and blog suites, which share that port/build directory.

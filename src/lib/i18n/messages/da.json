@@ -4,7 +4,7 @@
   "eyebrow": "PDF-VÆRKTØJER UDEN BESVÆR.",
   "heading": "En nemmere måde at arbejde med PDF på.",
   "intro": "Rediger, underskriv og organiser dokumenter i browseren. Vælg et værktøj og kom i gang.",
-  "tools": "PDF-værktøjer",
+  "tools": "Gratis onlineværktøjer — PDF, billeder, fakturaer og QR-koder",
   "home": "Forside",
   "language": "Sprog",
   "skip": "Gå til indholdet",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "Rediger PDF",
-      "description": "Rediger, underskriv, flet, opdel og beskyt PDF-filer gratis. Hver konto har 1 GB privat lagerplads.",
+      "description": "Rediger PDF-tekst, tilføj kommentarer, udfyld formularer og underskriv gratis online. Download uden Folio-vandmærke. Gæstefiler gemmes privat i 24 timer.",
       "detail": "Åbn en PDF for at tilføje tekst og gennemgå sider. Understøttet originaltekst kan redigeres, men afsnit ombrydes ikke automatisk. Scanninger kan kommenteres; OCR er ikke inkluderet.",
       "action": "Åbn i editoren",
       "steps": [
@@ -206,5 +206,5 @@
     "Sharing is unavailable right now. Use Download file instead.": "Deling er ikke tilgængelig. Brug Download fil.",
     "The file was handed to your selected app. You can keep working here.": "Filen er sendt til den valgte app. Du kan fortsætte her."
   },
-  "directoryDescription": "Vælg et værktøj til at redigere, samle, opdele, komprimere eller underskrive PDF og konvertere billeder. Tydelige trin til hver opgave."
+  "directoryDescription": "Find gratis værktøjer til PDF-redigering, billedkonvertering og komprimering, fakturaer, underskrifter, QR-koder og korte links. Vælg værktøjet til din opgave."
 }

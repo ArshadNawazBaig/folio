@@ -69,6 +69,7 @@ test('every advertised language has complete, nonempty page content and matching
       if (typeof value === 'string') assert.ok(value.trim(), `${locale}.${key}`);
     if (locale !== 'en') assert.notEqual(dictionary.heading, english.heading);
     assert.notEqual(dictionary.description, dictionary.directoryDescription);
+    assert.notEqual(dictionary.description, dictionary.catalog['edit-pdf'].description, locale);
     assert.equal(dictionary.faq.length, 3);
     for (const pair of dictionary.faq)
       assert.ok(pair.length === 2 && pair.every((text: string) => text.trim().length > 10));

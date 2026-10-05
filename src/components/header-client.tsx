@@ -23,13 +23,7 @@ const nav = [
   ['Guides', '/guides'],
   ['Blog', '/blog'],
 ];
-const mobileNav = [
-  ...nav,
-  ['Edit PDF', '/edit-pdf'],
-  ['Convert', '/convert'],
-  ['Forms', '/forms'],
-  ['Translate PDF', '/translate-pdf'],
-];
+const mobileNav = [...nav, ['Edit PDF', '/edit-pdf'], ['Convert', '/convert'], ['Forms', '/forms']];
 export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) {
   const tr = useUiTranslation();
   const locale = useUiLocale();

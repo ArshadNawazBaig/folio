@@ -17,15 +17,15 @@ export default function Guides({ locale = 'en', messages = {} }: PageLanguage = 
     <main id="main" className="container guides-page with-page-heading">
       <StructuredData
         data={breadcrumbSchema([
-          { name: 'Home', path: '/' },
-          { name: 'PDF guides', path: '/guides' },
+          { name: tr('Home'), path: href('/') },
+          { name: tr('PDF guides'), path: href('/guides') },
         ])}
       />
       <StructuredData
         data={collectionSchema(
-          'PDF guides',
-          '/guides',
-          guides.map((g) => ({ name: g.title, path: `/guides/${g.slug}` })),
+          tr('PDF guides'),
+          href('/guides'),
+          guides.map((g) => ({ name: tr(g.title), path: href(`/guides/${g.slug}`) })),
         )}
       />
       <div className="directory-heading page-heading">

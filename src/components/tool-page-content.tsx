@@ -10,11 +10,9 @@ import {
 import Link from 'next/link';
 import { ArrowUpRight, ChevronRight, ShieldCheck, ArrowRight } from 'lucide-react';
 import { editorTools } from '@/lib/tools';
-import { serverTools, isRemoteTool } from '@/lib/server/tool-catalog';
-import { conversionProvider } from '@/lib/server/document-config';
+import { serverTools } from '@/lib/server/tool-catalog';
 import { ToolIcon } from '@/components/icon';
 import { ToolProcessor } from '@/components/tool-processor';
-import { RemotePdfWorkspace } from '@/components/remote-pdf-workspace';
 import { ProTextEditor } from '@/components/pro-text-editor';
 import { ProtectPdf } from '@/components/protect-pdf';
 import { ImageWorkbench } from '@/components/image-workbench';
@@ -24,6 +22,7 @@ import { InvoiceLauncher } from '@/components/invoice-launcher';
 import { SignatureWorkbench } from '@/components/signature-dialog';
 import { Faq } from '@/components/faq';
 import { ToolFacts } from '@/components/tool-facts';
+import { ToolExample } from '@/components/tool-example';
 import { StructuredData } from '@/components/structured-data';
 import { breadcrumbSchema, siteUrl } from '@/lib/seo';
 import { guidesForTool, relatedTools } from '@/lib/related-content';
@@ -107,12 +106,11 @@ export function ToolPageContent({
             <i />
             {tr('QR downloads included')}
           </div>
-        ) : (isRemoteTool(t.slug) || ['edit-pdf-text', 'protect-pdf'].includes(t.slug)) &&
-          t.available ? (
+        ) : ['edit-pdf-text', 'protect-pdf'].includes(t.slug) && t.available ? (
           <div className="tool-benefits">
             <span>
               <ShieldCheck size={14} />
-              {isRemoteTool(t.slug) ? tr('Connected document service') : tr('Processed on Folio')}
+              {tr('Processed on Folio')}
             </span>
             <i />
             {t.slug === 'protect-pdf'
@@ -150,13 +148,6 @@ export function ToolPageContent({
         <ProTextEditor />
       ) : t.slug === 'protect-pdf' ? (
         <ProtectPdf />
-      ) : isRemoteTool(t.slug) ? (
-        <RemotePdfWorkspace
-          key={t.slug}
-          tool={t.slug}
-          initialReady={t.available}
-          provider={conversionProvider()}
-        />
       ) : t.available ? (
         <ToolProcessor key={t.slug} tool={t} />
       ) : (
@@ -172,7 +163,7 @@ export function ToolPageContent({
           <small>{tr('This tool will be enabled when its conversion service is connected.')}</small>
         </div>
       )}
-      <ToolFacts tool={t} messages={messages} />
+      <ToolFacts tool={t} locale={locale} messages={messages} />
       <section className="how-to-section">
         <div className="section-heading">
           <div>
@@ -196,6 +187,7 @@ export function ToolPageContent({
           ))}
         </ol>
       </section>
+      {locale === 'en' && t.available && <ToolExample slug={t.slug} />}
       <section className="tool-details">
         <div>
           <span className="eyebrow">{tr('A FEW HELPFUL DETAILS')}</span>
@@ -220,7 +212,7 @@ export function ToolPageContent({
           <h2 id="tool-reading-title">{tr('Get more from {name}.', { name: t.name })}</h2>
           <div className="tool-reading-grid">
             {reading.map((guide) => (
-              <Link key={guide.slug} href={`/guides/${guide.slug}`}>
+              <Link key={guide.slug} href={href(`/guides/${guide.slug}`)}>
                 <strong>
                   {tr(guide.title)} <ArrowUpRight size={16} />
                 </strong>
@@ -233,7 +225,7 @@ export function ToolPageContent({
       {related.length > 0 && (
         <section className="related-tools">
           <div className="section-heading">
-            <h2>{tr('What’s next for your document?')}</h2>
+            <h2>{tr('What would you like to do?')}</h2>
             <Link href={href('/tools')} className="text-link">
               {tr('All tools')} <ArrowUpRight size={15} />
             </Link>

@@ -4,7 +4,7 @@
   "eyebrow": "FERRAMENTAS PDF SEM COMPLICAÇÕES.",
   "heading": "Uma forma mais simples de trabalhar com PDF.",
   "intro": "Edite, assine e organize documentos no navegador. Escolha uma ferramenta para começar.",
-  "tools": "Ferramentas PDF",
+  "tools": "Ferramentas grátis — PDFs, imagens, faturas e códigos QR",
   "home": "Início",
   "language": "Idioma",
   "skip": "Ir para o conteúdo",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "Editar PDF",
-      "description": "Edite, assine, junte, divida e proteja PDFs gratuitamente. Cada conta inclui 1 GB de armazenamento privado.",
+      "description": "Edite texto PDF, adicione anotações, preencha formulários e assine online grátis. Transfira sem marca de água Folio. Os ficheiros de convidados ficam privados durante 24 horas.",
       "detail": "Abra um PDF para adicionar texto e rever páginas. Pode editar texto original compatível, mas os parágrafos não se reorganizam automaticamente. Pode anotar digitalizações; o OCR não está incluído.",
       "action": "Abrir no editor",
       "steps": [
@@ -206,5 +206,5 @@
     "Sharing is unavailable right now. Use Download file instead.": "A partilha está indisponível. Use Descarregar ficheiro.",
     "The file was handed to your selected app. You can keep working here.": "O ficheiro foi enviado para a aplicação escolhida. Pode continuar aqui."
   },
-  "directoryDescription": "Escolha uma ferramenta para editar, juntar, dividir, comprimir ou assinar PDF e converter imagens. Instruções claras para cada tarefa."
+  "directoryDescription": "Explore ferramentas gratuitas para editar PDFs, converter e comprimir imagens, criar faturas e assinaturas, gerar códigos QR e encurtar ligações."
 }

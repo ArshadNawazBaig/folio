@@ -26,7 +26,7 @@ export function DirectoryPageContent({
       <StructuredData
         data={{
           ...collectionSchema(
-            tr('Online PDF tools'),
+            tr('Online tools'),
             directory.canonical,
             directory.tools.map((tool) => ({ name: tool.name, path: href(`/${tool.slug}`) })),
           ),
@@ -36,7 +36,7 @@ export function DirectoryPageContent({
       <StructuredData
         data={breadcrumbSchema([
           { name: tr('Home'), path: href('/') },
-          { name: tr('All PDF tools'), path: href('/tools') },
+          { name: tr('All tools'), path: href('/tools') },
         ])}
       />
       <div className="directory-heading page-heading">

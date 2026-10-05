@@ -1,8 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { seoConfiguration } from '../src/lib/site-config';
 import { toolDirectory } from '../src/lib/tool-directory';
-import { toolSearchTitle, toolSearchTitles } from '../src/lib/tool-seo';
+import {
+  toolSearchTitle,
+  toolSearchTitles,
+  toolSearchDescription,
+  toolSearchDescriptions,
+} from '../src/lib/tool-seo';
+import {
+  toolCollections,
+  availableToolCollections,
+  toolNextSteps,
+} from '../src/lib/tool-collections';
 import { tools } from '../src/lib/tools';
 import { guides } from '../src/lib/guides';
 
@@ -23,6 +34,57 @@ test('only explicitly enabled HTTPS production sites can be indexed, even with l
   ])
     assert.equal(seoConfiguration({ ...env, NEXT_PUBLIC_SITE_URL }).isIndexable, false);
   assert.equal(seoConfiguration({ ...env, NEXT_PUBLIC_INDEXABLE: 'false' }).isIndexable, false);
+});
+
+test('every tool has its own accurate search summary, catalog collection and keyword destination', async () => {
+  const slugs = tools.map((tool) => tool.slug).sort();
+  assert.deepEqual(Object.keys(toolSearchDescriptions).sort(), slugs);
+  assert.deepEqual(toolCollections.flatMap((group) => group.slugs).sort(), slugs);
+  assert.equal(new Set(tools.map(toolSearchDescription)).size, tools.length);
+  const keywordMap = await readFile(
+    new URL('../docs/SEO-KEYWORD-MAP.csv', import.meta.url),
+    'utf8',
+  );
+  const destinations = new Set(keywordMap.match(/https:\/\/thebestfreepdf\.com\/[^,\s"]*/g));
+  for (const tool of tools) {
+    assert.ok(destinations.has(`https://thebestfreepdf.com/${tool.slug}`), tool.slug);
+    assert.ok(toolSearchDescriptions[tool.slug].length < 190, tool.slug);
+    if (!tool.available) {
+      assert.match(toolSearchTitle(tool), /Coming Soon/);
+      assert.match(toolSearchDescription(tool), /not currently available/);
+    }
+  }
+  assert.match(toolSearchDescriptions['url-shortener'], /Sign in/);
+  assert.match(toolSearchDescriptions['enhance-image'], /No AI upscaling/);
+  assert.match(toolSearchDescriptions['merge-images'], /one image per page/);
+  assert.match(toolSearchDescriptions['pdf-to-text'], /scans require OCR elsewhere/);
+  for (const slugs of Object.values(toolNextSteps)) {
+    assert.equal(new Set(slugs).size, slugs.length);
+    assert.ok(slugs.every((slug) => tools.some((tool) => tool.slug === slug)));
+  }
+});
+
+test('homepage tool collections use current deployment availability', () => {
+  const linked = (catalog: typeof tools) =>
+    availableToolCollections(catalog)
+      .flatMap((group) => group.tools.map((tool) => tool.slug))
+      .sort();
+  assert.deepEqual(
+    linked(tools),
+    tools
+      .filter((tool) => tool.available)
+      .map((tool) => tool.slug)
+      .sort(),
+  );
+  const withoutImages = tools.map((tool) => ({
+    ...tool,
+    available: tool.available && tool.slug !== 'compress-images',
+  }));
+  assert.ok(!linked(withoutImages).includes('compress-images'));
+  assert.deepEqual(
+    availableToolCollections(tools.map((tool) => ({ ...tool, available: false }))),
+    [],
+  );
 });
 
 test('directories expose every matching tool without pagination and normalize legacy URLs', () => {

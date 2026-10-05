@@ -28,10 +28,6 @@ export const toolPaths = [
   '/merge-images',
   '/url-shortener',
   '/create-qr-code',
-  '/translate-pdf',
-  '/pdf-to-word',
-  '/pdf-to-excel',
-  '/pdf-to-powerpoint',
 ];
 export const guidePaths = [
   '/guides/create-professional-invoice-online',

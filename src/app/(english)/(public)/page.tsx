@@ -1,8 +1,6 @@
-import { pageMetadata } from '@/lib/seo';
+import { homeSearchCopy, pageMetadata } from '@/lib/seo';
 import { HomePageContent } from '@/components/home-page-content';
-const title = 'Free Online PDF Tools — Edit, Merge, Compress & Sign';
-const description =
-  'Edit text, sign, merge, split and convert images to PDF online. All available tools and downloads are free, with 1 GB of storage per account.';
+const { title, description } = homeSearchCopy;
 export const metadata = pageMetadata(title, description, '/', true, {
   title: 'Folio — Free Online PDF Tools',
   description: 'Free tools to add text, sign, merge and split PDFs with Folio.',

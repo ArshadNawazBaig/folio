@@ -27,19 +27,6 @@ check(
   'Lemon Squeezy explicit test/live mode',
   ['true', 'false'].includes(env.LEMON_SQUEEZY_TEST_MODE || ''),
 );
-check('Document result encryption key', /^[a-f0-9]{64}$/i.test(env.DOCUMENT_RESULT_KEY || ''));
-check(
-  'Google Cloud document translation',
-  present(
-    'GOOGLE_TRANSLATION_PROJECT_ID',
-    'GOOGLE_TRANSLATION_CLIENT_EMAIL',
-    'GOOGLE_TRANSLATION_PRIVATE_KEY',
-  ),
-);
-check(
-  'Office conversions (CloudConvert or ConvertAPI)',
-  present('CLOUDCONVERT_API_KEY') || present('CONVERTAPI_TOKEN'),
-);
 let publicDomain = false;
 try {
   const url = new URL(env.NEXT_PUBLIC_SITE_URL || '');

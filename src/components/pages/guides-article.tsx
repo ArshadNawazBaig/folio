@@ -19,7 +19,7 @@ export async function generateMetadata({
 }: { params: Promise<{ slug: string }> } & PageLanguage) {
   const { slug } = await params;
   const source = guides.find((g) => g.slug === slug);
-  const g = source ? localizeGuide(source, messages) : undefined;
+  const g = source ? localizeGuide(source, messages, locale) : undefined;
   if (!g) return {};
   const base = pageMetadata(g.title, g.description, localizedHref(locale, `/guides/${g.slug}`));
   return {
@@ -43,16 +43,16 @@ export default async function Guide({
 
   const { slug } = await params;
   const source = guides.find((g) => g.slug === slug);
-  const g = source ? localizeGuide(source, messages) : undefined;
+  const g = source ? localizeGuide(source, messages, locale) : undefined;
   if (!g) notFound();
   const tool = getTool(g.tool)!;
   return (
     <main id="main" className="container article-page with-page-heading">
       <StructuredData
         data={breadcrumbSchema([
-          { name: 'Home', path: '/' },
-          { name: 'Guides', path: '/guides' },
-          { name: g.title, path: `/guides/${g.slug}` },
+          { name: tr('Home'), path: href('/') },
+          { name: tr('Guides'), path: href('/guides') },
+          { name: g.title, path: href(`/guides/${g.slug}`) },
         ])}
       />
       <StructuredData
@@ -145,7 +145,7 @@ export default async function Guide({
                       {section.table.rows.map((row) => (
                         <tr key={row.name}>
                           <th scope="row">
-                            {row.href ? <a href={row.href}>{row.name}</a> : row.name}
+                            {row.href ? <a href={href(row.href)}>{row.name}</a> : row.name}
                           </th>
                           {row.cells.map((cell, index) => (
                             <td key={index}>{cell}</td>

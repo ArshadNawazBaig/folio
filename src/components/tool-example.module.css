@@ -1,0 +1,74 @@
+.example {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 48px;
+  margin-block: 48px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  scroll-margin-top: 100px;
+}
+.example h2 {
+  margin: 12px 0 16px;
+  font-size: clamp(23px, 2.5vw, 30px);
+  line-height: 1.25;
+  letter-spacing: -0.8px;
+}
+.example h3 {
+  margin: 24px 0 8px;
+  font-size: 16px;
+}
+.example p,
+.example dd {
+  margin: 0 0 16px;
+  font-size: var(--text-body);
+  line-height: 1.8;
+  color: var(--muted);
+}
+.example dl {
+  margin: 0;
+}
+.example dl > div {
+  padding-block: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.example dl > div:first-child {
+  padding-top: 0;
+}
+.example dt {
+  font-size: var(--text-label);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.example dd {
+  margin: 0;
+}
+.example .note {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  margin-bottom: 0;
+}
+.samples ul {
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+.samples a {
+  display: inline-block;
+  padding-block: 8px;
+  font-size: var(--text-control);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+@media (max-width: 800px) {
+  .example {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    padding: 24px;
+  }
+}
+@media (max-width: 450px) {
+  .example {
+    padding: 20px;
+  }
+}

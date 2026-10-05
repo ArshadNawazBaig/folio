@@ -2,6 +2,7 @@ import { languagePath, isTranslatedPath, type Locale } from './config';
 import type { ToolSummary } from '../tool-summary';
 import type { Tool } from '../tools';
 import type { Guide } from '../guides';
+import { guideEdition } from '../guide-edition';
 
 export type Messages = Record<string, string>;
 export type PageLanguage = { locale?: Locale; messages?: Messages };
@@ -41,7 +42,8 @@ export function localizeTool(tool: Tool, messages: Messages): Tool {
   };
 }
 
-export function localizeGuide(guide: Guide, messages: Messages): Guide {
+export function localizeGuide(source: Guide, messages: Messages, locale: Locale = 'en'): Guide {
+  const guide = guideEdition(source, locale);
   const tr = translator(messages);
   return {
     ...guide,

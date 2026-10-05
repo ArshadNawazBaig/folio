@@ -1,4 +1,5 @@
 import { invoiceGuide } from './invoice-guide';
+import { mobileGuideRevision } from './mobile-guide-revision';
 export type Guide = {
   slug: string;
   title: string;
@@ -10,6 +11,7 @@ export type Guide = {
   tool: string;
   relatedTools?: string[];
   summary?: string;
+  englishRevision?: Pick<Guide, 'updated' | 'summary' | 'sections'>;
   sections: {
     title: string;
     text: string;
@@ -547,6 +549,7 @@ export const guides: Guide[] = [
   },
   {
     slug: 'how-to-edit-a-pdf-on-mobile',
+    englishRevision: mobileGuideRevision,
     title: 'How to Edit a PDF on iPhone or Android',
     description:
       'Add text, annotate and sign a PDF in your phone browser. Learn the mobile controls, guest saving, free downloads and when a desktop works better.',

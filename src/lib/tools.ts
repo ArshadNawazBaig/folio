@@ -687,66 +687,6 @@ export const tools: Tool[] = [
     keywords: ['fillable', 'form builder', 'checkbox', 'input'],
   }),
   ...nativeTools,
-  tool({
-    slug: 'translate-pdf',
-    name: 'Translate PDF',
-    short: 'Good ideas speak every language.',
-    description:
-      'Translate PDF documents and review translated pages side by side. Choose your languages and preview the result when the translation service is connected.',
-    icon: 'translate',
-    category: 'More possibilities',
-    color: 'blue',
-    available: false,
-    action: 'Translate PDF',
-    steps: [
-      'Choose a PDF to preview locally.',
-      'Choose a source and target language.',
-      'Translate, review your pages, and download your translated PDF.',
-    ],
-    detail:
-      'Translation uses Google Cloud Translation when connected. Choose your source and target language, then explicitly start processing. Review the translated page previews before downloading. Layout, fonts, and recognition can vary; bilingual export and standalone OCR are not included. Maximum 10 MB and 20 pages.',
-    faq: [
-      [
-        'Is translation available now?',
-        'The workspace shows whether its translation service is connected. You can always preview your original locally; processing is enabled when the service is ready.',
-      ],
-      [
-        'Will scanned files need OCR?',
-        'Recognition depends on the document service and source quality. Review your translated preview carefully; scans may not produce usable results.',
-      ],
-    ],
-    keywords: ['language', 'urdu', 'arabic', 'english', 'spanish'],
-  }),
-  ...['Word', 'Excel', 'PowerPoint'].map((format) =>
-    tool({
-      slug: `pdf-to-${format.toLowerCase()}`,
-      name: `PDF to ${format}`,
-      short: `A new home for your document.`,
-      description: `Convert PDF documents to ${format}. Prepare your file with the connected conversion service and review its page previews.`,
-      icon: 'convert',
-      category: 'Convert',
-      color: 'blue',
-      available: false,
-      action: `Convert to ${format}`,
-      steps: [
-        'Choose a PDF and review its local preview.',
-        'Start conversion with the connected document service.',
-        `Download your ${format} file after processing.`,
-      ],
-      detail: `Accurate PDF to ${format} conversion requires a dedicated conversion engine. It must reconstruct paragraphs, tables, and other document structure. Folio uses ConvertAPI when connected. Conversion starts only when you choose Convert. Layout and recognition vary with source quality; review the downloaded document in Office. Maximum 10 MB and 100 pages.`,
-      faq: [
-        [
-          'Is this converter available?',
-          'Current availability is shown above. When the service is connected, choose a PDF and start conversion. Review the page previews when processing finishes.',
-        ],
-        [
-          'What can I use today?',
-          'You can export PDF pages to JPG or PNG, extract selectable text, and convert JPG and PNG images to PDF.',
-        ],
-      ],
-      keywords: [format.toLowerCase(), 'office', 'convert', 'docx', 'xlsx', 'pptx'],
-    }),
-  ),
 ].map((entry) => ({ ...entry, premium: toolDownloadAccess(entry.slug) === 'premium' }));
 export { categories } from './tool-summary';
 export const popularSlugs = [

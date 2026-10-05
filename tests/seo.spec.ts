@@ -2,6 +2,225 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { tools } from '../src/lib/tools';
 import { guides } from '../src/lib/guides';
+import { locales } from '../src/lib/i18n/config';
+import { toolSearchTitle, toolSearchDescription } from '../src/lib/tool-seo';
+import { toolExamples } from '../src/lib/tool-examples';
+import { readFile } from 'node:fs/promises';
+import sharp from 'sharp';
+
+test('the full tool catalog has crawlable discovery links and task-specific search metadata', async ({
+  browser,
+  request,
+}) => {
+  test.setTimeout(120_000);
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    viewport: { width: 390, height: 844 },
+  });
+  const page = await context.newPage();
+  try {
+    for (const locale of ['en', 'de', 'ja']) {
+      const prefix = locale === 'en' ? '' : `/${locale}`;
+      await page.goto(prefix || '/');
+      const linked = await page
+        .locator('.home-tool-collections a')
+        .evaluateAll((links) => links.map((link) => link.getAttribute('href')).sort());
+      expect(linked).toEqual(
+        tools
+          .filter((tool) => tool.available)
+          .map((tool) => `${prefix}/${tool.slug}`)
+          .sort(),
+      );
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+        true,
+      );
+    }
+    for (const tool of tools) {
+      const response = await request.get(`/${tool.slug}`);
+      expect(response.status(), tool.slug).toBe(200);
+      const metadata = await page.evaluate(
+        (html) => {
+          const doc = new DOMParser().parseFromString(html, 'text/html');
+          return {
+            title: doc.title,
+            description: doc.querySelector('meta[name="description"]')?.getAttribute('content'),
+            canonical: doc.querySelector('link[rel="canonical"]')?.getAttribute('href'),
+            robots: doc.querySelector('meta[name="robots"]')?.getAttribute('content'),
+            headingCount: doc.querySelectorAll('h1').length,
+            example: doc.querySelector('#worked-example h2')?.textContent,
+            samples: [...doc.querySelectorAll('#worked-example a[download]')].map((link) =>
+              link.getAttribute('href'),
+            ),
+            related: [...doc.querySelectorAll('.related-tools a')].map((link) =>
+              link.getAttribute('href'),
+            ),
+          };
+        },
+        await response.text(),
+      );
+      expect(metadata.title, tool.slug).toBe(`${toolSearchTitle(tool)} | Folio`);
+      expect(metadata.description, tool.slug).toBe(toolSearchDescription(tool));
+      expect(metadata.canonical).toBe(`https://folio.example/${tool.slug}`);
+      expect(metadata.robots).toBe(tool.available ? 'index, follow' : 'noindex, nofollow');
+      expect(metadata.headingCount).toBe(1);
+      expect(metadata.example, tool.slug).toBe(toolExamples[tool.slug]?.title);
+      expect(metadata.example, tool.slug).toBeTruthy();
+      for (const sample of metadata.samples) {
+        expect(sample).toMatch(/^\/samples\//);
+        const file = await request.get(sample!);
+        expect(file.status(), sample!).toBe(200);
+        expect(file.headers()['content-type'], sample!).toMatch(/^(application\/pdf|image\/)/);
+      }
+      if (tool.slug === 'create-qr-code') {
+        expect(metadata.related).toContain('/url-shortener');
+        expect(metadata.related).not.toContain('/protect-pdf');
+      }
+    }
+  } finally {
+    await context.close();
+  }
+});
+
+test('practical examples are accessible on mobile and their compression instructions produce the stated output', async ({
+  page,
+}) => {
+  await page.goto('/compress-images');
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page
+      .locator('#worked-example')
+      .screenshot({ path: `test-results-blog/tool-example-${width}.png` });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include('#worked-example')
+          .withTags(['wcag2a', 'wcag2aa'])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+  }
+  await page.getByRole('button', { name: '20 KB', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Output format', exact: true }).click();
+  await page.getByRole('option', { name: 'JPG', exact: true }).click();
+  await page
+    .locator('input[type=file]')
+    .first()
+    .setInputFiles('public/samples/practice-receipt.jpg');
+  await page.getByRole('button', { name: 'Compress images', exact: true }).click();
+  const event = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download image', exact: true }).click();
+  const download = await event;
+  const bytes = await readFile((await download.path())!);
+  expect(bytes.length).toBeLessThanOrEqual(20_000);
+  const info = await sharp(bytes).metadata();
+  expect(info.format).toBe('jpeg');
+  expect(info.width).toBeGreaterThan(0);
+  expect(info.height).toBeGreaterThan(0);
+});
+
+test('tool collections are accessible on desktop and mobile', async ({ page }) => {
+  // Axe injects scripts; crawlability is checked separately with JavaScript disabled.
+  await page.goto('/');
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const section = page.locator('.home-tool-collections');
+    await section.screenshot({ path: `test-results-blog/tool-collections-${width}.png` });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include('.home-tool-collections')
+          .withTags(['wcag2a', 'wcag2aa'])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+  }
+});
+
+test('every homepage has a distinct search description from its PDF editor', async ({
+  request,
+}) => {
+  test.setTimeout(120_000);
+  for (const locale of locales) {
+    const prefix = locale === 'en' ? '' : `/${locale}`;
+    const home = await request.get(prefix || '/');
+    const editor = await request.get(`${prefix}/edit-pdf`);
+    expect(home.status()).toBe(200);
+    expect(editor.status()).toBe(200);
+    const description = (html: string) =>
+      html.match(/<meta name="description" content="([^"]+)"/)?.[1];
+    const homeDescription = description(await home.text());
+    const editorDescription = description(await editor.text());
+    expect(homeDescription).toBeTruthy();
+    expect(editorDescription).toBeTruthy();
+    expect(homeDescription, locale).not.toBe(editorDescription);
+  }
+});
+
+test('translated search pages keep guide discovery and structured data in the chosen language', async ({
+  browser,
+}) => {
+  test.setTimeout(120_000);
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    viewport: { width: 390, height: 844 },
+  });
+  const page = await context.newPage();
+  const schemas = async () =>
+    (await page.locator('script[type="application/ld+json"]').allTextContents()).map((text) =>
+      JSON.parse(text),
+    );
+  try {
+    for (const locale of ['en', 'de', 'ja']) {
+      const prefix = locale === 'en' ? '' : `/${locale}`;
+      await page.goto(prefix || '/');
+      const graph = (await schemas()).find((schema) => schema['@graph'])['@graph'];
+      expect(
+        graph.find((node: Record<string, unknown>) => node['@type'] === 'WebPage').description,
+      ).toBe(await page.locator('meta[name="description"]').getAttribute('content'));
+      if (locale === 'en') await expect(page.locator('h1')).toContainText('Free online PDF tools.');
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+        true,
+      );
+      await expect(
+        page.locator(`main a[href="${prefix}/guides/choose-a-free-pdf-editor"]`),
+      ).toBeVisible();
+      await page.goto(`${prefix}/merge-pdf`);
+      const links = await page
+        .locator('.tool-reading a, #tool-facts a')
+        .evaluateAll((nodes) => nodes.map((node) => node.getAttribute('href')!));
+      expect(links.length).toBeGreaterThan(0);
+      expect(
+        links.every((href) => href.startsWith(`${prefix}/guides/`) || href === `${prefix}/privacy`),
+      ).toBe(true);
+      await page.goto(`${prefix}/guides`);
+      const collection = (await schemas()).find((schema) => schema['@type'] === 'CollectionPage');
+      expect(collection.url).toBe(`https://folio.example${prefix}/guides`);
+      expect(
+        collection.mainEntity.itemListElement.every((item: { url: string }) =>
+          item.url.startsWith(`https://folio.example${prefix}/guides/`),
+        ),
+      ).toBe(true);
+      await page.goto(`${prefix}/guides/choose-a-free-pdf-editor`);
+      const crumbs = (await schemas()).find((schema) => schema['@type'] === 'BreadcrumbList');
+      expect(crumbs.itemListElement.at(-1).item).toBe(
+        await page.locator('link[rel="canonical"]').getAttribute('href'),
+      );
+      await expect(page.locator(`table a[href="${prefix}/merge-pdf"]`)).toBeVisible();
+    }
+    await page.screenshot({
+      path: 'test-results-blog/seo-translated-guide-mobile.png',
+      fullPage: true,
+    });
+  } finally {
+    await context.close();
+  }
+});
 
 test('public discovery exposes real FAQs, published feeds, image locations and a security contact', async ({
   page,
@@ -46,7 +265,7 @@ test('public discovery exposes real FAQs, published feeds, image locations and a
     .locator('meta[name="twitter:description"]')
     .getAttribute('content');
   expect(twitterDescription).not.toBe(shareDescription);
-  expect(twitterDescription).toContain('Original-text changes require a paid plan.');
+  expect(twitterDescription).toContain('All available tools and downloads are free');
   await expect(page.locator('meta[name="twitter:image:alt"]')).toHaveAttribute('content', /Folio/);
   await expect(page.locator('head link[type="application/rss+xml"]')).toHaveAttribute(
     'href',
@@ -131,6 +350,16 @@ test('Google can crawl the production sitemap and private workspaces stay noinde
     expect(sitemap.includes(`<loc>https://folio.example/${tool.slug}</loc>`), tool.slug).toBe(
       tool.available,
     );
+    const entry = sitemap
+      .split('<url>')
+      .find((entry) => entry.includes(`<loc>https://folio.example/${tool.slug}</loc>`));
+    expect(entry, tool.slug).toContain(`<lastmod>${toolExamples[tool.slug].updated}</lastmod>`);
+    // These editorial updates were made to English pages, not the translated examples.
+    const translated = sitemap
+      .split('<url>')
+      .find((entry) => entry.includes(`<loc>https://folio.example/de/${tool.slug}</loc>`));
+    expect(translated).toBeTruthy();
+    expect(translated).not.toContain('<lastmod>');
   }
   for (const guide of guides) expect(sitemap).toContain(`/guides/${guide.slug}</loc>`);
   for (const path of ['/workspace', '/dashboard', '/account', '/admin', '/support']) {
@@ -351,6 +580,59 @@ test('blog pagination and article sections have matching crawlable metadata and 
     expect(response.status(), path).toBe(200);
     expect(response.headers()['content-type'], path).toMatch(/^image\//);
   }
+});
+
+test('mobile editing guide exposes the revised steps and preserves reviewed translations', async ({
+  page,
+  request,
+}) => {
+  const path = '/guides/how-to-edit-a-pdf-on-mobile';
+  const response = await request.get(path);
+  expect(response.status()).toBe(200);
+  const html = await response.text();
+  expect(html).toContain('How to edit a PDF on Android in your browser');
+  expect(html).toContain('How to edit a PDF on iPhone in Safari');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(path);
+  await expect(page.locator('h1')).toHaveText('How to Edit a PDF on iPhone or Android');
+  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-05');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    'href',
+    `https://folio.example${path}`,
+  );
+  const article = await page
+    .locator('script[type="application/ld+json"]')
+    .evaluateAll((scripts) =>
+      scripts
+        .map((script) => JSON.parse(script.textContent!))
+        .find((schema) => schema['@type'] === 'Article'),
+    );
+  expect(article.datePublished).toBe('2026-09-18');
+  expect(article.dateModified).toBe('2026-10-05');
+  const sample = await request.get('/samples/a4-portrait-practice.pdf');
+  expect(sample.status()).toBe(200);
+  expect(sample.headers()['x-robots-tag']).toBe('noindex');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .include('.article-body')
+        .withTags(['wcag2a', 'wcag2aa'])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  await page.screenshot({ path: 'test-results-blog/mobile-guide-revision.png', fullPage: true });
+  const sitemap = await (await request.get('/sitemap.xml')).text();
+  expect(
+    sitemap
+      .split('<url>')
+      .find((entry) => entry.includes(`<loc>https://folio.example${path}</loc>`)),
+  ).toContain('<lastmod>2026-10-05</lastmod>');
+  await page.goto(`/de${path}`);
+  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-09-18');
+  await expect(
+    page.getByRole('heading', { name: 'How to edit a PDF on Android in your browser' }),
+  ).toHaveCount(0);
 });
 
 test('guide navigation matches the article metadata', async ({ page }) => {

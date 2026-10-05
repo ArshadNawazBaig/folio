@@ -4,7 +4,7 @@
   "eyebrow": "STRUMENTI PDF SENZA COMPLICAZIONI.",
   "heading": "Un modo più semplice di lavorare con i PDF.",
   "intro": "Modifica, firma e organizza i documenti nel browser. Scegli uno strumento e inizia.",
-  "tools": "Strumenti PDF",
+  "tools": "Strumenti online gratuiti — PDF, immagini, fatture e codici QR",
   "home": "Home",
   "language": "Lingua",
   "skip": "Vai al contenuto",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "Modifica PDF",
-      "description": "Modifica, firma, unisci, dividi e proteggi i PDF gratis. Ogni account include 1 GB di spazio privato.",
+      "description": "Modifica il testo PDF, aggiungi annotazioni, compila moduli e firma gratis online. Scarica senza filigrana Folio. I file degli ospiti restano privati per 24 ore.",
       "detail": "Apri un PDF per aggiungere testo e controllare le pagine. Puoi modificare il testo originale supportato, ma i paragrafi non si ridispongono automaticamente. Puoi annotare scansioni; l’OCR non è incluso.",
       "action": "Apri nell’editor",
       "steps": [
@@ -206,5 +206,5 @@
     "Sharing is unavailable right now. Use Download file instead.": "La condivisione non è disponibile. Usa Scarica file.",
     "The file was handed to your selected app. You can keep working here.": "Il file è stato passato all’app scelta. Puoi continuare qui."
   },
-  "directoryDescription": "Scegli uno strumento per modificare, unire, dividere, comprimere o firmare PDF e convertire immagini. Istruzioni chiare per ogni operazione."
+  "directoryDescription": "Scopri strumenti gratuiti per modificare PDF, convertire e comprimere immagini, creare fatture e firme, generare codici QR e accorciare link."
 }

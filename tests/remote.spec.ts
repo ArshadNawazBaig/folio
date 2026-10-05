@@ -1,75 +1,55 @@
-import { test, expect } from './fixtures/editor-storage';
-import { createSample } from '../src/lib/sample';
-const sample = await createSample();
-const upload = { name: 'report.pdf', mimeType: 'application/pdf', buffer: Buffer.from(sample) };
-test('disconnected converters still preview and preserve the original PDF', async ({ page }) => {
-  await page.goto('/pdf-to-word');
-  await page.locator('input[type=file]').setInputFiles(upload);
-  await expect(page.locator('.translation-canvas canvas')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Convert to Word', exact: true })).toBeDisabled();
-  await expect(
-    page.getByText('This processing service is not connected yet.', { exact: false }),
-  ).toBeVisible();
-  const downloaded = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Save original', exact: true }).click();
-  expect((await downloaded).suggestedFilename()).toBe('report.pdf');
-});
-test('anonymous translation previews precede the paywall and stay in the current tab', async ({
-  page,
+import { test, expect } from '@playwright/test';
+import { remoteTools } from '../src/lib/remote-types';
+import { locales, languagePath } from '../src/lib/i18n/config';
+
+test('removed document tools return 404 in every language and stay out of the sitemap', async ({
+  request,
 }) => {
-  let processed = 0;
-  await page.route('**/api/capabilities', (route) =>
-    route.fulfill({ json: { tools: { 'translate-pdf': true } } }),
-  );
-  await page.route('**/api/documents/process', (route) => {
-    processed++;
-    expect(route.request().headers().authorization).toBeUndefined();
-    return route.fulfill({
-      json: {
-        tool: 'translate-pdf',
-        artifact: 'encrypted-test-result',
-        filename: 'report-pt.pdf',
-        pages: 3,
-        size: 1200,
-        expiresAt: Date.now() + 86400000,
-        source: 'auto',
-        target: 'pt',
-        preview: {
-          preview:
-            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j26kAAAAASUVORK5CYII=',
-          width: 1,
-          height: 1,
-          page: 0,
-        },
-      },
-    });
-  });
-  await page.goto('/translate-pdf');
-  await page.locator('input[type=file]').setInputFiles(upload);
-  await page.getByRole('combobox', { name: 'Translate into', exact: true }).click();
-  await page.getByRole('option', { name: 'Portuguese', exact: true }).click();
-  await page.getByRole('button', { name: 'Translate PDF', exact: true }).click();
-  await expect(page.getByRole('img', { name: 'Translated PDF, page 1' })).toBeVisible();
-  expect(await page.locator('#main').innerText()).not.toMatch(
-    /\b(pro|premium|upgrade|subscription)\b/i,
-  );
-  await expect(page.getByRole('dialog', { name: /download/i })).toBeHidden();
-  expect(processed).toBe(1);
-  await page.getByRole('button', { name: 'Download PDF', exact: true }).click();
-  await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(
-    page.getByText('Downloading your translated document requires a premium plan.', {
-      exact: false,
-    }),
-  ).toBeVisible();
-  await expect(page.getByText('Keep this tab open', { exact: false })).toBeVisible();
-  await page.getByRole('button', { name: 'Keep editing', exact: true }).last().click();
-  expect(
-    await page.evaluate(async () => (await indexedDB.databases()).map((db) => db.name)),
-  ).not.toContain('folio-prepared-documents');
-  await expect(page.getByRole('combobox', { name: 'Translate into', exact: true })).toContainText(
-    'Portuguese',
-  );
-  await expect(page.getByRole('button', { name: 'Download PDF', exact: true })).toBeEnabled();
-  expect(processed).toBe(1);
+  const sitemap = await (await request.get('/sitemap.xml')).text();
+  for (const tool of remoteTools) {
+    expect(sitemap).not.toContain(`/${tool}`);
+    for (const locale of locales) {
+      const path = languagePath(locale, `/${tool}`);
+      const response = await request.get(path);
+      expect(response.status(), path).toBe(404);
+      expect(await response.text(), path).toMatch(/name="robots" content="[^"]*noindex/);
+    }
+  }
+  expect((await request.get('/translate-pdf-page', { maxRedirects: 0 })).status()).toBe(404);
+  const response = await request.post('/api/documents/process', { data: { tool: 'pdf-to-word' } });
+  expect(response.status()).toBe(410);
+  const { tools } = await (await request.get('/api/capabilities')).json();
+  for (const slug of remoteTools) expect(tools[slug]).toBe(false);
+});
+
+test('homepages and directories contain no retired tool links in any language', async ({
+  request,
+}) => {
+  for (const locale of locales) {
+    for (const route of ['/', '/tools', '/convert']) {
+      const path = languagePath(locale, route);
+      const response = await request.get(path);
+      expect(response.status(), path).toBe(200);
+      const html = await response.text();
+      for (const slug of remoteTools) {
+        expect(html, path).not.toMatch(new RegExp(`href="(?:/[a-z]{2})?/${slug}(?:[?"#])`));
+        expect(html, path).not.toContain(`"url":"https://thebestfreepdf.com/${slug}"`);
+      }
+    }
+  }
+});
+
+test('mobile navigation and tool search no longer offer removed tools', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/tools');
+  await expect(page.locator('.directory-card')).toHaveCount(28);
+  for (const slug of remoteTools) await expect(page.locator(`a[href$="/${slug}"]`)).toHaveCount(0);
+  await page.getByRole('button', { name: 'Search tools', exact: true }).click();
+  const input = page.getByRole('textbox', { name: 'Search PDF tools' });
+  for (const term of ['translate pdf', 'pdf to word', 'pdf to excel', 'pdf to powerpoint']) {
+    await input.fill(term);
+    await expect(page.locator('.search-results a')).toHaveCount(0);
+  }
+  await input.fill('compress');
+  await expect(page.locator('.search-results a[href="/compress-pdf"]')).toBeVisible();
 });

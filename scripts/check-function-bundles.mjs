@@ -15,7 +15,6 @@ const workerRoutes = [
   '/api/pro/pdf',
   '/api/pro/preview',
   '/api/pro/demo',
-  '/api/documents/process',
   '/api/documents/preview',
 ];
 async function traceFiles(route) {
@@ -39,6 +38,8 @@ for (let index = 0; index < traces.length; index++) {
   assert.ok(files.has(worker), `${workerRoutes[index]} is missing the PDF worker`);
   await report(workerRoutes[index], traces[index]);
 }
+const retired = await traceFiles('/api/documents/process');
+assert.ok(!retired.includes(worker), 'Retired processing must not bundle the PDF worker');
 const exported = await traceFiles('/api/documents/export');
 assert.ok(!exported.includes(worker), 'Prepared downloads must not bundle the PDF worker');
 assert.ok(
@@ -49,7 +50,7 @@ await report('/api/documents/export', exported);
 const prerender = JSON.parse(await readFile(path.join(build, 'prerender-manifest.json'), 'utf8'));
 assert.ok(prerender.routes['/api/capabilities'], 'Capabilities must be prerendered');
 for (const tool of ['translate-pdf', 'pdf-to-word', 'pdf-to-excel', 'pdf-to-powerpoint'])
-  assert.ok(prerender.routes[`/${tool}`], `${tool} must be prerendered`);
+  assert.ok(!prerender.routes[`/${tool}`], `${tool} must not be prerendered`);
 
 const isolated = await mkdtemp(path.join(tmpdir(), 'folio-worker-bundle-'));
 try {

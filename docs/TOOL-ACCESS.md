@@ -10,15 +10,14 @@ URL shortening uses account entitlements: Free includes 10 saved links, random a
 
 Invoice generation is mixed: Classic and Minimal PDFs with preset colors are free, including logos and calculations. Studio/Editorial PDFs, custom colors/footers, and payment QR codes require Pro at download. The invoice editor labels these optional features but lets everyone preview them. Pro also saves/updates 200 private invoices; reading and deleting existing invoices remains available after downgrade. See [INVOICE-GENERATOR.md](INVOICE-GENERATOR.md).
 
-| Downloads              | Tools and operations                                                                                                |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Free                   | Add text, annotations, highlights, shapes, images, and visual signatures; fill and create PDF forms                 |
-| Free                   | Merge, split, compress, rotate, crop, organize, duplicate, and delete PDF pages; add watermarks and page numbers    |
-| Free                   | PDF to JPG/PNG; selectable PDF text to TXT; JPG/PNG/WEBP images to PDF; merge images into a PDF                     |
-| Free                   | JPG to WEBP, WEBP to JPG, image compression, basic brightness/contrast/saturation/sharpening, static QR codes       |
-| Premium                | Replace, delete, move, duplicate, or find and replace original PDF text; change its font, size, or color            |
-| Premium                | Password-protected PDF downloads                                                                                    |
-| Premium when connected | PDF to Word/Excel/PowerPoint and PDF translation. These workspaces exist, but processing needs service credentials. |
+| Downloads | Tools and operations                                                                                             |
+| --------- | ---------------------------------------------------------------------------------------------------------------- |
+| Free      | Add text, annotations, highlights, shapes, images, and visual signatures; fill and create PDF forms              |
+| Free      | Merge, split, compress, rotate, crop, organize, duplicate, and delete PDF pages; add watermarks and page numbers |
+| Free      | PDF to JPG/PNG; selectable PDF text to TXT; JPG/PNG/WEBP images to PDF; merge images into a PDF                  |
+| Free      | JPG to WEBP, WEBP to JPG, image compression, basic brightness/contrast/saturation/sharpening, static QR codes    |
+| Premium   | Replace, delete, move, duplicate, or find and replace original PDF text; change its font, size, or color         |
+| Premium   | Password-protected PDF downloads                                                                                 |
 
 The editor is mixed: adding annotations or opening Edit Text alone does not require a plan. Only actual original-text changes in the finished document trigger paid export, regardless of the tool used to enter the workspace. Undoing all those changes restores free export. Added text boxes remain free to edit, move, and duplicate. Free outputs receive no Folio watermark.
 

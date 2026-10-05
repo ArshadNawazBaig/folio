@@ -4,7 +4,7 @@
   "eyebrow": "LES PDF, EN TOUTE SIMPLICITÉ.",
   "heading": "Une façon plus simple de travailler avec vos PDF.",
   "intro": "Modifiez, signez et organisez vos documents dans votre navigateur. Choisissez un outil pour commencer.",
-  "tools": "Outils PDF",
+  "tools": "Outils gratuits en ligne — PDF, images, factures et codes QR",
   "home": "Accueil",
   "language": "Langue",
   "skip": "Aller au contenu",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "Modifier un PDF",
-      "description": "Modifiez, signez, fusionnez, divisez et protégez vos PDF gratuitement. Chaque compte inclut 1 Go de stockage privé.",
+      "description": "Modifiez le texte d’un PDF, annotez, remplissez et signez gratuitement. Téléchargez sans filigrane Folio. Les fichiers invités restent privés pendant 24 heures.",
       "detail": "Ouvrez un PDF dans l’éditeur pour ajouter du texte et vérifier les pages. Le texte d’origine compatible peut être modifié, mais les paragraphes ne se réorganisent pas automatiquement. Les scans peuvent être annotés ; l’OCR n’est pas inclus.",
       "action": "Ouvrir dans l’éditeur",
       "steps": [
@@ -206,5 +206,5 @@
     "Sharing is unavailable right now. Use Download file instead.": "Le partage est indisponible. Utilisez Télécharger le fichier.",
     "The file was handed to your selected app. You can keep working here.": "Le fichier a été transmis à l’application choisie. Vous pouvez continuer ici."
   },
-  "directoryDescription": "Choisissez un outil pour modifier, fusionner, diviser, compresser, signer vos PDF ou convertir des images. Des instructions claires pour chaque tâche."
+  "directoryDescription": "Découvrez des outils gratuits pour modifier les PDF, convertir et compresser les images, créer des factures, signatures et codes QR, ou raccourcir des liens."
 }

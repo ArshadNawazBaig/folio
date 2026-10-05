@@ -7,7 +7,7 @@ import { Faq } from '@/components/faq';
 import { pageMetadata } from '@/lib/seo';
 import { getPlatform } from '@/lib/server/platform';
 import { money } from '@/lib/platform';
-import { serverTools, isRemoteTool } from '@/lib/server/tool-catalog';
+import { serverTools } from '@/lib/server/tool-catalog';
 import { localizedOfferTerms } from '@/lib/i18n/format';
 import { availablePremiumToolNames } from '@/lib/tool-access';
 export const dynamic = 'force-dynamic';
@@ -39,9 +39,6 @@ export default async function PricingPage({ locale = 'en', messages = {} }: Page
   const { catalog } = await getPlatform();
   const toolCatalog = serverTools();
   const availableTools = availablePremiumToolNames(toolCatalog).map((name) => tr(name));
-  const additionalPremiumTools = availablePremiumToolNames(
-    toolCatalog.filter((tool) => isRemoteTool(tool.slug)),
-  );
   const unavailableTools = toolCatalog
     .filter((tool) => tool.premium && !tool.available)
     .map((tool) => tr(tool.name));
@@ -60,7 +57,7 @@ export default async function PricingPage({ locale = 'en', messages = {} }: Page
           )}
         </p>
       </div>
-      <Pricing initialCatalog={catalog} additionalPremiumTools={additionalPremiumTools} />
+      <Pricing initialCatalog={catalog} />
       <section className="pricing-faq">
         <h2>{tr('A few things, made clear.')}</h2>
         <Faq

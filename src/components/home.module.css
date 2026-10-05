@@ -208,6 +208,55 @@
   font-size: var(--text-label);
   color: var(--muted);
 }
+.collections {
+  padding-top: 58px;
+}
+.collections h2 {
+  font-size: clamp(25px, 2.6vw, 34px);
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.collections > p {
+  color: var(--muted);
+  margin-bottom: 30px;
+}
+.collectionGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 30px;
+}
+.collectionGrid section {
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+  min-width: 0;
+}
+.collectionGrid h3 {
+  font-size: var(--text-body);
+  font-weight: 800;
+  margin: 0 0 10px;
+}
+.collectionGrid ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.collectionGrid a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 38px;
+  padding-block: 8px;
+  font-size: var(--text-label);
+  overflow-wrap: anywhere;
+}
+.collectionGrid a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.collectionGrid a svg {
+  flex-shrink: 0;
+}
 .resources {
   padding-top: 58px;
   padding-bottom: 12px;
@@ -251,6 +300,9 @@
   margin: 0;
 }
 @media (max-width: 1000px) {
+  .collectionGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .feature,
   .faq {
     gap: 32px;
@@ -261,6 +313,13 @@
   }
 }
 @media (max-width: 700px) {
+  .collections {
+    padding-top: 40px;
+  }
+  .collectionGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
   .hero {
     padding: 42px 0 28px;
   }

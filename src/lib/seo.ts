@@ -4,6 +4,11 @@ import { languageAlternates } from './i18n/config';
 
 export const { siteUrl, isIndexable } = seoConfiguration(process.env);
 export const brand = 'Folio';
+export const homeSearchCopy = {
+  title: 'Free Online PDF Tools — Edit, Merge, Compress & Sign',
+  description:
+    'Edit text, sign, merge, split and convert images to PDF online. All available tools and downloads are free, with 1 GB of storage per account.',
+};
 export const productDescription =
   'Folio is a browser-based PDF toolkit for annotations, visual signatures, page organization, merging, splitting and conversion. Annotation and page-tool downloads are free; original-text edits and password protection are free to download. The editor saves documents to private cloud storage.';
 

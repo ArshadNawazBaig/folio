@@ -9,10 +9,6 @@ test('tool discovery and workspaces show ordinary tools without upgrade labels',
     '/tools',
     '/edit-pdf-text',
     '/protect-pdf',
-    '/translate-pdf',
-    '/pdf-to-word',
-    '/pdf-to-excel',
-    '/pdf-to-powerpoint',
     '/workspace?sample=proposal',
   ]) {
     await page.goto(route);

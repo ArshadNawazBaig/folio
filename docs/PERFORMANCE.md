@@ -1,5 +1,7 @@
 # Performance and Vercel usage
 
+October 5 update: translation and PDF-to-Office tools have been removed. Their URLs now return 404 and the processing endpoint returns 410 without provider calls. The deployment check verifies that these pages are absent. The September notes below are historical.
+
 ## Active CPU follow-up — 30 September 2026
 
 Reviewed [Vercel's usage guidance](https://vercel.com/docs/pricing/manage-and-optimize-usage) after the team reached 75% of its four-hour Active CPU allowance. The previous bundle reductions are already committed; this pass removes repeated runtime work.

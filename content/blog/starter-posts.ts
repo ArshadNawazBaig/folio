@@ -716,10 +716,10 @@ export const starterPosts: EditorialPost[] = [
       ),
       h('Understand Office conversion availability'),
       p(
-        'Folio also has workspaces for PDF to Word, Excel, and PowerPoint. These conversions depend on a connected conversion service. Check the tool’s availability message before planning your workflow. If it displays Service not connected, processing is unavailable; that message does not mean your PDF is damaged.',
+        'Folio does not offer PDF-to-Word, Excel, or PowerPoint conversion. Use PDF-to-image conversion for page images, or extract selectable text when you only need the wording. Neither output reconstructs an editable Office document.',
       ),
       p(
-        'When the service is available, open the converted file in the target application and review it there. Check paragraph flow in Word, rows and columns in Excel, and object placement in PowerPoint. Converting a finished page back into editable objects can change its layout, so leave time for a final adjustment pass.',
+        'If you need an editable Office document, first ask for the original Word, Excel, or PowerPoint file. If you use another conversion service, review paragraph flow, tables, and object placement in the downloaded result.',
       ),
       h('Convert once, review, then share'),
       p(
@@ -767,24 +767,24 @@ export const starterPosts: EditorialPost[] = [
         'A translated PDF should help someone use the document, not simply replace its words. Headings must still guide the reader, labels must still belong to the right diagrams, and dates or reference numbers must remain easy to verify. Preparing the source and reviewing the result are both part of that work.',
       ),
       p(
-        'Folio provides a translation workspace where you can choose languages and compare original and translated pages. Processing depends on a connected translation service. The workflow below explains how to prepare your document and what to check when translation is available.',
+        'Folio can help you split or rotate a PDF before translation, but it does not translate documents. The workflow below explains how to prepare a source file and review a translation obtained from a separate service or translator.',
       ),
       note(
-        'Check the workspace’s service status first. If it shows Service not connected, you can preview the original PDF, but translation processing is not currently available.',
+        'Choose a translation service or translator separately. Check its supported languages, document limits, privacy terms, and price before sending a file.',
       ),
       h('Begin with the clearest source PDF'),
       p(
         'Use the document exported from its original authoring application when you have it. Clear text and a straightforward layout give you a better starting point than a low-quality photograph of a printed page. Check that the PDF opens normally and that every page is present before translating it.',
       ),
       p(
-        'If you only have a scan, inspect its orientation, contrast, and readability. A skewed or faint page is harder to review in either language. Recognition of scanned content depends on the connected document service and source quality; Folio does not provide a separate OCR tool in this workflow.',
+        'If you only have a scan, inspect its orientation, contrast, and readability. A skewed or faint page is harder to review in either language. Ask your chosen translator or service how it handles scans. Folio does not provide OCR.',
       ),
       p(
-        'The current translation workspace accepts PDFs up to 10 MB and 20 pages. For a longer document, use Split PDF to prepare clearly named sections. Keep related paragraphs, tables, and their explanatory notes together where possible, then maintain a simple list of the sections you have translated and reviewed.',
+        'Check the page and file-size limits of your chosen translation service. For a longer document, use Split PDF to prepare clearly named sections. Keep related paragraphs, tables, and their explanatory notes together where possible, then maintain a list of the sections you have translated and reviewed.',
       ),
       h('Choose the source and target languages deliberately'),
       p(
-        'Original language controls how the source is interpreted. You can use Auto-detect or choose a supported language explicitly. If you already know the language, selecting it makes your intended source clear. Translate into sets the output language, and it must differ from the selected source.',
+        'Tell your translator the source language and the language you need. If a service offers automatic language detection, check that it identifies the source correctly. Specify regional terminology or spelling preferences when they matter.',
       ),
       p(
         'A document containing several languages deserves extra attention. A title, a quoted passage, and the main body may not all need the same treatment. Review the original first and note anything that should remain unchanged, such as a product name, an address, or an identifier. Do not assume a language selection will resolve every mixed-language passage correctly.',
@@ -792,11 +792,11 @@ export const starterPosts: EditorialPost[] = [
       h('Translate and compare the result'),
       list(
         [
-          'Open Translate PDF and confirm that processing is available.',
-          'Choose your PDF and inspect the original page preview.',
-          'Set Original language and Translate into, then start translation.',
-          'Wait for the translated result and review the corresponding pages alongside the original. On a smaller screen, switch between the original and translation views.',
-          'Check every page before downloading. Translation downloads are free when the processing service is available.',
+          'Choose a separate translation service or translator that supports your document.',
+          'Inspect your original PDF and keep a separate copy.',
+          'Specify the source and target languages, then submit the file through your chosen service.',
+          'Open the translated result alongside the original and compare corresponding pages.',
+          'Check every page before sharing. Pricing and download terms depend on the service you chose.',
         ],
         true,
       ),
@@ -812,14 +812,14 @@ export const starterPosts: EditorialPost[] = [
         'Ask a fluent reviewer to resolve wording you cannot confidently evaluate yourself.',
       ]),
       p(
-        'Automatic translation can provide a useful draft, but it should not be treated as an assurance of accuracy. For material where a misunderstanding would have serious consequences, arrange an appropriate qualified review before relying on or distributing the translation. The tool does not provide a certified translation service.',
+        'Automatic translation can provide a useful draft, but it should not be treated as an assurance of accuracy. For material where a misunderstanding would have serious consequences, arrange an appropriate qualified review before relying on or distributing the translation. Use a qualified provider if the recipient requires a certified translation.',
       ),
       h('Check layout after the language changes'),
       p(
         'Translated text can take more or less space than the original. Watch for lines running into neighboring content, headings wrapping awkwardly, and table cells becoming crowded. Compare the positions of labels, captions, and footnotes rather than checking only the main paragraphs.',
       ),
       p(
-        'Fonts and text direction may also affect the appearance. Review the translated pages at a readable zoom level and inspect the exported file again before sharing it. Folio offers separate original and translated views; the current workflow does not create a bilingual PDF with both versions combined.',
+        'Fonts and text direction may also affect the appearance. Review the translated pages at a readable zoom level and inspect the exported file again before sharing it. If you need a bilingual document, agree on the required format with your translator before work begins.',
       ),
       h('Keep the original and identify the translated copy'),
       p(
@@ -830,9 +830,7 @@ export const starterPosts: EditorialPost[] = [
         link('Split PDF', '/split-pdf'),
         ' or ',
         link('Rotate PDF', '/rotate-pdf'),
-        ' where needed, then visit ',
-        link('Translate PDF', '/translate-pdf'),
-        ' to check availability and begin your review workflow.',
+        ' where needed, then use a separate translation service or translator and review the result against your original.',
       ),
     ],
   ),
@@ -1921,7 +1919,7 @@ export const starterPosts: EditorialPost[] = [
         'In Folio, standalone merging, splitting, rotating, organizing, PDF optimization, PDF-to-image conversion, image-to-PDF conversion, and selectable-text extraction have free downloads. Added text, annotations, visual signatures, and PDF form work also download free, without a Folio watermark.',
       ),
       p(
-        'Original-text editing and password-protected downloads are free too. Office conversions and translation are free when their processing services are connected; check availability before starting. Every account includes 1 GB of private storage. ',
+        'Original-text editing and password-protected downloads are free too. Folio does not offer PDF-to-Office conversion or document translation. Every account includes 1 GB of private storage. ',
         link('The tool directory', '/tools'),
         ' lists the available tools.',
       ),

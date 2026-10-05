@@ -75,3 +75,25 @@ test('related reading follows the task, and recommendations never expose unavail
     assert.equal(new Set(related.map((other) => other.slug)).size, related.length);
   }
 });
+
+test('non-PDF tools recommend relevant next tasks across the catalog', () => {
+  const related = (slug: string, catalog = tools) =>
+    relatedTools(
+      tools.find((tool) => tool.slug === slug)!,
+      catalog,
+    ).map((tool) => tool.slug);
+  assert.deepEqual(related('create-qr-code'), ['url-shortener', 'invoice-generator']);
+  assert.equal(related('url-shortener')[0], 'create-qr-code');
+  assert.equal(related('jpg-to-webp')[0], 'compress-images');
+  assert.ok(related('invoice-generator').includes('signature-generator'));
+  assert.deepEqual(
+    related(
+      'create-qr-code',
+      tools.map((tool) => ({
+        ...tool,
+        available: tool.slug !== 'url-shortener' && tool.available,
+      })),
+    ),
+    ['invoice-generator'],
+  );
+});

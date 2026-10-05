@@ -2723,7 +2723,6 @@ export function Editor() {
                     { value: 'compress-pdf', label: tr('Compress this PDF') },
                     { value: 'pdf-to-jpg', label: tr('Convert pages to JPG') },
                     { value: 'split-pdf', label: tr('Split or extract pages') },
-                    { value: 'translate-pdf', label: tr('Prepare for translation') },
                   ]}
                 />
               </div>

@@ -4,7 +4,7 @@
   "eyebrow": "PDF作業を、もっとシンプルに。",
   "heading": "PDFをもっと手軽に。",
   "intro": "ブラウザーで文書を編集、署名、整理。使いたいツールを選んで始めましょう。",
-  "tools": "PDFツール",
+  "tools": "無料オンラインツール — PDF・画像・請求書・QRコード",
   "home": "ホーム",
   "language": "言語",
   "skip": "本文へ移動",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "PDF編集",
-      "description": "PDFの編集、署名、結合、分割、保護を無料で。各アカウントに1 GBの非公開ストレージが付属します。",
+      "description": "PDFのテキスト編集、注釈、フォーム入力、署名をオンラインで無料利用。Folioの透かしなしでダウンロードできます。ゲストの編集ファイルは24時間非公開で保存されます。",
       "detail": "PDFをエディターで開き、テキストの追加やページの確認ができます。対応する元のテキストも編集できますが、段落は自動で再配置されません。スキャン文書には注釈を追加できます。OCRは含まれません。",
       "action": "エディターで開く",
       "steps": [
@@ -206,5 +206,5 @@
     "Sharing is unavailable right now. Use Download file instead.": "現在共有できません。ファイルをダウンロードをご利用ください。",
     "The file was handed to your selected app. You can keep working here.": "選択したアプリにファイルを渡しました。ここで作業を続けられます。"
   },
-  "directoryDescription": "PDFの編集・結合・分割・圧縮・署名、画像からPDFへの変換ツールを選べます。それぞれの操作手順を確認し、ブラウザーで作業を始めましょう。"
+  "directoryDescription": "PDF編集、画像変換・圧縮、請求書・署名の作成、QRコード生成、URL短縮に使える無料ツール。作業に合ったツールを見つけましょう。"
 }

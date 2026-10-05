@@ -59,8 +59,8 @@ for (const locale of locales.filter((locale) => locale !== 'en')) {
       await expect(page.locator('header a[href="/workspace"]')).toHaveCount(0);
       await expect(page.locator('main .tool-card')).toHaveCount(12);
       await expect(page.locator('html')).toHaveAttribute('lang', locale);
-      await expect(page.locator('h1')).toContainText(copy['Good work starts']);
-      await expect(page.locator('h1 span')).toHaveText(copy['simpler PDF.']);
+      await expect(page.locator('h1')).toContainText(copy['Free online PDF tools.']);
+      await expect(page.locator('h1 span')).toHaveText(copy['Edit. Merge. Sign.']);
       await expect(page.locator('head link[rel="canonical"]')).toHaveAttribute(
         'href',
         `https://folio.example/${locale}`,

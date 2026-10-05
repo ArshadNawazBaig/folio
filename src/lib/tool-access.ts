@@ -22,26 +22,6 @@ export const premiumDownloads = {
       'Downloading a PDF with password protection requires a premium plan. You can keep your original file and change the password settings before downloading.',
     format: 'PDF',
   },
-  'translate-pdf': {
-    reason:
-      'Downloading your translated document requires a premium plan. You can review the translated pages and change languages before downloading.',
-    format: 'PDF',
-  },
-  'pdf-to-word': {
-    reason:
-      'Downloading your converted Word document requires a premium plan. Converting PDF pages to images or extracting selectable text stays free.',
-    format: 'Word document',
-  },
-  'pdf-to-excel': {
-    reason:
-      'Downloading your converted Excel spreadsheet requires a premium plan. Converting PDF pages to images or extracting selectable text stays free.',
-    format: 'Excel spreadsheet',
-  },
-  'pdf-to-powerpoint': {
-    reason:
-      'Downloading your converted PowerPoint presentation requires a premium plan. Converting PDF pages to images or extracting selectable text stays free.',
-    format: 'PowerPoint presentation',
-  },
 } as const;
 export type PremiumDownloadTool = keyof typeof premiumDownloads;
 

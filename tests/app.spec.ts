@@ -37,7 +37,7 @@ test('public content, canonical links, metadata, and schemas are present in serv
       expect(html).toContain('BreadcrumbList');
     }
   }
-  for (const route of ['/workspace', '/documents', '/translate-pdf', '/pdf-to-word']) {
+  for (const route of ['/workspace', '/documents']) {
     const response = await request.get(route);
     expect(await response.text()).toMatch(/name="robots" content="noindex, nofollow"/);
   }
@@ -58,7 +58,7 @@ test('homepage is usable without JavaScript and mobile navigation stays within t
   const page = await context.newPage();
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText(
-    'Good work startswith a simpler PDF.',
+    'Free online PDF tools.Edit. Merge. Sign.',
   );
   await page
     .getByRole('main')
@@ -186,23 +186,8 @@ test('new form fields can be added and exported', async ({ page }) => {
   expect(pdf.getForm().getTextField('Customer name')).toBeTruthy();
 });
 
-test('translation accurately shows its unavailable service and previews a PDF locally', async ({
-  page,
-}) => {
-  await page.goto('/translate-pdf');
-  await expect(page.getByRole('button', { name: 'Translate PDF', exact: true })).toBeDisabled();
-  await page.locator('input[type=file]').setInputFiles(upload);
-  await expect(page.locator('.translation-canvas canvas')).toBeVisible();
-  await page.getByRole('combobox', { name: 'Translate into', exact: true }).click();
-  await page.getByRole('combobox', { name: 'Search languages' }).fill('Urdu');
-  await page.getByRole('option', { name: 'Urdu', exact: true }).click();
-  await expect(
-    page.locator('.translation-pane-header').filter({ hasText: 'Urdu document' }),
-  ).toBeVisible();
-});
-
 test('public pages meet automated accessibility checks', async ({ page }) => {
-  for (const route of ['/', '/tools', '/edit-pdf', '/forms', '/translate-pdf', '/documents']) {
+  for (const route of ['/', '/tools', '/edit-pdf', '/forms', '/documents']) {
     await page.goto(route);
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])

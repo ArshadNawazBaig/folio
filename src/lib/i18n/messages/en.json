@@ -4,7 +4,7 @@
   "eyebrow": "PDF TOOLS, WITHOUT THE FUSS.",
   "heading": "A simpler way to work with PDFs.",
   "intro": "Edit, sign, merge and organize your documents in your browser. Choose a tool and get started.",
-  "tools": "PDF tools",
+  "tools": "Free Online Tools — PDFs, Images, Invoices & QR Codes",
   "home": "Home",
   "language": "Language",
   "skip": "Skip to content",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "Edit PDF",
-      "description": "Edit, sign, merge, split, and protect PDFs for free. Every account includes 1 GB of private storage.",
+      "description": "Edit PDF text, add annotations, fill forms and sign online for free. Download without a Folio watermark. Guest editor files are saved privately for 24 hours.",
       "detail": "Open a PDF in the editor to add text and review pages. Supported original text can also be edited, but paragraphs do not automatically reflow. Scanned pages can be annotated; OCR is not included.",
       "action": "Open in editor",
       "steps": [
@@ -206,5 +206,5 @@
     "Sharing is unavailable right now. Use Download file instead.": "Sharing is unavailable right now. Use Download file instead.",
     "The file was handed to your selected app. You can keep working here.": "The file was handed to your selected app. You can keep working here."
   },
-  "directoryDescription": "Choose a PDF tool to edit, merge, split, compress, sign or turn images into a document. Read the steps and process your files online."
+  "directoryDescription": "Explore free PDF editors, image converters and compressors, invoice and signature generators, a QR code maker and a URL shortener. Find a tool for your task."
 }

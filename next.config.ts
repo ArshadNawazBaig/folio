@@ -40,7 +40,7 @@ const config: NextConfig = {
     ],
     // Only these routes launch the isolated PDF worker. Returning an existing
     // document from /api/documents/export does not need the processing engine.
-    '/api/{pro/{pdf,preview,demo},documents/{process,preview}}': [
+    '/api/{pro/{pdf,preview,demo},documents/preview}': [
       './scripts/pro-pdf-worker.mjs',
       './scripts/pdf-text-engine.mjs',
       './src/lib/pdf-text-engine.mjs',
@@ -90,7 +90,6 @@ const config: NextConfig = {
         permanent: true,
       },
       { source: '/pdf-editor', destination: '/edit-pdf', permanent: true },
-      { source: '/translate-pdf-page', destination: '/translate-pdf', permanent: true },
       { source: '/pdf-forms', destination: '/forms', permanent: true },
       {
         source: '/invoice-generator',

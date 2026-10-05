@@ -1396,7 +1396,7 @@ test('editor cloud saves and browser draft imports include the finished PDF edit
   }
 });
 
-for (const tool of ['pro-text', 'translate-pdf'] as const) {
+for (const tool of ['pro-text'] as const) {
   test(`signed-in ${tool} checkout recovery uses private cloud storage`, async ({ page }) => {
     await mockGoogle(page);
     const objects = new Map<string, string>();
@@ -1438,29 +1438,6 @@ for (const tool of ['pro-text', 'translate-pdf'] as const) {
       await page
         .getByRole('textbox', { name: 'Replacement text' })
         .fill('Recovered from my account');
-    } else {
-      await page.route('**/api/capabilities', (route) =>
-        route.fulfill({ json: { tools: { 'translate-pdf': true } } }),
-      );
-      await page.route('**/api/documents/process', (route) =>
-        route.fulfill({
-          json: {
-            tool,
-            artifact: 'encrypted-private-result',
-            filename: 'Cloud proposal-es.pdf',
-            pages: 1,
-            size: 1000,
-            expiresAt: Date.now() + 86400000,
-            source: 'auto',
-            target: 'es',
-          },
-        }),
-      );
-      await page.goto('/translate-pdf');
-      await page
-        .locator('input[type=file]')
-        .setInputFiles({ name: 'Cloud proposal.pdf', mimeType: 'application/pdf', buffer });
-      await page.getByRole('button', { name: 'Translate PDF', exact: true }).click();
     }
     await page.getByRole('button', { name: 'Download PDF', exact: true }).click();
     await expect(
@@ -1477,12 +1454,7 @@ for (const tool of ['pro-text', 'translate-pdf'] as const) {
     page.on('dialog', (dialog) => void dialog.accept());
     await page.reload();
     await expect(
-      page.getByText(
-        tool === 'pro-text'
-          ? 'Recovered your edits from cloud storage.'
-          : 'Recovered your prepared document from cloud storage.',
-        { exact: false },
-      ),
+      page.getByText('Recovered your edits from cloud storage.', { exact: false }),
     ).toBeVisible();
     if (tool === 'pro-text') {
       await page.getByRole('button', { name: 'Edit text: A place to', exact: true }).click();

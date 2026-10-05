@@ -38,8 +38,7 @@ export function NotFoundPage() {
               {tr('Page not found')}
             </span>
             <h1>
-              {tr('Let’s get you')}
-              <em>{tr('back on track.')}</em>
+              {tr('Let’s get you')} <em>{tr('back on track.')}</em>
             </h1>
             <p>
               {tr(

@@ -1,12 +1,13 @@
 import { FREE_LAUNCH } from '@/lib/access-policy';
-import { translator, type PageLanguage } from '@/lib/i18n/translate';
+import { translator, localizedHref, type PageLanguage } from '@/lib/i18n/translate';
 import Link from 'next/link';
 import { downloadFact, toolFacts } from '@/lib/tool-facts';
 import type { Tool } from '@/lib/tools';
 import styles from './tool-facts.module.css';
 
-export function ToolFacts({ tool, messages = {} }: PageLanguage & { tool: Tool }) {
+export function ToolFacts({ tool, locale = 'en', messages = {} }: PageLanguage & { tool: Tool }) {
   const tr = translator(messages);
+  const href = (path: string) => localizedHref(locale, path);
   const facts = toolFacts[tool.slug];
   if (!tool.available || !facts) return null;
   const rows = [
@@ -23,7 +24,7 @@ export function ToolFacts({ tool, messages = {} }: PageLanguage & { tool: Tool }
         <h2 id="tool-facts-title">{tr(facts.question)}</h2>
         <p>{tr(facts.answer)}</p>
         {!['url-shortener', 'invoice-generator'].includes(tool.slug) && (
-          <Link href="/guides/does-folio-upload-pdf-files">
+          <Link href={href('/guides/does-folio-upload-pdf-files')}>
             {tr('Compare local processing and cloud saving')}
           </Link>
         )}
@@ -38,8 +39,8 @@ export function ToolFacts({ tool, messages = {} }: PageLanguage & { tool: Tool }
           ))}
         </dl>
         <p className={styles.links}>
-          {!FREE_LAUNCH && <Link href="/pricing">{tr('Current plans')}</Link>}
-          <Link href="/privacy">{tr('Full privacy details')}</Link>
+          {!FREE_LAUNCH && <Link href={href('/pricing')}>{tr('Current plans')}</Link>}
+          <Link href={href('/privacy')}>{tr('Full privacy details')}</Link>
         </p>
       </div>
     </section>

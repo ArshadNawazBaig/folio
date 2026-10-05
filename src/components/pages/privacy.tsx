@@ -119,12 +119,6 @@ export default function Privacy({ messages = {} }: PageLanguage = {}) {
           'Your browser requests the website, fonts, scripts, and PDF viewer assets from the site’s host. Hosting infrastructure may handle ordinary request information such as IP addresses and browser details. Folio uses Vercel Web Analytics to collect page views and aggregated website usage statistics. The application includes no advertising trackers. Local processing does not send document contents. Automatic editor uploads, dashboard uploads, and text processing send documents to the services described above.',
         )}
       </p>
-      <h2>{tr('Translation and Office conversion use document services.')}</h2>
-      <p>
-        {tr(
-          'When their services are connected, choosing Translate sends your PDF through Folio to Google Cloud Translation; choosing an Office conversion sends it to ConvertAPI. The workspace identifies the provider before upload. Folio processes files in memory and requests conversion without provider file storage. Provider infrastructure and service terms govern their processing. Prepared output is encrypted and returned to your browser with a 24-hour download expiry. Translation previews are readable images. Recovery copies saved during earlier checkout flows may include the encrypted file and preview. Free downloads do not start a checkout recovery save. Expired copies are not restored; they are replaced by a new recovery draft or removed after a successful download, with operator cleanup for failed deletions. Downloads are free; encrypted results are validated on the server before download. Standalone OCR is not included.',
-        )}
-      </p>
       <h2>{tr('A shared device needs a little care.')}</h2>
       <p>
         {tr(

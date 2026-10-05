@@ -4,7 +4,7 @@
   "eyebrow": "PDF-TOOLS ZONDER GEDOE.",
   "heading": "Eenvoudiger werken met PDF’s.",
   "intro": "Bewerk, onderteken en orden documenten in je browser. Kies een hulpmiddel en ga aan de slag.",
-  "tools": "PDF-tools",
+  "tools": "Gratis online tools — PDF’s, afbeeldingen, facturen en QR-codes",
   "home": "Startpagina",
   "language": "Taal",
   "skip": "Naar de inhoud",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "PDF bewerken",
-      "description": "Bewerk, onderteken, combineer, splits en beveilig PDF’s gratis. Elk account heeft 1 GB privéopslag.",
+      "description": "Bewerk PDF-tekst, voeg opmerkingen toe, vul formulieren in en onderteken gratis online. Download zonder Folio-watermerk. Gastbestanden blijven 24 uur privé bewaard.",
       "detail": "Open je PDF om tekst toe te voegen en pagina’s te bekijken. Ondersteunde oorspronkelijke tekst is bewerkbaar, maar alinea’s lopen niet automatisch door. Scans kunnen worden geannoteerd; OCR is niet inbegrepen.",
       "action": "Openen in editor",
       "steps": [
@@ -206,5 +206,5 @@
     "Sharing is unavailable right now. Use Download file instead.": "Delen is nu niet beschikbaar. Gebruik Bestand downloaden.",
     "The file was handed to your selected app. You can keep working here.": "Het bestand is doorgegeven aan de gekozen app. Je kunt hier verder werken."
   },
-  "directoryDescription": "Kies een tool om PDF’s te bewerken, samen te voegen, te splitsen, te comprimeren of te ondertekenen, of om afbeeldingen om te zetten. Met duidelijke stappen."
+  "directoryDescription": "Ontdek gratis tools om PDF’s te bewerken, afbeeldingen te converteren en comprimeren, facturen en handtekeningen te maken, QR-codes te genereren en links in te korten."
 }

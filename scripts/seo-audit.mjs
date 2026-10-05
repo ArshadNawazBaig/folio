@@ -1,4 +1,5 @@
 import { writeFile } from 'node:fs/promises';
+import { metadataKey, languageAlternateIssues } from './seo-audit-checks.mjs';
 
 const input = process.argv[2];
 if (!input || !/^https?:\/\//.test(input)) {
@@ -10,7 +11,7 @@ const issues = [];
 const pages = [];
 const internalLinks = new Set();
 const privatePath =
-  /^\/(?:api|workspace|documents|account|dashboard|admin|auth|support|maintenance)(?:\/|$)/;
+  /^\/(?:(?:de|fr|nl|es|it|pt|sv|nb|da|ja|ko)\/)?(?:api|workspace|invoice-editor|documents|account|dashboard|admin|auth|support|maintenance)(?:\/|$)/;
 const decode = (value) =>
   value
     .replace(/&amp;/g, '&')
@@ -28,12 +29,14 @@ const tags = (html, name) =>
 async function get(path) {
   const url = new URL(path, origin);
   if (url.origin !== origin) throw new Error(`Off-site URL in sitemap: ${url.href}`);
+  const started = performance.now();
   const response = await fetch(url, {
     redirect: 'manual',
     signal: AbortSignal.timeout(20000),
     headers: { 'User-Agent': 'FolioSEOAudit/1.0', Accept: 'text/html,application/xml,text/plain' },
   });
-  return { response, html: await response.text() };
+  const html = await response.text();
+  return { response, html, responseMs: Math.round(performance.now() - started) };
 }
 function check(condition, message) {
   if (!condition) issues.push(message);
@@ -73,6 +76,7 @@ try {
   const descriptions = new Map();
   const queued = new Set(urls);
   const sitemapPages = urls.length;
+  console.error(`Auditing ${sitemapPages} sitemap URLs on ${origin}…`);
   let cursor = 0;
   await Promise.all(
     Array.from({ length: 4 }, async () => {
@@ -81,8 +85,14 @@ try {
         try {
           const parsed = new URL(url);
           check(!privatePath.test(parsed.pathname), `Private URL appears in sitemap: ${url}`);
-          const { response, html } = await get(url);
+          const { response, html, responseMs } = await get(url);
           const meta = tags(html, 'meta');
+          const language = (tags(html, 'html')[0]?.lang || '').toLowerCase();
+          const languages = Object.fromEntries(
+            tags(html, 'link')
+              .filter((link) => link.rel === 'alternate' && link.hreflang && link.href)
+              .map((link) => [link.hreflang.toLowerCase(), new URL(link.href, url).href]),
+          );
           const canonical = tags(html, 'link').find((tag) => tag.rel === 'canonical')?.href;
           const title = decode(html.match(/<title>([^<]*)<\/title>/i)?.[1] || '');
           const description = meta.find((tag) => tag.name === 'description')?.content;
@@ -104,15 +114,18 @@ try {
             `${url}: missing RSS discovery link.`,
           );
           check(!/noindex/i.test(robots), `${url}: indexing is disabled.`);
+          check(!!language, `${url}: missing document language.`);
           check(!!title, `${url}: missing title.`);
-          check(!titles.has(title), `${url}: title duplicates ${titles.get(title)}.`);
-          titles.set(title, url);
+          const titleKey = metadataKey(language, title);
+          check(!titles.has(titleKey), `${url}: title duplicates ${titles.get(titleKey)}.`);
+          titles.set(titleKey, url);
           check(!!description, `${url}: missing description.`);
+          const descriptionKey = metadataKey(language, description);
           check(
-            !descriptions.has(description),
-            `${url}: description duplicates ${descriptions.get(description)}.`,
+            !descriptions.has(descriptionKey),
+            `${url}: description duplicates ${descriptions.get(descriptionKey)}.`,
           );
-          descriptions.set(description, url);
+          descriptions.set(descriptionKey, url);
           check(
             !!canonical && new URL(canonical, origin).href === parsed.href,
             `${url}: canonical does not match this sitemap URL (${canonical}).`,
@@ -150,13 +163,25 @@ try {
               urls.push(target.href);
             }
           }
-          pages.push({ url, status: response.status, title, canonical });
+          pages.push({
+            url,
+            status: response.status,
+            title,
+            description,
+            canonical,
+            language,
+            languages,
+            responseMs,
+          });
+          if (pages.length % 50 === 0)
+            console.error(`Checked ${pages.length}/${urls.length} pages…`);
         } catch (error) {
           issues.push(`${url}: ${error.message}`);
         }
       }
     }),
   );
+  issues.push(...languageAlternateIssues(pages));
   for (const url of urls.slice(0, sitemapPages))
     check(
       new URL(url).pathname === '/' || internalLinks.has(url),
@@ -176,7 +201,14 @@ try {
       `${path}: expected an image content type.`,
     );
   }
-  for (const path of ['/workspace', '/dashboard', '/account', '/admin', '/support']) {
+  for (const path of [
+    '/workspace',
+    '/invoice-editor',
+    '/dashboard',
+    '/account',
+    '/admin',
+    '/support',
+  ]) {
     const { response, html } = await get(path);
     check(
       /noindex/i.test(response.headers.get('x-robots-tag') || ''),
@@ -198,6 +230,12 @@ const report = {
   passed: issues.length === 0,
   pagesChecked: pages.length,
   internalLinksFound: internalLinks.size,
+  // These are fetched pages, not Google's indexed-page counts or Core Web Vitals.
+  pagesByLanguage: Object.fromEntries(
+    [...new Set(pages.map((page) => page.language))]
+      .sort()
+      .map((language) => [language, pages.filter((page) => page.language === language).length]),
+  ),
   issues,
   pages: pages.sort((a, b) => a.url.localeCompare(b.url)),
 };

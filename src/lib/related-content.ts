@@ -1,5 +1,6 @@
 import { guides, type Guide } from './guides';
 import type { Tool } from './tools';
+import { toolCollections, toolNextSteps } from './tool-collections';
 
 export function guidesForTool(slug: string, limit = 3) {
   return guides
@@ -21,6 +22,15 @@ export function relatedGuides(guide: Guide, limit = 3) {
 }
 
 export function relatedTools(tool: Tool, catalog: Tool[], limit = 3) {
+  const preferred = toolNextSteps[tool.slug];
+  if (preferred)
+    return preferred
+      .flatMap((slug) => {
+        const next = catalog.find((candidate) => candidate.slug === slug && candidate.available);
+        return next && next.slug !== tool.slug ? [next] : [];
+      })
+      .slice(0, limit);
+  const collection = toolCollections.find((group) => group.slugs.includes(tool.slug));
   const topics = new Set(
     guidesForTool(tool.slug, guides.length).flatMap((guide) => [
       guide.tool,
@@ -31,7 +41,7 @@ export function relatedTools(tool: Tool, catalog: Tool[], limit = 3) {
     .filter((other) => other.available && other.slug !== tool.slug)
     .map((other) => ({
       tool: other,
-      score: Number(topics.has(other.slug)) * 2 + Number(other.category === tool.category),
+      score: Number(topics.has(other.slug)) * 2 + Number(collection?.slugs.includes(other.slug)),
     }))
     .filter((other) => other.score > 0)
     .sort((a, b) => b.score - a.score)

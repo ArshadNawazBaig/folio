@@ -124,6 +124,7 @@ async function InternationalContent(locale: Locale, props: InternationalProps) {
       <HomePageContent
         locale={locale}
         messages={d.ui}
+        searchCopy={{ title: d.title, description: d.description }}
         uploadCopy={{
           choosePdf: d.choosePdf,
           uploadTitle: d.uploadTitle,

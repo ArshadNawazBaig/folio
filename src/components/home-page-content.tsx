@@ -22,18 +22,20 @@ import { HomeTools } from '@/components/home-tools';
 import { EditorPreview } from '@/components/document-preview';
 import { Faq } from '@/components/faq';
 import { StructuredData } from '@/components/structured-data';
-import { siteUrl, organizationSchema } from '@/lib/seo';
+import { siteUrl, organizationSchema, homeSearchCopy } from '@/lib/seo';
 import { guides } from '@/lib/guides';
 import { locales } from '@/lib/i18n/config';
+import { availableToolCollections } from '@/lib/tool-collections';
 import styles from '@/components/home.module.css';
-const title = 'Free Online PDF Tools — Edit, Merge, Compress & Sign';
-const description =
-  'Add text, sign, merge, split and convert images to PDF online. Annotation downloads are free; original-text changes are free.';
 export function HomePageContent({
   locale = 'en',
   messages = {},
   uploadCopy,
-}: PageLanguage & { uploadCopy?: NonNullable<Parameters<typeof HomeUpload>[0]>['copy'] }) {
+  searchCopy = homeSearchCopy,
+}: PageLanguage & {
+  uploadCopy?: NonNullable<Parameters<typeof HomeUpload>[0]>['copy'];
+  searchCopy?: typeof homeSearchCopy;
+}) {
   const tr = translator(messages);
   const href = (path: string) => localizedHref(locale, path);
   const tools = serverToolSummaries().map((tool) => localizeSummary(tool, messages));
@@ -54,7 +56,7 @@ export function HomePageContent({
               '@id': `${siteUrl}/#website`,
               name: 'Folio',
               url: siteUrl,
-              description: tr(description),
+              description: searchCopy.description,
               publisher: { '@id': `${siteUrl}/#organization` },
               inLanguage: [...locales],
             },
@@ -62,8 +64,8 @@ export function HomePageContent({
               '@type': 'WebPage',
               '@id': `${siteUrl}${href('/')}#webpage`,
               url: `${siteUrl}${href('/')}`,
-              name: tr(title),
-              description: tr(description),
+              name: searchCopy.title,
+              description: searchCopy.description,
               isPartOf: { '@id': `${siteUrl}/#website` },
               about: { '@id': `${siteUrl}/#organization` },
               inLanguage: locale,
@@ -75,9 +77,9 @@ export function HomePageContent({
         <div className="container">
           <span className={styles.eyebrow}>{tr('PDF TOOLS, WITHOUT THE FUSS.')}</span>
           <h1>
-            {tr('Good work starts')}
+            {tr('Free online PDF tools.')}
             <br />
-            {tr('with a')} <span>{tr('simpler PDF.')}</span>
+            <span>{tr('Edit. Merge. Sign.')}</span>
           </h1>
           <p className={styles.description}>
             {tr(
@@ -153,12 +155,37 @@ export function HomePageContent({
           </div>
         </div>
       </section>
+      <section
+        className={`container home-tool-collections ${styles.collections}`}
+        aria-labelledby="tool-collections-title"
+      >
+        <h2 id="tool-collections-title">{tr('Find a free tool for every task.')}</h2>
+        <p>
+          {tr('PDFs, images, invoices, signatures, short links and QR codes — all in one place.')}
+        </p>
+        <div className={styles.collectionGrid}>
+          {availableToolCollections(tools).map((collection) => (
+            <section key={collection.id} aria-labelledby={`collection-${collection.id}`}>
+              <h3 id={`collection-${collection.id}`}>{tr(collection.title)}</h3>
+              <ul>
+                {collection.tools.map((tool) => (
+                  <li key={tool.slug}>
+                    <Link prefetch={false} href={href(`/${tool.slug}`)}>
+                      {tool.name} <ArrowUpRight size={14} aria-hidden="true" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      </section>
       <section className={`container ${styles.resources}`} aria-labelledby="editor-guides-title">
         <span className={styles.eyebrow}>{tr('A GOOD PLACE TO BEGIN')}</span>
         <h2 id="editor-guides-title">{tr('Find the best free PDF tool for your task.')}</h2>
         <div className="tool-reading-grid">
           {reading.map((guide) => (
-            <Link key={guide.slug} href={`/guides/${guide.slug}`}>
+            <Link key={guide.slug} href={href(`/guides/${guide.slug}`)}>
               <strong>
                 {tr(guide.title)}
                 <ArrowUpRight size={16} aria-hidden="true" />

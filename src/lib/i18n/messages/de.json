@@ -4,7 +4,7 @@
   "eyebrow": "PDF-TOOLS. EINFACH UND UNKOMPLIZIERT.",
   "heading": "Einfacher mit PDFs arbeiten.",
   "intro": "Bearbeiten, unterschreiben und organisieren Sie Ihre Dokumente direkt im Browser. Wählen Sie ein Werkzeug und legen Sie los.",
-  "tools": "PDF-Tools",
+  "tools": "Kostenlose Online-Tools — PDFs, Bilder, Rechnungen und QR-Codes",
   "home": "Startseite",
   "language": "Sprache",
   "skip": "Zum Inhalt springen",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "PDF bearbeiten",
-      "description": "PDFs kostenlos bearbeiten, unterschreiben, zusammenführen, teilen und schützen. Jedes Konto enthält 1 GB privaten Speicher.",
+      "description": "PDF-Text kostenlos online bearbeiten, kommentieren, Formulare ausfüllen und unterschreiben. Downloads ohne Folio-Wasserzeichen. Gastdateien werden 24 Stunden privat gespeichert.",
       "detail": "Öffnen Sie eine PDF im Editor, um Text hinzuzufügen und Seiten zu prüfen. Unterstützter Originaltext lässt sich bearbeiten, Absätze werden jedoch nicht automatisch neu umbrochen. Scans können kommentiert werden; OCR ist nicht enthalten.",
       "action": "Im Editor öffnen",
       "steps": [
@@ -206,5 +206,5 @@
     "Sharing is unavailable right now. Use Download file instead.": "Teilen ist derzeit nicht verfügbar. Verwenden Sie Datei herunterladen.",
     "The file was handed to your selected app. You can keep working here.": "Die Datei wurde an Ihre ausgewählte App übergeben. Sie können hier weiterarbeiten."
   },
-  "directoryDescription": "Wählen Sie ein PDF-Werkzeug zum Bearbeiten, Zusammenfügen, Teilen, Komprimieren, Unterschreiben oder Umwandeln von Bildern. Mit verständlichen Anleitungen."
+  "directoryDescription": "Entdecken Sie kostenlose PDF-Editoren, Bildkonverter und Kompressoren, Rechnungs- und Unterschriftengeneratoren, QR-Codes und Kurzlinks. Finden Sie das passende Tool."
 }

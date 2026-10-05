@@ -1,5 +1,6 @@
 import { publicPosts } from '@/lib/server/blog';
 import { guides } from '@/lib/guides';
+import { guideEdition } from '@/lib/guide-edition';
 import { isIndexable, siteUrl } from '@/lib/seo';
 import { publicationFeed } from '@/lib/publication-feeds';
 
@@ -12,7 +13,7 @@ export async function GET() {
       headers: { 'Retry-After': '300', 'Cache-Control': 'no-store' },
     });
   const entries = [
-    ...guides.map((guide) => ({ ...guide, path: `/guides/${guide.slug}` })),
+    ...guides.map((guide) => ({ ...guideEdition(guide), path: `/guides/${guide.slug}` })),
     ...posts.map((post) => ({
       title: post.title,
       description: post.excerpt,

@@ -3,7 +3,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 for (const free of [true, false])
-  test(`real document handlers preserve providers, previews and encrypted exports with free launch ${free}`, async () => {
+  test(`removed document tools reject processing and preserve legacy encrypted exports with free launch ${free}`, async () => {
     await promisify(execFile)(
       process.execPath,
       [

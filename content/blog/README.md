@@ -1,6 +1,6 @@
 # Folio editorial articles
 
-`starter-posts.ts` contains fifteen original, complete articles for the public blog. Each has a title, excerpt, category, tags, SEO metadata, rich editor content, descriptive cover alt text, and a cover credit. Most covers are credited Unsplash photographs; the invoice article has its own original AI-generated image. Tool instructions were checked against this application. Translation and Office conversion sections explain that their services must be connected before processing is available.
+`starter-posts.ts` contains fifteen original, complete articles for the public blog. Each has a title, excerpt, category, tags, SEO metadata, rich editor content, descriptive cover alt text, and a cover credit. Most covers are credited Unsplash photographs; the invoice article has its own original AI-generated image. Tool instructions were checked against this application. Translation and Office conversion sections state that these tools are not offered by Folio. The translation article covers file preparation and reviewing work from a separate translator or service.
 
 The QR code and URL shortener guides include practical examples, FAQs, links to the relevant tools, and primary-source references. Their search intent and product checks are recorded in [the editorial research notes](qr-and-url-research.md). They are prepared for draft review; publishing remains an explicit editorial action. Review and publish both together if retaining their cross-links.
 
@@ -11,6 +11,8 @@ The image compressor article explains target KB limits, pixel dimensions, JPG/PN
 The mobile PDF article answers the requested phone-editing searches with iPhone and Android steps, original-text versus annotation guidance, form filling, downloads, troubleshooting, and storage details. Read the complete [article preview](mobile-pdf-editing-article.md) and [editorial notes](mobile-pdf-editing-research.md). Its blog slug is `how-to-edit-pdf-on-phone`.
 
 Three further articles cover the requested free PDF keywords with separate practical purposes: [choosing a free PDF tool online](free-pdf-tool-online-article.md), [using a free PDF editor for text, forms, and signatures](free-pdf-editor-article.md), and [reviewing and sharing with a PDF editor online](pdf-editor-online-review-article.md). The [research notes](free-pdf-articles-research.md) map the keywords to each article, document product checks, and list primary sources. These are private drafts for editorial review; each can be published independently.
+
+October 5 removal: the conversion, translation, and free-tools article sources no longer advertise the removed tools. Apply these copy corrections through `/admin/blog` to any already-published versions when releasing the removal; the importer intentionally does not overwrite existing posts.
 
 The source is a backup for an explicit import, not a runtime fallback. After import, manage the live posts through `/admin/blog`; edits there remain authoritative. Existing posts, edited drafts, and trashed posts are never overwritten by the importer.
 

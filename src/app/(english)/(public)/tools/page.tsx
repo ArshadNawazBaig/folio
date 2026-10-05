@@ -6,8 +6,8 @@ type Props = { searchParams: Promise<DirectoryParams> };
 export async function generateMetadata({ searchParams }: Props) {
   const directory = toolDirectory(serverToolSummaries(), await searchParams);
   return listingMetadata(
-    'All PDF Tools — Edit, Organize, Convert & Sign',
-    'Find PDF tools for existing text editing, annotations, and password protection. Merge, split, convert, fill, and sign PDFs in one place.',
+    'Free Online Tools — PDFs, Images, Invoices & QR Codes',
+    'Explore free PDF editors, image converters and compressors, invoice and signature generators, a QR code maker and a URL shortener. Find a tool for your task.',
     directory.canonical,
     1,
     directory.index,

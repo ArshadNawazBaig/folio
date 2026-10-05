@@ -4,7 +4,7 @@
   "eyebrow": "PDF-VERKTØY UTEN STYR.",
   "heading": "En enklere måte å jobbe med PDF på.",
   "intro": "Rediger, signer og organiser dokumenter i nettleseren. Velg et verktøy og kom i gang.",
-  "tools": "PDF-verktøy",
+  "tools": "Gratis nettverktøy — PDF-er, bilder, fakturaer og QR-koder",
   "home": "Hjem",
   "language": "Språk",
   "skip": "Hopp til innholdet",
@@ -49,7 +49,7 @@
   "catalog": {
     "edit-pdf": {
       "name": "Rediger PDF",
-      "description": "Rediger, signer, slå sammen, del og beskytt PDF-filer gratis. Hver konto har 1 GB privat lagring.",
+      "description": "Rediger PDF-tekst, legg til merknader, fyll ut skjemaer og signer gratis på nett. Last ned uten Folio-vannmerke. Gjestefiler lagres privat i 24 timer.",
       "detail": "Åpne en PDF for å legge til tekst og kontrollere sider. Støttet originaltekst kan redigeres, men avsnitt flyter ikke automatisk på nytt. Skannede sider kan kommenteres; OCR er ikke inkludert.",
       "action": "Åpne i redigeringsverktøyet",
       "steps": [
@@ -206,5 +206,5 @@
     "Sharing is unavailable right now. Use Download file instead.": "Deling er ikke tilgjengelig. Bruk Last ned fil.",
     "The file was handed to your selected app. You can keep working here.": "Filen er sendt til den valgte appen. Du kan fortsette her."
   },
-  "directoryDescription": "Velg et verktøy for å redigere, slå sammen, dele, komprimere eller signere PDF og konvertere bilder. Tydelige trinn for hver oppgave."
+  "directoryDescription": "Finn gratis verktøy for PDF-redigering, bildekonvertering og komprimering, fakturaer, signaturer, QR-koder og korte lenker. Velg verktøyet for oppgaven din."
 }

@@ -9,6 +9,7 @@ import type { Annotation } from '../src/lib/types';
 import { processTextPdf } from '../scripts/pdf-text-engine.mjs';
 import { PNG } from 'pngjs';
 import type { TextPreview } from '../src/lib/pro-types';
+import { readFile } from 'node:fs/promises';
 
 const sample = await createSample();
 const input = { name: 'proposal.pdf', bytes: sample };
@@ -64,6 +65,36 @@ test('rotations, crop boundaries, and numbered footers are saved', async () => {
   assert.match(await extractText(numbered.bytes, 2), /42/);
   assert.match(await extractText(numbered.bytes, 3), /43/);
   await assert.rejects(processPdf('crop', [input], { margin: 400 }), /visible area/);
+});
+test('downloadable practice PDFs produce the advertised rotation and numbering results', async () => {
+  const practice = async (name: string) => ({
+    name,
+    bytes: new Uint8Array(await readFile(new URL(`../public/samples/${name}`, import.meta.url))),
+  });
+  const sideways = await practice('rotation-practice.pdf');
+  const original = await PDFDocument.load(sideways.bytes);
+  assert.deepEqual(
+    original.getPages().map((page) => page.getRotation().angle),
+    [0, 270, 0],
+  );
+  const fixed = await processPdf('rotate', [sideways], { pages: [1], rotation: 90 });
+  assert.deepEqual(
+    (await PDFDocument.load(fixed.bytes)).getPages().map((page) => page.getRotation().angle),
+    [0, 0, 0],
+  );
+
+  const packet = await practice('numbering-practice.pdf');
+  const numbered = await processPdf('numbers', [packet], { pages: [1, 2, 3, 4, 5], start: 1 });
+  assert.equal((await PDFDocument.load(numbered.bytes)).getPageCount(), 6);
+  assert.equal(await extractText(numbered.bytes, 1), await extractText(packet.bytes, 1));
+  for (let index = 2; index <= 6; index++) {
+    const before = await extractText(packet.bytes, index);
+    const after = await extractText(numbered.bytes, index);
+    assert.equal(
+      after.trim().replace(/\s+/g, ' '),
+      `${before.trim()} ${index - 1}`.replace(/\s+/g, ' '),
+    );
+  }
 });
 test('invalid watermark and numbering settings never silently produce a different document', async () => {
   for (const options of [
