@@ -208,7 +208,7 @@ export const guides: Guide[] = [
     category: 'Document privacy',
     readTime: '4 min read',
     published: '2026-09-18',
-    updated: '2026-10-04',
+    updated: '2026-10-06',
     tool: 'merge-pdf',
     relatedTools: [
       'edit-pdf',
@@ -221,7 +221,7 @@ export const guides: Guide[] = [
       'protect-pdf',
     ],
     summary:
-      'Folio’s standalone merge, split, compression, image conversion and text extraction tools process document contents in your browser. Opening a PDF in the editor uploads it for private cloud saving, including guest sessions. Original-text processing and password protection send the PDF to Folio; connected translation and Office conversion send it to a document provider. Choose the workflow before selecting a file.',
+      'Folio’s standalone merge, split, compression, image conversion and text extraction tools process document contents in your browser. Opening a PDF in the editor uploads it for private cloud saving, including guest sessions. Original-text processing and password protection send the PDF to Folio. Choose the workflow before selecting a file.',
     sections: [
       {
         title: 'Which PDF tasks can I finish without a document upload?',
@@ -272,7 +272,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'What changes when I use original-text editing or conversion?',
-        text: 'Adding a new text annotation and replacing an existing word are different operations. Original-text processing sends the PDF to Folio, and downloading those changes is free. Password protection also uses Folio’s server and sends the opening password. When connected, translation and Office conversion send the PDF through Folio to the provider named in the workspace. Review that provider before starting processing. Free previews or guest access do not imply that document processing is local. The main editor’s cloud saving also applies when you use original-text features inside that workspace.',
+        text: 'Adding a new text annotation and replacing an existing word are different operations. Original-text processing sends the PDF to Folio, and downloading those changes is free. Password protection also uses Folio’s server and sends the opening password. Free previews or guest access do not imply that document processing is local. The main editor’s cloud saving also applies when you use original-text features inside that workspace.',
         links: [
           { label: 'Original-text editing capabilities', href: '/edit-pdf-text#tool-facts' },
           { label: 'Explore free tools', href: '/tools' },
@@ -307,7 +307,7 @@ export const guides: Guide[] = [
     category: 'Choosing your tools',
     readTime: '7 min read',
     published: '2026-09-17',
-    updated: '2026-10-04',
+    updated: '2026-10-06',
     tool: 'edit-pdf',
     relatedTools: ['sign-pdf', 'merge-pdf', 'split-pdf', 'image-to-pdf', 'compress-pdf'],
     summary:
@@ -431,7 +431,7 @@ export const guides: Guide[] = [
       },
       {
         title: 'Understand guest storage and file privacy',
-        text: 'A tool that runs in a browser does not necessarily keep every file on your device. Folio’s editor automatically uploads documents and recovery drafts to private cloud storage. Guests can start without Google sign-in, receive 100 MB of storage, and have a 24-hour file expiry. When that space is full, delete old files before uploading more. Sign in to keep files in your account and access them across devices. Standalone merge, split, and image tools process files in the browser; server-assisted features use Folio or connected document services. Choose a workflow that fits your document’s confidentiality requirements, and keep your own original copy.',
+        text: 'A tool that runs in a browser does not necessarily keep every file on your device. Folio’s editor automatically uploads documents and recovery drafts to private cloud storage. Guests can start without Google sign-in, receive 100 MB of storage, and have a 24-hour file expiry. When that space is full, delete old files before uploading more. Sign in to keep files in your account and access them across devices. Standalone merge, split, and image tools process files in the browser; server-assisted features use Folio. Choose a workflow that fits your document’s confidentiality requirements, and keep your own original copy.',
       },
       {
         title: 'How should I evaluate a top PDF editor before using it?',

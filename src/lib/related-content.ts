@@ -2,10 +2,20 @@ import { guides, type Guide } from './guides';
 import type { Tool } from './tools';
 import { toolCollections, toolNextSteps } from './tool-collections';
 
+// Keep the main editing workflows discoverable even as the guide library grows.
+const preferredReading: Record<string, string[]> = {
+  'edit-pdf': ['how-to-edit-a-pdf', 'how-to-edit-a-pdf-on-mobile', 'how-to-add-text-to-a-pdf'],
+};
+
 export function guidesForTool(slug: string, limit = 3) {
+  const preferred = preferredReading[slug] || [];
+  const rank = (guide: Guide) => {
+    const index = preferred.indexOf(guide.slug);
+    return index < 0 ? preferred.length : index;
+  };
   return guides
     .filter((guide) => guide.tool === slug || guide.relatedTools?.includes(slug))
-    .sort((a, b) => Number(b.tool === slug) - Number(a.tool === slug))
+    .sort((a, b) => rank(a) - rank(b) || Number(b.tool === slug) - Number(a.tool === slug))
     .slice(0, limit);
 }
 

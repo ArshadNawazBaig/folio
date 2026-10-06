@@ -221,7 +221,7 @@ export function HomePageContent({
             ],
             [
               'Where do my documents go?',
-              'The editor automatically uploads your document and saves changes to private cloud storage, including for guests. Standalone merge, split, and image tools process files in your browser. Some original-text operations and password protection use Folio’s servers; translation and Office conversion use connected document services.',
+              'The editor automatically uploads your document and saves changes to private cloud storage, including for guests. Standalone merge, split, and image tools process files in your browser. Some original-text operations and password protection use Folio’s servers.',
             ],
             [
               'Can I use Folio on my phone?',
@@ -229,7 +229,7 @@ export function HomePageContent({
             ],
             [
               'Are all the tools available?',
-              'Editing, page tools, forms, image conversion, and text extraction are available. Translation and Office conversion use connected services; their current availability is shown in the tool directory.',
+              'Editing, page tools, forms, image conversion, and text extraction are available.',
             ],
             [
               'Will my original document change?',

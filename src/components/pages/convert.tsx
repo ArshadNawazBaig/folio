@@ -71,11 +71,7 @@ export default async function ConvertPage({
         </p>
       </div>
       <ToolDirectory key={directory.canonical} directory={directory} catalog={catalog} />
-      <p className="directory-footnote">
-        {tr(
-          'Image and text tools run locally. Office conversions are marked as coming soon until a processing service is connected.',
-        )}
-      </p>
+      <p className="directory-footnote">{tr('Image and text tools run locally.')}</p>
     </main>
   );
 }

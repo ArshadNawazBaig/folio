@@ -62,7 +62,7 @@ export default function About({ locale = 'en', messages = {} }: PageLanguage = {
       </p>
       <p>
         {tr(
-          'Cloud-saved PDFs are available across your devices. Translation and Office conversion work when their services are connected. Certificate-based digital signatures, secure redaction, and standalone OCR are not part of the current release.',
+          'Cloud-saved PDFs are available across your devices. Certificate-based digital signatures, secure redaction, and standalone OCR are not part of the current release.',
         )}
       </p>
       <h2>{tr('Designed around your documents.')}</h2>
