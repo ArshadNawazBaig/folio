@@ -1,5 +1,6 @@
 import { translator, localizedHref, localizeGuide, type PageLanguage } from '@/lib/i18n/translate';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ArrowUpRight, ChevronRight } from 'lucide-react';
 import { guides } from '@/lib/guides';
@@ -166,6 +167,18 @@ export default async function Guide({
                     </li>
                   ))}
                 </ul>
+              )}
+              {section.figure && (
+                <figure className={styles.figure}>
+                  <Image
+                    src={section.figure.src}
+                    alt={section.figure.alt}
+                    width={section.figure.width}
+                    height={section.figure.height}
+                    sizes="(max-width: 450px) 90vw, 390px"
+                  />
+                  <figcaption>{section.figure.caption}</figcaption>
+                </figure>
               )}
             </section>
           ))}

@@ -1,0 +1,185 @@
+{
+  "notes": [
+    "Lab measurements; not field Core Web Vitals or ranking predictions.",
+    "Local and live runs differ in network, deployment and indexability; compare local code versions only to each other.",
+    "Lighthouse SEO scores measure a limited automated checklist, not overall organic-search readiness.",
+    "The only failed local SEO audit was is-crawlable: the local build intentionally uses noindex. The production-site category measured 100."
+  ],
+  "runs": [
+    {
+      "run": "live-editor-mobile",
+      "implementation": "existing production release",
+      "url": "https://thebestfreepdf.com/edit-pdf",
+      "fetchTime": "2026-10-06T18:59:40.257Z",
+      "lighthouseVersion": "13.5.0",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "scores": {
+        "performance": 0.79,
+        "accessibility": 1,
+        "best-practices": 1,
+        "seo": 1,
+        "agentic-browsing": 1
+      },
+      "metrics": {
+        "first-contentful-paint": 1662.6965,
+        "largest-contentful-paint": 3912.6965,
+        "total-blocking-time": 211,
+        "cumulative-layout-shift": 0,
+        "speed-index": 5530.68120200028
+      },
+      "scriptTransferBytes": 408232,
+      "scriptRequests": 19
+    },
+    {
+      "run": "live-guide-mobile",
+      "implementation": "existing production release",
+      "url": "https://thebestfreepdf.com/guides/how-to-edit-a-pdf-on-mobile",
+      "fetchTime": "2026-10-06T19:02:01.218Z",
+      "lighthouseVersion": "13.5.0",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "scores": {
+        "performance": 0.94,
+        "accessibility": 1,
+        "best-practices": 1,
+        "seo": 1,
+        "agentic-browsing": 1
+      },
+      "metrics": {
+        "first-contentful-paint": 1497.93,
+        "largest-contentful-paint": 2516.4300000000003,
+        "total-blocking-time": 176,
+        "cumulative-layout-shift": 0.0003350413941041717,
+        "speed-index": 3072.923391999803
+      },
+      "scriptTransferBytes": 171670,
+      "scriptRequests": 12
+    },
+    {
+      "run": "live-home-mobile",
+      "implementation": "existing production release",
+      "url": "https://thebestfreepdf.com/",
+      "fetchTime": "2026-10-06T18:58:43.560Z",
+      "lighthouseVersion": "13.5.0",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "scores": {
+        "performance": 0.95,
+        "accessibility": 1,
+        "best-practices": 1,
+        "seo": 1,
+        "agentic-browsing": 1
+      },
+      "metrics": {
+        "first-contentful-paint": 1396.0435,
+        "largest-contentful-paint": 2137.0434999999998,
+        "total-blocking-time": 177,
+        "cumulative-layout-shift": 0,
+        "speed-index": 3565.558971999192
+      },
+      "scriptTransferBytes": 171573,
+      "scriptRequests": 12
+    },
+    {
+      "run": "local-editor-after",
+      "implementation": "intermediate: tool-level splitting only",
+      "url": "http://127.0.0.1:3015/edit-pdf",
+      "fetchTime": "2026-10-06T19:11:50.332Z",
+      "lighthouseVersion": "13.5.0",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "scores": {
+        "performance": 0.84,
+        "accessibility": 1,
+        "best-practices": 1,
+        "seo": 0.66,
+        "agentic-browsing": 1
+      },
+      "metrics": {
+        "first-contentful-paint": 1559.5071,
+        "largest-contentful-paint": 3387.2606499999993,
+        "total-blocking-time": 288.5,
+        "cumulative-layout-shift": 0,
+        "speed-index": 3865.633558000748
+      },
+      "scriptTransferBytes": 291217,
+      "scriptRequests": 17
+    },
+    {
+      "run": "local-editor-before",
+      "implementation": "baseline b716730",
+      "url": "http://127.0.0.1:3015/edit-pdf",
+      "fetchTime": "2026-10-06T19:02:51.889Z",
+      "lighthouseVersion": "13.5.0",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "scores": {
+        "performance": 0.86,
+        "accessibility": 1,
+        "best-practices": 1,
+        "seo": 0.66,
+        "agentic-browsing": 1
+      },
+      "metrics": {
+        "first-contentful-paint": 1537.0652,
+        "largest-contentful-paint": 3842.663,
+        "total-blocking-time": 110,
+        "cumulative-layout-shift": 0,
+        "speed-index": 3127.6148479972417
+      },
+      "scriptTransferBytes": 422230,
+      "scriptRequests": 19
+    },
+    {
+      "run": "local-editor-final-1",
+      "implementation": "final implementation, run 1",
+      "url": "http://127.0.0.1:3015/edit-pdf",
+      "fetchTime": "2026-10-06T19:22:14.173Z",
+      "lighthouseVersion": "13.5.0",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "scores": {
+        "performance": 0.92,
+        "accessibility": 1,
+        "best-practices": 1,
+        "seo": 0.66,
+        "agentic-browsing": 1
+      },
+      "metrics": {
+        "first-contentful-paint": 1387.8649,
+        "largest-contentful-paint": 3280.79735,
+        "total-blocking-time": 98.99999999999955,
+        "cumulative-layout-shift": 0,
+        "speed-index": 2295.8177600017634
+      },
+      "scriptTransferBytes": 216557,
+      "scriptRequests": 15
+    },
+    {
+      "run": "local-editor-final-2",
+      "implementation": "final implementation, run 2",
+      "url": "http://127.0.0.1:3015/edit-pdf",
+      "fetchTime": "2026-10-06T19:23:02.033Z",
+      "lighthouseVersion": "13.5.0",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "scores": {
+        "performance": 0.92,
+        "accessibility": 1,
+        "best-practices": 1,
+        "seo": 0.66,
+        "agentic-browsing": 1
+      },
+      "metrics": {
+        "first-contentful-paint": 1376.5524,
+        "largest-contentful-paint": 3266.8286,
+        "total-blocking-time": 101.99999999999955,
+        "cumulative-layout-shift": 0,
+        "speed-index": 1376.5524
+      },
+      "scriptTransferBytes": 216557,
+      "scriptRequests": 15
+    }
+  ]
+}

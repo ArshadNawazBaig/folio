@@ -31,6 +31,31 @@ export function relatedGuides(guide: Guide, limit = 3) {
     .slice(0, limit);
 }
 
+// Link editorial articles to stable, practical guides without requiring another database read.
+export function guidesForArticle(slug: string, toolSlugs: string[], limit = 3) {
+  const preferred: Record<string, string[]> = {
+    'how-to-edit-pdf-on-phone': ['how-to-edit-a-pdf-on-mobile', 'why-cant-i-edit-pdf-text'],
+    'how-to-edit-pdf-text': ['how-to-add-text-to-a-pdf', 'why-cant-i-edit-pdf-text'],
+    'free-pdf-editor-add-text-fill-sign': [
+      'why-cant-i-edit-pdf-text',
+      'does-folio-upload-pdf-files',
+    ],
+    'how-to-reduce-pdf-file-size': [
+      'why-your-pdf-wont-get-smaller',
+      'extract-nonconsecutive-pdf-pages',
+    ],
+    'how-to-merge-and-organize-pdf-files': [
+      'merge-pdfs-different-page-sizes',
+      'extract-nonconsecutive-pdf-pages',
+    ],
+  };
+  const candidates = [
+    ...(preferred[slug] || []).flatMap((id) => guides.filter((guide) => guide.slug === id)),
+    ...toolSlugs.flatMap((tool) => guidesForTool(tool)),
+  ];
+  return [...new Map(candidates.map((guide) => [guide.slug, guide])).values()].slice(0, limit);
+}
+
 export function relatedTools(tool: Tool, catalog: Tool[], limit = 3) {
   const preferred = toolNextSteps[tool.slug];
   if (preferred)

@@ -1,0 +1,426 @@
+{
+  "note": "Review payload only. Preserve the existing post ID, URL, cover, attribution, original publication date and any newer editorial changes. Publish through the admin editor after approval; deploying the app does not update CMS content.",
+  "title": "How to Prepare and Review a PDF Translation",
+  "slug": "how-to-prepare-and-review-pdf-translation",
+  "excerpt": "Prepare a clear source PDF, choose the right languages, and review translated pages carefully. A practical workflow for preserving meaning and catching layout problems.",
+  "seoTitle": "How to Prepare and Review a PDF Translation",
+  "seoDescription": "Prepare PDFs for translation, choose source and target languages, compare translated pages, and review layout and terminology before sharing.",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A translated PDF should help someone use the document, not simply replace its words. Headings must still guide the reader, labels must still belong to the right diagrams, and dates or reference numbers must remain easy to verify. Preparing the source and reviewing the result are both part of that work."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Folio can help you split or rotate a PDF before translation, but it does not translate documents. The workflow below explains how to prepare a source file and review a translation obtained from a separate service or translator."
+          }
+        ]
+      },
+      {
+        "type": "blockquote",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Choose a translation service or translator separately. Check its supported languages, document limits, privacy terms, and price before sending a file."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Begin with the clearest source PDF"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Use the document exported from its original authoring application when you have it. Clear text and a straightforward layout give you a better starting point than a low-quality photograph of a printed page. Check that the PDF opens normally and that every page is present before translating it."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "If you only have a scan, inspect its orientation, contrast, and readability. A skewed or faint page is harder to review in either language. Ask your chosen translator or service how it handles scans. Folio does not provide OCR."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Check the page and file-size limits of your chosen translation service. For a longer document, use Split PDF to prepare clearly named sections. Keep related paragraphs, tables, and their explanatory notes together where possible, then maintain a list of the sections you have translated and reviewed."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Choose the source and target languages deliberately"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Tell your translator the source language and the language you need. If a service offers automatic language detection, check that it identifies the source correctly. Specify regional terminology or spelling preferences when they matter."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "A document containing several languages deserves extra attention. A title, a quoted passage, and the main body may not all need the same treatment. Review the original first and note anything that should remain unchanged, such as a product name, an address, or an identifier. Do not assume a language selection will resolve every mixed-language passage correctly."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Translate and compare the result"
+          }
+        ]
+      },
+      {
+        "type": "orderedList",
+        "content": [
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Choose a separate translation service or translator that supports your document."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Inspect your original PDF and keep a separate copy."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Specify the source and target languages, then submit the file through your chosen service."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Open the translated result alongside the original and compare corresponding pages."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Check every page before sharing. Pricing and download terms depend on the service you chose."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Take a short document as an example: a three-page event guide with a schedule, a venue description, and arrival instructions. Confirm the schedule’s times and dates against the original, review the venue name and address, and read the arrival steps as a complete sequence. A sentence can sound natural while still changing a detail that matters."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Review meaning before polishing appearance"
+          }
+        ]
+      },
+      {
+        "type": "bulletList",
+        "content": [
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Check names, reference numbers, dates, units, and numerical values against the original."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Look for repeated terms and confirm that the same concept is expressed consistently."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Read instructions in order and check whether the intended action is still clear."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Review headings and table labels together with the content they describe."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "listItem",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Ask a fluent reviewer to resolve wording you cannot confidently evaluate yourself."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Automatic translation can provide a useful draft, but it should not be treated as an assurance of accuracy. For material where a misunderstanding would have serious consequences, arrange an appropriate qualified review before relying on or distributing the translation. Use a qualified provider if the recipient requires a certified translation."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Check layout after the language changes"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Translated text can take more or less space than the original. Watch for lines running into neighboring content, headings wrapping awkwardly, and table cells becoming crowded. Compare the positions of labels, captions, and footnotes rather than checking only the main paragraphs."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Fonts and text direction may also affect the appearance. Review the translated pages at a readable zoom level and inspect the exported file again before sharing it. If you need a bilingual document, agree on the required format with your translator before work begins."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Keep the original and identify the translated copy"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Use a filename that includes the target language, such as event-guide-spanish.pdf, and keep the source separately. This makes later corrections easier to trace and helps the recipient identify the version they received. If the source changes, compare the affected sections before reusing an older translation."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Prepare your file with "
+          },
+          {
+            "type": "text",
+            "text": "Split PDF",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "/split-pdf"
+                }
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": " or "
+          },
+          {
+            "type": "text",
+            "text": "Rotate PDF",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "/rotate-pdf"
+                }
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": " where needed, then use a separate translation service or translator and review the result against your original."
+          }
+        ]
+      },
+      {
+        "type": "horizontalRule"
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "Cover photograph by "
+          },
+          {
+            "type": "text",
+            "text": "Eugenia Pan’kiv",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://unsplash.com/photos/blue-and-yellow-desk-globe-on-yellow-and-white-books-xSofsfb5Hco"
+                }
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": " on Unsplash."
+          }
+        ]
+      }
+    ]
+  }
+}

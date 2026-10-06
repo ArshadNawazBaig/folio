@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-10-06T19:19:55.637Z",
+  "browser": "153.0.8010.12",
+  "mode": "Chromium mobile emulation; 390×844 CSS pixels; local application with storage fixture",
+  "source": "/samples/a4-portrait-practice.pdf",
+  "downloadFilename": "a4-portrait-practice-edited.pdf",
+  "downloadBytes": 2082,
+  "downloadSha256": "160bf595af4fd1f38582f195bf015f1204a1c03e18e551b8cdf12ad6c22ec58b",
+  "verified": [
+    "file selected from editor landing page",
+    "new annotation present in downloaded PDF",
+    "editor remains open after download"
+  ]
+}

@@ -11,6 +11,7 @@ import { BlogLike } from '@/components/blog/blog-like';
 import { BlogCover } from '@/components/blog/blog-cover';
 import { articleHeadings, articleToolSlugs } from '@/lib/article-navigation';
 import { serverTools } from '@/lib/server/tool-catalog';
+import { guidesForArticle } from '@/lib/related-content';
 import s from '@/components/blog/blog.module.css';
 export const dynamic = 'force-dynamic';
 type Props = { params: Promise<{ slug: string }> };
@@ -61,6 +62,7 @@ export default async function BlogPost({
   if (!post) notFound();
   const contents = articleHeadings(post.content);
   const linkedTools = articleToolSlugs(post.content, siteUrl);
+  const reading = guidesForArticle(post.slug, linkedTools);
   const related = serverTools()
     .filter((tool) => tool.available && linkedTools.includes(tool.slug))
     .slice(0, 3);
@@ -178,6 +180,21 @@ export default async function BlogPost({
                       {tr(tool.name)} <ArrowUpRight size={16} aria-hidden="true" />
                     </strong>
                     <span>{tr(tool.description)}</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+          {reading.length > 0 && (
+            <section className="tool-reading" aria-label={tr('A little more reading.')}>
+              <h2>{tr('A little more reading.')}</h2>
+              <div className="tool-reading-grid">
+                {reading.map((guide) => (
+                  <Link key={guide.slug} href={href(`/guides/${guide.slug}`)}>
+                    <strong>
+                      {tr(guide.title)} <ArrowUpRight size={16} aria-hidden="true" />
+                    </strong>
+                    <span>{tr(guide.description)}</span>
                   </Link>
                 ))}
               </div>

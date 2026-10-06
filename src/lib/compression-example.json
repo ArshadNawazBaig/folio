@@ -1,0 +1,30 @@
+{
+  "measuredAt": "2026-10-06T19:00:42.168Z",
+  "engineSha256": "b4786ec49197541d3adf2672240be9d760042aa5331522bd6453038d98fbf17a",
+  "method": "Folio processPdf(compress); one A4 text page saved with and without object streams.",
+  "limitations": "Two synthetic files, not typical savings. Metadata and engine changes can alter byte counts.",
+  "verified": [
+    "one page",
+    "same page dimensions",
+    "all five text lines",
+    "original bytes retained when no saving"
+  ],
+  "examples": [
+    {
+      "id": "uncompressed-objects",
+      "source": "/samples/compression-uncompressed-objects.pdf",
+      "sourceSha256": "1347fa3b2f1efbe855fd09a5186a07ea9290929c89f761c4feb5b267098c48fd",
+      "inputBytes": 1811,
+      "returnedBytes": 1275,
+      "originalReturned": false
+    },
+    {
+      "id": "compressed-objects",
+      "source": "/samples/compression-compressed-objects.pdf",
+      "sourceSha256": "f6f60373c95ed1b10e7756bca670c25e716a7f6cf60ad840a10bf1412adcf0b0",
+      "inputBytes": 1271,
+      "returnedBytes": 1271,
+      "originalReturned": true
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   ArrowDown,
@@ -24,8 +25,6 @@ import { useUiTranslation } from './ui-language';
 import { stageDocumentHandoff, takeDocumentHandoff } from '@/lib/document-handoff';
 import { splitLanguagePath } from '@/lib/i18n/config';
 import { PdfCanvas } from './pdf-canvas';
-import { Dropdown } from './dropdown';
-import { Pagination } from './pagination';
 import { useRecordPagination } from './use-record-pagination';
 import { defaultImageSettings, jpegOrientation, processImage } from '@/lib/image-tools';
 import { withImageResolution } from '@/lib/image-resolution';
@@ -42,6 +41,11 @@ import {
   baseName,
 } from '@/lib/utils';
 import type { PdfInput, PdfOperation, PdfOptions, PdfOutput } from '@/lib/types';
+
+// These controls are only used after file selection; keep their UI library off the upload screen.
+const Dropdown = dynamic(() => import('./dropdown').then((module) => module.Dropdown));
+const Pagination = dynamic(() => import('./pagination').then((module) => module.Pagination));
+
 export function ToolProcessor({ tool }: { tool: Tool }) {
   const t = useUiTranslation();
   const router = useRouter();

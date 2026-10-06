@@ -57,6 +57,9 @@ export function localizeGuide(source: Guide, messages: Messages, locale: Locale 
       title: tr(section.title),
       text: tr(section.text),
       steps: section.steps?.map((step) => tr(step)),
+      figure: section.figure
+        ? { ...section.figure, alt: tr(section.figure.alt), caption: tr(section.figure.caption) }
+        : undefined,
       links: section.links?.map((link) => ({ ...link, label: tr(link.label) })),
       table: section.table
         ? {

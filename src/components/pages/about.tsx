@@ -17,10 +17,11 @@ export default function About({ locale = 'en', messages = {} }: PageLanguage = {
         data={{
           '@context': 'https://schema.org',
           '@type': 'AboutPage',
-          '@id': `${siteUrl}/about#page`,
-          url: `${siteUrl}/about`,
-          name: 'About Folio',
-          description: productDescription,
+          '@id': `${siteUrl}${href('/about')}#page`,
+          url: `${siteUrl}${href('/about')}`,
+          name: tr('About Folio'),
+          description: tr(productDescription),
+          inLanguage: locale,
           mainEntity: organizationSchema(),
         }}
       />
@@ -85,6 +86,17 @@ export default function About({ locale = 'en', messages = {} }: PageLanguage = {
         )}{' '}
         <Link href={href('/support')}>{tr('report the issue to support')}</Link>{' '}
         {tr('so we can investigate.')}
+      </p>
+      <h2 id="examples">{tr('How we check worked examples.')}</h2>
+      <p>
+        {tr(
+          'Our practice files contain fictional documents. Where a guide reports a file size or output, it explains the input, the tool settings, and what we checked. These are Folio’s own product checks.',
+        )}
+      </p>
+      <p>
+        {tr(
+          'An example is not a promise for every PDF. Scans, fonts, file structure, and device memory can change the result. Keep the original and check the downloaded file. Send unclear or outdated steps to support so we can review them.',
+        )}
       </p>
       <h2>{tr('A little help when you need it.')}</h2>
       <p>

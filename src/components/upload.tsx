@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Upload, ArrowUpRight, Loader2, FileUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { setPendingDocument } from '@/lib/storage';
@@ -27,9 +27,12 @@ export function UploadArea({
   const t = useUiTranslation();
   const input = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   return (
     <div
       className={`upload-area ${compact ? 'compact' : ''} ${over ? 'drag-over' : ''}`}
+      aria-busy={busy || !ready}
       onDragOver={(e) => {
         e.preventDefault();
         if (!busy) setOver(true);
@@ -49,7 +52,7 @@ export function UploadArea({
       <button
         className="button primary upload-button"
         onClick={() => input.current?.click()}
-        disabled={busy}
+        disabled={busy || !ready}
       >
         {busy ? <Loader2 size={18} className="spin" /> : <Upload size={18} />}
         {t(busy ? 'Opening document…' : multiple ? 'Choose files' : 'Choose a file')}
@@ -66,7 +69,7 @@ export function UploadArea({
         type="file"
         accept={accept}
         multiple={multiple}
-        disabled={busy}
+        disabled={busy || !ready}
         hidden
         aria-label={t('Choose document files')}
         onChange={(e) => {

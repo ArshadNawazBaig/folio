@@ -33,14 +33,14 @@ export function EditorPreview({ locale = 'en', messages = {} }: PageLanguage = {
           prefetch={false}
           href={href('/workspace?sample=proposal')}
           className={styles.active}
-          aria-label={tr('Try the selection tool')}
+          aria-label={`${tr('Select')} — ${tr('Try the selection tool')}`}
         >
           <MousePointer2 size={14} /> <span>{tr('Select')}</span>
         </Link>
         <Link
           prefetch={false}
           href={href('/workspace?sample=proposal&mode=text')}
-          aria-label={tr('Try adding text')}
+          aria-label={`${tr('Text')} — ${tr('Try adding text')}`}
         >
           <Type size={15} />
           <span>{tr('Text')}</span>
@@ -48,7 +48,7 @@ export function EditorPreview({ locale = 'en', messages = {} }: PageLanguage = {
         <Link
           prefetch={false}
           href={href('/workspace?sample=proposal&mode=highlight')}
-          aria-label={tr('Try highlighting')}
+          aria-label={`${tr('Highlight')} — ${tr('Try highlighting')}`}
         >
           <Highlighter size={15} />
           <span>{tr('Highlight')}</span>
@@ -56,7 +56,7 @@ export function EditorPreview({ locale = 'en', messages = {} }: PageLanguage = {
         <Link
           prefetch={false}
           href={href('/workspace?sample=proposal&mode=signature')}
-          aria-label={tr('Try signing')}
+          aria-label={`${tr('Sign')} — ${tr('Try signing')}`}
         >
           <Signature size={16} />
           <span>{tr('Sign')}</span>
@@ -64,7 +64,7 @@ export function EditorPreview({ locale = 'en', messages = {} }: PageLanguage = {
         <Link
           prefetch={false}
           href={href('/workspace?sample=proposal')}
-          aria-label={tr('Explore page organization')}
+          aria-label={`${tr('Pages')} — ${tr('Explore page organization')}`}
         >
           <PanelsTopLeft size={14} />
           <span>{tr('Pages')}</span>

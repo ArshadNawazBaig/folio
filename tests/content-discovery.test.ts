@@ -2,7 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { blogDirectory } from '../src/lib/blog-directory';
 import { articleHeadings, articleToolSlugs } from '../src/lib/article-navigation';
-import { guidesForTool, relatedGuides, relatedTools } from '../src/lib/related-content';
+import {
+  guidesForArticle,
+  guidesForTool,
+  relatedGuides,
+  relatedTools,
+} from '../src/lib/related-content';
 import { guides } from '../src/lib/guides';
 import { tools } from '../src/lib/tools';
 import type { RichNode } from '../src/lib/blog';
@@ -95,5 +100,17 @@ test('non-PDF tools recommend relevant next tasks across the catalog', () => {
       })),
     ),
     ['invoice-generator'],
+  );
+});
+
+test('article reading prioritizes the specific task and deduplicates tool fallbacks', () => {
+  const mobile = guidesForArticle('how-to-edit-pdf-on-phone', ['edit-pdf', 'edit-pdf']);
+  assert.equal(mobile[0]?.slug, 'how-to-edit-a-pdf-on-mobile');
+  assert.equal(new Set(mobile.map((guide) => guide.slug)).size, mobile.length);
+  assert.ok(mobile.every((guide) => guides.includes(guide)));
+  assert.deepEqual(guidesForArticle('unknown-article', ['unavailable-tool']), []);
+  assert.deepEqual(
+    guidesForArticle('new-article', ['compress-pdf']),
+    guidesForTool('compress-pdf'),
   );
 });

@@ -85,6 +85,7 @@ test('practical examples are accessible on mobile and their compression instruct
   page,
 }) => {
   await page.goto('/compress-images');
+  await page.waitForLoadState('networkidle');
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page
@@ -595,7 +596,7 @@ test('mobile editing guide exposes the revised steps and preserves reviewed tran
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(path);
   await expect(page.locator('h1')).toHaveText('How to Edit a PDF on iPhone or Android');
-  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-05');
+  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-07');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     'href',
     `https://folio.example${path}`,
@@ -608,7 +609,15 @@ test('mobile editing guide exposes the revised steps and preserves reviewed tran
         .find((schema) => schema['@type'] === 'Article'),
     );
   expect(article.datePublished).toBe('2026-09-18');
-  expect(article.dateModified).toBe('2026-10-05');
+  expect(article.dateModified).toBe('2026-10-07');
+  const screenshots = page.locator('figure img');
+  await expect(screenshots).toHaveCount(2);
+  for (const screenshot of await screenshots.all()) {
+    await screenshot.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => screenshot.evaluate((image: HTMLImageElement) => image.naturalWidth))
+      .toBeGreaterThan(0);
+  }
   const sample = await request.get('/samples/a4-portrait-practice.pdf');
   expect(sample.status()).toBe(200);
   expect(sample.headers()['x-robots-tag']).toBe('noindex');
@@ -627,7 +636,7 @@ test('mobile editing guide exposes the revised steps and preserves reviewed tran
     sitemap
       .split('<url>')
       .find((entry) => entry.includes(`<loc>https://folio.example${path}</loc>`)),
-  ).toContain('<lastmod>2026-10-05</lastmod>');
+  ).toContain('<lastmod>2026-10-07</lastmod>');
   await page.goto(`/de${path}`);
   await expect(page.locator('time')).toHaveAttribute('datetime', '2026-09-18');
   await expect(

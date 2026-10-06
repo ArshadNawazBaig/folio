@@ -12,14 +12,7 @@ import { ArrowUpRight, ChevronRight, ShieldCheck, ArrowRight } from 'lucide-reac
 import { editorTools } from '@/lib/tools';
 import { serverTools } from '@/lib/server/tool-catalog';
 import { ToolIcon } from '@/components/icon';
-import { ToolProcessor } from '@/components/tool-processor';
-import { ProTextEditor } from '@/components/pro-text-editor';
-import { ProtectPdf } from '@/components/protect-pdf';
-import { ImageWorkbench } from '@/components/image-workbench';
-import { QrWorkbench } from '@/components/qr-workbench';
-import { ShortLinks } from '@/components/short-links';
-import { InvoiceLauncher } from '@/components/invoice-launcher';
-import { SignatureWorkbench } from '@/components/signature-dialog';
+import { ToolInteractive } from '@/components/tool-interactive';
 import { Faq } from '@/components/faq';
 import { ToolFacts } from '@/components/tool-facts';
 import { ToolExample } from '@/components/tool-example';
@@ -134,22 +127,8 @@ export function ToolPageContent({
           <span className="status-label">{tr('COMING SOON')}</span>
         )}
       </div>
-      {t.processor === 'invoice' ? (
-        <InvoiceLauncher />
-      ) : t.processor === 'signature' ? (
-        <SignatureWorkbench />
-      ) : t.processor === 'image' ? (
-        <ImageWorkbench key={t.slug} tool={t} />
-      ) : t.processor === 'qr' ? (
-        <QrWorkbench />
-      ) : t.processor === 'shortener' ? (
-        <ShortLinks />
-      ) : t.slug === 'edit-pdf-text' ? (
-        <ProTextEditor />
-      ) : t.slug === 'protect-pdf' ? (
-        <ProtectPdf />
-      ) : t.available ? (
-        <ToolProcessor key={t.slug} tool={t} />
+      {t.available ? (
+        <ToolInteractive key={t.slug} tool={t} />
       ) : (
         <div className="unavailable-panel">
           <span className="tool-icon">

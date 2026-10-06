@@ -2,9 +2,9 @@ import type { Guide } from './guides';
 
 // Reviewed English edition. Existing translations keep their reviewed content and date.
 export const mobileGuideRevision: NonNullable<Guide['englishRevision']> = {
-  updated: '2026-10-05',
+  updated: '2026-10-07',
   summary:
-    'To edit a PDF on your phone, first save the document where your browser’s file picker can find it, then open Edit PDF and choose the file. Use Add Text for a new note, Edit Text to change supported original words, or Sign for a visual signature. Download the finished PDF and reopen it before sharing. The browser editor works without installing an app, but its private cloud saving needs an internet connection.',
+    'To edit a PDF on your phone, first save the document where your browser’s file picker can find it, then open Edit PDF and choose the file. After the preview appears, select Open in editor. Use Add Text for a new note, Edit Text to change supported original words, or Sign for a visual signature. Download the finished PDF and reopen it before sharing. The browser editor works without installing an app, but its private cloud saving needs an internet connection.',
   sections: [
     {
       title: 'Choose the kind of PDF edit you need',
@@ -50,7 +50,7 @@ export const mobileGuideRevision: NonNullable<Guide['englishRevision']> = {
       text: 'Start with a saved PDF. If the document is inside an email or messaging app, download a copy first. Seeing a PDF in an attachment preview does not necessarily make it available to the browser’s file picker.',
       steps: [
         'Open Edit PDF in your browser and choose the PDF from the file picker. Check Recent, Downloads or the storage location where you saved it; labels vary by phone.',
-        'Wait for the page preview. Swipe the editor toolbar horizontally to find Add Text, Edit Text or Sign.',
+        'Wait for the page preview, then choose Open in editor. Swipe the editor toolbar horizontally to find Add Text, Edit Text or Sign.',
         'For a new note, choose Add Text, tap an empty part of the page and type. For original wording, follow the Edit Text steps below.',
         'Open Properties and forms when you need appearance controls, then close it to see the page. Use Move and the bottom zoom controls for precise placement.',
         'Use Download PDF and wait for the browser to finish. In Chrome, find the file under More → Downloads or in your device’s Files app.',
@@ -69,7 +69,7 @@ export const mobileGuideRevision: NonNullable<Guide['englishRevision']> = {
       text: 'Keep the original in Files before editing. If Safari is displaying the source PDF, open its Share menu and choose Save to Files. Choose a folder you can recognize when the file picker opens.',
       steps: [
         'Open Edit PDF in Safari, choose a file and use the picker to locate the PDF you saved in Files.',
-        'Wait for the document to load. Swipe the toolbar to reveal the control you need; it may be outside the visible part of the toolbar.',
+        'Wait for the page preview, then choose Open in editor. Swipe the toolbar to reveal the control you need; it may be outside the visible part of the toolbar.',
         'Add your note or signature, or use Edit Text for supported original text. Close the on-screen keyboard before checking the final placement.',
         'Use Download PDF. If the browser displays the finished PDF instead of saving it immediately, use Share → Save to Files and choose a name and folder.',
         'Open the saved PDF from Files and confirm that the changes are present before sending it.',
@@ -98,11 +98,19 @@ export const mobileGuideRevision: NonNullable<Guide['englishRevision']> = {
     },
     {
       title: 'Try a practice PDF before editing your own document',
-      text: 'Download the fictional portrait practice PDF below and select it in Edit PDF. Add “Reviewed on my phone” in a blank area, then download and reopen the result. Check that the new note is readable, the original heading is intact and the page edges are not clipped. This checks the full file-picker-to-download workflow without using a personal document.',
+      text: 'Download the fictional portrait practice PDF below and select it in Edit PDF. When the preview appears, choose Open in editor. Add “Reviewed on my phone” in a blank area, then download and reopen the result. Check that the new note is readable, the original heading is intact and the page edges are not clipped. This checks the full file-picker-to-download workflow without using a personal document.',
       links: [
         { label: 'Download the fictional practice PDF', href: '/samples/a4-portrait-practice.pdf' },
         { label: 'Open the editor for this practice', href: '/edit-pdf' },
       ],
+      figure: {
+        src: '/images/guides/mobile-add-text.webp',
+        width: 390,
+        height: 844,
+        alt: 'Folio’s mobile editor with Reviewed on my phone added in a blank area of the fictional practice PDF.',
+        caption:
+          'The practice file after adding a note. Captured from Folio in Chromium mobile emulation at 390 × 844 pixels on October 6, 2026 (UTC), using a local storage fixture. This is a browser check, not a physical iPhone or Android test.',
+      },
     },
     {
       title: 'Fix common phone editing and download problems',
@@ -142,6 +150,14 @@ export const mobileGuideRevision: NonNullable<Guide['englishRevision']> = {
             ],
           },
         ],
+      },
+      figure: {
+        src: '/images/guides/mobile-download.webp',
+        width: 390,
+        height: 844,
+        alt: 'Folio’s Your file is ready dialog with a Download file button for a4-portrait-practice-edited.pdf.',
+        caption:
+          'Download file saves the finished PDF; Save now keeps the editable workspace. In this browser check, we downloaded the file, reopened it, and confirmed that the added note was present. The editor stayed open after downloading.',
       },
     },
     {

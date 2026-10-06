@@ -1,6 +1,6 @@
 import { test, expect } from './fixtures/editor-storage';
 import { saveDirectDownload } from './fixtures/download';
-import type { Page } from '@playwright/test';
+import type { Page, FileChooser } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import sharp from 'sharp';
 import jsQR from 'jsqr';
@@ -21,6 +21,12 @@ const webp = await sharp({
 const png = await sharp({ create: { width: 120, height: 180, channels: 3, background: '#456789' } })
   .png()
   .toBuffer();
+// Follow the real picker button so file selection waits for the upload handler to hydrate.
+async function upload(page: Page, files: Parameters<FileChooser['setFiles']>[0]) {
+  const picker = page.waitForEvent('filechooser');
+  await page.locator('.upload-area button').click();
+  await (await picker).setFiles(files);
+}
 async function choose(page: Page, label: string, option: string) {
   await page.getByRole('combobox', { name: label, exact: true }).click();
   await page.getByRole('option', { name: option, exact: true }).click();
@@ -33,10 +39,7 @@ async function exported(page: Page, name: string) {
 }
 test('image worker exports a resized WEBP and compares its actual pixels', async ({ page }) => {
   await page.goto('/jpg-to-webp');
-  await page
-    .locator('input[type=file]')
-    .first()
-    .setInputFiles({ name: 'photo.jpg', mimeType: 'image/jpeg', buffer: jpg });
+  await upload(page, { name: 'photo.jpg', mimeType: 'image/jpeg', buffer: jpg });
   await choose(page, 'Image dimensions', 'Fit within 1280 pixels');
   await page.getByRole('button', { name: 'Convert to WEBP', exact: true }).click();
   await expect(page.getByRole('img', { name: 'Processed preview of photo.jpg' })).toBeVisible();
@@ -53,10 +56,7 @@ test('transparent WEBP becomes white JPG and malformed image input is recoverabl
   page,
 }) => {
   await page.goto('/webp-to-jpg');
-  await page
-    .locator('input[type=file]')
-    .first()
-    .setInputFiles({ name: 'alpha.webp', mimeType: 'image/webp', buffer: webp });
+  await upload(page, { name: 'alpha.webp', mimeType: 'image/webp', buffer: webp });
   await page.getByRole('button', { name: 'Convert to JPG', exact: true }).click();
   const { bytes } = await exported(page, 'Download image');
   const metadata = await sharp(bytes).metadata();
@@ -65,14 +65,11 @@ test('transparent WEBP becomes white JPG and malformed image input is recoverabl
   const pixels = await sharp(bytes).raw().toBuffer();
   expect([...pixels.subarray(0, 3)]).toEqual([255, 255, 255]);
   await page.getByRole('button', { name: 'Remove alpha.webp', exact: true }).click();
-  await page
-    .locator('input[type=file]')
-    .first()
-    .setInputFiles({
-      name: 'broken.webp',
-      mimeType: 'image/webp',
-      buffer: Buffer.from('invalid pixels'),
-    });
+  await upload(page, {
+    name: 'broken.webp',
+    mimeType: 'image/webp',
+    buffer: Buffer.from('invalid pixels'),
+  });
   await page.getByRole('button', { name: 'Convert to JPG', exact: true }).click();
   await expect(page.getByRole('main').getByRole('alert')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Download image', exact: true })).toHaveCount(0);
@@ -81,12 +78,10 @@ test('batch image pagination, original-size fallback and duplicate names preserv
   page,
 }) => {
   await page.goto('/compress-images');
-  await page
-    .locator('input[type=file]')
-    .first()
-    .setInputFiles(
-      Array.from({ length: 11 }, () => ({ name: 'same.png', mimeType: 'image/png', buffer: png })),
-    );
+  await upload(
+    page,
+    Array.from({ length: 11 }, () => ({ name: 'same.png', mimeType: 'image/png', buffer: png })),
+  );
   await expect(page.getByRole('button', { name: 'Preview same.png', exact: true })).toHaveCount(10);
   const pagination = page.getByRole('navigation', { name: 'Image files pagination' });
   await expect(pagination).toContainText('1–10 of 11 records');
@@ -109,10 +104,7 @@ test('image adjustments change exported pixels and reset removes stale output', 
   page,
 }) => {
   await page.goto('/enhance-image');
-  await page
-    .locator('input[type=file]')
-    .first()
-    .setInputFiles({ name: 'tone.png', mimeType: 'image/png', buffer: png });
+  await upload(page, { name: 'tone.png', mimeType: 'image/png', buffer: png });
   const brightness = page.getByRole('slider', { name: /Brightness/ });
   await brightness.focus();
   await page.keyboard.press('End');
@@ -127,13 +119,10 @@ test('merge images exports an ordered PDF with a result preview and WEBP support
   page,
 }) => {
   await page.goto('/merge-images');
-  await page
-    .locator('input[type=file]')
-    .first()
-    .setInputFiles([
-      { name: 'first.png', mimeType: 'image/png', buffer: png },
-      { name: 'second.webp', mimeType: 'image/webp', buffer: webp },
-    ]);
+  await upload(page, [
+    { name: 'first.png', mimeType: 'image/png', buffer: png },
+    { name: 'second.webp', mimeType: 'image/webp', buffer: webp },
+  ]);
   await expect(page.getByRole('button', { name: 'Create PDF', exact: true })).toBeEnabled();
   await choose(page, 'Page size', 'Fit each image');
   await page.getByRole('button', { name: 'Move second.webp up', exact: true }).click();
@@ -159,12 +148,12 @@ test('JPEG rotation metadata survives both image conversion and image-to-PDF', a
     .toBuffer();
   const input = { name: 'portrait.jpg', mimeType: 'image/jpeg', buffer: rotated };
   await page.goto('/jpg-to-webp');
-  await page.locator('input[type=file]').first().setInputFiles(input);
+  await upload(page, input);
   await page.getByRole('button', { name: 'Convert to WEBP', exact: true }).click();
   const image = await sharp((await exported(page, 'Download image')).bytes).metadata();
   expect([image.width, image.height]).toEqual([120, 60]);
   await page.goto('/jpg-to-pdf');
-  await page.locator('input[type=file]').first().setInputFiles(input);
+  await upload(page, input);
   await expect(page.getByRole('button', { name: 'Create PDF', exact: true })).toBeEnabled();
   await choose(page, 'Page size', 'Fit each image');
   await page.getByRole('button', { name: 'Create PDF', exact: true }).click();
@@ -179,14 +168,11 @@ test('PDF image export produces 300 DPI JPG and ordered multi-page ZIP previews'
   for (let i = 1; i <= 2; i++)
     pdf.addPage([144, 72]).drawText(`Page ${i}`, { x: 12, y: 20, font, size: 12 });
   await page.goto('/pdf-to-jpg');
-  await page
-    .locator('input[type=file]')
-    .first()
-    .setInputFiles({
-      name: 'pages.pdf',
-      mimeType: 'application/pdf',
-      buffer: Buffer.from(await pdf.save()),
-    });
+  await upload(page, {
+    name: 'pages.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from(await pdf.save()),
+  });
   await expect(page.getByRole('button', { name: 'Convert to JPG', exact: true })).toBeEnabled();
   await page.getByLabel('Pages', { exact: true }).fill('1');
   await choose(page, 'Resolution', 'Print — 300 DPI');
@@ -210,14 +196,11 @@ test('US Letter PNG export at 300 DPI has exact dimensions without a rounding ed
   const pdf = await PDFDocument.create();
   pdf.addPage([612, 792]);
   await page.goto('/pdf-to-png');
-  await page
-    .locator('input[type=file]')
-    .first()
-    .setInputFiles({
-      name: 'letter.pdf',
-      mimeType: 'application/pdf',
-      buffer: Buffer.from(await pdf.save()),
-    });
+  await upload(page, {
+    name: 'letter.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from(await pdf.save()),
+  });
   await expect(page.getByRole('button', { name: 'Convert to PNG', exact: true })).toBeEnabled();
   await choose(page, 'Resolution', 'Print — 300 DPI');
   await page.getByRole('button', { name: 'Convert to PNG', exact: true }).click();
@@ -294,14 +277,11 @@ test('PDF text export honors page order and explains pages without selectable te
   for (const text of ['First section', 'Second section'])
     pdf.addPage().drawText(text, { x: 40, y: 600, size: 18 });
   await page.goto('/pdf-to-text');
-  await page
-    .locator('input[type=file]')
-    .first()
-    .setInputFiles({
-      name: 'sections.pdf',
-      mimeType: 'application/pdf',
-      buffer: Buffer.from(await pdf.save()),
-    });
+  await upload(page, {
+    name: 'sections.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from(await pdf.save()),
+  });
   await expect(page.getByRole('button', { name: 'Extract text', exact: true })).toBeEnabled();
   await page.getByLabel('Pages', { exact: true }).fill('2,1');
   await page.getByRole('button', { name: 'Extract text', exact: true }).click();
@@ -310,14 +290,11 @@ test('PDF text export honors page order and explains pages without selectable te
   const blank = await PDFDocument.create();
   blank.addPage();
   await page.goto('/pdf-to-text');
-  await page
-    .locator('input[type=file]')
-    .first()
-    .setInputFiles({
-      name: 'blank.pdf',
-      mimeType: 'application/pdf',
-      buffer: Buffer.from(await blank.save()),
-    });
+  await upload(page, {
+    name: 'blank.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from(await blank.save()),
+  });
   await expect(page.getByRole('button', { name: 'Extract text', exact: true })).toBeEnabled();
   await page.getByRole('button', { name: 'Extract text', exact: true }).click();
   await expect(page.getByRole('main').getByRole('alert')).toContainText(
@@ -349,14 +326,11 @@ test('watermark rejects empty text, exports the chosen color, and invalidates an
   const pdf = await PDFDocument.create();
   pdf.addPage([300, 200]);
   await page.goto('/watermark-pdf');
-  await page
-    .locator('input[type=file]')
-    .first()
-    .setInputFiles({
-      name: 'blank.pdf',
-      mimeType: 'application/pdf',
-      buffer: Buffer.from(await pdf.save()),
-    });
+  await upload(page, {
+    name: 'blank.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from(await pdf.save()),
+  });
   const run = page.getByRole('button', { name: 'Add watermark', exact: true });
   await expect(run).toBeEnabled();
   await page.getByLabel('Watermark text', { exact: true }).fill('');
@@ -397,14 +371,11 @@ test('cancelling the final image packaging never publishes a stale download and 
   const pdf = await PDFDocument.create();
   pdf.addPage([100, 100]).drawText('Test', { size: 12, x: 10, y: 30 });
   await page.goto('/pdf-to-png');
-  await page
-    .locator('input[type=file]')
-    .first()
-    .setInputFiles({
-      name: 'cancel.pdf',
-      mimeType: 'application/pdf',
-      buffer: Buffer.from(await pdf.save()),
-    });
+  await upload(page, {
+    name: 'cancel.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from(await pdf.save()),
+  });
   const run = page.getByRole('button', { name: 'Convert to PNG', exact: true });
   await expect(run).toBeEnabled();
   await run.click();
@@ -419,7 +390,7 @@ test('cancelling the final image packaging never publishes a stale download and 
 });
 test('image workspace stays accessible and within a narrow mobile viewport', async ({ page }) => {
   await page.goto('/jpg-to-webp');
-  await page.locator('input[type=file]').first().setInputFiles({
+  await upload(page, {
     name: 'Long filename with spaces and a description.jpg',
     mimeType: 'image/jpeg',
     buffer: jpg,

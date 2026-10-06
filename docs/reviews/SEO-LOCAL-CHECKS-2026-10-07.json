@@ -1,0 +1,130 @@
+{
+  "checkedAt": "2026-10-06T19:19:06.186Z",
+  "mode": "Production build, JavaScript disabled, 390px viewport; local noindex configuration",
+  "results": [
+    {
+      "path": "/about",
+      "schema": true,
+      "examplePolicy": true,
+      "mobileOverflow": false
+    },
+    {
+      "path": "/de/about",
+      "schema": true,
+      "examplePolicy": true,
+      "mobileOverflow": false
+    },
+    {
+      "path": "/fr/about",
+      "schema": true,
+      "examplePolicy": true,
+      "mobileOverflow": false
+    },
+    {
+      "path": "/nl/about",
+      "schema": true,
+      "examplePolicy": true,
+      "mobileOverflow": false
+    },
+    {
+      "path": "/es/about",
+      "schema": true,
+      "examplePolicy": true,
+      "mobileOverflow": false
+    },
+    {
+      "path": "/it/about",
+      "schema": true,
+      "examplePolicy": true,
+      "mobileOverflow": false
+    },
+    {
+      "path": "/pt/about",
+      "schema": true,
+      "examplePolicy": true,
+      "mobileOverflow": false
+    },
+    {
+      "path": "/sv/about",
+      "schema": true,
+      "examplePolicy": true,
+      "mobileOverflow": false
+    },
+    {
+      "path": "/nb/about",
+      "schema": true,
+      "examplePolicy": true,
+      "mobileOverflow": false
+    },
+    {
+      "path": "/da/about",
+      "schema": true,
+      "examplePolicy": true,
+      "mobileOverflow": false
+    },
+    {
+      "path": "/ja/about",
+      "schema": true,
+      "examplePolicy": true,
+      "mobileOverflow": false
+    },
+    {
+      "path": "/ko/about",
+      "schema": true,
+      "examplePolicy": true,
+      "mobileOverflow": false
+    },
+    {
+      "path": "/edit-pdf",
+      "serverRenderedInterface": "tool controls",
+      "serverRenderedButtons": ["Choose a file"],
+      "serverRenderedInputs": 1
+    },
+    {
+      "path": "/edit-pdf-text",
+      "serverRenderedInterface": "tool controls",
+      "serverRenderedButtons": ["Choose your PDF", "Try the sample"],
+      "serverRenderedInputs": 1
+    },
+    {
+      "path": "/protect-pdf",
+      "serverRenderedInterface": "tool controls",
+      "serverRenderedButtons": ["Choose a PDF", "Protect & download"],
+      "serverRenderedInputs": 3
+    },
+    {
+      "path": "/compress-images",
+      "serverRenderedInterface": "tool controls",
+      "serverRenderedButtons": ["Target file size", "Manual settings", "10 KB", "15 KB", "20 KB"],
+      "serverRenderedInputs": 3
+    },
+    {
+      "path": "/create-qr-code",
+      "serverRenderedInterface": "tool controls",
+      "serverRenderedButtons": ["Website address", "1024 × 1024 pixels", "Generate QR code"],
+      "serverRenderedInputs": 4
+    },
+    {
+      "path": "/url-shortener",
+      "serverRenderedInterface": "account loading state",
+      "serverRenderedButtons": [],
+      "serverRenderedInputs": 0
+    },
+    {
+      "path": "/invoice-generator",
+      "serverRenderedInterface": "tool controls",
+      "serverRenderedButtons": [],
+      "serverRenderedInputs": 0
+    },
+    {
+      "path": "/signature-generator",
+      "serverRenderedInterface": "tool controls",
+      "serverRenderedButtons": ["Draw", "Image", "Type", "Clear signature", "Undo stroke"],
+      "serverRenderedInputs": 0
+    },
+    {
+      "path": "/guides/why-your-pdf-wont-get-smaller",
+      "measuredTable": true
+    }
+  ]
+}
