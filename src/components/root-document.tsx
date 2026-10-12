@@ -59,6 +59,13 @@ export function RootDocument({
       data-scroll-behavior="smooth"
       className={`${sans.variable} ${serif.variable}`}
     >
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1970746421579261"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>
         <a className="skip-link" href="#main">
           {skip}
