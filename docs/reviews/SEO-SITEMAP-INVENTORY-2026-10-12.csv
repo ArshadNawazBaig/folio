@@ -1,0 +1,9 @@
+checked_date,competitor,sitemap_url,http_status,url_elements,scope_note
+2026-10-12,https://tools.pdf24.org,https://tools.pdf24.org/sitemap.xml,200,4988,All loc entries in this URL set; includes language variants; not a ranking or traffic metric.
+2026-10-12,https://www.ilovepdf.com,https://www.ilovepdf.com/sitemap.xml,200,1415,All loc entries in this URL set; includes language variants; not a ranking or traffic metric.
+2026-10-12,https://smallpdf.com,https://smallpdf.com/sitemap.xml,200,5260,All loc entries in this URL set; includes language variants; not a ranking or traffic metric.
+2026-10-12,https://www.sejda.com,https://www.sejda.com/sitemap.xml,200,1396,All loc entries in this URL set; includes language variants; not a ranking or traffic metric. Separate blog sitemap not fetched.
+2026-10-12,https://www.pdfgear.com,https://www.pdfgear.com/sitemap.xml,200,2012,All loc entries in this URL set; includes language variants; not a ranking or traffic metric.
+2026-10-12,https://pdfcandy.com,https://pdfcandy.com/sitemap.xml,200,2702,All loc entries in this URL set; includes language variants; not a ranking or traffic metric.
+2026-10-12,https://www.iloveimg.com,https://www.iloveimg.com/sitemap.xml,200,1622,All loc entries in this URL set; includes language variants; not a ranking or traffic metric.
+2026-10-12,https://tinypng.com,https://tinify.com/sitemap.xml,200,197,All loc entries in this URL set; includes language variants; not a ranking or traffic metric. TinyPNG robots.txt points to the related Tinify domain; its sitemap alone does not describe the TinyPNG upload tool.

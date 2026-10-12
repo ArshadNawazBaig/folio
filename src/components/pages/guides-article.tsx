@@ -95,6 +95,11 @@ export default async function Guide({
               })}
             </time>
           </span>
+          <div className={styles.start}>
+            <Link prefetch={false} className="button primary" href={href(`/${tool.slug}`)}>
+              {tr('Open')} {tr(tool.name)} <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+          </div>
         </header>
         <div className="article-body">
           {g.summary && (

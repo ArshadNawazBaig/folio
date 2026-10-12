@@ -468,13 +468,8 @@ export function ProTextEditor() {
       {!file ? (
         <div className="pro-intro">
           <div>
-            <span className="workspace-label">
+            <h2 className="workspace-label">
               <PencilLine size={14} /> {tr('ORIGINAL TEXT, EDITABLE')}
-            </span>
-            <h2>
-              {tr('A better word.')}
-              <br />
-              <em>{tr('Right where it belongs.')}</em>
             </h2>
             <p>
               {tr(

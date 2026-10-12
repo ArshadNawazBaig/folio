@@ -9,8 +9,17 @@ import {
   relatedTools,
 } from '../src/lib/related-content';
 import { guides } from '../src/lib/guides';
+import { guideTopics } from '../src/lib/guide-topics';
 import { tools } from '../src/lib/tools';
 import type { RichNode } from '../src/lib/blog';
+
+test('guide topics keep every published guide discoverable exactly once', () => {
+  const grouped = guideTopics.flatMap((topic) =>
+    guides.filter((guide) => topic.categories.includes(guide.category)).map((guide) => guide.slug),
+  );
+  assert.equal(new Set(grouped).size, grouped.length);
+  assert.deepEqual(grouped.toSorted(), guides.map((guide) => guide.slug).toSorted());
+});
 
 test('blog filters retain distinct canonical URLs and cannot index search variants', () => {
   const filtered = blogDirectory({ q: ' forms ', category: 'How to', page: '2', pageSize: '25' });

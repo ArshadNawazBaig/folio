@@ -1,5 +1,122 @@
 # SEO implementation and launch setup
 
+## Video review and tool visibility — October 12, 2026
+
+Reviewed the [supplied interview](https://www.youtube.com/watch?v=Af9rvlVPQCQ), its
+YouTube description and chapters, and the [published transcript of the same interview](https://seogolddaily.com/episodes/koray-tugberk-rank-1-with-semantic-seo-topical-authority).
+YouTube's caption endpoint returned an empty response; this review uses the published
+transcript, not a frame-by-frame viewing.
+
+### What applies to Folio
+
+The interview emphasizes prominent working controls and explicit product attributes
+(00:18–05:30), deliberate topic organization (10:48–13:31), useful free tools (18:45),
+and choosing paragraphs, steps or tables for the question (26:25). These ideas fit
+Folio's existing tools and practical guides. The claimed 8,000 daily clicks are the
+speaker's case study, not independently verified results or a forecast for Folio.
+
+Claims about first-2%-of-token placement, CSS fingerprints, fixed folder-aging periods,
+and a required percentage of extra competitor coverage are not established Google
+requirements. No implementation depends on those numbers. Account farming, manufactured
+endorsements and misleading service claims are unsuitable for this product.
+
+[Google Search Essentials](https://developers.google.com/search/docs/essentials)
+supports useful content, descriptive headings and crawlable links. Google's
+[generative-content guidance](https://developers.google.com/search/docs/fundamentals/using-gen-ai-content)
+focuses on accuracy and added value; renaming CSS classes is not a substitute for either.
+[Spam policies](https://developers.google.com/search/docs/essentials/spam-policies)
+also rule out ranking manipulation through link spam and low-value scaled content.
+
+### Concrete changes in this checkout
+
+- All 28 tool pages use a more compact introduction. The actual interactive tool remains
+  ahead of explanatory content, with its existing file handling and sign-in disclosures.
+  Original-text editing and password protection also show the current free-launch benefit
+  beside their processing information.
+- The original-text editor has one concise introduction instead of a second decorative
+  headline. The upload and sample controls keep their original behavior.
+- Tool pages link directly to their steps, practical example when present, input/output
+  facts, questions and related guides. These anchors work without JavaScript and never
+  link translated pages to an English-only example that is absent from the page.
+- Every guide has a direct link to its tool in the introduction, including the mobile
+  editing guide prioritized by the previous Search Console review. Translations link to
+  their own tool URLs. The existing article text, reviewed dates and canonical URLs remain
+  appropriate; a layout change does not refresh an article's editorial date.
+- The follow-up adds six topic groups to the guide directory, with crawlable jump links
+  across languages. All 17 articles remain discoverable, and the CollectionPage item order
+  matches the displayed groups.
+- The English editing and PDF-to-image guides now include concise answers, decision tables,
+  exact practice-file steps, troubleshooting and contextual links. These substantive revisions
+  are dated October 12; translations retain their reviewed editions and dates.
+- A fresh [eight-site sitemap review](reviews/SEO-TOPIC-REVIEW-2026-10-12.md) records observed
+  task URLs and query-placement decisions. The [promotion pack](SEO-PROMOTION-PACK.md)
+  contains two demo scripts, a carousel, an audio segment, a community answer and an
+  editorial pitch, all prepared for owner review and not published or sent.
+
+This extends the existing 28-tool coverage, examples and supporting guides. Existing article
+URLs are retained. The keyword map and earlier competitor research remain dated evidence;
+the October 12 sitemap inventory is a separate snapshot. No new search-volume estimates
+were collected or demand inferred from competitor URL counts.
+
+### Evidence and measurement
+
+The pre-change production audit passed for **678 sitemap URLs plus one pagination URL**
+on October 12, with no reported issues. The full local report is
+`/tmp/folio-seo-video-live-audit.json`. This is HTTP/crawl evidence, not Search Console
+index coverage or a current traffic baseline.
+
+At a 390 × 844 CSS-pixel viewport, the editor file button moved from about y=734 to y=598;
+the original-text editor button moved from about y=856 to y=593. The editor, merge and
+original-text file buttons fit inside the first screen at both 375 × 667 and 390 × 844.
+These are local browser measurements, not Core Web Vitals or a ranking result.
+
+After deployment, record the release date and compare complete 28-day Search Console
+periods with the same search type, device and country filters. Track clicks, impressions,
+CTR and average position for `/edit-pdf`, `/edit-pdf-text`, `/merge-pdf`, `/pdf-to-png`,
+`/pdf-to-jpg` and the mobile, general editing and PDF-to-image guides, then review the
+other tool groups separately.
+Export queries while each page filter is active; global query and page tables cannot be
+joined to invent query-to-page relationships. Inspect indexing and selected canonicals
+if impressions remain absent. Treat small samples and concurrent ranking changes cautiously.
+Use the existing `npm run seo:opportunities` analyzer for supplied CSV/ZIP exports.
+
+Search Console's Web performance totals include appearances in Google's AI features;
+do not invent a separate AI Overview series from ordinary exports. See Google's
+[AI-feature measurement guidance](https://developers.google.com/search/docs/appearance/ai-features).
+No new Search Console account data or post-release results were available during this work.
+Changes are local until deployed; no traffic gain is claimed.
+
+### Verification boundaries
+
+The follow-up production build generated 727 pages; lint, TypeScript and 20 focused
+SEO/discovery/internationalization checks passed. Browser coverage includes first-screen
+controls and real file-picker events, section and topic anchors without JavaScript,
+localized guide-to-tool navigation, accessibility, all 28 tools' metadata, sitemap
+exclusions and the mobile guide. The new article check covers both revisions at 320px,
+their tables, practice-file responses, structured dates and unchanged German editions.
+
+The first browser run overlapped the build and encountered unexpected development-server
+404s; those did not recur after restarting the browser suite on its own. Keep builds and
+browser suites sequential because Next also regenerates shared project files.
+
+The follow-up full browser run passed 23 of 24 checks. The new article check initially
+visited German between English scans; the site's saved language preference then redirected
+the second English visit during accessibility scanning. The test now finishes English
+checks before visiting German. It passed on an isolated rerun (1/1), so all 24 cases have
+passed across these runs. The complete suite was not repeated after that test-only fix.
+
+SEO browser tests provide an inert response for the external AdSense loader. An earlier
+run caught ad frame/connection requests blocked by the existing production CSP; these
+first-party checks do not validate ad delivery. The security policy was not relaxed.
+Builds and browser suites ran sequentially for the follow-up.
+
+The initial layout work passed three public-page design checks at 1440px, 390px and
+320px. The subsequent guide-directory layout was visually checked at 390px and 1440px;
+new browser checks cover topic navigation and article overflow. Practice PDF dimensions
+and packet page count match the revised examples. Formatting and diff whitespace checks
+passed. Logs are `/tmp/folio-seo-followup-{build,unit,browser}.log` and
+`/tmp/folio-seo-followup-revision-fixed.log`.
+
 ## Current search review — October 5, 2026
 
 ### Full tool catalog scope

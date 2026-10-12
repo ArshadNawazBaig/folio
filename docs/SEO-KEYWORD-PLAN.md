@@ -2,6 +2,11 @@
 
 Updated October 5, 2026. Scope: thebestfreepdf.com, every active tool, no paid SEO tools or advertising required.
 
+October 12 follow-up: the [eight-site sitemap review](reviews/SEO-TOPIC-REVIEW-2026-10-12.md)
+records fresh competitor inventory, query placement, two implemented guide revisions and
+topic navigation. The [promotion pack](SEO-PROMOTION-PACK.md) contains reusable scripts and
+outreach drafts. The original observations and dates below remain historical evidence.
+
 ## What is established
 
 The owner inspected the homepage in Google Search Console and reported **“URL is on Google”** on October 5. The owner then supplied seven performance CSVs, analyzed locally that day. Although the filter says “Last 28 days,” the chart contains 18 dated rows, September 16–October 3. The strongest visible task cluster concerns editing PDFs on a phone, and the existing mobile guide has the most page impressions. These are separate query/page observations, not a verified query-to-page pairing. Detailed figures and source files remain private outside the repository.

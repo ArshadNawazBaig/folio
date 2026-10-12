@@ -1,0 +1,30 @@
+.topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 40px;
+}
+
+.topics a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: var(--text-control);
+}
+
+.topics a:hover {
+  background: var(--surface-muted);
+}
+
+.topic {
+  margin-bottom: 56px;
+  scroll-margin-top: 110px;
+}
+
+.topic > h2 {
+  margin: 0 0 24px;
+  font-size: clamp(26px, 4vw, 34px);
+}

@@ -1,6 +1,8 @@
 import { compressionGuide } from './compression-guide';
 import { invoiceGuide } from './invoice-guide';
 import { mobileGuideRevision } from './mobile-guide-revision';
+import { editingGuideRevision } from './editing-guide-revision';
+import { pdfImageGuideRevision } from './pdf-image-guide-revision';
 export type Guide = {
   slug: string;
   title: string;
@@ -467,6 +469,7 @@ export const guides: Guide[] = [
   },
   {
     slug: 'how-to-edit-a-pdf',
+    englishRevision: editingGuideRevision,
     title: 'How to Edit a PDF Online: Text, Annotations & Saving',
     description:
       'Add text, highlights, and a signature without losing sight of the original. A practical guide to working in the Folio editor.',
@@ -905,6 +908,7 @@ export const guides: Guide[] = [
   },
   {
     slug: 'how-to-convert-pdf-to-images',
+    englishRevision: pdfImageGuideRevision,
     title: 'How to Convert PDF Pages to JPG or PNG at the Right Resolution',
     description:
       'Choose JPG or PNG, select PDF pages, and set export resolution. Learn how to keep small text clear without making image files unnecessarily large.',

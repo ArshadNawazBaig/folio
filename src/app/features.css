@@ -2188,14 +2188,14 @@
 .guide-card-content > .eyebrow {
   font-size: var(--text-caption);
 }
-.guide-card-content > h2 {
+.guide-card-content > :is(h2, h3) {
   font-size: 26px;
   display: flex;
   align-items: flex-start;
   gap: 15px;
   margin: 12px 0;
 }
-.guide-card-content > h2 > svg {
+.guide-card-content > :is(h2, h3) > svg {
   margin-top: 6px;
 }
 .guide-card-content > p {
@@ -4662,7 +4662,7 @@
   .guide-card-content {
     padding: 24px;
   }
-  .guide-card-content > h2 {
+  .guide-card-content > :is(h2, h3) {
     font-size: 25px;
   }
   .guide-card-content > p {
@@ -5329,6 +5329,12 @@
 }
 .pro-intro h2 em {
   color: var(--muted);
+}
+.pro-intro h2.workspace-label {
+  margin: 0 0 16px;
+  font-size: var(--text-label);
+  line-height: 1.6;
+  white-space: normal;
 }
 .pro-intro p {
   font-size: var(--text-body);

@@ -8,6 +8,101 @@ import { toolExamples } from '../src/lib/tool-examples';
 import { readFile } from 'node:fs/promises';
 import sharp from 'sharp';
 
+test.beforeEach(async ({ context }) => {
+  // Keep first-party SEO/layout checks independent of live ad auctions. Ad delivery
+  // and its third-party CSP requirements need a separate production integration check.
+  await context.route('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js*', (route) =>
+    route.fulfill({ contentType: 'application/javascript', body: '' }),
+  );
+});
+
+test('PDF entry controls fit the first screen and still open the file picker', async ({ page }) => {
+  test.setTimeout(120_000);
+  for (const viewport of [
+    { width: 375, height: 667 },
+    { width: 390, height: 844 },
+    { width: 1440, height: 900 },
+  ]) {
+    await page.setViewportSize(viewport);
+    for (const [path, name] of [
+      ['/edit-pdf', 'Choose a file'],
+      ['/merge-pdf', 'Choose files'],
+      ['/edit-pdf-text', 'Choose your PDF'],
+    ]) {
+      await page.goto(path);
+      const button = page.getByRole('button', { name, exact: true });
+      await expect(button).toBeEnabled();
+      await page.evaluate(() => document.fonts.ready);
+      const box = (await button.boundingBox())!;
+      expect(box.y, path).toBeGreaterThan(0);
+      expect(box.y + box.height, `${path} at ${viewport.width}px`).toBeLessThanOrEqual(
+        viewport.height,
+      );
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+        true,
+      );
+      const chooser = page.waitForEvent('filechooser');
+      await button.click();
+      await (await chooser).setFiles([]);
+    }
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/edit-pdf-text');
+  expect(
+    (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
+      .violations,
+  ).toEqual([]);
+  await page.screenshot({ path: 'test-results-blog/seo-text-editor-entry-mobile.png' });
+  await page.goto('/edit-pdf');
+  await expect(page.getByRole('button', { name: 'Choose a file', exact: true })).toBeEnabled();
+  await page.screenshot({ path: 'test-results-blog/seo-editor-entry-mobile.png' });
+});
+
+test('tool section shortcuts and guide entry links work without JavaScript', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    viewport: { width: 390, height: 844 },
+  });
+  const page = await context.newPage();
+  try {
+    for (const prefix of ['', '/de', '/ja']) {
+      await page.goto(`${prefix}/edit-pdf`);
+      const shortcuts = page.locator('main nav a[href^="#"]');
+      const targets = await shortcuts.evaluateAll((links) =>
+        links.map((link) => ({
+          href: link.getAttribute('href'),
+          exists: !!document.getElementById(link.getAttribute('href')!.slice(1)),
+        })),
+      );
+      expect(targets.length).toBeGreaterThanOrEqual(4);
+      expect(targets.every((target) => target.exists)).toBe(true);
+      expect(targets.some((target) => target.href === '#worked-example')).toBe(prefix === '');
+      await page.locator('main nav a[href="#how-to"]').click();
+      await expect(page).toHaveURL(new RegExp(`${prefix}/edit-pdf#how-to$`));
+      await expect(page.locator('#how-to h2')).toBeInViewport();
+      await page.goto(`${prefix}/guides/how-to-edit-a-pdf-on-mobile`);
+      const start = page.locator('.article-heading a.button');
+      await expect(start).toHaveAttribute('href', `${prefix}/edit-pdf`);
+      await expect(start).toBeInViewport();
+      await start.click();
+      await expect(page).toHaveURL(new RegExp(`${prefix}/edit-pdf$`));
+      await page.goto(`${prefix}/guides`);
+      await expect(page.locator('main nav a[href^="#"]')).toHaveCount(6);
+      await expect(page.locator('.guides-grid a')).toHaveCount(guides.length);
+      await page.locator('main nav a[href="#conversion"]').click();
+      await expect(page.locator('#conversion > h2')).toBeInViewport();
+      await expect(page.locator('#conversion .guides-grid a').first()).toHaveAttribute(
+        'href',
+        `${prefix}/guides/how-to-convert-pdf-to-images`,
+      );
+    }
+  } finally {
+    await context.close();
+  }
+});
+
 test('the full tool catalog has crawlable discovery links and task-specific search metadata', async ({
   browser,
   request,
@@ -642,6 +737,58 @@ test('mobile editing guide exposes the revised steps and preserves reviewed tran
   await expect(
     page.getByRole('heading', { name: 'How to edit a PDF on Android in your browser' }),
   ).toHaveCount(0);
+});
+
+test('revised guides render practical tables and preserve translated publication dates', async ({
+  page,
+  request,
+}) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  const editions = [
+    ['how-to-edit-a-pdf', '2026-10-04', 1],
+    ['how-to-convert-pdf-to-images', '2026-09-26', 3],
+  ] as const;
+  for (const [slug, , tableCount] of editions) {
+    await page.goto(`/guides/${slug}`);
+    await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-12');
+    await expect(page.locator('article table')).toHaveCount(tableCount);
+    await expect(page.getByRole('complementary', { name: 'Key takeaways' })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    const article = await page
+      .locator('script[type="application/ld+json"]')
+      .evaluateAll((scripts) =>
+        scripts
+          .map((script) => JSON.parse(script.textContent!))
+          .find((schema) => schema['@type'] === 'Article'),
+      );
+    expect(article.dateModified).toBe('2026-10-12');
+    const samples = await page
+      .locator('article a[href^="/samples/"]')
+      .evaluateAll((links) => links.map((link) => link.getAttribute('href')!));
+    expect(samples.length).toBeGreaterThan(0);
+    for (const sample of samples) {
+      const response = await request.get(sample);
+      expect(response.status()).toBe(200);
+      expect(response.headers()['x-robots-tag']).toBe('noindex');
+    }
+    expect(
+      (await new AxeBuilder({ page }).include('article').withTags(['wcag2a', 'wcag2aa']).analyze())
+        .violations,
+    ).toEqual([]);
+    await page.screenshot({
+      path: `test-results-blog/${slug}-revision-mobile.png`,
+      fullPage: true,
+    });
+  }
+  // Visiting a translated page persists that language and redirects later English
+  // visits. Finish the English scans before inspecting the German editions.
+  for (const [slug, previousDate] of editions) {
+    await page.goto(`/de/guides/${slug}`);
+    await expect(page.locator('time')).toHaveAttribute('datetime', previousDate);
+    await expect(page.getByRole('heading', { name: /Practice:/ })).toHaveCount(0);
+  }
 });
 
 test('guide navigation matches the article metadata', async ({ page }) => {

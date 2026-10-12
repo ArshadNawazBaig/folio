@@ -19,6 +19,8 @@ import { ToolExample } from '@/components/tool-example';
 import { StructuredData } from '@/components/structured-data';
 import { breadcrumbSchema, siteUrl } from '@/lib/seo';
 import { guidesForTool, relatedTools } from '@/lib/related-content';
+import { toolExamples } from '@/lib/tool-examples';
+import styles from './tool-page-content.module.css';
 export function ToolPageContent({
   tool: original,
   locale = 'en',
@@ -30,6 +32,7 @@ export function ToolPageContent({
   const catalog = serverTools();
   const related = relatedTools(original, catalog).map((tool) => localizeSummary(tool, messages));
   const reading = guidesForTool(t.slug);
+  const hasExample = locale === 'en' && t.available && !!toolExamples[t.slug];
   return (
     <main id="main" className="tool-page container with-page-heading">
       <StructuredData
@@ -59,7 +62,7 @@ export function ToolPageContent({
         />
       )}
 
-      <div className="tool-page-heading page-heading">
+      <div className={`tool-page-heading page-heading ${styles.heading}`}>
         <nav className="breadcrumbs" aria-label={tr('Breadcrumb')}>
           <Link href={href('/')}>{tr('Home')}</Link>
           <ChevronRight size={12} />
@@ -67,9 +70,6 @@ export function ToolPageContent({
           <ChevronRight size={12} />
           <span aria-current="page">{t.name}</span>
         </nav>
-        <span className="tool-icon">
-          <ToolIcon name={t.icon} size={28} />
-        </span>
         <h1>
           {t.slug === 'edit-pdf' ? tr('Free PDF editor') : t.name}
           <span className="accent-dot">{tr('.')}</span>
@@ -101,6 +101,12 @@ export function ToolPageContent({
           </div>
         ) : ['edit-pdf-text', 'protect-pdf'].includes(t.slug) && t.available ? (
           <div className="tool-benefits">
+            {FREE_LAUNCH && (
+              <>
+                <span>{tr('Free to use')}</span>
+                <i />
+              </>
+            )}
             <span>
               <ShieldCheck size={14} />
               {tr('Processed on Folio')}
@@ -142,8 +148,17 @@ export function ToolPageContent({
           <small>{tr('This tool will be enabled when its conversion service is connected.')}</small>
         </div>
       )}
+      {t.available && (
+        <nav className={styles.contents} aria-label={tr('On this page')}>
+          <a href="#how-to">{tr('THREE SIMPLE STEPS')}</a>
+          {hasExample && <a href="#worked-example">Practical example</a>}
+          <a href="#tool-facts">{tr('BEFORE YOU START')}</a>
+          <a href="#tool-questions">{tr('Good questions.')}</a>
+          {reading.length > 0 && <a href="#tool-reading">{tr('Guides')}</a>}
+        </nav>
+      )}
       <ToolFacts tool={t} locale={locale} messages={messages} />
-      <section className="how-to-section">
+      <section className={`how-to-section ${styles.section}`} id="how-to">
         <div className="section-heading">
           <div>
             <span className="eyebrow">{tr('THREE SIMPLE STEPS')}</span>
@@ -166,8 +181,8 @@ export function ToolPageContent({
           ))}
         </ol>
       </section>
-      {locale === 'en' && t.available && <ToolExample slug={t.slug} />}
-      <section className="tool-details">
+      {hasExample && <ToolExample slug={t.slug} />}
+      <section className={`tool-details ${styles.section}`} id="tool-questions">
         <div>
           <span className="eyebrow">{tr('A FEW HELPFUL DETAILS')}</span>
           <h2>
@@ -186,7 +201,11 @@ export function ToolPageContent({
         <Faq items={t.faq} />
       </section>
       {reading.length > 0 && (
-        <section className="tool-reading" aria-labelledby="tool-reading-title">
+        <section
+          className={`tool-reading ${styles.section}`}
+          id="tool-reading"
+          aria-labelledby="tool-reading-title"
+        >
           <span className="eyebrow">{tr('HELP FOR YOUR NEXT STEP')}</span>
           <h2 id="tool-reading-title">{tr('Get more from {name}.', { name: t.name })}</h2>
           <div className="tool-reading-grid">
