@@ -1,7 +1,7 @@
 import { BlogEditor } from '@/components/blog/blog-editor';
 import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata(
-  'Post editor — Folio',
+  'Post editor',
   'Write, preview, and publish your next post.',
   '/admin/blog',
   false,

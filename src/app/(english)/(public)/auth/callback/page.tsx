@@ -1,7 +1,7 @@
 import { AuthCallback } from '@/components/auth-callback';
 import { pageMetadata } from '@/lib/seo';
 export const metadata = pageMetadata(
-  'Signing In — Folio',
+  'Signing In',
   'Finish signing in to your Folio account.',
   '/auth/callback',
   false,

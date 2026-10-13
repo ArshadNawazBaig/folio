@@ -1,4 +1,4 @@
-// Search titles describe the actual task and omit branding; the layout adds Folio once.
+// Search titles describe the actual task without brand prefixes or suffixes.
 export const toolSearchTitles: Record<string, string> = {
   'invoice-generator': 'Free Invoice Generator — Create & Download Invoice PDFs',
   'edit-pdf': 'Free Online PDF Editor — No Sign Up',

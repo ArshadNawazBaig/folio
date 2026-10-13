@@ -18,10 +18,7 @@ const serif = DM_Serif_Display({
 });
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: {
-    default: 'Folio — Online PDF Editor, Converter & Document Tools',
-    template: '%s | Folio',
-  },
+  title: 'Online PDF Editor, Converter & Document Tools',
   description:
     'A calmer way to work with PDFs. Edit, merge, split, convert, and fill documents in your browser with Folio.',
   applicationName: 'Folio',

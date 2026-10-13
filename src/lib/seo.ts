@@ -25,16 +25,6 @@ type SocialCopy = {
   twitterDescription?: string;
 };
 
-// Preserve Folio's translated possessives and compounds (such as Foliobloggen).
-// The leading word boundary avoids matching the name inside "portfolio".
-export function pageTitle(title: string): string | { absolute: string } {
-  return /\bFolio/i.test(title) ? { absolute: title } : title;
-}
-
-export function brandedTitle(title: string) {
-  return typeof pageTitle(title) === 'string' ? `${title} | ${brand}` : title;
-}
-
 export function pageMetadata(
   title: string,
   description: string,
@@ -42,11 +32,11 @@ export function pageMetadata(
   index = true,
   social: SocialCopy = {},
 ): Metadata {
-  const shareTitle = social.title ?? brandedTitle(title);
+  const shareTitle = social.title ?? title;
   const image = `/og?title=${encodeURIComponent(social.title ?? title)}`;
   const imageAlt = `${shareTitle} — preview card`;
   return {
-    title: pageTitle(title),
+    title,
     description,
     authors: [{ name: brand, url: `${siteUrl}/about` }],
     alternates: {

@@ -31,7 +31,7 @@ export async function generateMetadata({
       ? tr('Search PDF articles: {query}', { query: d.q })
       : d.category
         ? tr('{category} — PDF Articles', { category: tr(d.category) })
-        : 'PDF Tips & Tutorials — The Folio Blog',
+        : 'PDF Tips & Tutorials',
     'Practical tutorials for editing PDF text, filling forms, merging files and reducing file size. Understand each workflow before you share your document.',
     href(d.canonical),
     d.page,

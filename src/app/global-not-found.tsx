@@ -3,7 +3,7 @@ import { NotFoundPage } from '@/components/not-found-page';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 export const metadata = {
-  title: 'Page not found | Folio',
+  title: 'Page not found',
   robots: { index: false, follow: false },
 };
 export default function GlobalNotFound() {

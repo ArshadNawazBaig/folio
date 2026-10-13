@@ -153,7 +153,7 @@ test('the full tool catalog has crawlable discovery links and task-specific sear
         },
         await response.text(),
       );
-      expect(metadata.title, tool.slug).toBe(`${toolSearchTitle(tool)} | Folio`);
+      expect(metadata.title, tool.slug).toBe(toolSearchTitle(tool));
       expect(metadata.description, tool.slug).toBe(toolSearchDescription(tool));
       expect(metadata.canonical).toBe(`https://folio.example/${tool.slug}`);
       expect(metadata.robots).toBe(tool.available ? 'index, follow' : 'noindex, nofollow');
@@ -324,17 +324,20 @@ test('translated search pages keep guide discovery and structured data in the ch
   }
 });
 
-test('server-rendered titles mention the brand once and retain translated wording', async ({
+test('server-rendered titles omit brand prefixes and suffixes and retain translated wording', async ({
   page,
   request,
 }) => {
   test.setTimeout(120_000);
   const cases: [string, string][] = [
-    ['/edit-pdf', 'Free Online PDF Editor — No Sign Up | Folio'],
-    ['/blog', 'PDF Tips & Tutorials — The Folio Blog'],
-    ['/blog?page=2', 'PDF Tips & Tutorials — The Folio Blog — Page 2'],
-    ['/sv/blog', 'PDF-tips och handledningar — Foliobloggen'],
-    ['/blog?q=Portfolio', 'Search PDF articles: Portfolio | Folio'],
+    ['/edit-pdf', 'Free Online PDF Editor — No Sign Up'],
+    ['/blog', 'PDF Tips & Tutorials'],
+    ['/blog?page=2', 'PDF Tips & Tutorials — Page 2'],
+    ['/sv/blog', 'PDF-tips och handledningar'],
+    ['/blog?q=Portfolio', 'Search PDF articles: Portfolio'],
+    ['/admin', 'Super admin'],
+    ['/admin/blog/example', 'Post editor'],
+    ['/auth/callback', 'Signing In'],
     ['/blog/better-paperwork', 'Better paperwork with Folio'],
     ['/privacy', 'Your Privacy — How Folio Handles Documents'],
     [
@@ -350,6 +353,8 @@ test('server-rendered titles mention the brand once and retain translated wordin
       `${locale === 'en' ? '' : `/${locale}`}/about`,
       messages['About Folio — Thoughtful PDF Tools'],
     ]);
+    cases.push([`${locale === 'en' ? '' : `/${locale}`}/account`, messages['Your Account']]);
+    cases.push([`${locale === 'en' ? '' : `/${locale}`}/blog`, messages['PDF Tips & Tutorials']]);
   }
   for (const [path, expected] of cases) {
     const response = await request.get(path);
@@ -388,14 +393,12 @@ test('public discovery exposes real FAQs, published feeds, image locations and a
   const response = await page.goto('/');
   expect(response!.headers()['content-security-policy']).toContain("object-src 'none'");
   // Social copy can differ from the search title without losing metadata in the initial HTML.
-  expect(await response!.text()).toContain(
-    'property="og:title" content="Folio — Free Online PDF Tools"',
-  );
-  await expect(page).toHaveTitle('Free PDF Tools & Online PDF Editor | Folio');
+  expect(await response!.text()).toContain('property="og:title" content="Free Online PDF Tools"');
+  await expect(page).toHaveTitle('Free PDF Tools & Online PDF Editor');
   await expect(page.locator('head meta[property="og:title"]')).toHaveCount(1);
   await expect(page.locator('head meta[property="og:title"]')).toHaveAttribute(
     'content',
-    'Folio — Free Online PDF Tools',
+    'Free Online PDF Tools',
   );
   await expect(page.locator('head meta[name="author"]')).toHaveAttribute('content', 'Folio');
   await expect(page.locator('head meta[name="format-detection"]')).toHaveAttribute(
@@ -417,7 +420,10 @@ test('public discovery exposes real FAQs, published feeds, image locations and a
     .getAttribute('content');
   expect(twitterDescription).not.toBe(shareDescription);
   expect(twitterDescription).toContain('All available tools and downloads are free');
-  await expect(page.locator('meta[name="twitter:image:alt"]')).toHaveAttribute('content', /Folio/);
+  await expect(page.locator('meta[name="twitter:image:alt"]')).toHaveAttribute(
+    'content',
+    'Free Online PDF Tools — preview card',
+  );
   await expect(page.locator('head link[type="application/rss+xml"]')).toHaveAttribute(
     'href',
     'https://folio.example/feed.xml',

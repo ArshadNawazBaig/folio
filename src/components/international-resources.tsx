@@ -17,7 +17,7 @@ import * as article from './pages/blog-article';
 import type { DirectoryParams } from '@/lib/tool-directory';
 import { translator, localizedHref, type Messages } from '@/lib/i18n/translate';
 import { languageAlternates, localeInfo, type Locale } from '@/lib/i18n/config';
-import { siteUrl, pageTitle, brandedTitle } from '@/lib/seo';
+import { siteUrl } from '@/lib/seo';
 
 type Props = { locale: Locale; messages: Messages; searchParams: Promise<DirectoryParams> };
 
@@ -130,8 +130,7 @@ export async function internationalResourceMetadata(path: string, props: Props) 
         ? metadata.title.absolute
         : undefined;
   const translatedTitle = sourceTitle === undefined ? undefined : tr(sourceTitle);
-  const title = translatedTitle === undefined ? metadata.title : pageTitle(translatedTitle);
-  const shareTitle = translatedTitle === undefined ? undefined : brandedTitle(translatedTitle);
+  const title = translatedTitle ?? metadata.title;
   const description = metadata.description ? tr(metadata.description) : metadata.description;
   return {
     ...metadata,
@@ -144,14 +143,14 @@ export async function internationalResourceMetadata(path: string, props: Props) 
     },
     openGraph: {
       ...metadata.openGraph,
-      title: shareTitle,
+      title: translatedTitle,
       description: description ?? undefined,
       url: canonical,
       locale: localeInfo[props.locale].social,
     },
     twitter: {
       ...metadata.twitter,
-      title: shareTitle,
+      title: translatedTitle,
       description: description ?? undefined,
     },
   } satisfies Metadata;

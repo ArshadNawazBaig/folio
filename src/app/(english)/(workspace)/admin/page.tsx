@@ -2,7 +2,7 @@ import { AdminDashboard } from '@/components/admin-dashboard';
 import { pageMetadata } from '@/lib/seo';
 import { adminSection } from '@/lib/admin-navigation';
 export const metadata = pageMetadata(
-  'Super admin — Folio',
+  'Super admin',
   'Manage Folio accounts, pricing, subscriptions, support, and availability.',
   '/admin',
   false,
