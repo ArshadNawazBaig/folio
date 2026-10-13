@@ -1,0 +1,65 @@
+{
+  "checkedAt": "2026-10-13T06:43:50.870Z",
+  "site": "https://thebestfreepdf.com",
+  "deploymentId": "2b67851c-bdc9-4cd8-b475-26628803dd52",
+  "baselineCheckedAt": "2026-10-13T06:13:26.538Z",
+  "liveCrawl": {
+    "pagesChecked": 679,
+    "passed": true,
+    "issues": []
+  },
+  "titles": {
+    "changed": 50,
+    "repeatedBrandBefore": 49,
+    "repeatedBrandAfter": 0,
+    "examples": [
+      {
+        "url": "https://thebestfreepdf.com/",
+        "before": "Free Online PDF Tools — Edit, Merge, Compress & Sign | Folio",
+        "after": "Free PDF Tools & Online PDF Editor | Folio"
+      },
+      {
+        "url": "https://thebestfreepdf.com/about",
+        "before": "About Folio — Thoughtful PDF Tools | Folio",
+        "after": "About Folio — Thoughtful PDF Tools"
+      },
+      {
+        "url": "https://thebestfreepdf.com/blog",
+        "before": "PDF Tips & Tutorials — The Folio Blog | Folio",
+        "after": "PDF Tips & Tutorials — The Folio Blog"
+      },
+      {
+        "url": "https://thebestfreepdf.com/blog?page=2",
+        "before": "PDF Tips & Tutorials — The Folio Blog — Page 2 | Folio",
+        "after": "PDF Tips & Tutorials — The Folio Blog — Page 2"
+      },
+      {
+        "url": "https://thebestfreepdf.com/ko/privacy",
+        "before": "귀하의 개인 정보 보호 — Folio가 문서를 처리하는 방법 | Folio",
+        "after": "귀하의 개인 정보 보호 — Folio가 문서를 처리하는 방법"
+      },
+      {
+        "url": "https://thebestfreepdf.com/sv/blog",
+        "before": "PDF-tips och handledningar — Foliobloggen | Folio",
+        "after": "PDF-tips och handledningar — Foliobloggen"
+      }
+    ]
+  },
+  "verification": {
+    "unitTests": 16,
+    "browserScenarios": 8,
+    "targetedTitleAndSitemapRechecks": "passed",
+    "productionBuild": "passed; 727 generated pages",
+    "liveBrowserPages": 7,
+    "liveBrowserErrors": [],
+    "updatedSitemapEntries": 24,
+    "mobileAndDesktopVisualReview": "passed",
+    "adScriptBlockedInBrowserVerification": true
+  },
+  "searchConsole": {
+    "liveAccountAccess": false,
+    "availableIndexingExportThrough": "2026-10-04",
+    "historicalDiscoveredNotIndexed": 641,
+    "rankingChangeMeasured": false
+  }
+}

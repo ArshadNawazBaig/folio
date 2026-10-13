@@ -2,12 +2,19 @@ import type { Metadata } from 'next';
 import { seoConfiguration } from './site-config';
 import { languageAlternates } from './i18n/config';
 
-export const { siteUrl, isIndexable } = seoConfiguration(process.env);
+// Direct public-variable reads let Next.js inline the same origin for client
+// components such as the footer and for server-rendered metadata.
+export const { siteUrl, isIndexable } = seoConfiguration({
+  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+  NEXT_PUBLIC_INDEXABLE: process.env.NEXT_PUBLIC_INDEXABLE,
+  VERCEL_ENV: process.env.VERCEL_ENV,
+});
 export const brand = 'Folio';
+export const siteHost = new URL(siteUrl).hostname;
 export const homeSearchCopy = {
-  title: 'Free Online PDF Tools — Edit, Merge, Compress & Sign',
+  title: 'Free PDF Tools & Online PDF Editor',
   description:
-    'Edit text, sign, merge, split and convert images to PDF online. All available tools and downloads are free, with 1 GB of storage per account.',
+    'Edit PDF text, merge, split, sign and convert files online with Folio. Start as a guest and download without a watermark. All available tools are free.',
 };
 export const productDescription =
   'Folio is a browser-based PDF toolkit for annotations, visual signatures, page organization, merging, splitting and conversion. Annotation and page-tool downloads are free; original-text edits and password protection are free to download. The editor saves documents to private cloud storage.';
@@ -18,6 +25,16 @@ type SocialCopy = {
   twitterDescription?: string;
 };
 
+// Preserve Folio's translated possessives and compounds (such as Foliobloggen).
+// The leading word boundary avoids matching the name inside "portfolio".
+export function pageTitle(title: string): string | { absolute: string } {
+  return /\bFolio/i.test(title) ? { absolute: title } : title;
+}
+
+export function brandedTitle(title: string) {
+  return typeof pageTitle(title) === 'string' ? `${title} | ${brand}` : title;
+}
+
 export function pageMetadata(
   title: string,
   description: string,
@@ -25,11 +42,11 @@ export function pageMetadata(
   index = true,
   social: SocialCopy = {},
 ): Metadata {
-  const shareTitle = social.title ?? `${title} | Folio`;
+  const shareTitle = social.title ?? brandedTitle(title);
   const image = `/og?title=${encodeURIComponent(social.title ?? title)}`;
   const imageAlt = `${shareTitle} — preview card`;
   return {
-    title,
+    title: pageTitle(title),
     description,
     authors: [{ name: brand, url: `${siteUrl}/about` }],
     alternates: {

@@ -22,7 +22,7 @@ import { HomeTools } from '@/components/home-tools';
 import { EditorPreview } from '@/components/document-preview';
 import { Faq } from '@/components/faq';
 import { StructuredData } from '@/components/structured-data';
-import { siteUrl, organizationSchema, homeSearchCopy } from '@/lib/seo';
+import { siteUrl, siteHost, organizationSchema, homeSearchCopy } from '@/lib/seo';
 import { guides } from '@/lib/guides';
 import { locales } from '@/lib/i18n/config';
 import { availableToolCollections } from '@/lib/tool-collections';
@@ -55,6 +55,7 @@ export function HomePageContent({
               '@type': 'WebSite',
               '@id': `${siteUrl}/#website`,
               name: 'Folio',
+              alternateName: siteHost,
               url: siteUrl,
               description: searchCopy.description,
               publisher: { '@id': `${siteUrl}/#organization` },
@@ -83,7 +84,7 @@ export function HomePageContent({
           </h1>
           <p className={styles.description}>
             {tr(
-              'Edit, sign, merge and organize. Everything you need to move your documents forward.',
+              'Free tools to edit PDF text, sign, merge and split files. Start as a guest and download without a watermark.',
             )}
           </p>
           <HomeUpload copy={uploadCopy} />
@@ -209,7 +210,7 @@ export function HomePageContent({
           items={[
             [
               'What can I do with these online PDF tools?',
-              'Add text, highlights, images, and signatures; fill forms; merge, split, and organize pages; or convert PDF pages to images. These workflows include free downloads. Original-text editing can be tried in the editor, and downloading those changes is free. Password-protected, translated, and Office-converted downloads are also free when available.',
+              'All available tools and downloads are free. You can add text and signatures, edit supported original text, fill forms, merge or split files, and convert between PDFs and images.',
             ],
             [
               'Do I need to install software or create an account?',

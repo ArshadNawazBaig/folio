@@ -5,6 +5,7 @@ import { useUiLocale, useUiTranslation } from './ui-language';
 import Link from 'next/link';
 import { ArrowUpRight, ShieldCheck } from 'lucide-react';
 import { Logo } from './logo';
+import { siteHost } from '@/lib/seo';
 export function Footer() {
   const locale = useUiLocale();
   const tr = useUiTranslation();
@@ -19,6 +20,7 @@ export function Footer() {
             <br />
             {tr('A little more possibility.')}
           </p>
+          <Link href={href('/')}>{siteHost}</Link>
           <span className="privacy-tag">
             <ShieldCheck size={15} />
             {tr('Made for your peace of mind.')}

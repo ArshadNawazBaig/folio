@@ -9,6 +9,14 @@ import { blogSitemap } from '@/lib/server/blog';
 import { sitemapImage } from '@/lib/publication-feeds';
 import { toolExamples } from '@/lib/tool-examples';
 import { locales, languagePath, languageAlternates, translatedPaths } from '@/lib/i18n/config';
+
+// Actual content revisions, including their translations. Never use the request
+// or build date: unchanged pages must not appear freshly edited on every crawl.
+const pageUpdates: Record<string, string> = {
+  '/': '2026-10-13',
+  '/about': '2026-10-13',
+};
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   await connection();
   const tools = serverTools();
@@ -29,6 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...(!FREE_LAUNCH ? ['/pricing'] : []),
     ].map((path) => ({
       url: `${siteUrl}${path || '/'}`,
+      lastModified: pageUpdates[path || '/'],
       alternates: { languages: languageAlternates(path || '/', siteUrl) },
     })),
     ...tools
@@ -46,6 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .filter((path) => !tools.some((tool) => path === `/${tool.slug}` && !tool.available))
           .map((path) => ({
             url: `${siteUrl}${languagePath(locale, path)}`,
+            lastModified: pageUpdates[path],
             alternates: { languages: languageAlternates(path, siteUrl) },
           })),
       ),

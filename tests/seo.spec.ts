@@ -276,6 +276,12 @@ test('translated search pages keep guide discovery and structured data in the ch
       const prefix = locale === 'en' ? '' : `/${locale}`;
       await page.goto(prefix || '/');
       const graph = (await schemas()).find((schema) => schema['@graph'])['@graph'];
+      const website = graph.find((node: Record<string, unknown>) => node['@type'] === 'WebSite');
+      expect(website.name).toBe('Folio');
+      expect(website.alternateName).toBe('folio.example');
+      await expect(
+        page.locator('.footer-brand a').filter({ hasText: 'folio.example' }),
+      ).toHaveAttribute('href', prefix || '/');
       expect(
         graph.find((node: Record<string, unknown>) => node['@type'] === 'WebPage').description,
       ).toBe(await page.locator('meta[name="description"]').getAttribute('content'));
@@ -318,6 +324,55 @@ test('translated search pages keep guide discovery and structured data in the ch
   }
 });
 
+test('server-rendered titles mention the brand once and retain translated wording', async ({
+  page,
+  request,
+}) => {
+  test.setTimeout(120_000);
+  const cases: [string, string][] = [
+    ['/edit-pdf', 'Free Online PDF Editor — No Sign Up | Folio'],
+    ['/blog', 'PDF Tips & Tutorials — The Folio Blog'],
+    ['/blog?page=2', 'PDF Tips & Tutorials — The Folio Blog — Page 2'],
+    ['/sv/blog', 'PDF-tips och handledningar — Foliobloggen'],
+    ['/blog?q=Portfolio', 'Search PDF articles: Portfolio | Folio'],
+    ['/blog/better-paperwork', 'Better paperwork with Folio'],
+    ['/privacy', 'Your Privacy — How Folio Handles Documents'],
+    [
+      '/guides/does-folio-upload-pdf-files',
+      'Does Folio Upload Your PDF? Local Tools vs. Cloud Saving',
+    ],
+  ];
+  for (const locale of locales) {
+    const messages = JSON.parse(
+      await readFile(`src/lib/i18n/feature-messages/${locale}.json`, 'utf8'),
+    );
+    cases.push([
+      `${locale === 'en' ? '' : `/${locale}`}/about`,
+      messages['About Folio — Thoughtful PDF Tools'],
+    ]);
+  }
+  for (const [path, expected] of cases) {
+    const response = await request.get(path);
+    expect(response.status(), path).toBe(200);
+    const metadata = await page.evaluate(
+      (html) => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return {
+          title: doc.title,
+          count: doc.querySelectorAll('title').length,
+          openGraph: doc.querySelector('meta[property="og:title"]')?.getAttribute('content'),
+          twitter: doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content'),
+        };
+      },
+      await response.text(),
+    );
+    expect(metadata.count, path).toBe(1);
+    expect(metadata.title, path).toBe(expected);
+    expect(metadata.openGraph, path).toBe(expected);
+    expect(metadata.twitter, path).toBe(expected);
+  }
+});
+
 test('public discovery exposes real FAQs, published feeds, image locations and a security contact', async ({
   page,
   request,
@@ -336,7 +391,7 @@ test('public discovery exposes real FAQs, published feeds, image locations and a
   expect(await response!.text()).toContain(
     'property="og:title" content="Folio — Free Online PDF Tools"',
   );
-  await expect(page).toHaveTitle('Free Online PDF Tools — Edit, Merge, Compress & Sign | Folio');
+  await expect(page).toHaveTitle('Free PDF Tools & Online PDF Editor | Folio');
   await expect(page.locator('head meta[property="og:title"]')).toHaveCount(1);
   await expect(page.locator('head meta[property="og:title"]')).toHaveAttribute(
     'content',
@@ -442,6 +497,15 @@ test('Google can crawl the production sitemap and private workspaces stay noinde
   expect(robots).not.toMatch(/Disallow: \/\s/);
   expect(robots).toContain('Sitemap: https://folio.example/sitemap.xml');
   const sitemap = await (await request.get('/sitemap.xml')).text();
+  for (const locale of locales) {
+    const prefix = locale === 'en' ? '' : `/${locale}`;
+    for (const path of [prefix || '/', `${prefix}/about`]) {
+      const entry = sitemap
+        .split('<url>')
+        .find((entry) => entry.includes(`<loc>https://folio.example${path}</loc>`));
+      expect(entry, path).toContain('<lastmod>2026-10-13</lastmod>');
+    }
+  }
   for (const tool of tools) {
     expect(sitemap.includes(`<loc>https://folio.example/${tool.slug}</loc>`), tool.slug).toBe(
       tool.available,

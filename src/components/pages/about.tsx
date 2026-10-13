@@ -1,6 +1,6 @@
 import { translator, localizedHref, type PageLanguage } from '@/lib/i18n/translate';
 import Link from 'next/link';
-import { pageMetadata, organizationSchema, productDescription, siteUrl } from '@/lib/seo';
+import { pageMetadata, organizationSchema, productDescription, siteUrl, siteHost } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
 export const metadata = pageMetadata(
   'About Folio — Thoughtful PDF Tools',
@@ -39,6 +39,7 @@ export default function About({ locale = 'en', messages = {} }: PageLanguage = {
         </p>
       </header>
       <h2 id="what-is-folio">{tr('What is Folio?')}</h2>
+      <p>{tr('Folio is the free PDF toolkit at {domain}.', { domain: siteHost })}</p>
       <p>{tr(productDescription)}</p>
       <p>
         {tr('File handling depends on the workflow. Our')}{' '}

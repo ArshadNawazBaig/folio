@@ -1,5 +1,60 @@
 # SEO implementation and launch setup
 
+## Search titles and domain identity — October 13, 2026
+
+The live baseline crawl checked 679 public pages (678 sitemap URLs and one blog
+pagination URL) with no reported crawl-rule, canonical, or same-language metadata
+duplication issues. Every title ended with `| Folio`; 49 also used the brand
+earlier in the title, including Korean grammatical suffixes and the Swedish
+compound “Foliobloggen”. These forms need the same treatment as the standalone name.
+This was a title-readability issue, not evidence of a ranking penalty.
+
+The shared metadata helper now skips the additional suffix when the title already
+names Folio, including possessives and compounds. Translated pages retain their translated titles
+when the helper returns a Next.js absolute title. Search, Open Graph and Twitter
+titles use the same brand rule; the homepage retains its intentionally shorter
+social title.
+
+The English homepage title is **Free PDF Tools & Online PDF Editor | Folio**.
+Its description and the visible introduction describe actual free tasks, guest
+access and watermark-free downloads. The homepage FAQ no longer refers to
+unavailable translation or Office-conversion workflows. New visible wording is
+translated in all twelve supported languages.
+
+The sitemap records the October 13 content revision for the homepage and About
+in each language. Existing tool, guide and article dates are preserved. These are
+fixed editorial dates, following Google's [accurate lastmod guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap#additional-notes-about-xml-sitemaps),
+not timestamps refreshed on every request.
+
+Folio remains the product name. The homepage's `WebSite` structured data now offers
+the configured hostname as `alternateName`; the footer shows that same hostname,
+and About explicitly connects it to Folio. “The Best Free PDF” has not been invented
+as an established alternative brand or an independently verified product ranking.
+
+These choices follow Google's guidance on [concise title branding](https://developers.google.com/search/docs/appearance/title-link),
+[consistent site names and domain alternatives](https://developers.google.com/search/docs/appearance/site-names),
+and [useful, accurate content](https://developers.google.com/search/docs/fundamentals/creating-helpful-content).
+Google's [exact-match domain system](https://developers.google.com/search/docs/appearance/ranking-systems-guide#exact-match-domain-system)
+means owning the matching domain does not guarantee ranking for “the best free pdf”.
+
+The locally available Search Console indexing export contains 641 URLs marked
+“Discovered – currently not indexed,” with chart data ending October 4. This is
+historical evidence, not current URL Inspection data. No live Search Console
+connection is available in this session. After Google's recrawl, compare homepage
+queries containing “folio”, the exact domain, and non-brand task queries separately,
+with consistent country, device and date filters. Neither a passing crawler nor
+these code changes establish a ranking gain or that Google has indexed all pages.
+
+Published to the existing Railway production service on October 13, deployment
+`2b67851c-bdc9-4cd8-b475-26628803dd52`. The final live crawl passed for all **679 pages**:
+50 titles changed (the homepage and 49 redundant brand suffixes), with **zero remaining
+repeated brand names**. Seven live browser samples passed without JavaScript errors;
+desktop/mobile visual checks and all 24 revised sitemap dates were verified. Ad
+delivery was excluded from the browser check. Local validation included 16 unit
+checks, eight SEO browser scenarios, targeted title/sitemap rechecks, TypeScript,
+lint and production builds. The final Railway build generated 727 pages.
+See the [recorded verification](reviews/SEO-TITLE-VERIFICATION-2026-10-13.json).
+
 ## Video review and tool visibility — October 12, 2026
 
 Reviewed the [supplied interview](https://www.youtube.com/watch?v=Af9rvlVPQCQ), its

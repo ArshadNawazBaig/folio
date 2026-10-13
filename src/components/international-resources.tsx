@@ -17,7 +17,7 @@ import * as article from './pages/blog-article';
 import type { DirectoryParams } from '@/lib/tool-directory';
 import { translator, localizedHref, type Messages } from '@/lib/i18n/translate';
 import { languageAlternates, localeInfo, type Locale } from '@/lib/i18n/config';
-import { siteUrl } from '@/lib/seo';
+import { siteUrl, pageTitle, brandedTitle } from '@/lib/seo';
 
 type Props = { locale: Locale; messages: Messages; searchParams: Promise<DirectoryParams> };
 
@@ -123,7 +123,15 @@ export async function internationalResourceMetadata(path: string, props: Props) 
   const canonical = path.startsWith('/blog/')
     ? path
     : localizedHref(props.locale, String(metadata.alternates?.canonical ?? path));
-  const title = typeof metadata.title === 'string' ? tr(metadata.title) : metadata.title;
+  const sourceTitle =
+    typeof metadata.title === 'string'
+      ? metadata.title
+      : metadata.title && 'absolute' in metadata.title
+        ? metadata.title.absolute
+        : undefined;
+  const translatedTitle = sourceTitle === undefined ? undefined : tr(sourceTitle);
+  const title = translatedTitle === undefined ? metadata.title : pageTitle(translatedTitle);
+  const shareTitle = translatedTitle === undefined ? undefined : brandedTitle(translatedTitle);
   const description = metadata.description ? tr(metadata.description) : metadata.description;
   return {
     ...metadata,
@@ -136,14 +144,14 @@ export async function internationalResourceMetadata(path: string, props: Props) 
     },
     openGraph: {
       ...metadata.openGraph,
-      title: typeof title === 'string' ? title : undefined,
+      title: shareTitle,
       description: description ?? undefined,
       url: canonical,
       locale: localeInfo[props.locale].social,
     },
     twitter: {
       ...metadata.twitter,
-      title: typeof title === 'string' ? title : undefined,
+      title: shareTitle,
       description: description ?? undefined,
     },
   } satisfies Metadata;
