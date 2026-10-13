@@ -485,7 +485,7 @@ img {
 }
 .mobile-nav {
   position: absolute;
-  top: 75px;
+  top: 100%;
   left: 0;
   right: 0;
   background: var(--charcoal);
@@ -493,6 +493,9 @@ img {
   padding: 15px 24px;
   box-shadow: 0 15px 20px #1919190c;
   color: #eee;
+  max-height: 70dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .mobile-nav a {
   display: flex;
@@ -548,6 +551,19 @@ dialog::backdrop {
 .search-dialog-field > svg {
   flex-shrink: 0;
   color: var(--muted);
+}
+.search-clear {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  margin: -6px 0;
+  border-radius: 50%;
+  color: var(--muted);
+}
+.search-clear:hover {
+  background: var(--surface-muted);
 }
 .search-dialog-top input {
   width: 100%;
@@ -665,8 +681,12 @@ dialog::backdrop {
   padding-top: 49px;
   padding-bottom: 43px;
   display: grid;
-  grid-template-columns: 1.8fr 1fr 1fr 1fr;
+  grid-template-columns: minmax(0, 1.8fr) repeat(3, minmax(0, 1fr));
   gap: 50px;
+}
+.footer-top > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .footer-brand .logo > span {
   font-size: 31px;
@@ -1030,7 +1050,7 @@ dialog::backdrop {
   }
   .footer-top {
     gap: 27px;
-    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
   }
   .directory-heading h1 {
     font-size: 46px;
@@ -1059,9 +1079,6 @@ dialog::backdrop {
   .mobile-menu {
     display: flex;
   }
-  .mobile-nav {
-    top: 73px;
-  }
   .logo > span {
     font-size: 33px;
   }
@@ -1080,7 +1097,7 @@ dialog::backdrop {
     font-size: var(--text-body);
   }
   .footer-top {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 25px 30px;
     padding-top: 35px;
     padding-bottom: 29px;
@@ -1438,7 +1455,8 @@ dialog::backdrop {
 .site-header .icon-button:hover {
   background: #343434;
 }
-.mobile-nav a:hover {
+.mobile-nav a:hover,
+.mobile-nav a[aria-current='page'] {
   background: #292929;
   border-radius: 6px;
 }
@@ -1519,8 +1537,8 @@ progress {
   .home-upload-bar {
     display: grid;
     grid-template-columns: 32px minmax(0, 1fr);
-    padding: 22px 20px;
-    gap: 18px 14px;
+    padding: 16px;
+    gap: 14px 12px;
   }
   .home-upload-icon {
     width: 30px;

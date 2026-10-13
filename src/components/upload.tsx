@@ -83,10 +83,7 @@ export function UploadArea({
 export function HomeUpload({
   copy,
 }: {
-  copy?: Pick<
-    Dictionary,
-    'choosePdf' | 'uploadTitle' | 'uploadHint' | 'opening' | 'invalidPdf' | 'tooLarge'
-  >;
+  copy?: Pick<Dictionary, 'choosePdf' | 'uploadHint' | 'opening' | 'invalidPdf' | 'tooLarge'>;
 } = {}) {
   const t = useUiTranslation();
   const router = useRouter();
@@ -135,7 +132,7 @@ export function HomeUpload({
       >
         <FileUp size={36} className="home-upload-icon" strokeWidth={1.5} aria-hidden="true" />
         <div className="home-upload-copy">
-          <strong>{copy?.uploadTitle ?? t('Drop your PDF and get started')}</strong>
+          <strong>{t('Open in editor')}</strong>
           <span>
             {copy?.uploadHint ??
               t('Drag a file here, or choose one from your device. Up to 50 MB.')}

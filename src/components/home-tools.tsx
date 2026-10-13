@@ -12,6 +12,7 @@ import styles from './home.module.css';
 
 const filters = [
   'Popular',
+  'All tools',
   'Edit',
   'Organize',
   'Convert',
@@ -44,6 +45,7 @@ export function HomeTools({
   const search = query.trim().toLowerCase();
   const filtered = tools.filter((tool) => {
     if (!matchesToolSearch(tool, search)) return false;
+    if (filter === 'All tools') return true;
     if (filter === 'Popular') return !!search || popularSlugs.includes(tool.slug);
     if (filter === 'Edit') return editSlugs.has(tool.slug);
     if (filter === 'Organize') return organizeSlugs.has(tool.slug);
@@ -62,7 +64,13 @@ export function HomeTools({
       <div className="container">
         <div className={styles.toolHeading}>
           <h2 id="home-tools-title">{tr('What would you like to do?')}</h2>
-          <ToolSearch value={query} onValueChange={setQuery} />
+          <ToolSearch
+            value={query}
+            onValueChange={(value) => {
+              setQuery(value);
+              setFilter('All tools');
+            }}
+          />
         </div>
         <div className={styles.filters} role="group" aria-label={tr('Filter home tools')}>
           {filters.map((item) => (
@@ -76,7 +84,7 @@ export function HomeTools({
             </button>
           ))}
         </div>
-        <p className="sr-only" role="status">
+        <p className={styles.resultCount} role="status">
           {search
             ? tr('{count} tools found for “{query}”.', { count: visible.length, query })
             : tr('{count} tools found.', { count: visible.length })}

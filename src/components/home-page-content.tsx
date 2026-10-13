@@ -88,19 +88,34 @@ export function HomePageContent({
             )}
           </p>
           <HomeUpload copy={uploadCopy} />
-          <div className={styles.heroBottom}>
-            <Link prefetch={false} href={href('/workspace?sample=proposal')}>
-              {tr('Try a sample document')} <ArrowRight size={16} aria-hidden="true" />
-            </Link>
-            <div className={styles.assurances}>
-              <span>
-                <Check size={15} aria-hidden="true" />
-                {tr('Start as a guest')}
-              </span>
-              <span>
-                <Check size={15} aria-hidden="true" />
-                {tr('No installation')}
-              </span>
+          <div className={styles.heroActions}>
+            <nav className={styles.quickTools} aria-label={tr('All PDF tools')}>
+              {['merge-pdf', 'compress-pdf'].map((slug) => {
+                const tool = tools.find((tool) => tool.slug === slug);
+                return tool?.available ? (
+                  <Link prefetch={false} key={slug} href={href(`/${slug}`)}>
+                    {tool.name}
+                  </Link>
+                ) : null;
+              })}
+              <Link prefetch={false} href={href('/tools')}>
+                {tr('All tools')} <ArrowRight size={14} aria-hidden="true" />
+              </Link>
+            </nav>
+            <div className={styles.heroBottom}>
+              <Link prefetch={false} href={href('/workspace?sample=proposal')}>
+                {tr('Try a sample document')} <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+              <div className={styles.assurances}>
+                <span>
+                  <Check size={15} aria-hidden="true" />
+                  {tr('Start as a guest')}
+                </span>
+                <span>
+                  <Check size={15} aria-hidden="true" />
+                  {tr('No installation')}
+                </span>
+              </div>
             </div>
           </div>
         </div>

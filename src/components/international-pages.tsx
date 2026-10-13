@@ -127,7 +127,6 @@ async function InternationalContent(locale: Locale, props: InternationalProps) {
         searchCopy={{ title: d.title, description: d.description }}
         uploadCopy={{
           choosePdf: d.choosePdf,
-          uploadTitle: d.uploadTitle,
           uploadHint: d.uploadHint,
           opening: d.opening,
           invalidPdf: d.invalidPdf,

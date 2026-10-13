@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Search, ArrowUpRight, Menu, X, ChevronRight } from 'lucide-react';
 import { Logo } from './logo';
-import type { ToolSummary } from '@/lib/tool-summary';
+import { matchesToolSearch, type ToolSummary } from '@/lib/tool-summary';
 import { ToolIcon } from './icon';
 import { SiteAnnouncement } from './site-announcement';
 import { useAccount } from './account-provider';
@@ -54,7 +54,28 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
   }, [initialTools, searchOpen]);
   const [menu, setMenu] = useState(false);
   const [query, setQuery] = useState('');
+  const header = useRef<HTMLElement>(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (!menu) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenu(false);
+        menuButton.current?.focus();
+      }
+    };
+    const onPointer = (event: PointerEvent) => {
+      if (event.target instanceof Node && !header.current?.contains(event.target)) setMenu(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPointer);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPointer);
+    };
+  }, [menu]);
   useEffect(() => {
     if (searchOpen) dialog.current?.showModal();
   }, [searchOpen]);
@@ -62,6 +83,7 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
+        setMenu(false);
         setSearchOpen(true);
       }
     };
@@ -70,11 +92,11 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
   }, []);
   const filtered = tools
     .map((tool) => ({ ...tool, name: tr(tool.name), short: tr(tool.short) }))
-    .filter((t) => `${t.name} ${t.keywords.join(' ')}`.toLowerCase().includes(query.toLowerCase()));
+    .filter((tool) => matchesToolSearch(tool, query));
   return (
     <>
       <SiteAnnouncement />
-      <header className="site-header" lang={locale}>
+      <header ref={header} className="site-header" lang={locale}>
         <div className="header-inner">
           <Logo light href={href('/')} label={tr('Folio home')} />
           <nav aria-label={tr('Main navigation')} className="desktop-nav">
@@ -96,7 +118,10 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
               aria-label={tr('Search tools')}
               aria-haspopup="dialog"
               aria-controls="tool-search-dialog"
-              onClick={() => setSearchOpen(true)}
+              onClick={() => {
+                setMenu(false);
+                setSearchOpen(true);
+              }}
             >
               <Search size={17} aria-hidden="true" />
               <span>{tr('Search tools')}</span>
@@ -126,9 +151,11 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
               </Link>
             )}
             <button
+              ref={menuButton}
               className="icon-button mobile-menu"
               aria-label={tr(menu ? 'Close navigation' : 'Open navigation')}
               aria-expanded={menu}
+              aria-controls="mobile-navigation"
               onClick={() => setMenu(!menu)}
             >
               {menu ? <X /> : <Menu />}
@@ -136,12 +163,13 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
           </div>
         </div>
         {menu && (
-          <nav className="mobile-nav" aria-label={tr('Mobile navigation')}>
+          <nav id="mobile-navigation" className="mobile-nav" aria-label={tr('Mobile navigation')}>
             {mobileNav.map(([label, target]) => (
               <Link
                 prefetch={false}
                 key={target}
                 href={href(target)}
+                aria-current={path === href(target) ? 'page' : undefined}
                 onClick={() => setMenu(false)}
               >
                 {tr(label)}
@@ -182,12 +210,28 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
               <div className="search-dialog-field">
                 <Search size={19} aria-hidden="true" />
                 <input
+                  ref={searchInput}
                   aria-label={tr('Search PDF tools')}
                   placeholder={tr('Search PDF tools…')}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  maxLength={120}
+                  autoComplete="off"
                   autoFocus
                 />
+                {query && (
+                  <button
+                    type="button"
+                    className="search-clear"
+                    aria-label={tr('Clear tool search')}
+                    onClick={() => {
+                      setQuery('');
+                      searchInput.current?.focus();
+                    }}
+                  >
+                    <X size={16} aria-hidden="true" />
+                  </button>
+                )}
               </div>
               <button
                 aria-label={tr('Close search')}
@@ -225,7 +269,7 @@ export function HeaderClient({ initialTools }: { initialTools: ToolSummary[] }) 
               )}
             </div>
             <div className="search-dialog-footer">
-              {tr('Your next step, a little easier.')}
+              <span role="status">{tr('{count} tools found.', { count: filtered.length })}</span>
               <kbd>{tr('ESC to close')}</kbd>
             </div>
           </>

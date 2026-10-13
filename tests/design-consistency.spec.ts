@@ -126,6 +126,15 @@ test('design: home toolkit search, task filters and upload validation work on mo
   await toolkit.getByRole('button', { name: 'Convert', exact: true }).click();
   await expect(toolkit.getByRole('link', { name: /^Image to PDF/ })).toBeVisible();
   await expect(toolkit.getByRole('link', { name: /^Merge PDF/ })).toHaveCount(0);
+  await search.fill('pdf merge');
+  await expect(toolkit.getByRole('button', { name: 'All tools', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(toolkit.getByRole('link', { name: /^Merge PDF/ })).toBeVisible();
+  await expect(toolkit.getByRole('status')).toContainText('pdf merge');
+  await toolkit.getByRole('button', { name: 'Clear tool search' }).click();
+  await expect(search).toBeFocused();
   await page
     .locator('.home-upload input[type="file"]')
     .setInputFiles({ name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('Not a PDF') });
@@ -152,10 +161,46 @@ test('design: tool search opens on demand, restores focus and navigates after re
   await page.getByRole('button', { name: 'Search tools', exact: true }).click();
   await expect(input).toBeFocused();
   await expect(input).toHaveValue('signature');
+  await input.fill('  pdf merge  ');
+  await expect(dialog.getByRole('link', { name: /^Merge PDF/ })).toBeVisible();
+  await expect(dialog.getByRole('status')).toContainText('tools found');
+  await dialog.getByRole('button', { name: 'Clear tool search' }).click();
+  await expect(input).toHaveValue('');
+  await expect(input).toBeFocused();
+  await input.fill('signature');
   await dialog.getByRole('link', { name: /^Signature generator/ }).click();
   await expect(page).toHaveURL(/\/signature-generator$/);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Signature generator');
   await expect(dialog).toBeHidden();
+});
+
+test('design: mobile navigation scrolls on short screens and closes with Escape or outside interaction', async ({
+  page,
+}) => {
+  await mockGoogle(page);
+  await page.setViewportSize({ width: 390, height: 568 });
+  await page.goto('/tools');
+  const toggle = page.getByRole('button', { name: 'Open navigation' });
+  await toggle.click();
+  const menu = page.getByRole('navigation', { name: 'Mobile navigation' });
+  await expect(menu.getByRole('link', { name: 'Tools', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  const box = (await menu.boundingBox())!;
+  expect(box.y + box.height).toBeLessThanOrEqual(568);
+  await menu.getByRole('link').last().focus();
+  await expect(menu.getByRole('link').last()).toBeInViewport();
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeHidden();
+  await expect(toggle).toBeFocused();
+  await toggle.click();
+  await page.mouse.click(10, 540);
+  await expect(menu).toBeHidden();
+  await toggle.click();
+  await page.getByRole('button', { name: 'Search tools', exact: true }).click();
+  await expect(menu).toBeHidden();
+  await expect(page.getByRole('textbox', { name: 'Search PDF tools' })).toBeFocused();
 });
 
 test('design: admin form notices, navigation and long confirmation dialogs remain consistent', async ({

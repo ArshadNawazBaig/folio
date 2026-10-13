@@ -26,6 +26,7 @@
   line-height: 1.06;
   letter-spacing: -0.065em;
   text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 .hero h1 span {
   color: var(--accent);
@@ -36,15 +37,44 @@
   line-height: 1.8;
   margin: 0 0 30px;
 }
+.heroActions,
 .heroBottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 16px 24px;
-  margin-top: 20px;
   color: #c8c8c8;
   font-size: var(--text-label);
+}
+.heroActions {
+  margin-top: 16px;
+}
+.quickTools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #fff;
+}
+.quickTools a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid #555;
+  border-radius: 7px;
+  font-size: var(--text-label);
+  font-weight: 600;
+  text-align: center;
+}
+.quickTools a:hover {
+  background: #343434;
+  border-color: var(--accent);
+}
+.quickTools svg {
+  flex-shrink: 0;
 }
 .heroBottom > a {
   display: inline-flex;
@@ -87,13 +117,13 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 .filters button {
   border: 1px solid #d3d3d3;
   border-radius: 999px;
   padding: 8px 20px;
-  min-height: 38px;
+  min-height: 44px;
   font-size: var(--text-control);
   font-weight: 600;
   color: #525252;
@@ -108,6 +138,11 @@
   color: #fff;
   border-color: var(--charcoal);
   background: var(--charcoal);
+}
+.resultCount {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: var(--text-small);
 }
 .toolFootnote {
   display: flex;
@@ -321,16 +356,31 @@
     gap: 24px;
   }
   .hero {
-    padding: 42px 0 28px;
+    padding: 28px 0 24px;
   }
   .hero h1 {
     font-size: clamp(37px, 8vw, 54px);
     letter-spacing: -0.055em;
+    margin-bottom: 16px;
   }
   .description {
     font-size: var(--text-body);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .heroActions {
+    display: block;
+    margin-top: 12px;
+  }
+  .quickTools a {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 8px 6px;
+    font-size: var(--text-small);
+    gap: 4px;
   }
   .heroBottom {
+    margin-top: 20px;
     font-size: var(--text-small);
   }
   .assurances {
@@ -393,6 +443,11 @@
   }
   .closing h2 {
     font-size: 24px;
+  }
+}
+@media (max-width: 359px) {
+  .hero h1 {
+    font-size: 32px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

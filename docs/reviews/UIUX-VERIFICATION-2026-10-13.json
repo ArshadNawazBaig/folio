@@ -1,0 +1,106 @@
+{
+  "checkedAt": "2026-10-13T07:08:27.558Z",
+  "origin": "https://thebestfreepdf.com",
+  "locales": [
+    {
+      "locale": "en",
+      "overflow": false,
+      "shortcutLinks": 3
+    },
+    {
+      "locale": "de",
+      "overflow": false,
+      "shortcutLinks": 3
+    },
+    {
+      "locale": "es",
+      "overflow": false,
+      "shortcutLinks": 3
+    },
+    {
+      "locale": "fr",
+      "overflow": false,
+      "shortcutLinks": 3
+    },
+    {
+      "locale": "it",
+      "overflow": false,
+      "shortcutLinks": 3
+    },
+    {
+      "locale": "nl",
+      "overflow": false,
+      "shortcutLinks": 3
+    },
+    {
+      "locale": "pt",
+      "overflow": false,
+      "shortcutLinks": 3
+    },
+    {
+      "locale": "sv",
+      "overflow": false,
+      "shortcutLinks": 3
+    },
+    {
+      "locale": "nb",
+      "overflow": false,
+      "shortcutLinks": 3
+    },
+    {
+      "locale": "da",
+      "overflow": false,
+      "shortcutLinks": 3
+    },
+    {
+      "locale": "ja",
+      "overflow": false,
+      "shortcutLinks": 3
+    },
+    {
+      "locale": "ko",
+      "overflow": false,
+      "shortcutLinks": 3
+    }
+  ],
+  "homeViewports": [
+    {
+      "width": 320,
+      "uploadBottom": 516
+    },
+    {
+      "width": 390,
+      "uploadBottom": 531
+    },
+    {
+      "width": 768,
+      "uploadBottom": 460
+    },
+    {
+      "width": 1440,
+      "uploadBottom": 505
+    }
+  ],
+  "browserErrors": [],
+  "passed": true,
+  "searchSurfaces": ["home", "header", "directory"],
+  "accessibilityViolations": 0,
+  "note": "AdSense loader blocked to isolate first-party layout and behavior.",
+  "baselineFindings": [
+    "Header query pdf merge returned no results.",
+    "Mobile menu bottom reached 584px in a 568px viewport.",
+    "German hero heading and Dutch footer overflowed at 320px."
+  ],
+  "checks": {
+    "unitTests": 16,
+    "designBrowserScenarios": 6,
+    "workflowBrowserScenarios": 5,
+    "buildPages": 727,
+    "lint": "passed",
+    "typecheck": "passed",
+    "formatting": "passed"
+  },
+  "deploymentId": "bcb13bdf-48f7-4f43-a987-3d0925ed03d1",
+  "deploymentStatus": "SUCCESS",
+  "localProductionChecksPassed": true
+}
