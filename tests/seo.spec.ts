@@ -16,6 +16,22 @@ test.beforeEach(async ({ context }) => {
   );
 });
 
+test('local browsing does not load live advertising scripts', async ({ page }) => {
+  const adRequests: string[] = [];
+  const runtimeErrors: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/pagead/js/adsbygoogle.js')) adRequests.push(request.url());
+  });
+  page.on('pageerror', (error) => runtimeErrors.push(error.message));
+  await page.goto('/blog');
+  await page.getByRole('link', { name: 'Make room for better paperwork.', exact: true }).click();
+  await expect(page).toHaveURL('/blog/better-paperwork');
+  await expect(page.getByRole('link', { name: 'Iram Shams', exact: true })).toBeVisible();
+  await expect(page.locator('script[src*="/pagead/js/adsbygoogle.js"]')).toHaveCount(0);
+  expect(adRequests).toEqual([]);
+  expect(runtimeErrors).toEqual([]);
+});
+
 test('PDF entry controls fit the first screen and still open the file picker', async ({ page }) => {
   test.setTimeout(120_000);
   for (const viewport of [
@@ -731,7 +747,7 @@ test('blog pagination and article sections have matching crawlable metadata and 
   );
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow');
   await page.goto('/blog/better-paperwork');
-  await expect(page.locator('meta[name="author"]')).toHaveAttribute('content', 'Folio editorial');
+  await expect(page.locator('meta[name="author"]')).toHaveAttribute('content', 'Iram Shams');
   expect(await page.locator('meta[name="twitter:image:alt"]').getAttribute('content')).toBe(
     await page.locator('meta[property="og:image:alt"]').getAttribute('content'),
   );
@@ -775,6 +791,17 @@ test('mobile editing guide exposes the revised steps and preserves reviewed tran
     );
   expect(article.datePublished).toBe('2026-09-18');
   expect(article.dateModified).toBe('2026-10-07');
+  expect(article.author).toMatchObject({
+    '@type': 'Person',
+    name: 'Iram Shams',
+    email: 'erushbaig@gmail.com',
+    url: 'https://folio.example/about#iram-shams',
+  });
+  await expect(page.locator('meta[name="author"]')).toHaveAttribute('content', 'Iram Shams');
+  await expect(page.getByRole('img', { name: 'Iram Shams', exact: true })).toHaveCSS(
+    'width',
+    '40px',
+  );
   const screenshots = page.locator('figure img');
   await expect(screenshots).toHaveCount(2);
   for (const screenshot of await screenshots.all()) {

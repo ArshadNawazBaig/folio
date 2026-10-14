@@ -1,4 +1,5 @@
 import type { BlogDraft, RichNode } from '../../src/lib/blog';
+import { articleAuthor } from '../../src/lib/article-author';
 
 const text = (value: string): RichNode => ({ type: 'text', text: value });
 const link = (label: string, href: string): RichNode => ({
@@ -48,7 +49,7 @@ function article(
     image,
     draft: {
       ...fields,
-      author: 'Folio Editorial',
+      author: articleAuthor.name,
       content: {
         type: 'doc',
         content: [

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { seoConfiguration } from './site-config';
 import { languageAlternates } from './i18n/config';
+import { articleAuthor, articleAuthorName } from './article-author';
 
 // Direct public-variable reads let Next.js inline the same origin for client
 // components such as the footer and for server-rendered metadata.
@@ -84,6 +85,20 @@ export function organizationSchema() {
       url: `${siteUrl}/support`,
     },
   };
+}
+export function articleAuthorSchema(name: string = articleAuthor.name) {
+  const author = articleAuthorName(name);
+  return author === articleAuthor.name
+    ? {
+        '@type': 'Person',
+        '@id': `${siteUrl}${articleAuthor.profilePath}`,
+        name: author,
+        url: `${siteUrl}${articleAuthor.profilePath}`,
+        email: articleAuthor.email,
+        image: `${siteUrl}${articleAuthor.image}`,
+        jobTitle: 'Website owner and author',
+      }
+    : { '@type': 'Person', name: author };
 }
 /** Directory variants stay crawlable even when search/filter results should not be indexed. */
 export function listingMetadata(

@@ -93,8 +93,32 @@ test('published blog is rendered for search engines, hides drafts and supports p
     'https://folio.example/blog/better-paperwork',
   );
   await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article');
+  await expect(page.locator('meta[name="author"]')).toHaveAttribute('content', 'Iram Shams');
+  await expect(page.getByRole('link', { name: 'Iram Shams', exact: true })).toHaveAttribute(
+    'href',
+    '/about#iram-shams',
+  );
+  await expect(
+    page.getByRole('link', { name: 'erushbaig@gmail.com', exact: true }),
+  ).toHaveAttribute('href', 'mailto:erushbaig@gmail.com');
+  const portrait = page.getByRole('img', { name: 'Iram Shams', exact: true });
+  await expect(portrait).toBeVisible();
+  await expect(portrait).toHaveCSS('width', '40px');
+  await expect(portrait).toHaveCSS('height', '40px');
+  await expect
+    .poll(() => portrait.evaluate((image: HTMLImageElement) => image.naturalWidth))
+    .toBeGreaterThan(0);
   const schemas = await page.locator('script[type="application/ld+json"]').allTextContents();
-  expect(schemas.some((value) => JSON.parse(value)['@type'] === 'BlogPosting')).toBe(true);
+  expect(
+    schemas.map((value) => JSON.parse(value)).find((value) => value['@type'] === 'BlogPosting')
+      .author,
+  ).toMatchObject({
+    '@type': 'Person',
+    name: 'Iram Shams',
+    email: 'erushbaig@gmail.com',
+    image: 'https://folio.example/images/authors/iram-shams.jpg',
+    url: 'https://folio.example/about#iram-shams',
+  });
   const html = await (await request.get('/blog/better-paperwork')).text();
   expect(html).toContain('Give every document a home.');
   expect((await request.get('/blog/secret-draft')).status()).toBe(404);
@@ -136,6 +160,16 @@ test('published blog is rendered for search engines, hides drafts and supports p
   });
   const results = await new AxeBuilder({ page }).include('main').analyze();
   expect(results.violations).toEqual([]);
+  await page.getByRole('link', { name: 'Iram Shams', exact: true }).click();
+  await expect(page).toHaveURL('/about#iram-shams');
+  await expect(page.getByRole('heading', { name: 'Meet the owner and author.' })).toBeVisible();
+  await expect(
+    page.getByText('Iram Shams owns Folio and writes its articles and PDF guides.'),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('link', { name: 'erushbaig@gmail.com', exact: true }),
+  ).toHaveAttribute('href', 'mailto:erushbaig@gmail.com');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
 test('blog pagination renders ten posts and preserves search and category in crawlable links', async ({

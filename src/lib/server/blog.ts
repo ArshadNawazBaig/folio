@@ -3,6 +3,7 @@ import { cache } from 'react';
 import { adminDb, authReady } from './auth';
 import { ApiError } from './http';
 import { blogDraftSchema, readingMinutes, type PublicPost } from '../blog';
+import { articleAuthorName } from '../article-author';
 import { PAGE_SIZE } from '../pagination.mjs';
 import { readPage } from './pagination';
 
@@ -44,6 +45,7 @@ function publicPost(row: PublicRow): PublicPost {
   const draft = blogDraftSchema.parse(row.published);
   return {
     ...draft,
+    author: articleAuthorName(draft.author),
     id: row.id,
     publishedAt: row.published_at,
     updatedAt: row.published_updated_at,

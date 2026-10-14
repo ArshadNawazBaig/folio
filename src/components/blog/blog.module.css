@@ -343,19 +343,10 @@
 }
 .byline {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   font-size: var(--text-small);
-}
-.authorAvatar {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--border);
-  color: var(--muted);
-  font-weight: 700;
 }
 .byline strong,
 .byline time {

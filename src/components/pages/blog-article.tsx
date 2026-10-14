@@ -4,7 +4,15 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Clock, ArrowUpRight } from 'lucide-react';
 import { publicPostBySlug } from '@/lib/server/blog';
-import { pageMetadata, siteUrl, breadcrumbSchema, organizationSchema } from '@/lib/seo';
+import {
+  pageMetadata,
+  siteUrl,
+  breadcrumbSchema,
+  organizationSchema,
+  articleAuthorSchema,
+} from '@/lib/seo';
+import { articleAuthor } from '@/lib/article-author';
+import { ArticleAuthor } from '@/components/article-author';
 import { StructuredData } from '@/components/structured-data';
 import { RichContent } from '@/components/blog/rich-content';
 import { BlogLike } from '@/components/blog/blog-like';
@@ -32,7 +40,14 @@ export async function generateMetadata({
   return {
     ...base,
     keywords: p.tags,
-    authors: [{ name: p.author }],
+    authors: [
+      {
+        name: p.author,
+        ...(p.author === articleAuthor.name
+          ? { url: `${siteUrl}${articleAuthor.profilePath}` }
+          : {}),
+      },
+    ],
     openGraph: {
       ...base.openGraph,
       type: 'article',
@@ -83,9 +98,7 @@ export default async function BlogPost({
           description: post.excerpt,
           datePublished: post.publishedAt,
           dateModified: post.updatedAt,
-          author: post.author.toLowerCase().startsWith('folio')
-            ? { ...organizationSchema(), url: `${siteUrl}/about` }
-            : { '@type': 'Person', name: post.author },
+          author: articleAuthorSchema(post.author),
           publisher: organizationSchema(),
           inLanguage: 'en',
           image: post.cover || `${siteUrl}/og?title=${encodeURIComponent(post.title)}`,
@@ -109,15 +122,7 @@ export default async function BlogPost({
           <h1>{post.title}</h1>
           <p>{post.excerpt}</p>
           <div className={s.byline}>
-            <span className={s.authorAvatar}>{post.author.slice(0, 1)}</span>
-            <div>
-              <strong>
-                {post.author.toLowerCase().startsWith('folio') ? (
-                  <Link href={href('/about#editorial')}>{post.author}</Link>
-                ) : (
-                  post.author
-                )}
-              </strong>
+            <ArticleAuthor name={post.author} locale={locale}>
               <time dateTime={post.publishedAt}>
                 {new Date(post.publishedAt).toLocaleDateString(locale, {
                   month: 'long',
@@ -136,7 +141,7 @@ export default async function BlogPost({
                   })}
                 </time>
               )}
-            </div>
+            </ArticleAuthor>
             <span>
               <Clock size={15} />
               {post.minutes} {tr('min read')}

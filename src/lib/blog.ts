@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { articleAuthor } from './article-author';
 
 export type RichNode = {
   type: string;
@@ -120,7 +121,7 @@ export const blankDraft = (slug: string): BlogDraft => ({
   title: '',
   slug,
   excerpt: '',
-  author: 'Folio editorial',
+  author: articleAuthor.name,
   category: 'PDF tips',
   tags: [],
   cover: '',

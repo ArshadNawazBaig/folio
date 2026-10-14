@@ -5,7 +5,15 @@ import { notFound } from 'next/navigation';
 import { ArrowUpRight, ChevronRight } from 'lucide-react';
 import { guides } from '@/lib/guides';
 import { getTool } from '@/lib/tools';
-import { pageMetadata, breadcrumbSchema, siteUrl, organizationSchema } from '@/lib/seo';
+import {
+  pageMetadata,
+  breadcrumbSchema,
+  siteUrl,
+  organizationSchema,
+  articleAuthorSchema,
+} from '@/lib/seo';
+import { articleAuthor } from '@/lib/article-author';
+import { ArticleAuthor } from '@/components/article-author';
 import { StructuredData } from '@/components/structured-data';
 import { relatedGuides } from '@/lib/related-content';
 import styles from '@/components/guide-content.module.css';
@@ -25,12 +33,13 @@ export async function generateMetadata({
   const base = pageMetadata(g.title, g.description, localizedHref(locale, `/guides/${g.slug}`));
   return {
     ...base,
+    authors: [{ name: articleAuthor.name, url: `${siteUrl}${articleAuthor.profilePath}` }],
     openGraph: {
       ...base.openGraph,
       type: 'article',
       publishedTime: g.published,
       modifiedTime: g.updated,
-      authors: [`${siteUrl}/about`],
+      authors: [articleAuthor.name],
     },
   };
 }
@@ -64,7 +73,7 @@ export default async function Guide({
           description: g.description,
           datePublished: g.published,
           dateModified: g.updated,
-          author: { '@type': 'Organization', name: 'Folio', url: `${siteUrl}/about` },
+          author: articleAuthorSchema(),
           publisher: organizationSchema(),
           inLanguage: locale,
           image: `${siteUrl}/og?title=${encodeURIComponent(g.title)}`,
@@ -84,9 +93,9 @@ export default async function Guide({
           </span>
           <h1>{tr(g.title)}</h1>
           <p>{tr(g.description)}</p>
-          <span className="article-date">
-            <Link href={href('/about')}>{tr('Folio field notes')}</Link> {tr('· Updated')}{' '}
-            <time dateTime={g.updated}>
+          <ArticleAuthor locale={locale}>
+            <time className="article-date" dateTime={g.updated}>
+              {tr('Updated')}{' '}
               {new Date(`${g.updated}T00:00:00Z`).toLocaleDateString(locale, {
                 month: 'long',
                 day: 'numeric',
@@ -94,7 +103,7 @@ export default async function Guide({
                 timeZone: 'UTC',
               })}
             </time>
-          </span>
+          </ArticleAuthor>
           <div className={styles.start}>
             <Link prefetch={false} className="button primary" href={href(`/${tool.slug}`)}>
               {tr('Open')} {tr(tool.name)} <ArrowUpRight size={17} aria-hidden="true" />

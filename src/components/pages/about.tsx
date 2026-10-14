@@ -1,6 +1,15 @@
 import { translator, localizedHref, type PageLanguage } from '@/lib/i18n/translate';
 import Link from 'next/link';
-import { pageMetadata, organizationSchema, productDescription, siteUrl, siteHost } from '@/lib/seo';
+import {
+  pageMetadata,
+  organizationSchema,
+  productDescription,
+  siteUrl,
+  siteHost,
+  articleAuthorSchema,
+} from '@/lib/seo';
+import { articleAuthor } from '@/lib/article-author';
+import { ArticleAuthor } from '@/components/article-author';
 import { StructuredData } from '@/components/structured-data';
 export const metadata = pageMetadata(
   'About Folio — Thoughtful PDF Tools',
@@ -23,6 +32,7 @@ export default function About({ locale = 'en', messages = {} }: PageLanguage = {
           description: tr(productDescription),
           inLanguage: locale,
           mainEntity: organizationSchema(),
+          about: articleAuthorSchema(),
         }}
       />
       <header className="page-heading">
@@ -74,6 +84,13 @@ export default function About({ locale = 'en', messages = {} }: PageLanguage = {
         )}{' '}
         <Link href={href('/privacy')}>{tr('privacy explanation')}</Link>{' '}
         {tr('describes the details.')}
+      </p>
+      <h2 id="iram-shams">{tr('Meet the owner and author.')}</h2>
+      <ArticleAuthor locale={locale} />
+      <p>
+        {tr('{name} owns Folio and writes its articles and PDF guides.', {
+          name: articleAuthor.name,
+        })}
       </p>
       <h2 id="editorial">{tr('How we write our PDF guides.')}</h2>
       <p>

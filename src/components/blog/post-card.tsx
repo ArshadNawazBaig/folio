@@ -2,6 +2,7 @@ import { translator, localizedHref, type PageLanguage } from '@/lib/i18n/transla
 import Link from 'next/link';
 import { ArrowUpRight, Clock3, Heart, FileText } from 'lucide-react';
 import type { PublicPost } from '@/lib/blog';
+import { AuthorAvatar } from '@/components/article-author';
 import s from './blog.module.css';
 import { BlogCover } from './blog-cover';
 export function PostCard({
@@ -38,6 +39,7 @@ export function PostCard({
           <h2 id={titleId}>{post.title}</h2>
           <p className={s.excerpt}>{post.excerpt}</p>
           <div className={s.cardMeta}>
+            <AuthorAvatar name={post.author} />
             <div className={s.cardByline}>
               <strong>{post.author}</strong>
               <time dateTime={post.publishedAt}>
