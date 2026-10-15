@@ -167,7 +167,7 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
     [tab, setTab] = useState('post');
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null),
     [modal, setModal] = useState<
-      'publish' | 'link' | 'image' | 'leave' | 'unpublish' | 'revision' | null
+      'publish' | 'link' | 'image' | 'cover' | 'leave' | 'unpublish' | 'revision' | null
     >(null),
     [url, setUrl] = useState(''),
     [alt, setAlt] = useState(''),
@@ -184,8 +184,7 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
     record = useRef(initial),
     saved = useRef(JSON.stringify(initial.draft)),
     inflight = useRef<Promise<boolean> | null>(null),
-    fileInput = useRef<HTMLInputElement>(null),
-    imageTarget = useRef<'cover' | 'body'>('body');
+    fileInput = useRef<HTMLInputElement>(null);
   const autoSlug = useRef(initial.draft.slug.startsWith('untitled-'));
   useEffect(() => {
     if (window.matchMedia('(max-width: 900px)').matches) setPanel(false);
@@ -330,7 +329,7 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
       window.removeEventListener('keydown', shortcut);
     };
   }, [save]);
-  async function upload(file: File, target: 'cover' | 'body') {
+  async function upload(file: File) {
     if (file.size > 5 * 1024 * 1024) {
       setNotice({ text: 'Choose an image under 5 MB.', error: true });
       return;
@@ -344,8 +343,7 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
           body: file,
         })
       ).json();
-      if (target === 'cover') update({ cover: data.url });
-      else setUrl(data.url);
+      setUrl(data.url);
       setNotice({ text: 'Image uploaded.' });
     } catch (e) {
       setNotice({
@@ -405,6 +403,12 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
   const count = blogText(draft.content).trim().split(/\s+/).filter(Boolean).length;
   const headings = (draft.content.content || []).filter((n) => n.type === 'heading');
   const saving = phase === 'saving';
+  const imageUrl = safeBlogUrl(url.trim(), true);
+  function openCover() {
+    setUrl(draft.cover);
+    setAlt(draft.coverAlt);
+    setModal('cover');
+  }
   return (
     <main id="main" className={`${s.editor} ${focus ? s.focusMode : ''}`}>
       <h1 className="sr-only">Post editor</h1>
@@ -756,13 +760,7 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
                       <>
                         <img src={draft.cover} alt={draft.coverAlt} />
                         <div>
-                          <button
-                            onClick={() => {
-                              imageTarget.current = 'cover';
-                              fileInput.current?.click();
-                            }}
-                            disabled={uploading}
-                          >
+                          <button onClick={openCover} disabled={uploading}>
                             Replace
                           </button>
                           <button onClick={() => update({ cover: '', coverAlt: '' })}>
@@ -780,17 +778,10 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
                         </label>
                       </>
                     ) : (
-                      <button
-                        className={s.uploadCover}
-                        disabled={uploading}
-                        onClick={() => {
-                          imageTarget.current = 'cover';
-                          fileInput.current?.click();
-                        }}
-                      >
+                      <button className={s.uploadCover} disabled={uploading} onClick={openCover}>
                         <ImageIcon size={25} />
                         <strong>{uploading ? 'Uploading…' : 'Add a cover image'}</strong>
-                        <small>JPEG, PNG, or WebP · Up to 5 MB</small>
+                        <small>Upload a file or use an image link</small>
                       </button>
                     )}
                   </div>
@@ -997,7 +988,7 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
         onChange={(e) => {
           const f = e.target.files?.[0];
           e.target.value = '';
-          if (f) void upload(f, imageTarget.current);
+          if (f) void upload(f);
         }}
       />
       <BlogToast notice={notice} onClose={clearNotice} />
@@ -1099,9 +1090,9 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
           <p>Select text in your article, then apply a web address or email link.</p>
         </BlogDialog>
       )}
-      {modal === 'image' && (
+      {(modal === 'image' || modal === 'cover') && (
         <BlogDialog
-          title="Add an image"
+          title={modal === 'cover' ? 'Choose a cover image' : 'Add an image'}
           onClose={() => {
             if (!uploading) setModal(null);
           }}
@@ -1116,15 +1107,16 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
               </button>
               <button
                 className="button primary"
-                disabled={uploading || !safeBlogUrl(url, true)}
+                disabled={uploading || !imageUrl}
                 onClick={() => {
-                  if (safeBlogUrl(url, true)) {
-                    editor?.chain().focus().setImage({ src: url, alt }).run();
+                  if (imageUrl) {
+                    if (modal === 'cover') update({ cover: imageUrl, coverAlt: alt });
+                    else editor?.chain().focus().setImage({ src: imageUrl, alt }).run();
                     setModal(null);
                   }
                 }}
               >
-                Insert image
+                {modal === 'cover' ? 'Use cover image' : 'Insert image'}
               </button>
             </>
           }
@@ -1132,10 +1124,7 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
           <button
             className={`button secondary ${s.imageUploadButton}`}
             disabled={uploading}
-            onClick={() => {
-              imageTarget.current = 'body';
-              fileInput.current?.click();
-            }}
+            onClick={() => fileInput.current?.click()}
           >
             <Upload size={17} />
             {uploading ? 'Uploading…' : 'Upload image'}
@@ -1146,6 +1135,8 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
             <input
               type="url"
               value={url}
+              maxLength={2048}
+              disabled={uploading}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://…"
             />
@@ -1159,7 +1150,7 @@ function WritingWorkspace({ initial }: { initial: BlogPost }) {
               placeholder="Describe the image for screen readers"
             />
           </label>
-          {safeBlogUrl(url, true) && <img className={s.imagePreview} src={url} alt={alt} />}
+          {imageUrl && <img className={s.imagePreview} src={imageUrl} alt={alt} />}
         </BlogDialog>
       )}
       {modal === 'unpublish' && (

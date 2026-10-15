@@ -96,7 +96,10 @@ export function BlogDialog({
       ref={ref}
       className={s.dialog}
       aria-labelledby="blog-dialog-title"
-      onCancel={onClose}
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
