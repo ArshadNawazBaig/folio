@@ -8,13 +8,18 @@ import { guideEdition } from '@/lib/guide-edition';
 import { blogSitemap } from '@/lib/server/blog';
 import { sitemapImage } from '@/lib/publication-feeds';
 import { toolExamples } from '@/lib/tool-examples';
+import { toolContentUpdated } from '@/lib/tool-edition';
 import { locales, languagePath, languageAlternates, translatedPaths } from '@/lib/i18n/config';
 
 // Actual content revisions, including their translations. Never use the request
 // or build date: unchanged pages must not appear freshly edited on every crawl.
 const pageUpdates: Record<string, string> = {
-  '/': '2026-10-13',
-  '/about': '2026-10-13',
+  '/': '2026-10-15',
+  '/tools': '2026-10-15',
+  '/convert': '2026-10-15',
+  '/forms': '2026-10-15',
+  '/about': '2026-10-15',
+  '/privacy': '2026-10-15',
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -44,7 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((t) => t.available)
       .map((t) => ({
         url: `${siteUrl}/${t.slug}`,
-        lastModified: toolExamples[t.slug]?.updated,
+        lastModified: toolContentUpdated(t.slug) ?? toolExamples[t.slug]?.updated,
         alternates: { languages: languageAlternates(`/${t.slug}`, siteUrl) },
       })),
     ...locales
@@ -55,7 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .filter((path) => !tools.some((tool) => path === `/${tool.slug}` && !tool.available))
           .map((path) => ({
             url: `${siteUrl}${languagePath(locale, path)}`,
-            lastModified: pageUpdates[path],
+            lastModified: pageUpdates[path] ?? toolContentUpdated(path.slice(1), locale),
             alternates: { languages: languageAlternates(path, siteUrl) },
           })),
       ),

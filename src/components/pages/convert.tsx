@@ -4,6 +4,7 @@ import {
   localizeSummary,
   type PageLanguage,
 } from '@/lib/i18n/translate';
+import Link from 'next/link';
 import { permanentRedirect } from 'next/navigation';
 import { serverToolSummaries } from '@/lib/server/tool-catalog';
 import { ToolDirectory } from '@/components/tool-directory';
@@ -65,12 +66,46 @@ export default async function ConvertPage({
           <em>{tr('Find the right format.')}</em>
         </h1>
         <p>
-          {tr('Turn pages into pictures. Bring images together.')}
-          <br />
-          {tr('Find the format that fits what’s next.')}
+          {tr(
+            'Convert PDF pages to JPG, PNG, or plain text. Combine JPG and PNG images into PDF documents for free in your browser.',
+          )}
         </p>
       </div>
       <ToolDirectory key={directory.canonical} directory={directory} catalog={catalog} />
+      {!directory.q && (
+        <section className="content-decisions" aria-labelledby="conversion-choice-title">
+          <h2 id="conversion-choice-title">{tr('Choose the output you need')}</h2>
+          <div className="tool-reading-grid">
+            {[
+              [
+                '/pdf-to-png',
+                'PDF pages as images',
+                'Use PNG for small text, diagrams and screenshots. JPG often gives smaller files for photographs. Both turn each page into pixels: links, form fields and selectable text do not remain interactive.',
+              ],
+              [
+                '/pdf-to-text',
+                'PDF text for copying',
+                'Choose TXT when you need the words rather than the page layout. Check the reading order of columns and tables. Image-only scans need OCR elsewhere before their words can be extracted.',
+              ],
+              [
+                '/image-to-pdf',
+                'Photos or screenshots in one PDF',
+                'Arrange JPG, PNG or WebP images in reading order, then choose A4 or pages fitted to each image. Each image becomes one PDF page. This does not make photographed words searchable.',
+              ],
+              [
+                '/guides/how-to-convert-pdf-to-images',
+                'Check resolution before sharing',
+                'A 300 DPI export gives more pixels than a 108 DPI export, but cannot restore missing detail. Open the downloaded image at its intended size and check the smallest text before sending it.',
+              ],
+            ].map(([path, title, text]) => (
+              <Link href={href(path)} key={path}>
+                <strong>{tr(title)}</strong>
+                <span>{tr(text)}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
       <p className="directory-footnote">{tr('Image and text tools run locally.')}</p>
     </main>
   );

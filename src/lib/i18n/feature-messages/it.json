@@ -1658,7 +1658,7 @@
   "Find & replace": "Trova e sostituisci",
   "Find": "Trova",
   "Replace with": "Sostituisci con",
-  "Match case": "Caso di corrispondenza",
+  "Match case": "Distingui maiuscole e minuscole",
   "Replace across document": "Sostituisci nel documento",
   "Finds matches within editable text blocks, across all pages.": "Trova corrispondenze all'interno di blocchi di testo modificabili, su tutte le pagine.",
   "text blocks on this page": "blocchi di testo in questa pagina",

@@ -604,7 +604,7 @@ export const starterPosts: EditorialPost[] = [
       ),
       h('Fill the form and add a visual signature'),
       p(
-        'Use the Form panel to enter values and review your answers against the page. For a non-interactive area, Add Text can place information directly on the document. Choose Sign for a typed signature, or use Pencil to draw a signature by hand. Position it within the intended signature area and check that it does not cover a date or printed name.',
+        'Use the Form panel to enter values and review your answers against the page. For a non-interactive area, Add Text can place information directly on the document. Choose Sign to draw, type, or upload a signature image, then select Add signature. Position it within the intended signature area and check that it does not cover a date or printed name.',
       ),
       note(
         'Folio adds a visual signature. It does not provide a certificate-based digital signature, identity verification, or a signing audit trail. Check what format the recipient requires before completing the document.',
@@ -643,7 +643,7 @@ export const starterPosts: EditorialPost[] = [
       coverAlt: 'An open laptop and a small notebook on a tidy desk beside a chair.',
       seoTitle: 'PDF Conversion Guide: JPG, PNG, Text and More',
       seoDescription:
-        'Choose the right PDF conversion for images, presentations, plain text, and editable Office files. Follow practical steps and check the finished result.',
+        'Choose JPG, PNG, plain text, or a PDF made from images. Compare output types, check page resolution and reading order, and understand conversion limits.',
       featured: false,
     },
     {
@@ -670,14 +670,14 @@ export const starterPosts: EditorialPost[] = [
           ],
           [
             'Combine receipt photos or sketches into a document',
-            'PDF from JPG or PNG',
+            'PDF from JPG, PNG, or WebP',
             'Image order, orientation, and page fit',
           ],
           ['Reuse selectable words in notes', 'Plain text', 'Reading order and missing layout'],
           [
             'Continue editing in Word, Excel, or PowerPoint',
-            'DOCX, XLSX, or PPTX when connected',
-            'Reconstructed layout and editable content',
+            'The original Office file, or a separate conversion service',
+            'Folio does not provide Office conversion; check any reconstructed layout separately',
           ],
         ],
       ),
@@ -690,7 +690,7 @@ export const starterPosts: EditorialPost[] = [
           'Open PDF to JPG or PDF to PNG and choose your PDF.',
           'Select the pages you need. Leave the range empty for all pages, or enter a selection such as 1-3, 6.',
           'Choose an image resolution appropriate to where you will use the result.',
-          'Run the conversion and download the ZIP archive containing one image per selected page.',
+          'Run the conversion. One selected page downloads as a JPG or PNG; multiple pages download in a ZIP containing one image per page.',
           'Open an exported image at its intended display size and check the smallest important text.',
         ],
         true,
@@ -700,10 +700,10 @@ export const starterPosts: EditorialPost[] = [
       ),
       h('Turn images into a single PDF'),
       p(
-        'Image to PDF is useful for grouping receipt photos, sketches, and existing JPG or PNG exports. Add the images, arrange their order, and choose fitted pages or A4. Each image becomes its own PDF page. A4 places the image on a portrait sheet with margins; fitted pages follow the image proportions.',
+        'Image to PDF is useful for grouping receipt photos, sketches, and existing JPG, PNG, or WebP images. Add the images, arrange their order, and choose fitted pages or A4. Each image becomes its own PDF page. A4 places the image on a portrait sheet with margins; fitted pages follow the image proportions.',
       ),
       p(
-        'Prepare the images before combining them. Rotate a sideways photo, remove an accidental duplicate, and check that handwriting is readable. Folio currently accepts JPG and PNG in this tool, with up to 20 images per batch. Convert other formats, such as HEIC, before adding them.',
+        'Prepare the images before combining them. Rotate a sideways photo, remove an accidental duplicate, and check that handwriting is readable. Folio accepts JPG, PNG, and WebP in this tool, with up to 20 images per batch, 50 MB per file, and 150 MB combined. Convert other formats, such as HEIC, before adding them.',
       ),
       p(
         'Creating a PDF from a photograph does not recognize the words inside it. The resulting document contains page images. If searchable text is essential, you will need a separate OCR workflow; Folio does not currently offer standalone OCR.',
@@ -2123,9 +2123,9 @@ export const starterPosts: EditorialPost[] = [
       p(
         'If you are creating a reusable form for other people, use ',
         link('Create a PDF form', '/create-pdf-form'),
-        ' to add text fields and checkboxes. Give them clear, distinct names. The ',
+        ' to add text fields and checkboxes. Give them distinct internal names so separate answers do not share a field. A visible label and an internal name are not a complete accessible form. The ',
         link('W3C’s PDF form guidance', 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/PDF12'),
-        ' explains why field names and control information matter to assistive technology. Adding fields alone is not a complete accessibility check.',
+        ' distinguishes the accessible name read by assistive technology from the internal field name. Test labels, keyboard navigation, reading order, and field behavior in the reader your recipients use; Folio does not certify the result as accessible.',
       ),
       h('Decide whether the recipient should still be able to fill the fields', 3),
       p(

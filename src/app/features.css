@@ -1621,6 +1621,19 @@
 .directory-empty p {
   font-size: var(--text-body);
 }
+.content-decisions {
+  margin: 48px 0;
+}
+.content-decisions h2 {
+  margin-bottom: 20px;
+  font-size: 28px;
+}
+.content-decisions > p {
+  margin-top: 20px;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 80ch;
+}
 .directory-footnote {
   font-size: var(--text-small);
   margin: 25px 0 0;

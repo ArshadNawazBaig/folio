@@ -1658,7 +1658,7 @@
   "Find & replace": "Zoek & vervang",
   "Find": "Vind",
   "Replace with": "Vervangen door",
-  "Match case": "Match geval",
+  "Match case": "Hoofdlettergevoelig",
   "Replace across document": "Vervangen in het hele document",
   "Finds matches within editable text blocks, across all pages.": "Vindt overeenkomsten binnen bewerkbare tekstblokken, op alle pagina's.",
   "text blocks on this page": "tekstblokken op deze pagina",

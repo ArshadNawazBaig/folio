@@ -19,14 +19,14 @@ export default function Privacy({ messages = {} }: PageLanguage = {}) {
         </h1>
         <p>
           {tr(
-            'This page describes how the current version of Folio handles documents and saved links. Updated September 29, 2026.',
+            'This page describes how the current version of Folio handles documents and saved links. Updated October 15, 2026.',
           )}
         </p>
       </header>
       <h2>{tr('Invoice saving is your choice.')}</h2>
       <p>
         {tr(
-          'Invoice drafts stay in the current tab until you download a draft backup or explicitly choose Save to account. Classic and Minimal PDFs are generated in your browser. Other designs send the invoice details, logo, and payment instructions to Folio for processing in server memory; exporting does not create a saved invoice record. Hosting infrastructure may buffer requests. No invoice content is automatically saved in browser storage.',
+          'Invoice drafts stay in the current tab until you download a draft backup or explicitly choose Save to account. Classic and Minimal PDFs with preset colors, no payment QR code, and no custom footer are generated in your browser. Other designs, custom colors, payment QR codes, or custom footers send the invoice details, logo, and payment instructions to Folio for processing in server memory; exporting does not create a saved invoice record. Hosting infrastructure may buffer requests. No invoice content is automatically saved in browser storage.',
         )}
       </p>
       <p>

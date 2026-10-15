@@ -29,7 +29,7 @@ All available Folio tools include free finished downloads. Before starting, chec
 
 In Folio, standalone merging, splitting, rotating, organizing, PDF optimization, PDF-to-image conversion, image-to-PDF conversion, and selectable-text extraction have free downloads. Added text, annotations, visual signatures, and PDF form work also download free, without a Folio watermark.
 
-Original-text editing and password-protected downloads are free too. Office conversions and translation are free when their processing services are connected; check availability before starting. Every account includes 1 GB of private storage. [The tool directory](/tools) lists the available tools.
+Original-text editing and password-protected downloads are free too. Folio does not offer PDF-to-Office conversion or document translation. Every account includes 1 GB of private storage. [The tool directory](/tools) lists the available tools.
 
 ## Match the tool to the part of the document that needs changing
 

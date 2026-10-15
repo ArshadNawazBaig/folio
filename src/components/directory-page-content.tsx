@@ -47,9 +47,9 @@ export function DirectoryPageContent({
           <em>{tr('for every document.')}</em>
         </h1>
         <p>
-          {tr('From a quick edit to the finishing touches.')}
-          <br />
-          {tr('Find what you need, and get on with your day.')}
+          {tr(
+            'Explore free PDF editors, image converters and compressors, invoice and signature generators, a QR code maker and a URL shortener. Find a tool for your task.',
+          )}
         </p>
       </div>
       <ToolDirectory key={directory.canonical} directory={directory} catalog={catalog} />

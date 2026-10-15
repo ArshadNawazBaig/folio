@@ -63,7 +63,7 @@ export const tools: Tool[] = [
       ],
       [
         'Will my invoice be saved online?',
-        'Classic and Minimal PDF creation happens in your browser. Exporting other PDF designs sends the invoice to Folio for processing without saving it to the invoice library. Only Save to account stores its contents, including the logo and payment instructions, in your private library. Downloaded copies remain on your device.',
+        'Invoice drafts stay in the current tab until you download a draft backup or explicitly choose Save to account. Classic and Minimal PDFs with preset colors, no payment QR code, and no custom footer are generated in your browser. Other designs, custom colors, payment QR codes, or custom footers send the invoice details, logo, and payment instructions to Folio for processing in server memory; exporting does not create a saved invoice record. Hosting infrastructure may buffer requests. No invoice content is automatically saved in browser storage.',
       ],
       [
         'Can I use this on my phone?',
@@ -143,7 +143,7 @@ export const tools: Tool[] = [
       'Review your changes and download your edited PDF.',
     ],
     detail:
-      'Edit supported text blocks directly on the PDF. Preserve the original appearance where the embedded font permits, or choose a replacement font. Copy, paste and move selected blocks, undo changes, and save the workspace to private cloud storage. Paragraphs do not automatically reflow.',
+      'Edit supported text blocks directly on the PDF. Preserve the original appearance where the embedded font permits, or choose a replacement font. Copy, paste and move selected blocks, and undo changes. This standalone tool keeps unsaved work in the current tab; paragraphs do not automatically reflow.',
     faq: [
       [
         'Can I edit a scanned PDF?',
@@ -380,7 +380,7 @@ export const tools: Tool[] = [
       ['Can I watermark only certain pages?', 'Yes. Enter the pages or ranges you want to mark.'],
       [
         'Can I remove a watermark later?',
-        'Keep your original file. This tool adds a permanent mark to the exported copy.',
+        'Keep your original file. Folio has no watermark-removal control. The mark becomes page content in the exported copy; it is not tamper-proof protection.',
       ],
     ],
     keywords: ['draft', 'stamp', 'confidential'],

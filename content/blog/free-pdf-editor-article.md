@@ -44,7 +44,7 @@ An interactive field stores an answer in a defined place. A drawn rectangle or p
 
 In Folio, open More tools and choose Fill existing fields to work with supported fields in the Form panel. Fill the relevant text entries, checkboxes, or available choices there. For a flat form that does not offer those controls, Add Text can place a visible answer in an empty area.
 
-If you are creating a reusable form for other people, use [Create a PDF form](/create-pdf-form) to add text fields and checkboxes. Give them clear, distinct names. The [W3C’s PDF form guidance](https://www.w3.org/WAI/WCAG21/Techniques/pdf/PDF12) explains why field names and control information matter to assistive technology. Adding fields alone is not a complete accessibility check.
+If you are creating a reusable form for other people, use [Create a PDF form](/create-pdf-form) to add text fields and checkboxes. Give them distinct internal names so separate answers do not share a field. A visible label and an internal name are not a complete accessible form. The [W3C’s PDF form guidance](https://www.w3.org/WAI/WCAG21/Techniques/pdf/PDF12) distinguishes the accessible name read by assistive technology from the internal field name. Test labels, keyboard navigation, reading order, and field behavior in the reader your recipients use; Folio does not certify the result as accessible.
 
 ### Decide whether the recipient should still be able to fill the fields
 

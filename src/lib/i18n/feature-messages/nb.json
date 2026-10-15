@@ -1658,7 +1658,7 @@
   "Find & replace": "Finn og erstatt",
   "Find": "Finn",
   "Replace with": "Bytt ut med",
-  "Match case": "Matchetui",
+  "Match case": "Skill mellom store og små bokstaver",
   "Replace across document": "Erstatt på tvers av dokumentet",
   "Finds matches within editable text blocks, across all pages.": "Finner treff innenfor redigerbare tekstblokker, på tvers av alle sider.",
   "text blocks on this page": "tekstblokker på denne siden",

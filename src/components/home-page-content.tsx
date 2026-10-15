@@ -124,8 +124,12 @@ export function HomePageContent({
       <section className={`container ${styles.feature}`} aria-labelledby="workspace-title">
         <div>
           <span className={styles.eyebrow}>{tr('A WORKSPACE THAT GETS OUT OF YOUR WAY')}</span>
-          <h2 id="workspace-title">{tr('Open it. Edit it. Done.')}</h2>
-          <p>{tr('Add the finishing touches, review your pages and download your document.')}</p>
+          <h2 id="workspace-title">{tr('Edit text, annotate and organize pages.')}</h2>
+          <p>
+            {tr(
+              'Use one workspace to edit original text, add annotations and signatures, and organize pages. Select Edit Text to change supported text directly on the page. Scanned pages can be annotated, but need OCR for original text editing.',
+            )}
+          </p>
           <ul>
             <li>
               <Type size={24} aria-hidden="true" />
@@ -244,8 +248,8 @@ export function HomePageContent({
               'Yes. The interface adapts to smaller screens. Large PDFs can exceed a phone’s available memory, so a desktop browser is better for complex documents.',
             ],
             [
-              'Are all the tools available?',
-              'Editing, page tools, forms, image conversion, and text extraction are available.',
+              'Can I edit scanned text or convert a PDF to Word?',
+              'Folio does not include OCR or Word conversion. You can add notes and signatures to scanned pages, but replacing scanned words requires OCR in another application. PDF to text extracts existing selectable text; it does not recognize words in images.',
             ],
             [
               'Will my original document change?',

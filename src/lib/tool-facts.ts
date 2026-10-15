@@ -27,7 +27,7 @@ export const toolFacts: Record<string, ToolFacts> = {
     output:
       'A watermark-free PDF in A4 or US Letter, plus an optional JSON draft backup for later editing.',
     processing:
-      'Classic and Minimal PDFs are generated in your browser. Other designs are processed in server memory. All exports are free. Only Save to account stores invoice contents in your private library. Unsaved drafts are lost when the tab closes or refreshes.',
+      'Invoice drafts stay in the current tab until you download a draft backup or explicitly choose Save to account. Classic and Minimal PDFs with preset colors, no payment QR code, and no custom footer are generated in your browser. Other designs, custom colors, payment QR codes, or custom footers send the invoice details, logo, and payment instructions to Folio for processing in server memory; exporting does not create a saved invoice record. Hosting infrastructure may buffer requests. No invoice content is automatically saved in browser storage.',
     limits:
       '24 currencies; one invoice-level tax rate with per-item exemptions. Sign in to save up to 200 invoices for free. No automatic currency conversion, payment collection, email sending, tax filing, or payment-status synchronization. Some writing systems are not supported by the PDF font.',
   },

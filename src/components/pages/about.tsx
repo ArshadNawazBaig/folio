@@ -12,8 +12,8 @@ import { articleAuthor } from '@/lib/article-author';
 import { ArticleAuthor } from '@/components/article-author';
 import { StructuredData } from '@/components/structured-data';
 export const metadata = pageMetadata(
-  'About Folio — Thoughtful PDF Tools',
-  'Folio brings practical PDF tools into a calm, approachable workspace. Learn what works today and what is still being built.',
+  'About Folio — PDF Tools, Ownership & Editorial Standards',
+  'Meet Folio’s owner, understand which PDF tasks the tools support, and learn how product guides, worked examples, and corrections are handled.',
   '/about',
 );
 export default function About({ locale = 'en', messages = {} }: PageLanguage = {}) {
@@ -44,7 +44,7 @@ export default function About({ locale = 'en', messages = {} }: PageLanguage = {
         </h1>
         <p>
           {tr(
-            'A document can be a beginning, a decision, a small detail that moves something forward. Folio is a place to handle those details with a little more clarity and a little less friction.',
+            'Folio helps you complete specific document tasks: correct supported PDF text, fill a form, combine attachments, or prepare a file for sharing. This page explains who runs the site, what the tools can do, and how we write and correct our guidance.',
           )}
         </p>
       </header>
@@ -61,7 +61,7 @@ export default function About({ locale = 'en', messages = {} }: PageLanguage = {
       <h2>{tr('One thoughtful place to work.')}</h2>
       <p>
         {tr(
-          'Edit and annotate PDFs, arrange their pages, bring files together, fill forms, and find a useful new format. The tools share a familiar workspace so you can keep your attention on the document.',
+          'Choose a tool by the result you need. Merge and split work on whole pages; Add Text puts new information on a page; Edit Text changes supported original wording. Image conversion produces pictures of pages, while text extraction produces selectable words without the layout. These outputs serve different purposes.',
         )}
       </p>
       <h2>{tr('Useful today. Room to grow.')}</h2>

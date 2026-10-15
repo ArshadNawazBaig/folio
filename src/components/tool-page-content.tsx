@@ -20,6 +20,8 @@ import { StructuredData } from '@/components/structured-data';
 import { breadcrumbSchema, siteUrl } from '@/lib/seo';
 import { guidesForTool, relatedTools } from '@/lib/related-content';
 import { toolExamples } from '@/lib/tool-examples';
+import { toolEdition } from '@/lib/tool-edition';
+import { toolFacts } from '@/lib/tool-facts';
 import styles from './tool-page-content.module.css';
 export function ToolPageContent({
   tool: original,
@@ -28,7 +30,7 @@ export function ToolPageContent({
 }: PageLanguage & { tool: Tool }) {
   const tr = translator(messages);
   const href = (path: string) => localizedHref(locale, path);
-  const t = localizeTool(original, messages);
+  const t = localizeTool(toolEdition(original, locale), messages);
   const catalog = serverTools();
   const related = relatedTools(original, catalog).map((tool) => localizeSummary(tool, messages));
   const reading = guidesForTool(t.slug);
@@ -152,7 +154,7 @@ export function ToolPageContent({
         <nav className={styles.contents} aria-label={tr('On this page')}>
           <a href="#how-to">{tr('THREE SIMPLE STEPS')}</a>
           {hasExample && <a href="#worked-example">Practical example</a>}
-          <a href="#tool-facts">{tr('BEFORE YOU START')}</a>
+          {toolFacts[t.slug] && <a href="#tool-facts">{tr('BEFORE YOU START')}</a>}
           <a href="#tool-questions">{tr('Good questions.')}</a>
           {reading.length > 0 && <a href="#tool-reading">{tr('Guides')}</a>}
         </nav>

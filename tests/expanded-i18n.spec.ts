@@ -24,7 +24,7 @@ const pages = [
   ['/compress-images', 'Image compressor'],
   ['/url-shortener', 'URL shortener'],
   ['/create-qr-code', 'Create QR code'],
-  ['/forms', 'to get it in writing.'],
+  ['/forms', 'PDF forms.'],
   ['/convert', 'Convert PDFs and images.'],
   ['/guides', 'Practical PDF guides.'],
   ['/about', 'between the big ideas.'],
@@ -138,20 +138,25 @@ test('expanded translated pages retain English layout and fit mobile screens', a
   const context = await browser.newContext({ javaScriptEnabled: false });
   const staticPage = await context.newPage();
   async function structure() {
-    return staticPage
-      .locator('main')
-      .evaluate((main) =>
-        [...main.querySelectorAll('*')]
-          .filter((el) => !['SCRIPT', 'STYLE'].includes(el.tagName))
-          .map((el) => [el.tagName, el.className]),
-      );
+    return staticPage.locator('main').evaluate((main) =>
+      [...main.querySelectorAll('*')]
+        .filter(
+          (el) =>
+            !['SCRIPT', 'STYLE'].includes(el.tagName) &&
+            // Worked examples have a separate English editorial edition.
+            !el.closest('#worked-example') &&
+            !el.matches('a[href="#worked-example"]'),
+        )
+        .map((el) => [el.tagName, el.className]),
+    );
   }
   try {
     for (const path of [
       '/pricing',
       '/forms',
       '/about',
-      '/guides/how-to-merge-and-split-pdfs',
+      // Compare a shared edition; the merge/split article has a newer English revision.
+      '/guides/merge-pdfs-different-page-sizes',
       '/compress-images',
     ]) {
       await staticPage.goto(path);

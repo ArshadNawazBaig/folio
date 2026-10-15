@@ -1,0 +1,70 @@
+{
+  "appliedAt": "2026-10-15T11:26:40.378Z",
+  "method": "Existing blog_save RPC with expected versions; original publication dates retained; previous drafts archived as revisions.",
+  "entries": [
+    {
+      "slug": "create-invoice-free-invoice-generator",
+      "previousVersion": 21,
+      "version": 22,
+      "publishedAt": "2026-10-09T07:20:31.932+00:00",
+      "updatedAt": "2026-10-15T11:26:32.994727+00:00",
+      "verified": true
+    },
+    {
+      "slug": "free-pdf-editor-add-text-fill-sign",
+      "previousVersion": 5,
+      "version": 6,
+      "publishedAt": "2026-09-28T14:37:14.678+00:00",
+      "updatedAt": "2026-10-15T11:26:34.054253+00:00",
+      "verified": true
+    },
+    {
+      "slug": "free-pdf-tool-online-guide",
+      "previousVersion": 3,
+      "version": 4,
+      "publishedAt": "2026-09-28T14:34:57.149+00:00",
+      "updatedAt": "2026-10-15T11:26:34.84888+00:00",
+      "verified": true
+    },
+    {
+      "slug": "how-to-create-fill-and-sign-pdf-forms",
+      "previousVersion": 3,
+      "version": 4,
+      "publishedAt": "2026-09-14T10:42:10.719+00:00",
+      "updatedAt": "2026-10-15T11:26:35.670089+00:00",
+      "verified": true
+    },
+    {
+      "slug": "how-to-edit-original-text-in-a-pdf",
+      "previousVersion": 12,
+      "version": 13,
+      "publishedAt": "2026-10-09T06:48:09.067+00:00",
+      "updatedAt": "2026-10-15T11:26:36.420119+00:00",
+      "verified": true
+    },
+    {
+      "slug": "how-to-edit-pdf-original-text",
+      "previousVersion": 7,
+      "version": 8,
+      "publishedAt": "2026-10-04T17:46:34.606+00:00",
+      "updatedAt": "2026-10-15T11:26:37.201935+00:00",
+      "verified": true
+    },
+    {
+      "slug": "how-to-prepare-and-review-pdf-translation",
+      "previousVersion": 4,
+      "version": 5,
+      "publishedAt": "2026-09-14T10:42:12.147+00:00",
+      "updatedAt": "2026-10-15T11:26:39.498065+00:00",
+      "verified": true
+    },
+    {
+      "slug": "pdf-conversion-guide-choose-the-right-format",
+      "previousVersion": 3,
+      "version": 4,
+      "publishedAt": "2026-09-14T10:42:11.467+00:00",
+      "updatedAt": "2026-10-15T11:26:40.282567+00:00",
+      "verified": true
+    }
+  ]
+}

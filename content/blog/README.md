@@ -16,6 +16,43 @@ October 5 removal: the conversion, translation, and free-tools article sources n
 
 The source is a backup for an explicit import, not a runtime fallback. After import, manage the live posts through `/admin/blog`; edits there remain authoritative. Existing posts, edited drafts, and trashed posts are never overwritten by the importer.
 
+## October 15, 2026 content review
+
+The review read all fifteen source articles and all eighteen currently published database articles. Word count was recorded as an inventory aid, not used as a quality score. Existing worked examples, specific instructions, troubleshooting, privacy distinctions, and honest limitations were retained where they answered the reader's task.
+
+Three published articles still advertised Office conversion or translation features removed from the application. Their corrected source copies had not reached the database because the importer intentionally preserves existing posts. The review also found outdated conversion output/input details, an outdated signature instruction, imprecise form-accessibility wording, and an invoice privacy explanation that omitted server processing triggered by custom options.
+
+Two database-authored text-editing articles repeated the basic correction workflow already covered by `how-to-edit-pdf-text`. Their revised copy in `live-content-revisions.ts` gives them separate purposes: diagnosing uneditable text, and safely replacing repeated wording. Existing article URLs, bylines, cover images, featured settings, and original publication dates are retained.
+
+`content-review-2026-10-15.json` is the reviewable before/after bundle for eight existing posts. It records the observed row version, original publication dates, changed fields, and proposed full draft. It is not a runtime override or a seed file. Apply only through the existing `blog_save` revision mechanism after re-reading and matching the expected version, original public content, and current draft. A concurrent edit or a different unpublished draft must stop that entry. Passing a null `publish_time` preserves the original publication date; the update date records the correction. No new posts are created by this review.
+
+Applied October 15, 2026: all eight corrections were saved with `blog_save`, archived revisions, and optimistic version checks. Their public production pages were then verified for HTTP 200, updated titles/content, preserved original dates, and removal of unavailable-tool links. The [application receipt](content-review-applied-2026-10-15.json) records the resulting versions and update times. The before/after bundle is historical evidence; its original versions must not be reapplied.
+
+| Published article slug                                | Review outcome                                                                                                                       |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `create-invoice-free-invoice-generator`               | Correct Classic/Minimal server-processing exceptions; retain the invoice example and handoff workflow.                               |
+| `first-freelance-invoice-with-free-invoice-generator` | Retain: worked deposit arithmetic, specific item descriptions, backup and handoff guidance.                                          |
+| `free-pdf-editor-add-text-fill-sign`                  | Distinguish internal field names from accessible names and explain checks beyond adding fields.                                      |
+| `free-pdf-tool-online-guide`                          | Remove the stale live claim about Office conversion and translation; synchronize the Markdown preview.                               |
+| `how-to-compress-images-to-target-size`               | Retain: target-byte behavior, dimensions, format tradeoffs, limits, privacy and troubleshooting.                                     |
+| `how-to-create-a-qr-code-for-a-link`                  | Retain: destination access, static/editable links, quiet zone, print testing and limitations.                                        |
+| `how-to-create-fill-and-sign-pdf-forms`               | Update signing instructions to the current Draw, Type and Image dialog.                                                              |
+| `how-to-edit-original-text-in-a-pdf`                  | Replace overlapping general instructions with a symptom-based diagnosis of scans, OCR layers, fonts, limits and text blocks.         |
+| `how-to-edit-pdf-on-phone`                            | Retain: iPhone/Android save paths, tool distinctions, mobile troubleshooting and cloud-saving disclosure.                            |
+| `how-to-edit-pdf-original-text`                       | Replace overlapping general instructions with a find-and-replace workflow, literal/substring/case matching, counts and verification. |
+| `how-to-edit-pdf-text`                                | Retain as the focused basic correction walkthrough.                                                                                  |
+| `how-to-make-a-signature-online`                      | Retain: method selection, transparent PNG handling, sizing, privacy and recipient requirements.                                      |
+| `how-to-merge-and-organize-pdf-files`                 | Retain: ordering, physical-page ranges, limits, form/signature caveats and final review.                                             |
+| `how-to-prepare-and-review-pdf-translation`           | Replace removed in-app translation instructions with preparation and review for a separate translator.                               |
+| `how-to-reduce-pdf-file-size`                         | Retain: structural optimization limits, a clearly hypothetical size example, and readable-output checks.                             |
+| `how-to-shorten-a-url`                                | Retain: account limits, aliases, destination changes, QR behavior, access permissions and analytics limits.                          |
+| `pdf-conversion-guide-choose-the-right-format`        | Correct Office availability, WebP input, direct single-image downloads, batch limits and description.                                |
+| `pdf-editor-online-review-share`                      | Retain: concrete review comments, file-version handoff, comment-reader checks and privacy.                                           |
+
+The related trust-page review replaced the vague About introduction with concrete tasks and editorial context, expanded Support with useful report details and the actual reply process, and corrected the invoice processing disclosure on Privacy. Security and Terms already supplied concise, relevant instructions and were retained. No unsupported credentials, security guarantees, performance results, or search-ranking promises were added.
+
+Implementation checks included `tool-processor.tsx` (formats, direct/ZIP output and limits), `pro-text-editor.tsx` (upload, search behavior and text limits), `signature-dialog.tsx`, `invoice-generator.tsx` plus `invoiceProFeatures`, `support-panel.tsx`, and the versioned `blog_save` mutation. External reference checks used the existing primary sources: [W3C PDF form naming](https://www.w3.org/WAI/WCAG21/Techniques/pdf/PDF12), [W3C OCR guidance](https://www.w3.org/WAI/WCAG21/Techniques/pdf/PDF7), [DENSO WAVE QR margins](https://www.qrcode.com/en/howto/code.html), [Apple's iPhone Preview guide](https://support.apple.com/en-euro/guide/iphone/iph7239ea3b5/ios), and [GOV.UK invoice details](https://www.gov.uk/invoicing-and-taking-payment-from-customers/invoices-what-they-must-include). No legal policy expansion was attempted.
+
 The invoice generator article follows a first freelance invoice from an approved project to a checked PDF and a client email. It includes clearer item descriptions, a new deposit example, all 12 free design choices, draft backups, and FAQs. Read the [article preview](invoice-generator-article.md) and [editorial notes](invoice-generator-research.md). Its blog slug is `first-freelance-invoice-with-free-invoice-generator`. It complements the existing `/guides/create-professional-invoice-online` walkthrough with a client-handoff focus.
 
 From the project root:

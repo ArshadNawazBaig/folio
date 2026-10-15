@@ -3,6 +3,10 @@ import { invoiceGuide } from './invoice-guide';
 import { mobileGuideRevision } from './mobile-guide-revision';
 import { editingGuideRevision } from './editing-guide-revision';
 import { pdfImageGuideRevision } from './pdf-image-guide-revision';
+import { organizationGuideRevision } from './organization-guide-revision';
+import { formsGuideRevision } from './forms-guide-revision';
+import { signingGuideRevision } from './signing-guide-revision';
+import { protectionGuideRevision } from './protection-guide-revision';
 export type Guide = {
   slug: string;
   title: string;
@@ -14,7 +18,8 @@ export type Guide = {
   tool: string;
   relatedTools?: string[];
   summary?: string;
-  englishRevision?: Pick<Guide, 'updated' | 'summary' | 'sections'>;
+  englishRevision?: Pick<Guide, 'updated' | 'summary' | 'sections'> &
+    Partial<Pick<Guide, 'readTime'>>;
   sections: {
     title: string;
     text: string;
@@ -805,6 +810,7 @@ export const guides: Guide[] = [
   },
   {
     slug: 'how-to-merge-and-split-pdfs',
+    englishRevision: organizationGuideRevision,
     title: 'How to Merge and Split PDF Files Without Losing Pages',
     description:
       'Learn when to merge documents, how to arrange their order, and how to extract just the pages you need.',
@@ -848,6 +854,7 @@ export const guides: Guide[] = [
   compressionGuide,
   {
     slug: 'fillable-pdf-vs-flattened-pdf',
+    englishRevision: formsGuideRevision,
     title: 'Fillable vs. Flattened PDFs: Which Should You Share?',
     description:
       'Understand editable PDF form fields, flattened exports, and visual signatures before sharing your completed document.',
@@ -878,6 +885,7 @@ export const guides: Guide[] = [
   },
   {
     slug: 'how-to-sign-a-pdf',
+    englishRevision: signingGuideRevision,
     title: 'How to Sign a PDF: Draw, Type or Upload Your Signature',
     description:
       'Add a signature to a PDF using a mouse, touch screen, typed name, or image. Position it clearly and check the finished document before sharing.',
@@ -1003,6 +1011,7 @@ export const guides: Guide[] = [
   },
   {
     slug: 'how-to-password-protect-a-pdf',
+    englishRevision: protectionGuideRevision,
     title: 'How to Password Protect a PDF Before Sharing It',
     description:
       'Create a PDF that requires an opening password. Check encryption limits, retain an original, and avoid confusing password protection with redaction.',

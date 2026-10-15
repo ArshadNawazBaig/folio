@@ -1658,7 +1658,7 @@
   "Find & replace": "Hitta & ersätt",
   "Find": "Hitta",
   "Replace with": "Byt ut med",
-  "Match case": "Matchfodral",
+  "Match case": "Skilj på stora och små bokstäver",
   "Replace across document": "Ersätt över hela dokumentet",
   "Finds matches within editable text blocks, across all pages.": "Hittar matchningar inom redigerbara textblock, på alla sidor.",
   "text blocks on this page": "textblock på denna sida",

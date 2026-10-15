@@ -5,6 +5,7 @@ import { guides } from '../src/lib/guides';
 import { locales } from '../src/lib/i18n/config';
 import { toolSearchTitle, toolSearchDescription } from '../src/lib/tool-seo';
 import { toolExamples } from '../src/lib/tool-examples';
+import { toolContentUpdated } from '../src/lib/tool-edition';
 import { readFile } from 'node:fs/promises';
 import sharp from 'sharp';
 
@@ -362,12 +363,13 @@ test('server-rendered titles omit brand prefixes and suffixes and retain transla
     ],
   ];
   for (const locale of locales) {
-    const messages = JSON.parse(
-      await readFile(`src/lib/i18n/feature-messages/${locale}.json`, 'utf8'),
-    );
+    const messages = {
+      ...JSON.parse(await readFile(`src/lib/i18n/feature-messages/${locale}.json`, 'utf8')),
+      ...JSON.parse(await readFile(`src/lib/i18n/site-messages/${locale}.json`, 'utf8')),
+    };
     cases.push([
       `${locale === 'en' ? '' : `/${locale}`}/about`,
-      messages['About Folio — Thoughtful PDF Tools'],
+      messages['About Folio — PDF Tools, Ownership & Editorial Standards'],
     ]);
     cases.push([`${locale === 'en' ? '' : `/${locale}`}/account`, messages['Your Account']]);
     cases.push([`${locale === 'en' ? '' : `/${locale}`}/blog`, messages['PDF Tips & Tutorials']]);
@@ -525,7 +527,7 @@ test('Google can crawl the production sitemap and private workspaces stay noinde
       const entry = sitemap
         .split('<url>')
         .find((entry) => entry.includes(`<loc>https://folio.example${path}</loc>`));
-      expect(entry, path).toContain('<lastmod>2026-10-13</lastmod>');
+      expect(entry, path).toContain('<lastmod>2026-10-15</lastmod>');
     }
   }
   for (const tool of tools) {
@@ -535,13 +537,17 @@ test('Google can crawl the production sitemap and private workspaces stay noinde
     const entry = sitemap
       .split('<url>')
       .find((entry) => entry.includes(`<loc>https://folio.example/${tool.slug}</loc>`));
-    expect(entry, tool.slug).toContain(`<lastmod>${toolExamples[tool.slug].updated}</lastmod>`);
-    // These editorial updates were made to English pages, not the translated examples.
+    expect(entry, tool.slug).toContain(
+      `<lastmod>${toolContentUpdated(tool.slug) ?? toolExamples[tool.slug].updated}</lastmod>`,
+    );
+    // Shared factual corrections are translated; deeper editorial editions remain English.
     const translated = sitemap
       .split('<url>')
       .find((entry) => entry.includes(`<loc>https://folio.example/de/${tool.slug}</loc>`));
     expect(translated).toBeTruthy();
-    expect(translated).not.toContain('<lastmod>');
+    const translatedUpdate = toolContentUpdated(tool.slug, 'de');
+    if (translatedUpdate) expect(translated).toContain(`<lastmod>${translatedUpdate}</lastmod>`);
+    else expect(translated).not.toContain('<lastmod>');
   }
   for (const guide of guides) expect(sitemap).toContain(`/guides/${guide.slug}</loc>`);
   for (const path of ['/workspace', '/dashboard', '/account', '/admin', '/support']) {
@@ -892,15 +898,17 @@ test('guide navigation matches the article metadata', async ({ page }) => {
   await page.goto('/guides/how-to-sign-a-pdf');
   await expect(
     page.getByRole('navigation', { name: 'On this page' }).getByRole('link'),
-  ).toHaveCount(4);
-  await page.getByRole('link', { name: 'Create a clear signature', exact: true }).click();
+  ).toHaveCount(6);
+  await page
+    .getByRole('link', { name: 'Choose Draw, Type or Image for the clearest result', exact: true })
+    .click();
   await expect(page).toHaveURL(/#section-2$/);
-  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-09-15');
+  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-15');
   const schemas = await page
     .locator('script[type="application/ld+json"]')
     .evaluateAll((scripts) => scripts.map((script) => JSON.parse(script.textContent!)));
   const article = schemas.find((schema) => schema['@type'] === 'Article');
-  expect(article.dateModified).toBe('2026-09-15');
+  expect(article.dateModified).toBe('2026-10-15');
   expect(article.datePublished).toBe('2026-09-15');
   expect(article.publisher.name).toBe('Folio');
   await page.setViewportSize({ width: 390, height: 844 });

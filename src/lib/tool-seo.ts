@@ -70,7 +70,7 @@ export const toolSearchDescriptions: Record<string, string> = {
   'signature-generator':
     'Create a free signature PNG with a transparent background. Draw, type or remove white paper from a signature image. No account or signature upload required.',
   'create-pdf-form':
-    'Create fillable PDF forms for free. Add text fields, checkboxes and dropdowns to your PDF, then download editable fields or flatten the completed form.',
+    'Create fillable PDF forms for free. Add text fields and checkboxes to your PDF, then download an interactive form or flatten completed answers.',
   'jpg-to-webp':
     'Convert JPG to WebP for free in your browser. Adjust quality and dimensions, compare previews and file sizes, then download images individually or as a ZIP.',
   'webp-to-jpg':
