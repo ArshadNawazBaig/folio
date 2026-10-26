@@ -1,5 +1,15 @@
 # SEO implementation and launch setup
 
+## Search Console fixes — October 27, 2026
+
+See the [export analysis and release checks](reviews/SEO-GSC-FIXES-2026-10-27.md)
+for the September 27–October 24 baseline, canonical article URL consolidation,
+task-specific guide links, corrected translated mobile instructions and sitemap dates.
+CMS articles are currently authored in English: language-prefixed article URLs
+redirect to the published English article, while translated tools, guides and blog
+listings retain their language URLs. The report separates tested local changes
+from deployment and Google indexing status.
+
 ## Search titles and domain identity — October 13, 2026
 
 The live baseline crawl checked 679 public pages (678 sitemap URLs and one blog

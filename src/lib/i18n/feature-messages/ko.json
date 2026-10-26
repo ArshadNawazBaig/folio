@@ -2915,7 +2915,7 @@
   "Open the online PDF editor": "온라인 PDF 편집기 열기",
   "How do I add text or sign a PDF on mobile?": "모바일에서 어떻게 텍스트를 추가하거나 PDF에 서명합니까?",
   "Work on one page at a time and zoom before positioning a small addition. The toolbar can scroll horizontally, so a tool may be off the visible edge rather than missing.": "한 번에 한 페이지씩 작업하고 작은 추가 항목을 배치하기 전에 확대/축소하세요. 도구 모음은 수평으로 스크롤할 수 있으므로 도구가 누락되는 것이 아니라 보이는 가장자리에서 벗어날 수 있습니다.",
-  "Open Edit PDF, choose your document, and wait for the page preview.": "PDF 편집을 열고 문서를 선택한 다음 페이지 미리보기를 기다립니다.",
+  "Open Edit PDF, choose your document, and wait for the page preview. Then choose Open in editor.": "PDF 편집을 열고 문서를 선택한 다음 페이지 미리보기를 기다립니다. 그런 다음 ‘편집기에서 열기’를 선택합니다.",
   "Swipe the toolbar to find Add Text or Sign. Tap Add Text and then the page to create a text box.": "도구 모음을 스와이프하여 텍스트 추가 또는 서명을 찾습니다. 텍스트 추가를 누른 다음 페이지를 눌러 텍스트 상자를 만듭니다.",
   "Type your text. For a signature, choose Sign, then draw, upload an image or type your name in the signature dialog.": "텍스트를 입력하세요. 서명을 하려면 서명을 선택한 다음 그림을 그리거나 이미지를 업로드하거나 서명 대화 상자에 이름을 입력하세요.",
   "Use the Properties and forms toggle when you need appearance controls. Close the panel to uncover the page again.": "모양 제어가 필요한 경우 속성 및 양식 토글을 사용하세요. 페이지를 다시 보려면 패널을 닫으세요.",

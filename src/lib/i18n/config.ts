@@ -61,12 +61,14 @@ export const translatedPaths = [
 // Private routes support language switching, but never enter SEO alternates or the sitemap.
 export const translatedPrivatePaths = ['/dashboard', '/account', '/support', '/maintenance'];
 
+// CMS articles are authored in English. Legacy language-prefixed article URLs
+// remain routable so they can redirect, but must not be advertised as translations.
+export function isBlogArticlePath(path: string) {
+  return /^\/blog\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(path);
+}
+
 export function isTranslatedPath(path: string) {
-  return (
-    translatedPaths.includes(path) ||
-    translatedPrivatePaths.includes(path) ||
-    /^\/blog\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(path)
-  );
+  return translatedPaths.includes(path) || translatedPrivatePaths.includes(path);
 }
 
 export function isLocale(value: string): value is Locale {

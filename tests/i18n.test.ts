@@ -22,10 +22,8 @@ test('language links preserve translated pages and never invent untranslated des
       assert.equal(languageSwitchPath(url, 'ja'), languagePath('ja', path));
     }
     if (locale !== 'en') {
-      assert.equal(
-        languageSwitchPath('/blog/how-to-merge', locale),
-        `/${locale}/blog/how-to-merge`,
-      );
+      assert.equal(languageSwitchPath('/blog/how-to-merge', locale), '/blog/how-to-merge');
+      assert.equal(languageSwitchPath(`/${locale}/blog/how-to-merge`, 'ja'), '/blog/how-to-merge');
       assert.equal(languageSwitchPath('/workspace', locale), '/workspace');
     }
   }
@@ -129,6 +127,10 @@ test('localized internal links preserve filters, anchors and untranslated resour
   );
   assert.equal(localizedHref('it', '/workspace?sample=proposal'), '/workspace?sample=proposal');
   assert.equal(localizedHref('en', '/tools?q=PDF'), '/tools?q=PDF');
+  assert.equal(
+    localizedHref('nl', '/blog/how-to-merge?source=journal#steps'),
+    '/blog/how-to-merge?source=journal#steps',
+  );
 });
 
 test('dashboard languages share complete copy and stay separate from public SEO routes', async () => {

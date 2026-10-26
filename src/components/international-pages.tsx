@@ -17,6 +17,7 @@ import {
   translatedToolSlugs,
   translatedPaths,
   isTranslatedPath,
+  isBlogArticlePath,
   type Locale,
 } from '@/lib/i18n/config';
 import { pageMetadata, listingMetadata, siteUrl } from '@/lib/seo';
@@ -35,7 +36,7 @@ export function internationalStaticParams() {
 async function pagePath({ params }: InternationalProps) {
   const { path = [] } = await params;
   const route = `/${path.join('/')}`;
-  if (!isTranslatedPath(route)) notFound();
+  if (!isTranslatedPath(route) && !isBlogArticlePath(route)) notFound();
   return route;
 }
 

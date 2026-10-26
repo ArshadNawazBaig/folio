@@ -572,7 +572,7 @@ export const guides: Guide[] = [
     category: 'Editing',
     readTime: '3 min read',
     published: '2026-09-18',
-    updated: '2026-09-18',
+    updated: '2026-10-26',
     tool: 'edit-pdf',
     relatedTools: ['sign-pdf', 'organize-pdf'],
     summary:
@@ -587,7 +587,7 @@ export const guides: Guide[] = [
         title: 'How do I add text or sign a PDF on mobile?',
         text: 'Work on one page at a time and zoom before positioning a small addition. The toolbar can scroll horizontally, so a tool may be off the visible edge rather than missing.',
         steps: [
-          'Open Edit PDF, choose your document, and wait for the page preview.',
+          'Open Edit PDF, choose your document, and wait for the page preview. Then choose Open in editor.',
           'Swipe the toolbar to find Add Text or Sign. Tap Add Text and then the page to create a text box.',
           'Type your text. For a signature, choose Sign, then draw, upload an image or type your name in the signature dialog.',
           'Use the Properties and forms toggle when you need appearance controls. Close the panel to uncover the page again.',

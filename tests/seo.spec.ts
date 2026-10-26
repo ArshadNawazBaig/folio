@@ -33,6 +33,49 @@ test('local browsing does not load live advertising scripts', async ({ page }) =
   expect(runtimeErrors).toEqual([]);
 });
 
+test('untranslated articles use canonical links and permanent redirects without language loops', async ({
+  page,
+  request,
+  browser,
+}) => {
+  test.setTimeout(120_000);
+  const article = '/blog/better-paperwork';
+  for (const locale of locales.filter((locale) => locale !== 'en')) {
+    const response = await request.get(`/${locale}${article}`, { maxRedirects: 0 });
+    expect(response.status(), locale).toBe(308);
+    expect(response.headers().location).toBe(article);
+  }
+  for (const slug of ['secret-draft', 'scheduled-story', 'missing-post']) {
+    const response = await request.get(`/nl/blog/${slug}`, { maxRedirects: 0 });
+    expect(response.status(), slug).toBe(404);
+  }
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  try {
+    const reader = await context.newPage();
+    await reader.goto('/nl/blog');
+    const links = await reader
+      .locator('main a[href^="/blog/"]')
+      .evaluateAll((nodes) => nodes.map((node) => node.getAttribute('href')));
+    expect(links).toContain(article);
+    await expect(reader.locator('main a[href^="/nl/blog/"]')).toHaveCount(0);
+  } finally {
+    await context.close();
+  }
+  await page.addInitScript(() => localStorage.setItem('folio-language', 'nl'));
+  await page.goto(`/nl${article}`);
+  await expect(page).toHaveURL(article);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    'href',
+    `https://folio.example${article}`,
+  );
+  // Waiting for the reader controls also exercises the hydrated language provider.
+  await expect(page.locator('summary[aria-label$="Nederlands"]')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Kopieer link', exact: true })).toBeVisible();
+  await expect(page).toHaveURL(article);
+  expect(await page.evaluate(() => localStorage.getItem('folio-language'))).toBe('nl');
+});
+
 test('PDF entry controls fit the first screen and still open the file picker', async ({ page }) => {
   test.setTimeout(120_000);
   for (const viewport of [
@@ -836,7 +879,12 @@ test('mobile editing guide exposes the revised steps and preserves reviewed tran
       .find((entry) => entry.includes(`<loc>https://folio.example${path}</loc>`)),
   ).toContain('<lastmod>2026-10-07</lastmod>');
   await page.goto(`/de${path}`);
-  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-09-18');
+  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-26');
+  expect(
+    sitemap
+      .split('<url>')
+      .find((entry) => entry.includes(`<loc>https://folio.example/de${path}</loc>`)),
+  ).toContain('<lastmod>2026-10-26</lastmod>');
   await expect(
     page.getByRole('heading', { name: 'How to edit a PDF on Android in your browser' }),
   ).toHaveCount(0);

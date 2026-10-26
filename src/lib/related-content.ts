@@ -2,9 +2,15 @@ import { guides, type Guide } from './guides';
 import type { Tool } from './tools';
 import { toolCollections, toolNextSteps } from './tool-collections';
 
-// Keep the main editing workflows discoverable even as the guide library grows.
+// Keep task-specific help discoverable even as the guide library grows.
 const preferredReading: Record<string, string[]> = {
   'edit-pdf': ['how-to-edit-a-pdf', 'how-to-edit-a-pdf-on-mobile', 'how-to-add-text-to-a-pdf'],
+  'sign-pdf': ['how-to-sign-a-pdf', 'fillable-pdf-vs-flattened-pdf', 'how-to-add-text-to-a-pdf'],
+  'create-pdf-form': [
+    'fillable-pdf-vs-flattened-pdf',
+    'how-to-add-text-to-a-pdf',
+    'how-to-sign-a-pdf',
+  ],
 };
 
 export function guidesForTool(slug: string, limit = 3) {
@@ -37,8 +43,15 @@ export function guidesForArticle(slug: string, toolSlugs: string[], limit = 3) {
     'how-to-edit-pdf-on-phone': ['how-to-edit-a-pdf-on-mobile', 'why-cant-i-edit-pdf-text'],
     'how-to-edit-pdf-text': ['how-to-add-text-to-a-pdf', 'why-cant-i-edit-pdf-text'],
     'free-pdf-editor-add-text-fill-sign': [
-      'why-cant-i-edit-pdf-text',
-      'does-folio-upload-pdf-files',
+      'how-to-add-text-to-a-pdf',
+      'fillable-pdf-vs-flattened-pdf',
+      'how-to-sign-a-pdf',
+    ],
+    'how-to-make-a-signature-online': ['create-transparent-signature-png', 'how-to-sign-a-pdf'],
+    'how-to-create-fill-and-sign-pdf-forms': [
+      'fillable-pdf-vs-flattened-pdf',
+      'how-to-add-text-to-a-pdf',
+      'how-to-sign-a-pdf',
     ],
     'how-to-reduce-pdf-file-size': [
       'why-your-pdf-wont-get-smaller',

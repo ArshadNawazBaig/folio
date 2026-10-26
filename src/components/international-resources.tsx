@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
+import { connection } from 'next/server';
 import * as about from './pages/about';
 import * as account from './pages/account';
 import * as pricing from './pages/pricing';
@@ -13,13 +14,21 @@ import * as maintenance from './pages/maintenance';
 import * as guides from './pages/guides';
 import * as guide from './pages/guides-article';
 import * as blog from './pages/blog';
-import * as article from './pages/blog-article';
+import { publicPostBySlug } from '@/lib/server/blog';
 import type { DirectoryParams } from '@/lib/tool-directory';
 import { translator, localizedHref, type Messages } from '@/lib/i18n/translate';
 import { languageAlternates, localeInfo, type Locale } from '@/lib/i18n/config';
 import { siteUrl } from '@/lib/seo';
 
 type Props = { locale: Locale; messages: Messages; searchParams: Promise<DirectoryParams> };
+
+async function canonicalArticle(path: string): Promise<never> {
+  await connection();
+  // Keep unknown, draft and removed articles as real 404s. Existing English
+  // articles have one URL regardless of the reader's saved interface language.
+  if (!(await publicPostBySlug(path.slice('/blog/'.length)))) notFound();
+  permanentRedirect(path);
+}
 
 export async function InternationalResource({ path, ...props }: Props & { path: string }) {
   switch (path) {
@@ -60,8 +69,7 @@ export async function InternationalResource({ path, ...props }: Props & { path: 
   }
   if (path.startsWith('/guides/'))
     return <guide.default {...props} params={Promise.resolve({ slug: path.slice(8) })} />;
-  if (path.startsWith('/blog/'))
-    return <article.default {...props} params={Promise.resolve({ slug: path.slice(6) })} />;
+  if (path.startsWith('/blog/')) return canonicalArticle(path);
   notFound();
 }
 
@@ -111,18 +119,11 @@ export async function internationalResourceMetadata(path: string, props: Props) 
           ...props,
           params: Promise.resolve({ slug: path.slice(8) }),
         });
-      else if (path.startsWith('/blog/'))
-        metadata = await article.generateMetadata({
-          ...props,
-          params: Promise.resolve({ slug: path.slice(6) }),
-        });
+      else if (path.startsWith('/blog/')) return canonicalArticle(path);
       else notFound();
   }
   const tr = translator(props.messages);
-  // CMS article bodies retain their authored language; only their interface is localized.
-  const canonical = path.startsWith('/blog/')
-    ? path
-    : localizedHref(props.locale, String(metadata.alternates?.canonical ?? path));
+  const canonical = localizedHref(props.locale, String(metadata.alternates?.canonical ?? path));
   const sourceTitle =
     typeof metadata.title === 'string'
       ? metadata.title

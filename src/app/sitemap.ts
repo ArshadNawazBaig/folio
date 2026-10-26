@@ -27,6 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const tools = serverTools();
   if (!isIndexable) return [];
   const posts = await blogSitemap().catch(() => []);
+  const guidesByPath = new Map(guides.map((guide) => [`/guides/${guide.slug}`, guide]));
   return [
     ...[
       '',
@@ -58,11 +59,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         translatedPaths
           .filter((path) => !FREE_LAUNCH || path !== '/pricing')
           .filter((path) => !tools.some((tool) => path === `/${tool.slug}` && !tool.available))
-          .map((path) => ({
-            url: `${siteUrl}${languagePath(locale, path)}`,
-            lastModified: pageUpdates[path] ?? toolContentUpdated(path.slice(1), locale),
-            alternates: { languages: languageAlternates(path, siteUrl) },
-          })),
+          .map((path) => {
+            const guide = guidesByPath.get(path);
+            return {
+              url: `${siteUrl}${languagePath(locale, path)}`,
+              lastModified:
+                pageUpdates[path] ??
+                toolContentUpdated(path.slice(1), locale) ??
+                (guide ? guideEdition(guide, locale).updated : undefined),
+              alternates: { languages: languageAlternates(path, siteUrl) },
+            };
+          }),
       ),
     ...guides.map((g) => ({
       url: `${siteUrl}/guides/${g.slug}`,

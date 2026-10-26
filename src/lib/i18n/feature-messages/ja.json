@@ -2915,7 +2915,7 @@
   "Open the online PDF editor": "オンライン PDF エディターを開く",
   "How do I add text or sign a PDF on mobile?": "モバイルで PDF にテキストを追加したり署名したりするにはどうすればよいですか?",
   "Work on one page at a time and zoom before positioning a small addition. The toolbar can scroll horizontally, so a tool may be off the visible edge rather than missing.": "一度に 1 ページずつ作業し、小さな追加を配置する前にズームします。ツールバーは水平にスクロールできるため、ツールが見つからないのではなく、表示されている端から外れている可能性があります。",
-  "Open Edit PDF, choose your document, and wait for the page preview.": "「PDF の編集」を開き、ドキュメントを選択して、ページのプレビューが表示されるまで待ちます。",
+  "Open Edit PDF, choose your document, and wait for the page preview. Then choose Open in editor.": "「PDF の編集」を開き、ドキュメントを選択して、ページのプレビューが表示されるまで待ちます。次に「エディターで開く」を選択します。",
   "Swipe the toolbar to find Add Text or Sign. Tap Add Text and then the page to create a text box.": "ツールバーをスワイプして、「テキストの追加」または「署名」を見つけます。 [テキストの追加] をタップし、テキスト ボックスを作成するページをタップします。",
   "Type your text. For a signature, choose Sign, then draw, upload an image or type your name in the signature dialog.": "テキストを入力します。署名の場合は、[署名] を選択してから、署名ダイアログに描画するか、画像をアップロードするか、名前を入力します。",
   "Use the Properties and forms toggle when you need appearance controls. Close the panel to uncover the page again.": "外観の制御が必要な場合は、「プロパティとフォーム」の切り替えを使用します。パネルを閉じると、ページが再び表示されます。",
