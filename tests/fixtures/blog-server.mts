@@ -89,6 +89,14 @@ globalThis.fetch = async (input, init) => {
       where: string[] = [];
     for (const [k, v] of url.searchParams) {
       if (['select', 'order', 'limit', 'offset'].includes(k)) continue;
+      if (v.startsWith('not.in.(') && v.endsWith(')')) {
+        const placeholders = v
+          .slice(8, -1)
+          .split(',')
+          .map((value) => `$${args.push(value)}`);
+        where.push(`${field(k)} not in (${placeholders.join(',')})`);
+        continue;
+      }
       const index = v.indexOf('.'),
         op = v.slice(0, index),
         value = v.slice(index + 1);
@@ -341,6 +349,26 @@ try {
   await db.exec('reset role;set role authenticated');
   await assert.rejects(db.query('select * from blog_revisions'), /permission denied/);
   await db.exec('reset role;set role service_role');
+  const retiredSlug = 'how-to-edit-pdf-on-phone';
+  const retiredDraft = { ...draft, slug: retiredSlug };
+  await db.query(
+    "insert into blog_posts(id,draft,published,public_slug,status,published_at,published_updated_at) values($1,$2,$2,$3,'published',now(),now())",
+    [randomUUID(), JSON.stringify(retiredDraft), retiredSlug],
+  );
+  const retainedBefore = await publicPosts();
+  assert.ok(!retainedBefore.posts.some((p) => p.slug === retiredSlug));
+  assert.ok(!(await blogSitemap()).some((p) => p.public_slug === retiredSlug));
+  assert.equal(await publicPostBySlug(retiredSlug), null);
+  assert.equal(
+    (
+      await db.query<{ count: number }>(
+        "select count(*)::int as count from blog_posts where public_slug=$1 and status='published'",
+        [retiredSlug],
+      )
+    ).rows[0].count,
+    1,
+    'Consolidation retains the CMS record',
+  );
   failDatabase = true;
   assert.equal((await posts.GET(request(admin))).status, 503);
   assert.equal((await publicPosts()).unavailable, true);

@@ -1,4 +1,5 @@
 import type { Tool } from './tools';
+import { toolExamples } from './tool-examples';
 
 type ToolCopy = Partial<Pick<Tool, 'description' | 'steps' | 'detail' | 'faq'>>;
 
@@ -469,6 +470,7 @@ const correctedToolSlugs = new Set([
 ]);
 
 export function toolContentUpdated(slug: string, locale = 'en'): string | undefined {
+  if (Object.hasOwn(toolExamples, slug)) return '2026-10-31';
   return correctedToolSlugs.has(slug) || (locale === 'en' && slug in englishToolCopy)
     ? '2026-10-15'
     : undefined;

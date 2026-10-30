@@ -2,6 +2,7 @@ import { translator, localizedHref, type PageLanguage } from '@/lib/i18n/transla
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { guides } from '@/lib/guides';
+import { guideEdition } from '@/lib/guide-edition';
 import { guideTopics } from '@/lib/guide-topics';
 import { pageMetadata, collectionSchema, breadcrumbSchema } from '@/lib/seo';
 import { StructuredData } from '@/components/structured-data';
@@ -16,7 +17,9 @@ export default function Guides({ locale = 'en', messages = {} }: PageLanguage = 
   const href = (path: string) => localizedHref(locale, path);
   const topics = guideTopics.map((topic) => ({
     ...topic,
-    guides: guides.filter((guide) => topic.categories.includes(guide.category)),
+    guides: guides
+      .filter((guide) => topic.categories.includes(guide.category))
+      .map((guide) => guideEdition(guide, locale)),
   }));
 
   return (
@@ -67,9 +70,17 @@ export default function Guides({ locale = 'en', messages = {} }: PageLanguage = 
           <div className="guides-grid">
             {topic.guides.map((g) => (
               <Link href={href(`/guides/${g.slug}`)} key={g.slug}>
-                <div className={`guide-art guide-art-${guides.indexOf(g) % 4}`} aria-hidden="true">
+                <div
+                  className={`guide-art guide-art-${guides.findIndex((source) => source.slug === g.slug) % 4}`}
+                  aria-hidden="true"
+                >
                   <span>{tr('FOLIO / FIELD NOTES')}</span>
-                  <strong>{String(guides.indexOf(g) + 1).padStart(2, '0')}</strong>
+                  <strong>
+                    {String(guides.findIndex((source) => source.slug === g.slug) + 1).padStart(
+                      2,
+                      '0',
+                    )}
+                  </strong>
                   <small>{tr(g.category)}</small>
                 </div>
                 <div className="guide-card-content">

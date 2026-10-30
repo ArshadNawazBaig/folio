@@ -15,6 +15,8 @@ import { articleAuthor } from '@/lib/article-author';
 import { ArticleAuthor } from '@/components/article-author';
 import { StructuredData } from '@/components/structured-data';
 import { RichContent } from '@/components/blog/rich-content';
+import { ArticleExercise } from '@/components/blog/article-exercise';
+import { articleExercises } from '@/lib/tutorial-exercises';
 import { BlogLike } from '@/components/blog/blog-like';
 import { BlogCover } from '@/components/blog/blog-cover';
 import { articleHeadings, articleToolSlugs } from '@/lib/article-navigation';
@@ -75,7 +77,12 @@ export default async function BlogPost({
   const { slug } = await params;
   const post = await publicPostBySlug(slug);
   if (!post) notFound();
-  const contents = articleHeadings(post.content);
+  const contents = [
+    ...articleHeadings(post.content),
+    ...(Object.hasOwn(articleExercises, post.slug)
+      ? [{ id: 'practice-exercise', text: articleExercises[post.slug].title }]
+      : []),
+  ];
   const linkedTools = articleToolSlugs(post.content, siteUrl);
   const reading = guidesForArticle(post.slug, linkedTools);
   const related = serverTools()
@@ -167,6 +174,7 @@ export default async function BlogPost({
             </nav>
           )}
           <RichContent content={post.content} />
+          <ArticleExercise slug={post.slug} />
           {post.tags.length > 0 && (
             <div className={s.tags}>
               {post.tags.map((tag) => (

@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 import { contentSecurityPolicy } from './src/lib/security-headers';
 import { locales, translatedPrivatePaths } from './src/lib/i18n/config';
+import { consolidatedArticles } from './src/lib/editorial-consolidation';
 
 const config: NextConfig = {
   distDir:
@@ -77,6 +78,14 @@ const config: NextConfig = {
   },
   async redirects() {
     return [
+      ...Object.entries(consolidatedArticles).flatMap(([slug, destination]) => [
+        { source: `/blog/${slug}`, destination, permanent: true },
+        {
+          source: `/:locale(de|fr|nl|es|it|pt|sv|nb|da|ja|ko)/blog/${slug}`,
+          destination: destination.startsWith('/guides/') ? `/:locale${destination}` : destination,
+          permanent: true,
+        },
+      ]),
       {
         source: '/:path*',
         has: [{ type: 'host', value: 'www\\.thebestfreepdf\\.com' }],

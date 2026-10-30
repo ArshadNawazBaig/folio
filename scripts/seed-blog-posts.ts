@@ -7,6 +7,7 @@ import { starterPosts } from '../content/blog/starter-posts';
 import { blogDraftSchema, blogText, publicationError } from '../src/lib/blog';
 import { tools } from '../src/lib/tools';
 import { guides } from '../src/lib/guides';
+import { consolidatedArticles } from '../src/lib/editorial-consolidation';
 
 // This is an explicit editorial import, never an application-startup seed.
 // Default: validate locally. --drafts saves private drafts; --publish makes them public.
@@ -33,6 +34,7 @@ const allowedPaths = new Set([
   '/convert',
   '/pricing',
   '/privacy',
+  ...Object.values(consolidatedArticles),
   ...tools.map((tool) => `/${tool.slug}`),
   ...guides.map((guide) => `/guides/${guide.slug}`),
   ...starterPosts.map((post) => `/blog/${post.draft.slug}`),

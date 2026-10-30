@@ -1,3 +1,10 @@
+import {
+  toolWorkedResults,
+  measuredImageResult,
+  tutorialInputs,
+  type WorkedResult,
+} from './tutorial-results';
+
 export type ToolExample = {
   // Actual date this example was significantly revised, not the build/request date.
   updated: string;
@@ -7,6 +14,7 @@ export type ToolExample = {
   check: string;
   note: string;
   samples?: { label: string; href: string }[];
+  results?: WorkedResult[];
 };
 
 const packet = { label: 'Six-page practice PDF', href: '/samples/page-selection-practice.pdf' };
@@ -21,7 +29,7 @@ const webp = { label: 'Transparent practice WebP', href: '/samples/practice-tran
 
 // Original examples checked against the controls and export behavior in this repository.
 // English editorial content stays on English pages until reviewed translations are supplied.
-export const toolExamples: Record<string, ToolExample> = {
+const originalToolExamples: Record<string, ToolExample> = {
   'edit-pdf': {
     updated: '2026-10-05',
     title: 'Add a note to a PDF without changing the original wording',
@@ -441,3 +449,159 @@ export const toolExamples: Record<string, ToolExample> = {
     note: 'Folio does not impose an expiry on a static code, but the linked page must stay available. Changing the destination requires a new code unless it points to an editable short link.',
   },
 };
+
+// Keep each published exercise aligned with the input and settings used to
+// generate its downloadable comparison. Other languages keep their own edition.
+const verifiedCopy: Record<string, Partial<ToolExample>> = {
+  'edit-pdf-text': {
+    scenario:
+      'Correct only the venue on page 1 of the fictional wording exercise. The unchanged pages let you distinguish one correction from a document-wide replacement.',
+    samples: [tutorialInputs.wording],
+    settings: [
+      ['Page', '1'],
+      ['Replacement', 'Venue: Room 4 → Venue: Room 7'],
+      ['Other pages', 'Leave pages 2 and 3 unchanged'],
+    ],
+    check:
+      'Search the download for Venue: Room 7: it should occur once. Venue: Room 4 should remain on pages 2 and 3, and Archive: Room 40 must remain on page 3.',
+  },
+  'organize-pdf': {
+    settings: [
+      ['Source', 'Six-page practice packet'],
+      ['Order', 'Cover, Summary, Budget, Appendix, Receipt A'],
+      ['Remove', 'Receipt B only'],
+    ],
+    check:
+      'The download should have five pages. Appendix is position 4, Receipt A is position 5, and Receipt B is absent. Printed page labels are not automatically renumbered.',
+  },
+  'compress-pdf': {
+    samples: [
+      { label: 'Uncompressed-object PDF', href: '/samples/compression-uncompressed-objects.pdf' },
+    ],
+  },
+  'protect-pdf': {
+    scenario:
+      'Practice opening an encrypted copy of the fictional portrait report. Its demonstration password is public and must never be reused for a real document.',
+    samples: [tutorialInputs.portrait],
+    settings: [
+      ['Opening password', 'Practice-only-42 (public demonstration only)'],
+      ['Confirm password', 'Enter the same value'],
+      ['Expected', 'One protected page; original report retained'],
+    ],
+    check:
+      'Open the download in another PDF reader. It should request a password and show Portrait report after the practice password is entered. Use a new private password for your own files.',
+  },
+  'pdf-to-jpg': {
+    scenario:
+      'Make one landscape page image for a presentation. Use its known paper size to check the export dimensions.',
+    samples: [tutorialInputs.landscape],
+    settings: [
+      ['Pages', '1'],
+      ['Resolution', 'High — 144 DPI'],
+      ['JPG quality', 'Balanced — 90%'],
+    ],
+    check:
+      'The single-page download is a JPG, not a ZIP. It should be 1584 × 1224 pixels. Check small letters at 100% zoom before placing it in a slide.',
+  },
+  'image-to-pdf': {
+    scenario:
+      'Put a receipt JPG, a screenshot PNG, and a transparent WebP graphic into a three-page PDF. Each input format follows the same page-size choice.',
+    samples: [tutorialInputs.receipt, tutorialInputs.screenshot, tutorialInputs.webp],
+    settings: [
+      ['Input order', 'Receipt, screenshot, WebP graphic'],
+      ['Page size', 'A4 — centered with margins'],
+      ['Output', 'Three pages, 595.28 × 841.89 points each'],
+    ],
+    check:
+      'The third page should contain the WebP graphic. Check all three pages in order; the PDF contains images and no OCR text layer.',
+  },
+  'merge-images': {
+    settings: [
+      ['Input order', 'Receipt JPG, screenshot PNG, WebP graphic'],
+      ['Page size', 'A4 — centered with margins'],
+      ['Expected count', 'Three pages'],
+    ],
+    check:
+      'Receipt is first, screenshot second, graphic third. This is a document packet, with one image per page, rather than a stitched collage.',
+  },
+  'enhance-image': {
+    settings: [
+      ['Brightness', '+10'],
+      ['Contrast / Saturation / Sharpness', '0 / 1 / 0 (unchanged)'],
+      ['Dimensions and format', 'Original dimensions; JPG'],
+    ],
+    check:
+      'Compare the exported receipt with the original at 100% zoom. It should remain 1200 × 900 pixels; the brighter output does not add detail to small letters.',
+  },
+  'compress-images': {
+    samples: [tutorialInputs.receipt],
+    settings: [
+      ['Target', '20 KB'],
+      ['Output format', 'JPG'],
+      ['Measured practice result', measuredImageResult('receipt-under-20kb.jpg')],
+    ],
+    check:
+      'This exercise returned a file below 20,000 bytes by resizing it. Check both its pixel dimensions and the smallest receipt text. Other inputs may produce different dimensions and byte counts.',
+  },
+  'signature-generator': {
+    settings: [
+      ['Method', 'Type'],
+      ['Name and style', 'Sam Example / Classic / black ink'],
+      ['Output', 'Transparent PNG; fictional practice signature'],
+    ],
+    check:
+      'Place the sample PNG over a colored area: the background should show through around the letters. The transparent top-left pixel and visible ink were checked. Pixel dimensions can vary with fonts and browser rendering.',
+  },
+  'create-pdf-form': {
+    samples: [tutorialInputs.blankForm],
+    settings: [
+      ['Text field name', 'participant_name'],
+      ['Checkbox name', 'receive_notes'],
+      ['Practice answer', 'Sam Example; checkbox checked'],
+    ],
+    check:
+      'Compare the blank master, completed interactive copy, and flattened copy. The interactive copy has two fields; the flattened copy keeps the visible answer and has no interactive fields.',
+  },
+  'sign-pdf': {
+    samples: [tutorialInputs.master],
+    settings: [
+      ['Form answers', 'Sam Example; Receive workshop notes checked'],
+      ['Signature', 'Type → Classic → Sam Example'],
+      ['Finished copy', 'Flatten completed fields; keep the blank master'],
+    ],
+    check:
+      'The finished PDF should show the name, checked box, and a visual Sam Example signature below its label. It is fictional practice material and contains no digital signing certificate.',
+  },
+  'url-shortener': {
+    settings: [
+      ['First destination', 'https://thebestfreepdf.com/samples/a4-portrait-practice.pdf'],
+      ['Alias', 'Choose an available practice alias in your account'],
+      ['Second destination', 'https://thebestfreepdf.com/samples/letter-landscape-practice.pdf'],
+      ['Verification', 'Use the same short URL and its saved QR after changing the destination'],
+    ],
+    check:
+      'Open your short URL in a private window: first it should reach the portrait report. Edit only the destination to the landscape PDF; the same short URL and saved QR should now reach that appendix. Delete the practice link when finished and confirm that it no longer redirects. Alias availability is account/service state, so no pre-created live short link is claimed here.',
+  },
+  'create-qr-code': {
+    settings: [
+      ['Content type', 'Website URL'],
+      ['Destination', 'https://thebestfreepdf.com/samples/a4-portrait-practice.pdf'],
+      ['Colors', 'Dark #202522; light #ffffff'],
+      ['Output', 'SVG or 1024 × 1024 PNG'],
+    ],
+    check:
+      'The downloadable PNG was decoded back to the exact practice-PDF URL. Test a printed copy at its final size on a second device; a successful image decode alone does not prove print readability.',
+  },
+};
+
+export const toolExamples: Record<string, ToolExample> = Object.fromEntries(
+  Object.entries(originalToolExamples).map(([slug, original]) => [
+    slug,
+    {
+      ...original,
+      ...verifiedCopy[slug],
+      updated: '2026-10-31',
+      results: toolWorkedResults(slug),
+    },
+  ]),
+);

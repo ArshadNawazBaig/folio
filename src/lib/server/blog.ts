@@ -4,6 +4,8 @@ import { adminDb, authReady } from './auth';
 import { ApiError } from './http';
 import { blogDraftSchema, readingMinutes, type PublicPost } from '../blog';
 import { articleAuthorName } from '../article-author';
+import { consolidatedArticles, consolidatedSlugFilter } from '../editorial-consolidation';
+import { articleExercises, articleExerciseUpdated } from '../tutorial-exercises';
 import { PAGE_SIZE } from '../pagination.mjs';
 import { readPage } from './pagination';
 
@@ -48,9 +50,13 @@ function publicPost(row: PublicRow): PublicPost {
     author: articleAuthorName(draft.author),
     id: row.id,
     publishedAt: row.published_at,
-    updatedAt: row.published_updated_at,
+    updatedAt: articleExerciseUpdated(draft.slug, row.published_updated_at),
     likes: row.like_count,
-    minutes: readingMinutes(draft.content),
+    minutes:
+      readingMinutes(draft.content) +
+      (Object.hasOwn(articleExercises, draft.slug)
+        ? Math.ceil(JSON.stringify(articleExercises[draft.slug]).split(/\s+/).length / 220)
+        : 0),
   };
 }
 const publicFields = 'id,published,published_at,published_updated_at,like_count';
@@ -60,6 +66,7 @@ export async function publicPosts(page = 1, query = '', category = '', pageSize 
     .from('blog_posts')
     .select(publicFields, { count: 'exact' })
     .eq('status', 'published')
+    .not('public_slug', 'in', consolidatedSlugFilter)
     .lte('published_at', new Date().toISOString())
     .order('published_at', { ascending: false })
     .order('id');
@@ -71,6 +78,7 @@ export async function publicPosts(page = 1, query = '', category = '', pageSize 
   return { posts: (data || []).map(publicPost), total: count || 0, unavailable: false };
 }
 export const publicPostBySlug = cache(async (slug: string): Promise<PublicPost | null> => {
+  if (Object.hasOwn(consolidatedArticles, slug)) return null;
   if (!authReady()) return null;
   const { data, error } = await adminDb()
     .from('blog_posts')
@@ -90,6 +98,7 @@ export async function blogSitemap() {
       .from('blog_posts')
       .select('public_slug,published_updated_at,cover:published->>cover')
       .eq('status', 'published')
+      .not('public_slug', 'in', consolidatedSlugFilter)
       .lte('published_at', new Date().toISOString())
       .order('id')
       .range(offset, offset + 999);
@@ -97,5 +106,8 @@ export async function blogSitemap() {
     rows.push(...(data || []));
     if (!data || data.length < 1000) break;
   }
-  return rows;
+  return rows.map((row) => ({
+    ...row,
+    published_updated_at: articleExerciseUpdated(row.public_slug, row.published_updated_at),
+  }));
 }

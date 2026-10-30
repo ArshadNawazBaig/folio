@@ -1,4 +1,5 @@
-import { translator, localizedHref, localizeGuide, type PageLanguage } from '@/lib/i18n/translate';
+import { translator, localizedHref, type PageLanguage } from '@/lib/i18n/translate';
+import { localizeGuide } from '@/lib/i18n/guide-translate';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';

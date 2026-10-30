@@ -16,6 +16,7 @@ import { ToolInteractive } from '@/components/tool-interactive';
 import { Faq } from '@/components/faq';
 import { ToolFacts } from '@/components/tool-facts';
 import { ToolExample } from '@/components/tool-example';
+import { LocalizedToolExample } from '@/components/localized-tool-example';
 import { StructuredData } from '@/components/structured-data';
 import { breadcrumbSchema, siteUrl } from '@/lib/seo';
 import { guidesForTool, relatedTools } from '@/lib/related-content';
@@ -34,7 +35,7 @@ export function ToolPageContent({
   const catalog = serverTools();
   const related = relatedTools(original, catalog).map((tool) => localizeSummary(tool, messages));
   const reading = guidesForTool(t.slug);
-  const hasExample = locale === 'en' && t.available && !!toolExamples[t.slug];
+  const hasExample = t.available && !!toolExamples[t.slug];
   return (
     <main id="main" className="tool-page container with-page-heading">
       <StructuredData
@@ -183,7 +184,12 @@ export function ToolPageContent({
           ))}
         </ol>
       </section>
-      {hasExample && <ToolExample slug={t.slug} />}
+      {hasExample &&
+        (locale === 'en' ? (
+          <ToolExample slug={t.slug} />
+        ) : (
+          <LocalizedToolExample slug={t.slug} messages={messages} />
+        ))}
       <section className={`tool-details ${styles.section}`} id="tool-questions">
         <div>
           <span className="eyebrow">{tr('A FEW HELPFUL DETAILS')}</span>

@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { safeBlogUrl, type RichNode } from '@/lib/blog';
+import { editorialHref } from '@/lib/editorial-consolidation';
 import s from './blog.module.css';
 
 function renderNode(node: RichNode, key: string): ReactNode {
@@ -19,7 +20,8 @@ function renderNode(node: RichNode, key: string): ReactNode {
       if (mark.type === 'code') text = <code key={k}>{text}</code>;
       if (mark.type === 'highlight') text = <mark key={k}>{text}</mark>;
       if (mark.type === 'link') {
-        const href = safeBlogUrl(mark.attrs?.href);
+        const safeHref = safeBlogUrl(mark.attrs?.href);
+        const href = safeHref ? editorialHref(safeHref) : null;
         if (href)
           text = (
             <a key={k} href={href} rel="noopener noreferrer">

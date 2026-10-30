@@ -19,7 +19,7 @@ const pageUpdates: Record<string, string> = {
   '/convert': '2026-10-15',
   '/forms': '2026-10-15',
   '/about': '2026-10-15',
-  '/privacy': '2026-10-15',
+  '/privacy': '2026-10-30',
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -50,7 +50,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((t) => t.available)
       .map((t) => ({
         url: `${siteUrl}/${t.slug}`,
-        lastModified: toolContentUpdated(t.slug) ?? toolExamples[t.slug]?.updated,
+        lastModified: [toolContentUpdated(t.slug), toolExamples[t.slug]?.updated]
+          .filter(Boolean)
+          .sort()
+          .at(-1),
         alternates: { languages: languageAlternates(`/${t.slug}`, siteUrl) },
       })),
     ...locales

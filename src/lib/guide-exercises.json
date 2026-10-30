@@ -1,0 +1,63 @@
+{
+  "checkedAt": "2026-10-30T18:59:34.466Z",
+  "method": "Folio exportEditor and processPdf(images), followed by PDF.js text extraction and pdf-lib page inspection.",
+  "limitations": "Fictional inputs and first-party engine checks. Not a benchmark, independent review, or promise for other documents. Visual placement should also be checked in a PDF reader.",
+  "engineSha256": "b4786ec49197541d3adf2672240be9d760042aa5331522bd6453038d98fbf17a",
+  "annotation": {
+    "source": "/samples/add-text-worked-result.pdf",
+    "sha256": "e7e4f51ed03db5fcd7d10d5d4f2ed05a31127a3e0840dd5193101d2106902bce",
+    "pageSize": {
+      "width": 595.28,
+      "height": 841.89
+    },
+    "originalHeadingRetained": true,
+    "addedText": "Reviewed by Sam / 30 October 2026",
+    "addedTextSelectable": true
+  },
+  "imageInputs": [
+    {
+      "source": "/samples/practice-receipt.jpg",
+      "sha256": "dfa9caf761213e0f96be46878694942deb77cdc597464ef452e5906510790e80",
+      "width": 1200,
+      "height": 900
+    },
+    {
+      "source": "/samples/practice-screenshot.png",
+      "sha256": "eca6155eb73c897c5b2bcbcf38f79a8daadc5919bf84adc600450164a317168b",
+      "width": 1000,
+      "height": 700
+    }
+  ],
+  "examples": [
+    {
+      "source": "/samples/images-a4-worked-result.pdf",
+      "sha256": "258750e89842cf932c0a5bd467b45f28ee20b42e0e6ab18be5ebcd1ebde101fb",
+      "pageSizes": [
+        {
+          "width": 595.28,
+          "height": 841.89
+        },
+        {
+          "width": 595.28,
+          "height": 841.89
+        }
+      ],
+      "selectableText": false
+    },
+    {
+      "source": "/samples/images-fitted-worked-result.pdf",
+      "sha256": "9e74439cb30600b62f5db084b03cac7395114e6337dbfd950816aba69cf31f17",
+      "pageSizes": [
+        {
+          "width": 900,
+          "height": 675
+        },
+        {
+          "width": 750,
+          "height": 525
+        }
+      ],
+      "selectableText": false
+    }
+  ]
+}

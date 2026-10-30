@@ -138,7 +138,7 @@ test('tool section shortcuts and guide entry links work without JavaScript', asy
       );
       expect(targets.length).toBeGreaterThanOrEqual(4);
       expect(targets.every((target) => target.exists)).toBe(true);
-      expect(targets.some((target) => target.href === '#worked-example')).toBe(prefix === '');
+      expect(targets.some((target) => target.href === '#worked-example')).toBe(true);
       await page.locator('main nav a[href="#how-to"]').click();
       await expect(page).toHaveURL(new RegExp(`${prefix}/edit-pdf#how-to$`));
       await expect(page.locator('#how-to h2')).toBeInViewport();
@@ -224,7 +224,9 @@ test('the full tool catalog has crawlable discovery links and task-specific sear
         expect(sample).toMatch(/^\/samples\//);
         const file = await request.get(sample!);
         expect(file.status(), sample!).toBe(200);
-        expect(file.headers()['content-type'], sample!).toMatch(/^(application\/pdf|image\/)/);
+        expect(file.headers()['content-type'], sample!).toMatch(
+          /^(application\/(?:pdf|json)|image\/|text\/plain)/,
+        );
       }
       if (tool.slug === 'create-qr-code') {
         expect(metadata.related).toContain('/url-shortener');
@@ -826,7 +828,7 @@ test('mobile editing guide exposes the revised steps and preserves reviewed tran
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(path);
   await expect(page.locator('h1')).toHaveText('How to Edit a PDF on iPhone or Android');
-  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-07');
+  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-31');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     'href',
     `https://folio.example${path}`,
@@ -839,7 +841,7 @@ test('mobile editing guide exposes the revised steps and preserves reviewed tran
         .find((schema) => schema['@type'] === 'Article'),
     );
   expect(article.datePublished).toBe('2026-09-18');
-  expect(article.dateModified).toBe('2026-10-07');
+  expect(article.dateModified).toBe('2026-10-31');
   expect(article.author).toMatchObject({
     '@type': 'Person',
     name: 'Iram Shams',
@@ -877,31 +879,31 @@ test('mobile editing guide exposes the revised steps and preserves reviewed tran
     sitemap
       .split('<url>')
       .find((entry) => entry.includes(`<loc>https://folio.example${path}</loc>`)),
-  ).toContain('<lastmod>2026-10-07</lastmod>');
+  ).toContain('<lastmod>2026-10-31</lastmod>');
   await page.goto(`/de${path}`);
-  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-26');
+  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-31');
   expect(
     sitemap
       .split('<url>')
       .find((entry) => entry.includes(`<loc>https://folio.example/de${path}</loc>`)),
-  ).toContain('<lastmod>2026-10-26</lastmod>');
+  ).toContain('<lastmod>2026-10-31</lastmod>');
   await expect(
     page.getByRole('heading', { name: 'How to edit a PDF on Android in your browser' }),
   ).toHaveCount(0);
 });
 
-test('revised guides render practical tables and preserve translated publication dates', async ({
+test('revised guides render worked comparisons and retain original publication dates', async ({
   page,
   request,
 }) => {
   await page.setViewportSize({ width: 320, height: 740 });
   const editions = [
-    ['how-to-edit-a-pdf', '2026-10-04', 1],
-    ['how-to-convert-pdf-to-images', '2026-09-26', 3],
+    ['how-to-edit-a-pdf', 2],
+    ['how-to-convert-pdf-to-images', 4],
   ] as const;
-  for (const [slug, , tableCount] of editions) {
+  for (const [slug, tableCount] of editions) {
     await page.goto(`/guides/${slug}`);
-    await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-12');
+    await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-31');
     await expect(page.locator('article table')).toHaveCount(tableCount);
     await expect(page.getByRole('complementary', { name: 'Key takeaways' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
@@ -914,7 +916,7 @@ test('revised guides render practical tables and preserve translated publication
           .map((script) => JSON.parse(script.textContent!))
           .find((schema) => schema['@type'] === 'Article'),
       );
-    expect(article.dateModified).toBe('2026-10-12');
+    expect(article.dateModified).toBe('2026-10-31');
     const samples = await page
       .locator('article a[href^="/samples/"]')
       .evaluateAll((links) => links.map((link) => link.getAttribute('href')!));
@@ -935,9 +937,9 @@ test('revised guides render practical tables and preserve translated publication
   }
   // Visiting a translated page persists that language and redirects later English
   // visits. Finish the English scans before inspecting the German editions.
-  for (const [slug, previousDate] of editions) {
+  for (const [slug] of editions) {
     await page.goto(`/de/guides/${slug}`);
-    await expect(page.locator('time')).toHaveAttribute('datetime', previousDate);
+    await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-31');
     await expect(page.getByRole('heading', { name: /Practice:/ })).toHaveCount(0);
   }
 });
@@ -946,17 +948,17 @@ test('guide navigation matches the article metadata', async ({ page }) => {
   await page.goto('/guides/how-to-sign-a-pdf');
   await expect(
     page.getByRole('navigation', { name: 'On this page' }).getByRole('link'),
-  ).toHaveCount(6);
+  ).toHaveCount(7);
   await page
     .getByRole('link', { name: 'Choose Draw, Type or Image for the clearest result', exact: true })
     .click();
   await expect(page).toHaveURL(/#section-2$/);
-  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-15');
+  await expect(page.locator('time')).toHaveAttribute('datetime', '2026-10-31');
   const schemas = await page
     .locator('script[type="application/ld+json"]')
     .evaluateAll((scripts) => scripts.map((script) => JSON.parse(script.textContent!)));
   const article = schemas.find((schema) => schema['@type'] === 'Article');
-  expect(article.dateModified).toBe('2026-10-15');
+  expect(article.dateModified).toBe('2026-10-31');
   expect(article.datePublished).toBe('2026-09-15');
   expect(article.publisher.name).toBe('Folio');
   await page.setViewportSize({ width: 390, height: 844 });

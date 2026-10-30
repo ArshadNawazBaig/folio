@@ -37,6 +37,25 @@ export function ToolExample({ slug }: { slug: string }) {
         </dl>
         <h3>Check the result</h3>
         <p>{example.check}</p>
+        {!!example.results?.length && (
+          <div className={styles.samples}>
+            <h3>Compare a worked result</h3>
+            <p>
+              Folio-generated fictional examples. These checks apply to the supplied files and
+              settings.
+            </p>
+            <ul>
+              {example.results.map((result) => (
+                <li key={result.href}>
+                  <a href={result.href} download>
+                    {result.label}
+                  </a>
+                  <p>{result.checks.join('; ')}.</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         <p className={styles.note}>{example.note}</p>
       </div>
     </section>

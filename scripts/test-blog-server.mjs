@@ -227,7 +227,10 @@ const server = createServer(async (req, res) => {
       [...url.searchParams].every(([key, v]) => {
         const value = v.slice(v.indexOf('.') + 1);
         if (key === 'status') return p.status === value;
-        if (key === 'public_slug') return p.public_slug === value;
+        if (key === 'public_slug')
+          return v.startsWith('not.in.(')
+            ? !v.slice(8, -1).split(',').includes(p.public_slug)
+            : p.public_slug === value;
         if (key === 'id') return p.id === value;
         if (key === 'published_at') return Date.parse(p.published_at) <= Date.parse(value);
         if (key === 'published->>title')

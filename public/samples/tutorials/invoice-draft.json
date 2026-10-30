@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "number": "PRACTICE-001",
+  "issued": "2026-10-31",
+  "due": "2026-10-31",
+  "reference": "",
+  "currency": "USD",
+  "from": {
+    "name": "Example Design Studio",
+    "email": "",
+    "address": "",
+    "taxId": ""
+  },
+  "to": {
+    "name": "Fictional Client",
+    "email": "",
+    "address": "",
+    "taxId": ""
+  },
+  "shipTo": "",
+  "items": [
+    {
+      "id": "hours",
+      "description": "Layout work (fictional)",
+      "quantity": "3",
+      "rate": "50",
+      "taxable": false
+    },
+    {
+      "id": "fixed",
+      "description": "File preparation (fictional)",
+      "quantity": "1",
+      "rate": "25",
+      "taxable": false
+    }
+  ],
+  "taxMode": "none",
+  "taxLabel": "Tax",
+  "taxRate": "0",
+  "discountMode": "percent",
+  "discount": "0",
+  "shipping": "0",
+  "shippingTaxable": false,
+  "paid": "50",
+  "notes": "Fictional arithmetic exercise. Not a real invoice. No payment is requested.",
+  "terms": "",
+  "paymentDetails": "",
+  "paymentUrl": "",
+  "paymentQr": false,
+  "footer": "",
+  "logo": "",
+  "template": "classic",
+  "accent": "#b84b20",
+  "paper": "a4"
+}

@@ -43,6 +43,7 @@
 }
 .example dd {
   margin: 0;
+  overflow-wrap: anywhere;
 }
 .example .note {
   padding-top: 16px;

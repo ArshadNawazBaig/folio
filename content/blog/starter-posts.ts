@@ -1,10 +1,11 @@
 import type { BlogDraft, RichNode } from '../../src/lib/blog';
 import { articleAuthor } from '../../src/lib/article-author';
+import { consolidatedArticles, editorialHref } from '../../src/lib/editorial-consolidation';
 
 const text = (value: string): RichNode => ({ type: 'text', text: value });
 const link = (label: string, href: string): RichNode => ({
   ...text(label),
-  marks: [{ type: 'link', attrs: { href } }],
+  marks: [{ type: 'link', attrs: { href: editorialHref(href) } }],
 });
 const p = (...parts: (string | RichNode)[]): RichNode => ({
   type: 'paragraph',
@@ -65,7 +66,7 @@ function article(
 }
 
 // Editorial source copies. Live posts remain editable in the super admin dashboard.
-export const starterPosts: EditorialPost[] = [
+export const starterPostArchive: EditorialPost[] = [
   article(
     'fa48b3ab-2458-4da1-b98b-517e8bbde115',
     {
@@ -2403,3 +2404,8 @@ export const starterPosts: EditorialPost[] = [
     ],
   ),
 ];
+
+// Retained for revision history; consolidated articles must not be seeded again.
+export const starterPosts = starterPostArchive.filter(
+  (post) => !consolidatedArticles[post.draft.slug],
+);

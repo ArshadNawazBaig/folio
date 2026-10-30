@@ -1,0 +1,277 @@
+{
+  "checkedAt": "2026-10-30T19:23:26.143Z",
+  "method": "Actual Folio PDF/text/invoice/QR engines; PDF.js extraction, pdf-lib inspection, and QR decoding. Fictional practice data only.",
+  "engineSha256": "b4786ec49197541d3adf2672240be9d760042aa5331522bd6453038d98fbf17a",
+  "files": {
+    "receipt-a4.pdf": {
+      "href": "/samples/tutorials/receipt-a4.pdf",
+      "sha256": "101111f4cea063c0a3137d4b5ba8198fb80fcee5ef65a8c067f09840a72d91a1",
+      "checks": ["One image per PDF page", "A4 portrait sheet with margins"]
+    },
+    "screenshot-fitted.pdf": {
+      "href": "/samples/tutorials/screenshot-fitted.pdf",
+      "sha256": "05533fb999b2fd0ff45d8b4af9257a07c8c461170af3717ed7d1781077f394af",
+      "checks": ["One image per PDF page", "Fitted page; 750 × 525 points"]
+    },
+    "optimized-structure.pdf": {
+      "href": "/samples/tutorials/optimized-structure.pdf",
+      "sha256": "37dfc674bddeee874712d97b0dff7749063dde72dc3be4c29d9e769fba4d4f6a",
+      "checks": [
+        "Smaller than the uncompressed-object practice PDF",
+        "One A4 page; original text remains selectable"
+      ]
+    },
+    "selected-pages.pdf": {
+      "href": "/samples/tutorials/selected-pages.pdf",
+      "sha256": "b94fc6012615002bb52a132fbd112ab8ca4974d7d86281abdbecee9e27059567",
+      "checks": ["Three pages: Appendix, Summary, Budget", "Source file positions 6, 2, 3"]
+    },
+    "summary-budget.txt": {
+      "href": "/samples/tutorials/summary-budget.txt",
+      "sha256": "e89cb8641b2370e3b28615306970ea111ca12150cf134818ebeda6ca267609f3",
+      "checks": [
+        "Summary and Budget wording only",
+        "Reference extraction; no fonts, page layout, or OCR"
+      ]
+    },
+    "landscape-text.txt": {
+      "href": "/samples/tutorials/landscape-text.txt",
+      "sha256": "1db6d25385bb1dc995bb99f50631fcc969ffecc545996af485faec35e1b28314",
+      "checks": [
+        "Landscape appendix wording",
+        "Plain text; page graphics and positions are not retained"
+      ]
+    },
+    "mixed-page-sizes.pdf": {
+      "href": "/samples/tutorials/mixed-page-sizes.pdf",
+      "sha256": "0e6c3b0a6d22547decca6769aebdc4bf0a8ed30403b6f8f30065dfeb7c678a46",
+      "checks": ["Two pages", "A4 portrait then US Letter landscape; sizes unchanged"]
+    },
+    "four-page-packet.pdf": {
+      "href": "/samples/tutorials/four-page-packet.pdf",
+      "sha256": "0633ba36d9967ec1aa41085973925273921ba42d4f8df5e5cbbad819d371d778",
+      "checks": ["Appendix, Summary, Budget, Landscape appendix", "Four pages"]
+    },
+    "rotation-corrected.pdf": {
+      "href": "/samples/tutorials/rotation-corrected.pdf",
+      "sha256": "fc0cceb96fc635f72ee704aab5aa3c25d5e2a8c13e8394f6c1ad07c06f366468",
+      "checks": ["Three upright pages", "Only source position 2 rotated clockwise 90 degrees"]
+    },
+    "cropped-margins.pdf": {
+      "href": "/samples/tutorials/cropped-margins.pdf",
+      "sha256": "fbf8c93b1f626356a61ddd83c412a95a2c813447bd3445ca9400d4c9b6178321",
+      "checks": ["Visible area 555.28 × 801.89 points", "CropBox only; not redaction"]
+    },
+    "watermarked-packet.pdf": {
+      "href": "/samples/tutorials/watermarked-packet.pdf",
+      "sha256": "73f3940818e1112b4293f919dde9245ac06c61ef175491b721011bca43020d1d",
+      "checks": ["Six pages; cover unchanged", "DRAFT on positions 2–6"]
+    },
+    "numbered-after-cover.pdf": {
+      "href": "/samples/tutorials/numbered-after-cover.pdf",
+      "sha256": "0262e2b45d4a0b7700ef034b661c897d547c3cfd4679a583613ccefe7bf89618",
+      "checks": ["Cover unchanged", "Content footers 1 through 5"]
+    },
+    "organized-packet.pdf": {
+      "href": "/samples/tutorials/organized-packet.pdf",
+      "sha256": "d6345c5aef9a695e4e755165ead2e1a80be70e783c44ac3fa31c7ce1233b3cfd",
+      "checks": ["Five pages: Cover, Summary, Budget, Appendix, Receipt A", "Receipt B excluded"]
+    },
+    "wording-source.pdf": {
+      "href": "/samples/tutorials/wording-source.pdf",
+      "sha256": "55de984ce5704b4bc74338c3bffa339aeb07fc2bbdb0d2e77f2d4e240721bc58",
+      "checks": [
+        "Three Venue: Room 4 occurrences",
+        "One Archive: Room 40 occurrence that should remain unchanged"
+      ]
+    },
+    "wording-replaced.pdf": {
+      "href": "/samples/tutorials/wording-replaced.pdf",
+      "sha256": "01868029cd1e23fb595a59d4a6b0a3e76f19a98a841193bb7961c4f28a0ae03b",
+      "checks": [
+        "Three Venue: Room 7 occurrences",
+        "Archive: Room 40 retained",
+        "No paragraph reflow"
+      ]
+    },
+    "wording-one-correction.pdf": {
+      "href": "/samples/tutorials/wording-one-correction.pdf",
+      "sha256": "49465cd0d31c6ddd14dc5adc3dc55b68562fa89dadcf537ae4eabf215f089687",
+      "checks": ["Only page 1 corrected", "Venue: Room 4 remains on pages 2 and 3"]
+    },
+    "review-with-comment.pdf": {
+      "href": "/samples/tutorials/review-with-comment.pdf",
+      "sha256": "b522ffdca0753dd67682ae14e121974a6e2cbb75419de208b93999b9eea9a16c",
+      "checks": [
+        "Original wording unchanged on all three pages",
+        "One PDF comment attached on page 2; requires a comment-capable reader"
+      ]
+    },
+    "translation-review-worksheet.csv": {
+      "href": "/samples/tutorials/translation-review-worksheet.csv",
+      "sha256": "aecc3ccaf0f02516e2d5a1cafbeff58edd371928545de8e3d2c62f53b4eb255d",
+      "checks": [
+        "Four source phrases to review against the wording practice PDF",
+        "Target and decision columns intentionally blank; no translation is performed"
+      ]
+    },
+    "text-layer-diagnostic.pdf": {
+      "href": "/samples/tutorials/text-layer-diagnostic.pdf",
+      "sha256": "efa35e1f933aa8614e0c04fb0464dd81e927ebfb27d54f4db5bb2e1dcd7744c8",
+      "checks": [
+        "Page 1: visible selectable text",
+        "Page 2: image only, no extracted words",
+        "Page 3: image plus invisible text; selection is not proof the visible letters can be rewritten"
+      ]
+    },
+    "workshop-form-master.pdf": {
+      "href": "/samples/tutorials/workshop-form-master.pdf",
+      "sha256": "81ca55d804a0b591d1009b3d7c6ecc43a988ec069716a03c6c129fe3007e660f",
+      "checks": ["Blank participant_name and receive_notes fields", "One page; no personal data"]
+    },
+    "workshop-form-filled.pdf": {
+      "href": "/samples/tutorials/workshop-form-filled.pdf",
+      "sha256": "568aa4dc3656daf42faa714d9df3377f90824a6adc24bcccb09ee850a26b68a6",
+      "checks": ["Sam Example; receive_notes checked", "Fields remain editable"]
+    },
+    "workshop-form-flattened.pdf": {
+      "href": "/samples/tutorials/workshop-form-flattened.pdf",
+      "sha256": "2e0e10a8565cca67fe967eb3bf7197bbcc3d79e3f940738e70eaeeb978020a3f",
+      "checks": ["Sam Example retained visibly", "Zero interactive form fields"]
+    },
+    "workshop-signed-copy.pdf": {
+      "href": "/samples/tutorials/workshop-signed-copy.pdf",
+      "sha256": "d0e9410b3a32f2dec0cf607641b005e80615a43979b7ed219199282a6649b5e6",
+      "checks": [
+        "Fictional Sam Example visual signature",
+        "Completed flattened response",
+        "No digital certificate or identity verification"
+      ]
+    },
+    "password-practice.pdf": {
+      "href": "/samples/tutorials/password-practice.pdf",
+      "sha256": "ab24805830dac391f8c81719d17185d8fea2d5cb0aeffa76fedf2de32b922cd4",
+      "checks": [
+        "Requires the public demonstration password Practice-only-42",
+        "Password opens the original one-page report",
+        "Contains no confidential information"
+      ]
+    },
+    "invoice-with-deposit.pdf": {
+      "href": "/samples/tutorials/invoice-with-deposit.pdf",
+      "sha256": "f62f23ca08b93f84bc28d65d648c66b9b386eb01f9b02524fe74534155c37db3",
+      "checks": [
+        "USD subtotal 175.00",
+        "Deposit 50.00; balance 125.00",
+        "No tax assumption for real transactions"
+      ]
+    },
+    "invoice-draft.json": {
+      "href": "/samples/tutorials/invoice-draft.json",
+      "sha256": "1c6b39da0665dbaf660313922a571ce858a5f2c119aca2c205752c7a3f73fc20",
+      "checks": ["Importable fictional invoice draft", "Same line items and paid amount as PDF"]
+    },
+    "practice-pdf-qr.svg": {
+      "href": "/samples/tutorials/practice-pdf-qr.svg",
+      "sha256": "74c929e3bab6cf93d20fd91b9a0005d77d4a86dbeaf4ed8fcd6fe5b38f028432",
+      "checks": ["Decoded payload is the direct public practice-PDF URL", "Four-module quiet zone"]
+    },
+    "practice-pdf-qr.png": {
+      "href": "/samples/tutorials/practice-pdf-qr.png",
+      "sha256": "d51ba4b848cc4465c01c0018335dec84cf84c4f76a5184a49bd1148bae31a05f",
+      "checks": ["Decoded payload matches SVG", "1024 × 1024 pixels"]
+    },
+    "fictional-signature.png": {
+      "href": "/samples/tutorials/fictional-signature.png",
+      "sha256": "649e14eb1ea5b3e1fe33deca548ca41a8b3908ace2a2deb73568f7e67cc3e9e8",
+      "checks": [
+        "Typed Sam Example, Classic, black ink",
+        "Transparent background, fictional signature only"
+      ],
+      "width": 898,
+      "height": 171,
+      "bytes": 38525,
+      "format": "png"
+    },
+    "receipt-converted.webp": {
+      "href": "/samples/tutorials/receipt-converted.webp",
+      "sha256": "acb2928cbb47983ec5e1f0f305b8c209b577d73efd020f7cebd812517ecfcacf",
+      "checks": ["Original dimensions; default quality 85%", "Actual WebP output"],
+      "width": 1200,
+      "height": 900,
+      "bytes": 29314,
+      "format": "webp"
+    },
+    "transparent-source-on-white.jpg": {
+      "href": "/samples/tutorials/transparent-source-on-white.jpg",
+      "sha256": "b04625939c19804a5534c0622c6cb1f54c024c403a289d1f9021a07bfdce9806",
+      "checks": ["Original dimensions; default quality 85%", "Transparent corners become white"],
+      "width": 640,
+      "height": 400,
+      "bytes": 17228,
+      "format": "jpeg"
+    },
+    "receipt-under-20kb.jpg": {
+      "href": "/samples/tutorials/receipt-under-20kb.jpg",
+      "sha256": "92e115fdbe1a3360a1c9d7c1cab199d1da4817552b21f88554bf446c2813ff72",
+      "checks": [
+        "20 KB target, JPG output",
+        "Actual returned size checked at or below 20,000 bytes"
+      ],
+      "width": 811,
+      "height": 608,
+      "bytes": 19968,
+      "format": "jpeg"
+    },
+    "receipt-brightness-10.jpg": {
+      "href": "/samples/tutorials/receipt-brightness-10.jpg",
+      "sha256": "a379ca76d98944fdcceaac15aea286e888f4d5ec1db6a26687d64daa791cd155",
+      "checks": [
+        "Brightness +10; other adjustments unchanged",
+        "Keep original dimensions; JPG output"
+      ],
+      "width": 1200,
+      "height": 900,
+      "bytes": 57494,
+      "format": "jpeg"
+    },
+    "landscape-144dpi.jpg": {
+      "href": "/samples/tutorials/landscape-144dpi.jpg",
+      "sha256": "f8df754ac12ad0493150b6d9d1fe4f080c87c7848fdecd782437a83bf5f3f12b",
+      "checks": ["High — 144 DPI", "1584 × 1224 pixels from the 11 × 8.5 inch source"],
+      "width": 1584,
+      "height": 1224,
+      "bytes": 80506,
+      "format": "jpeg"
+    },
+    "landscape-300dpi.png": {
+      "href": "/samples/tutorials/landscape-300dpi.png",
+      "sha256": "70871befaeb9f3ecc97e9aea81d5ecdbe513fa292a56cb02537f16cb4b12d204",
+      "checks": ["Print — 300 DPI", "3300 × 2550 pixels from the 11 × 8.5 inch source"],
+      "width": 3300,
+      "height": 2550,
+      "bytes": 302445,
+      "format": "png"
+    },
+    "three-image-packet.pdf": {
+      "href": "/samples/tutorials/three-image-packet.pdf",
+      "sha256": "d1a1a5084d3d62d20e07fd3525f6f854f8e608373689bb1e20c401616adbaeac",
+      "checks": [
+        "Receipt, screenshot, transparent WebP in order",
+        "Three A4 portrait pages; no OCR"
+      ]
+    },
+    "budget-note.pdf": {
+      "href": "/samples/tutorials/budget-note.pdf",
+      "sha256": "89bdc56960dfd1471dd0bdec8803e507d814a32c6d7425c406008bd553892d06",
+      "checks": ["Six-page packet retained", "New review note on Budget; existing words retained"]
+    },
+    "workshop-blank.pdf": {
+      "href": "/samples/tutorials/workshop-blank.pdf",
+      "sha256": "803fc27a603cb8a9855a9cec702fd6ac53a0312b8174557048d014e99794327f",
+      "checks": ["No interactive form fields", "Fictional workshop labels and blank response areas"]
+    }
+  },
+  "browserCheckedAt": "2026-10-30T19:22:05.092Z",
+  "browserMethod": "Chromium production UI downloads; Sharp format/dimension/alpha inspection. Measurements apply only to these fictional files and settings."
+}

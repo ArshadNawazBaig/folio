@@ -19,7 +19,7 @@ export default function Privacy({ messages = {} }: PageLanguage = {}) {
         </h1>
         <p>
           {tr(
-            'This page describes how the current version of Folio handles documents and saved links. Updated October 15, 2026.',
+            'This page describes how the current version of Folio handles documents, saved links, and website data. Updated October 30, 2026.',
           )}
         </p>
       </header>
@@ -116,8 +116,21 @@ export default function Privacy({ messages = {} }: PageLanguage = {}) {
       <h2>{tr('The website still needs hosting.')}</h2>
       <p>
         {tr(
-          'Your browser requests the website, fonts, scripts, and PDF viewer assets from the site’s host. Hosting infrastructure may handle ordinary request information such as IP addresses and browser details. Folio uses Vercel Web Analytics to collect page views and aggregated website usage statistics. The application includes no advertising trackers. Local processing does not send document contents. Automatic editor uploads, dashboard uploads, and text processing send documents to the services described above.',
+          'Your browser requests website assets from Folio’s host. Hosting infrastructure may handle IP addresses, browser details, and request logs. Vercel Web Analytics is enabled only on Vercel deployments and collects page views and aggregated usage statistics. Local document processing does not send document contents; editor uploads and server processing use the services described above.',
         )}
+      </p>
+      <h2>{tr('Advertising and your choices.')}</h2>
+      <p>
+        {tr(
+          'Folio does not currently display ads or load Google advertising scripts. If advertising is introduced, Google and its partners may use cookies to personalize ads based on previous visits to this and other websites. Advertising consent choices will be provided where required before enabling those ads.',
+        )}
+      </p>
+      <p>
+        <a href="https://myadcenter.google.com/">{tr('Manage Google ad personalization')}</a>
+        {' · '}
+        <a href="https://policies.google.com/technologies/partner-sites">
+          {tr('How Google uses data from partner sites')}
+        </a>
       </p>
       <h2>{tr('A shared device needs a little care.')}</h2>
       <p>

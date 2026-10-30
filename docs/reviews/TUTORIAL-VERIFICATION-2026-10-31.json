@@ -1,0 +1,6022 @@
+{
+  "reviewedDate": "2026-10-31",
+  "timezone": "Asia/Karachi",
+  "deployment": "local production build; application changes not deployed",
+  "publicationUrls": 670,
+  "successful": 670,
+  "permanentRedirectsChecked": 108,
+  "brokenFragments": [],
+  "duplicateIds": [],
+  "pages": [
+    {
+      "path": "/",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/tools",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/convert",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/forms",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/blog",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/terms",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/security",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/invoice-generator",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/edit-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/edit-pdf-text",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/protect-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/merge-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/compress-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/split-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/rotate-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/organize-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/watermark-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/page-numbers",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/crop-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pdf-to-jpg",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pdf-to-png",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/image-to-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pdf-to-text",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sign-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/signature-generator",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/create-pdf-form",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/jpg-to-webp",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/webp-to-jpg",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/compress-images",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/enhance-image",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/jpg-to-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/png-to-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/merge-images",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/url-shortener",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/create-qr-code",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/tools",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/convert",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/forms",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/blog",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/about",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/privacy",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/terms",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/security",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/invoice-generator",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/edit-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/edit-pdf-text",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/protect-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/merge-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/compress-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/split-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/rotate-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/organize-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/watermark-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/page-numbers",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/crop-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/pdf-to-jpg",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/pdf-to-png",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/image-to-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/pdf-to-text",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/sign-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/signature-generator",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/create-pdf-form",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/jpg-to-webp",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/webp-to-jpg",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/compress-images",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/enhance-image",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/jpg-to-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/png-to-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/merge-images",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/url-shortener",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/create-qr-code",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/create-professional-invoice-online",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/create-transparent-signature-png",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/does-folio-upload-pdf-files",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/choose-a-free-pdf-editor",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/how-to-edit-a-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/how-to-add-text-to-a-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/why-cant-i-edit-pdf-text",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/extract-nonconsecutive-pdf-pages",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/merge-pdfs-different-page-sizes",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 5,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/how-to-merge-and-split-pdfs",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/why-your-pdf-wont-get-smaller",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/how-to-sign-a-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/how-to-convert-pdf-to-images",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/how-to-combine-images-into-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/de/guides/how-to-password-protect-a-pdf",
+      "status": 200,
+      "language": "de",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/tools",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/convert",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/forms",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/blog",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/about",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/privacy",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/terms",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/security",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/invoice-generator",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/edit-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/edit-pdf-text",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/protect-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/merge-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/compress-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/split-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/rotate-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/organize-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/watermark-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/page-numbers",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/crop-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/pdf-to-jpg",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/pdf-to-png",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/image-to-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/pdf-to-text",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/sign-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/signature-generator",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/create-pdf-form",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/jpg-to-webp",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/webp-to-jpg",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/compress-images",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/enhance-image",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/jpg-to-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/png-to-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/merge-images",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/url-shortener",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/create-qr-code",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/create-professional-invoice-online",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/create-transparent-signature-png",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/does-folio-upload-pdf-files",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/choose-a-free-pdf-editor",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/how-to-edit-a-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/how-to-add-text-to-a-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/why-cant-i-edit-pdf-text",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/extract-nonconsecutive-pdf-pages",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/merge-pdfs-different-page-sizes",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 5,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/how-to-merge-and-split-pdfs",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/why-your-pdf-wont-get-smaller",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/how-to-sign-a-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/how-to-convert-pdf-to-images",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/how-to-combine-images-into-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/fr/guides/how-to-password-protect-a-pdf",
+      "status": 200,
+      "language": "fr",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/tools",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/convert",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/forms",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/blog",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/about",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/privacy",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/terms",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/security",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/invoice-generator",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/edit-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/edit-pdf-text",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/protect-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/merge-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/compress-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/split-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/rotate-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/organize-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/watermark-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/page-numbers",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/crop-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/pdf-to-jpg",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/pdf-to-png",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/image-to-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/pdf-to-text",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/sign-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/signature-generator",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/create-pdf-form",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/jpg-to-webp",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/webp-to-jpg",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/compress-images",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/enhance-image",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/jpg-to-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/png-to-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/merge-images",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/url-shortener",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/create-qr-code",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/create-professional-invoice-online",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/create-transparent-signature-png",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/does-folio-upload-pdf-files",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/choose-a-free-pdf-editor",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/how-to-edit-a-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/how-to-add-text-to-a-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/why-cant-i-edit-pdf-text",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/extract-nonconsecutive-pdf-pages",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/merge-pdfs-different-page-sizes",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 5,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/how-to-merge-and-split-pdfs",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/why-your-pdf-wont-get-smaller",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/how-to-sign-a-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/how-to-convert-pdf-to-images",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/how-to-combine-images-into-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nl/guides/how-to-password-protect-a-pdf",
+      "status": 200,
+      "language": "nl",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/tools",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/convert",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/forms",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/blog",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/about",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/privacy",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/terms",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/security",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/invoice-generator",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/edit-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/edit-pdf-text",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/protect-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/merge-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/compress-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/split-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/rotate-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/organize-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/watermark-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/page-numbers",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/crop-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/pdf-to-jpg",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/pdf-to-png",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/image-to-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/pdf-to-text",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/sign-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/signature-generator",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/create-pdf-form",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/jpg-to-webp",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/webp-to-jpg",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/compress-images",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/enhance-image",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/jpg-to-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/png-to-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/merge-images",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/url-shortener",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/create-qr-code",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/create-professional-invoice-online",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/create-transparent-signature-png",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/does-folio-upload-pdf-files",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/choose-a-free-pdf-editor",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/how-to-edit-a-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/how-to-add-text-to-a-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/why-cant-i-edit-pdf-text",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/extract-nonconsecutive-pdf-pages",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/merge-pdfs-different-page-sizes",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 5,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/how-to-merge-and-split-pdfs",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/why-your-pdf-wont-get-smaller",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/how-to-sign-a-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/how-to-convert-pdf-to-images",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/how-to-combine-images-into-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/es/guides/how-to-password-protect-a-pdf",
+      "status": 200,
+      "language": "es",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/tools",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/convert",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/forms",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/blog",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/about",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/privacy",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/terms",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/security",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/invoice-generator",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/edit-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/edit-pdf-text",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/protect-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/merge-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/compress-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/split-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/rotate-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/organize-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/watermark-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/page-numbers",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/crop-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/pdf-to-jpg",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/pdf-to-png",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/image-to-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/pdf-to-text",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/sign-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/signature-generator",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/create-pdf-form",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/jpg-to-webp",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/webp-to-jpg",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/compress-images",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/enhance-image",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/jpg-to-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/png-to-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/merge-images",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/url-shortener",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/create-qr-code",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/create-professional-invoice-online",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/create-transparent-signature-png",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/does-folio-upload-pdf-files",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/choose-a-free-pdf-editor",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/how-to-edit-a-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/how-to-add-text-to-a-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/why-cant-i-edit-pdf-text",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/extract-nonconsecutive-pdf-pages",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/merge-pdfs-different-page-sizes",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 5,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/how-to-merge-and-split-pdfs",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/why-your-pdf-wont-get-smaller",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/how-to-sign-a-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/how-to-convert-pdf-to-images",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/how-to-combine-images-into-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/it/guides/how-to-password-protect-a-pdf",
+      "status": 200,
+      "language": "it",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/tools",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/convert",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/forms",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/blog",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/about",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/privacy",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/terms",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/security",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/invoice-generator",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/edit-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/edit-pdf-text",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/protect-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/merge-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/compress-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/split-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/rotate-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/organize-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/watermark-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/page-numbers",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/crop-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/pdf-to-jpg",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/pdf-to-png",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/image-to-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/pdf-to-text",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/sign-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/signature-generator",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/create-pdf-form",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/jpg-to-webp",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/webp-to-jpg",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/compress-images",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/enhance-image",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/jpg-to-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/png-to-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/merge-images",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/url-shortener",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/create-qr-code",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/create-professional-invoice-online",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/create-transparent-signature-png",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/does-folio-upload-pdf-files",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/choose-a-free-pdf-editor",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/how-to-edit-a-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/how-to-add-text-to-a-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/why-cant-i-edit-pdf-text",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/extract-nonconsecutive-pdf-pages",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/merge-pdfs-different-page-sizes",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 5,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/how-to-merge-and-split-pdfs",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/why-your-pdf-wont-get-smaller",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/how-to-sign-a-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/how-to-convert-pdf-to-images",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/how-to-combine-images-into-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/pt/guides/how-to-password-protect-a-pdf",
+      "status": 200,
+      "language": "pt",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/tools",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/convert",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/forms",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/blog",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/about",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/privacy",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/terms",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/security",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/invoice-generator",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/edit-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/edit-pdf-text",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/protect-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/merge-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/compress-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/split-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/rotate-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/organize-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/watermark-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/page-numbers",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/crop-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/pdf-to-jpg",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/pdf-to-png",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/image-to-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/pdf-to-text",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/sign-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/signature-generator",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/create-pdf-form",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/jpg-to-webp",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/webp-to-jpg",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/compress-images",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/enhance-image",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/jpg-to-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/png-to-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/merge-images",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/url-shortener",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/create-qr-code",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/create-professional-invoice-online",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/create-transparent-signature-png",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/does-folio-upload-pdf-files",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/choose-a-free-pdf-editor",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/how-to-edit-a-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/how-to-add-text-to-a-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/why-cant-i-edit-pdf-text",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/extract-nonconsecutive-pdf-pages",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/merge-pdfs-different-page-sizes",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 5,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/how-to-merge-and-split-pdfs",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/why-your-pdf-wont-get-smaller",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/how-to-sign-a-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/how-to-convert-pdf-to-images",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/how-to-combine-images-into-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/sv/guides/how-to-password-protect-a-pdf",
+      "status": 200,
+      "language": "sv",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/tools",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/convert",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/forms",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/blog",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/about",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/privacy",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/terms",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/security",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/invoice-generator",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/edit-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/edit-pdf-text",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/protect-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/merge-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/compress-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/split-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/rotate-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/organize-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/watermark-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/page-numbers",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/crop-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/pdf-to-jpg",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/pdf-to-png",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/image-to-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/pdf-to-text",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/sign-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/signature-generator",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/create-pdf-form",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/jpg-to-webp",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/webp-to-jpg",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/compress-images",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/enhance-image",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/jpg-to-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/png-to-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/merge-images",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/url-shortener",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/create-qr-code",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/create-professional-invoice-online",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/create-transparent-signature-png",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/does-folio-upload-pdf-files",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/choose-a-free-pdf-editor",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/how-to-edit-a-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/how-to-add-text-to-a-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/why-cant-i-edit-pdf-text",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/extract-nonconsecutive-pdf-pages",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/merge-pdfs-different-page-sizes",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 5,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/how-to-merge-and-split-pdfs",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/why-your-pdf-wont-get-smaller",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/how-to-sign-a-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/how-to-convert-pdf-to-images",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/how-to-combine-images-into-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/nb/guides/how-to-password-protect-a-pdf",
+      "status": 200,
+      "language": "nb",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/tools",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/convert",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/forms",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/blog",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/about",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/privacy",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/terms",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/security",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/invoice-generator",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/edit-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/edit-pdf-text",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/protect-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/merge-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/compress-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/split-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/rotate-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/organize-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/watermark-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/page-numbers",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/crop-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/pdf-to-jpg",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/pdf-to-png",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/image-to-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/pdf-to-text",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/sign-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/signature-generator",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/create-pdf-form",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/jpg-to-webp",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/webp-to-jpg",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/compress-images",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/enhance-image",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/jpg-to-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/png-to-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/merge-images",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/url-shortener",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/create-qr-code",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/create-professional-invoice-online",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/create-transparent-signature-png",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/does-folio-upload-pdf-files",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/choose-a-free-pdf-editor",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/how-to-edit-a-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/how-to-add-text-to-a-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/why-cant-i-edit-pdf-text",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/extract-nonconsecutive-pdf-pages",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/merge-pdfs-different-page-sizes",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 5,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/how-to-merge-and-split-pdfs",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/why-your-pdf-wont-get-smaller",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/how-to-sign-a-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/how-to-convert-pdf-to-images",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/how-to-combine-images-into-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/da/guides/how-to-password-protect-a-pdf",
+      "status": 200,
+      "language": "da",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/tools",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/convert",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/forms",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/blog",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/about",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/privacy",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/terms",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/security",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/invoice-generator",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/edit-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/edit-pdf-text",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/protect-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/merge-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/compress-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/split-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/rotate-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/organize-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/watermark-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/page-numbers",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/crop-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/pdf-to-jpg",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/pdf-to-png",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/image-to-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/pdf-to-text",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/sign-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/signature-generator",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/create-pdf-form",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/jpg-to-webp",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/webp-to-jpg",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/compress-images",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/enhance-image",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/jpg-to-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/png-to-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/merge-images",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/url-shortener",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/create-qr-code",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/create-professional-invoice-online",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/create-transparent-signature-png",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/does-folio-upload-pdf-files",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/choose-a-free-pdf-editor",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/how-to-edit-a-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/how-to-add-text-to-a-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/why-cant-i-edit-pdf-text",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/extract-nonconsecutive-pdf-pages",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/merge-pdfs-different-page-sizes",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 5,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/how-to-merge-and-split-pdfs",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/why-your-pdf-wont-get-smaller",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/how-to-sign-a-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/how-to-convert-pdf-to-images",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/how-to-combine-images-into-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ja/guides/how-to-password-protect-a-pdf",
+      "status": 200,
+      "language": "ja",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/tools",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/convert",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/forms",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/blog",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/about",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/privacy",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/terms",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/security",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 0,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/invoice-generator",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/edit-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/edit-pdf-text",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/protect-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/merge-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/compress-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/split-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/rotate-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/organize-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/watermark-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/page-numbers",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/crop-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/pdf-to-jpg",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/pdf-to-png",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/image-to-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/pdf-to-text",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/sign-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/signature-generator",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/create-pdf-form",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/jpg-to-webp",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/webp-to-jpg",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/compress-images",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/enhance-image",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/jpg-to-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/png-to-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/merge-images",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/url-shortener",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/create-qr-code",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/create-professional-invoice-online",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/create-transparent-signature-png",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/does-folio-upload-pdf-files",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/choose-a-free-pdf-editor",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/how-to-edit-a-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/how-to-add-text-to-a-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/why-cant-i-edit-pdf-text",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/extract-nonconsecutive-pdf-pages",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/merge-pdfs-different-page-sizes",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 5,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/how-to-merge-and-split-pdfs",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/why-your-pdf-wont-get-smaller",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/how-to-sign-a-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/how-to-convert-pdf-to-images",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/how-to-combine-images-into-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/ko/guides/how-to-password-protect-a-pdf",
+      "status": 200,
+      "language": "ko",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/create-professional-invoice-online",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/create-transparent-signature-png",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/does-folio-upload-pdf-files",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/choose-a-free-pdf-editor",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/how-to-edit-a-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 7,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/how-to-add-text-to-a-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/why-cant-i-edit-pdf-text",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 1,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/extract-nonconsecutive-pdf-pages",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/merge-pdfs-different-page-sizes",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 5,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/how-to-merge-and-split-pdfs",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/why-your-pdf-wont-get-smaller",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 5,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/how-to-sign-a-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/how-to-convert-pdf-to-images",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/how-to-combine-images-into-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 4,
+      "advertisingScript": false
+    },
+    {
+      "path": "/guides/how-to-password-protect-a-pdf",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/blog/choose-a-free-pdf-editor",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/blog/how-to-edit-pdf-original-text",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/blog/how-to-edit-pdf-text",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/blog/pdf-conversion-guide-choose-the-right-format",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/blog/how-to-prepare-and-review-pdf-translation",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/blog/how-to-create-a-qr-code-for-a-link",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 3,
+      "advertisingScript": false
+    },
+    {
+      "path": "/blog/how-to-shorten-a-url",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/blog/how-to-compress-images-to-target-size",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/blog/pdf-editor-online-review-share",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    },
+    {
+      "path": "/blog/first-freelance-invoice-with-free-invoice-generator",
+      "status": 200,
+      "language": "en",
+      "h1": 1,
+      "practiceDownloads": 2,
+      "advertisingScript": false
+    }
+  ],
+  "redirects": [
+    {
+      "path": "/blog/create-invoice-free-invoice-generator",
+      "target": "/guides/create-professional-invoice-online",
+      "status": 308,
+      "location": "/guides/create-professional-invoice-online"
+    },
+    {
+      "path": "/de/blog/create-invoice-free-invoice-generator",
+      "target": "/de/guides/create-professional-invoice-online",
+      "status": 308,
+      "location": "/de/guides/create-professional-invoice-online"
+    },
+    {
+      "path": "/fr/blog/create-invoice-free-invoice-generator",
+      "target": "/fr/guides/create-professional-invoice-online",
+      "status": 308,
+      "location": "/fr/guides/create-professional-invoice-online"
+    },
+    {
+      "path": "/nl/blog/create-invoice-free-invoice-generator",
+      "target": "/nl/guides/create-professional-invoice-online",
+      "status": 308,
+      "location": "/nl/guides/create-professional-invoice-online"
+    },
+    {
+      "path": "/es/blog/create-invoice-free-invoice-generator",
+      "target": "/es/guides/create-professional-invoice-online",
+      "status": 308,
+      "location": "/es/guides/create-professional-invoice-online"
+    },
+    {
+      "path": "/it/blog/create-invoice-free-invoice-generator",
+      "target": "/it/guides/create-professional-invoice-online",
+      "status": 308,
+      "location": "/it/guides/create-professional-invoice-online"
+    },
+    {
+      "path": "/pt/blog/create-invoice-free-invoice-generator",
+      "target": "/pt/guides/create-professional-invoice-online",
+      "status": 308,
+      "location": "/pt/guides/create-professional-invoice-online"
+    },
+    {
+      "path": "/sv/blog/create-invoice-free-invoice-generator",
+      "target": "/sv/guides/create-professional-invoice-online",
+      "status": 308,
+      "location": "/sv/guides/create-professional-invoice-online"
+    },
+    {
+      "path": "/nb/blog/create-invoice-free-invoice-generator",
+      "target": "/nb/guides/create-professional-invoice-online",
+      "status": 308,
+      "location": "/nb/guides/create-professional-invoice-online"
+    },
+    {
+      "path": "/da/blog/create-invoice-free-invoice-generator",
+      "target": "/da/guides/create-professional-invoice-online",
+      "status": 308,
+      "location": "/da/guides/create-professional-invoice-online"
+    },
+    {
+      "path": "/ja/blog/create-invoice-free-invoice-generator",
+      "target": "/ja/guides/create-professional-invoice-online",
+      "status": 308,
+      "location": "/ja/guides/create-professional-invoice-online"
+    },
+    {
+      "path": "/ko/blog/create-invoice-free-invoice-generator",
+      "target": "/ko/guides/create-professional-invoice-online",
+      "status": 308,
+      "location": "/ko/guides/create-professional-invoice-online"
+    },
+    {
+      "path": "/blog/how-to-edit-original-text-in-a-pdf",
+      "target": "/guides/why-cant-i-edit-pdf-text",
+      "status": 308,
+      "location": "/guides/why-cant-i-edit-pdf-text"
+    },
+    {
+      "path": "/de/blog/how-to-edit-original-text-in-a-pdf",
+      "target": "/de/guides/why-cant-i-edit-pdf-text",
+      "status": 308,
+      "location": "/de/guides/why-cant-i-edit-pdf-text"
+    },
+    {
+      "path": "/fr/blog/how-to-edit-original-text-in-a-pdf",
+      "target": "/fr/guides/why-cant-i-edit-pdf-text",
+      "status": 308,
+      "location": "/fr/guides/why-cant-i-edit-pdf-text"
+    },
+    {
+      "path": "/nl/blog/how-to-edit-original-text-in-a-pdf",
+      "target": "/nl/guides/why-cant-i-edit-pdf-text",
+      "status": 308,
+      "location": "/nl/guides/why-cant-i-edit-pdf-text"
+    },
+    {
+      "path": "/es/blog/how-to-edit-original-text-in-a-pdf",
+      "target": "/es/guides/why-cant-i-edit-pdf-text",
+      "status": 308,
+      "location": "/es/guides/why-cant-i-edit-pdf-text"
+    },
+    {
+      "path": "/it/blog/how-to-edit-original-text-in-a-pdf",
+      "target": "/it/guides/why-cant-i-edit-pdf-text",
+      "status": 308,
+      "location": "/it/guides/why-cant-i-edit-pdf-text"
+    },
+    {
+      "path": "/pt/blog/how-to-edit-original-text-in-a-pdf",
+      "target": "/pt/guides/why-cant-i-edit-pdf-text",
+      "status": 308,
+      "location": "/pt/guides/why-cant-i-edit-pdf-text"
+    },
+    {
+      "path": "/sv/blog/how-to-edit-original-text-in-a-pdf",
+      "target": "/sv/guides/why-cant-i-edit-pdf-text",
+      "status": 308,
+      "location": "/sv/guides/why-cant-i-edit-pdf-text"
+    },
+    {
+      "path": "/nb/blog/how-to-edit-original-text-in-a-pdf",
+      "target": "/nb/guides/why-cant-i-edit-pdf-text",
+      "status": 308,
+      "location": "/nb/guides/why-cant-i-edit-pdf-text"
+    },
+    {
+      "path": "/da/blog/how-to-edit-original-text-in-a-pdf",
+      "target": "/da/guides/why-cant-i-edit-pdf-text",
+      "status": 308,
+      "location": "/da/guides/why-cant-i-edit-pdf-text"
+    },
+    {
+      "path": "/ja/blog/how-to-edit-original-text-in-a-pdf",
+      "target": "/ja/guides/why-cant-i-edit-pdf-text",
+      "status": 308,
+      "location": "/ja/guides/why-cant-i-edit-pdf-text"
+    },
+    {
+      "path": "/ko/blog/how-to-edit-original-text-in-a-pdf",
+      "target": "/ko/guides/why-cant-i-edit-pdf-text",
+      "status": 308,
+      "location": "/ko/guides/why-cant-i-edit-pdf-text"
+    },
+    {
+      "path": "/blog/how-to-reduce-pdf-file-size",
+      "target": "/guides/why-your-pdf-wont-get-smaller",
+      "status": 308,
+      "location": "/guides/why-your-pdf-wont-get-smaller"
+    },
+    {
+      "path": "/de/blog/how-to-reduce-pdf-file-size",
+      "target": "/de/guides/why-your-pdf-wont-get-smaller",
+      "status": 308,
+      "location": "/de/guides/why-your-pdf-wont-get-smaller"
+    },
+    {
+      "path": "/fr/blog/how-to-reduce-pdf-file-size",
+      "target": "/fr/guides/why-your-pdf-wont-get-smaller",
+      "status": 308,
+      "location": "/fr/guides/why-your-pdf-wont-get-smaller"
+    },
+    {
+      "path": "/nl/blog/how-to-reduce-pdf-file-size",
+      "target": "/nl/guides/why-your-pdf-wont-get-smaller",
+      "status": 308,
+      "location": "/nl/guides/why-your-pdf-wont-get-smaller"
+    },
+    {
+      "path": "/es/blog/how-to-reduce-pdf-file-size",
+      "target": "/es/guides/why-your-pdf-wont-get-smaller",
+      "status": 308,
+      "location": "/es/guides/why-your-pdf-wont-get-smaller"
+    },
+    {
+      "path": "/it/blog/how-to-reduce-pdf-file-size",
+      "target": "/it/guides/why-your-pdf-wont-get-smaller",
+      "status": 308,
+      "location": "/it/guides/why-your-pdf-wont-get-smaller"
+    },
+    {
+      "path": "/pt/blog/how-to-reduce-pdf-file-size",
+      "target": "/pt/guides/why-your-pdf-wont-get-smaller",
+      "status": 308,
+      "location": "/pt/guides/why-your-pdf-wont-get-smaller"
+    },
+    {
+      "path": "/sv/blog/how-to-reduce-pdf-file-size",
+      "target": "/sv/guides/why-your-pdf-wont-get-smaller",
+      "status": 308,
+      "location": "/sv/guides/why-your-pdf-wont-get-smaller"
+    },
+    {
+      "path": "/nb/blog/how-to-reduce-pdf-file-size",
+      "target": "/nb/guides/why-your-pdf-wont-get-smaller",
+      "status": 308,
+      "location": "/nb/guides/why-your-pdf-wont-get-smaller"
+    },
+    {
+      "path": "/da/blog/how-to-reduce-pdf-file-size",
+      "target": "/da/guides/why-your-pdf-wont-get-smaller",
+      "status": 308,
+      "location": "/da/guides/why-your-pdf-wont-get-smaller"
+    },
+    {
+      "path": "/ja/blog/how-to-reduce-pdf-file-size",
+      "target": "/ja/guides/why-your-pdf-wont-get-smaller",
+      "status": 308,
+      "location": "/ja/guides/why-your-pdf-wont-get-smaller"
+    },
+    {
+      "path": "/ko/blog/how-to-reduce-pdf-file-size",
+      "target": "/ko/guides/why-your-pdf-wont-get-smaller",
+      "status": 308,
+      "location": "/ko/guides/why-your-pdf-wont-get-smaller"
+    },
+    {
+      "path": "/blog/how-to-edit-pdf-on-phone",
+      "target": "/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 308,
+      "location": "/guides/how-to-edit-a-pdf-on-mobile"
+    },
+    {
+      "path": "/de/blog/how-to-edit-pdf-on-phone",
+      "target": "/de/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 308,
+      "location": "/de/guides/how-to-edit-a-pdf-on-mobile"
+    },
+    {
+      "path": "/fr/blog/how-to-edit-pdf-on-phone",
+      "target": "/fr/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 308,
+      "location": "/fr/guides/how-to-edit-a-pdf-on-mobile"
+    },
+    {
+      "path": "/nl/blog/how-to-edit-pdf-on-phone",
+      "target": "/nl/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 308,
+      "location": "/nl/guides/how-to-edit-a-pdf-on-mobile"
+    },
+    {
+      "path": "/es/blog/how-to-edit-pdf-on-phone",
+      "target": "/es/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 308,
+      "location": "/es/guides/how-to-edit-a-pdf-on-mobile"
+    },
+    {
+      "path": "/it/blog/how-to-edit-pdf-on-phone",
+      "target": "/it/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 308,
+      "location": "/it/guides/how-to-edit-a-pdf-on-mobile"
+    },
+    {
+      "path": "/pt/blog/how-to-edit-pdf-on-phone",
+      "target": "/pt/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 308,
+      "location": "/pt/guides/how-to-edit-a-pdf-on-mobile"
+    },
+    {
+      "path": "/sv/blog/how-to-edit-pdf-on-phone",
+      "target": "/sv/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 308,
+      "location": "/sv/guides/how-to-edit-a-pdf-on-mobile"
+    },
+    {
+      "path": "/nb/blog/how-to-edit-pdf-on-phone",
+      "target": "/nb/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 308,
+      "location": "/nb/guides/how-to-edit-a-pdf-on-mobile"
+    },
+    {
+      "path": "/da/blog/how-to-edit-pdf-on-phone",
+      "target": "/da/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 308,
+      "location": "/da/guides/how-to-edit-a-pdf-on-mobile"
+    },
+    {
+      "path": "/ja/blog/how-to-edit-pdf-on-phone",
+      "target": "/ja/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 308,
+      "location": "/ja/guides/how-to-edit-a-pdf-on-mobile"
+    },
+    {
+      "path": "/ko/blog/how-to-edit-pdf-on-phone",
+      "target": "/ko/guides/how-to-edit-a-pdf-on-mobile",
+      "status": 308,
+      "location": "/ko/guides/how-to-edit-a-pdf-on-mobile"
+    },
+    {
+      "path": "/blog/how-to-make-a-signature-online",
+      "target": "/guides/create-transparent-signature-png",
+      "status": 308,
+      "location": "/guides/create-transparent-signature-png"
+    },
+    {
+      "path": "/de/blog/how-to-make-a-signature-online",
+      "target": "/de/guides/create-transparent-signature-png",
+      "status": 308,
+      "location": "/de/guides/create-transparent-signature-png"
+    },
+    {
+      "path": "/fr/blog/how-to-make-a-signature-online",
+      "target": "/fr/guides/create-transparent-signature-png",
+      "status": 308,
+      "location": "/fr/guides/create-transparent-signature-png"
+    },
+    {
+      "path": "/nl/blog/how-to-make-a-signature-online",
+      "target": "/nl/guides/create-transparent-signature-png",
+      "status": 308,
+      "location": "/nl/guides/create-transparent-signature-png"
+    },
+    {
+      "path": "/es/blog/how-to-make-a-signature-online",
+      "target": "/es/guides/create-transparent-signature-png",
+      "status": 308,
+      "location": "/es/guides/create-transparent-signature-png"
+    },
+    {
+      "path": "/it/blog/how-to-make-a-signature-online",
+      "target": "/it/guides/create-transparent-signature-png",
+      "status": 308,
+      "location": "/it/guides/create-transparent-signature-png"
+    },
+    {
+      "path": "/pt/blog/how-to-make-a-signature-online",
+      "target": "/pt/guides/create-transparent-signature-png",
+      "status": 308,
+      "location": "/pt/guides/create-transparent-signature-png"
+    },
+    {
+      "path": "/sv/blog/how-to-make-a-signature-online",
+      "target": "/sv/guides/create-transparent-signature-png",
+      "status": 308,
+      "location": "/sv/guides/create-transparent-signature-png"
+    },
+    {
+      "path": "/nb/blog/how-to-make-a-signature-online",
+      "target": "/nb/guides/create-transparent-signature-png",
+      "status": 308,
+      "location": "/nb/guides/create-transparent-signature-png"
+    },
+    {
+      "path": "/da/blog/how-to-make-a-signature-online",
+      "target": "/da/guides/create-transparent-signature-png",
+      "status": 308,
+      "location": "/da/guides/create-transparent-signature-png"
+    },
+    {
+      "path": "/ja/blog/how-to-make-a-signature-online",
+      "target": "/ja/guides/create-transparent-signature-png",
+      "status": 308,
+      "location": "/ja/guides/create-transparent-signature-png"
+    },
+    {
+      "path": "/ko/blog/how-to-make-a-signature-online",
+      "target": "/ko/guides/create-transparent-signature-png",
+      "status": 308,
+      "location": "/ko/guides/create-transparent-signature-png"
+    },
+    {
+      "path": "/blog/how-to-create-fill-and-sign-pdf-forms",
+      "target": "/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 308,
+      "location": "/guides/fillable-pdf-vs-flattened-pdf"
+    },
+    {
+      "path": "/de/blog/how-to-create-fill-and-sign-pdf-forms",
+      "target": "/de/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 308,
+      "location": "/de/guides/fillable-pdf-vs-flattened-pdf"
+    },
+    {
+      "path": "/fr/blog/how-to-create-fill-and-sign-pdf-forms",
+      "target": "/fr/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 308,
+      "location": "/fr/guides/fillable-pdf-vs-flattened-pdf"
+    },
+    {
+      "path": "/nl/blog/how-to-create-fill-and-sign-pdf-forms",
+      "target": "/nl/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 308,
+      "location": "/nl/guides/fillable-pdf-vs-flattened-pdf"
+    },
+    {
+      "path": "/es/blog/how-to-create-fill-and-sign-pdf-forms",
+      "target": "/es/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 308,
+      "location": "/es/guides/fillable-pdf-vs-flattened-pdf"
+    },
+    {
+      "path": "/it/blog/how-to-create-fill-and-sign-pdf-forms",
+      "target": "/it/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 308,
+      "location": "/it/guides/fillable-pdf-vs-flattened-pdf"
+    },
+    {
+      "path": "/pt/blog/how-to-create-fill-and-sign-pdf-forms",
+      "target": "/pt/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 308,
+      "location": "/pt/guides/fillable-pdf-vs-flattened-pdf"
+    },
+    {
+      "path": "/sv/blog/how-to-create-fill-and-sign-pdf-forms",
+      "target": "/sv/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 308,
+      "location": "/sv/guides/fillable-pdf-vs-flattened-pdf"
+    },
+    {
+      "path": "/nb/blog/how-to-create-fill-and-sign-pdf-forms",
+      "target": "/nb/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 308,
+      "location": "/nb/guides/fillable-pdf-vs-flattened-pdf"
+    },
+    {
+      "path": "/da/blog/how-to-create-fill-and-sign-pdf-forms",
+      "target": "/da/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 308,
+      "location": "/da/guides/fillable-pdf-vs-flattened-pdf"
+    },
+    {
+      "path": "/ja/blog/how-to-create-fill-and-sign-pdf-forms",
+      "target": "/ja/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 308,
+      "location": "/ja/guides/fillable-pdf-vs-flattened-pdf"
+    },
+    {
+      "path": "/ko/blog/how-to-create-fill-and-sign-pdf-forms",
+      "target": "/ko/guides/fillable-pdf-vs-flattened-pdf",
+      "status": 308,
+      "location": "/ko/guides/fillable-pdf-vs-flattened-pdf"
+    },
+    {
+      "path": "/blog/how-to-merge-and-organize-pdf-files",
+      "target": "/guides/how-to-merge-and-split-pdfs",
+      "status": 308,
+      "location": "/guides/how-to-merge-and-split-pdfs"
+    },
+    {
+      "path": "/de/blog/how-to-merge-and-organize-pdf-files",
+      "target": "/de/guides/how-to-merge-and-split-pdfs",
+      "status": 308,
+      "location": "/de/guides/how-to-merge-and-split-pdfs"
+    },
+    {
+      "path": "/fr/blog/how-to-merge-and-organize-pdf-files",
+      "target": "/fr/guides/how-to-merge-and-split-pdfs",
+      "status": 308,
+      "location": "/fr/guides/how-to-merge-and-split-pdfs"
+    },
+    {
+      "path": "/nl/blog/how-to-merge-and-organize-pdf-files",
+      "target": "/nl/guides/how-to-merge-and-split-pdfs",
+      "status": 308,
+      "location": "/nl/guides/how-to-merge-and-split-pdfs"
+    },
+    {
+      "path": "/es/blog/how-to-merge-and-organize-pdf-files",
+      "target": "/es/guides/how-to-merge-and-split-pdfs",
+      "status": 308,
+      "location": "/es/guides/how-to-merge-and-split-pdfs"
+    },
+    {
+      "path": "/it/blog/how-to-merge-and-organize-pdf-files",
+      "target": "/it/guides/how-to-merge-and-split-pdfs",
+      "status": 308,
+      "location": "/it/guides/how-to-merge-and-split-pdfs"
+    },
+    {
+      "path": "/pt/blog/how-to-merge-and-organize-pdf-files",
+      "target": "/pt/guides/how-to-merge-and-split-pdfs",
+      "status": 308,
+      "location": "/pt/guides/how-to-merge-and-split-pdfs"
+    },
+    {
+      "path": "/sv/blog/how-to-merge-and-organize-pdf-files",
+      "target": "/sv/guides/how-to-merge-and-split-pdfs",
+      "status": 308,
+      "location": "/sv/guides/how-to-merge-and-split-pdfs"
+    },
+    {
+      "path": "/nb/blog/how-to-merge-and-organize-pdf-files",
+      "target": "/nb/guides/how-to-merge-and-split-pdfs",
+      "status": 308,
+      "location": "/nb/guides/how-to-merge-and-split-pdfs"
+    },
+    {
+      "path": "/da/blog/how-to-merge-and-organize-pdf-files",
+      "target": "/da/guides/how-to-merge-and-split-pdfs",
+      "status": 308,
+      "location": "/da/guides/how-to-merge-and-split-pdfs"
+    },
+    {
+      "path": "/ja/blog/how-to-merge-and-organize-pdf-files",
+      "target": "/ja/guides/how-to-merge-and-split-pdfs",
+      "status": 308,
+      "location": "/ja/guides/how-to-merge-and-split-pdfs"
+    },
+    {
+      "path": "/ko/blog/how-to-merge-and-organize-pdf-files",
+      "target": "/ko/guides/how-to-merge-and-split-pdfs",
+      "status": 308,
+      "location": "/ko/guides/how-to-merge-and-split-pdfs"
+    },
+    {
+      "path": "/blog/free-pdf-editor-add-text-fill-sign",
+      "target": "/guides/how-to-edit-a-pdf",
+      "status": 308,
+      "location": "/guides/how-to-edit-a-pdf"
+    },
+    {
+      "path": "/de/blog/free-pdf-editor-add-text-fill-sign",
+      "target": "/de/guides/how-to-edit-a-pdf",
+      "status": 308,
+      "location": "/de/guides/how-to-edit-a-pdf"
+    },
+    {
+      "path": "/fr/blog/free-pdf-editor-add-text-fill-sign",
+      "target": "/fr/guides/how-to-edit-a-pdf",
+      "status": 308,
+      "location": "/fr/guides/how-to-edit-a-pdf"
+    },
+    {
+      "path": "/nl/blog/free-pdf-editor-add-text-fill-sign",
+      "target": "/nl/guides/how-to-edit-a-pdf",
+      "status": 308,
+      "location": "/nl/guides/how-to-edit-a-pdf"
+    },
+    {
+      "path": "/es/blog/free-pdf-editor-add-text-fill-sign",
+      "target": "/es/guides/how-to-edit-a-pdf",
+      "status": 308,
+      "location": "/es/guides/how-to-edit-a-pdf"
+    },
+    {
+      "path": "/it/blog/free-pdf-editor-add-text-fill-sign",
+      "target": "/it/guides/how-to-edit-a-pdf",
+      "status": 308,
+      "location": "/it/guides/how-to-edit-a-pdf"
+    },
+    {
+      "path": "/pt/blog/free-pdf-editor-add-text-fill-sign",
+      "target": "/pt/guides/how-to-edit-a-pdf",
+      "status": 308,
+      "location": "/pt/guides/how-to-edit-a-pdf"
+    },
+    {
+      "path": "/sv/blog/free-pdf-editor-add-text-fill-sign",
+      "target": "/sv/guides/how-to-edit-a-pdf",
+      "status": 308,
+      "location": "/sv/guides/how-to-edit-a-pdf"
+    },
+    {
+      "path": "/nb/blog/free-pdf-editor-add-text-fill-sign",
+      "target": "/nb/guides/how-to-edit-a-pdf",
+      "status": 308,
+      "location": "/nb/guides/how-to-edit-a-pdf"
+    },
+    {
+      "path": "/da/blog/free-pdf-editor-add-text-fill-sign",
+      "target": "/da/guides/how-to-edit-a-pdf",
+      "status": 308,
+      "location": "/da/guides/how-to-edit-a-pdf"
+    },
+    {
+      "path": "/ja/blog/free-pdf-editor-add-text-fill-sign",
+      "target": "/ja/guides/how-to-edit-a-pdf",
+      "status": 308,
+      "location": "/ja/guides/how-to-edit-a-pdf"
+    },
+    {
+      "path": "/ko/blog/free-pdf-editor-add-text-fill-sign",
+      "target": "/ko/guides/how-to-edit-a-pdf",
+      "status": 308,
+      "location": "/ko/guides/how-to-edit-a-pdf"
+    },
+    {
+      "path": "/blog/free-pdf-tool-online-guide",
+      "target": "/blog/choose-a-free-pdf-editor",
+      "status": 308,
+      "location": "/blog/choose-a-free-pdf-editor"
+    },
+    {
+      "path": "/de/blog/free-pdf-tool-online-guide",
+      "target": "/blog/choose-a-free-pdf-editor",
+      "status": 308,
+      "location": "/blog/choose-a-free-pdf-editor"
+    },
+    {
+      "path": "/fr/blog/free-pdf-tool-online-guide",
+      "target": "/blog/choose-a-free-pdf-editor",
+      "status": 308,
+      "location": "/blog/choose-a-free-pdf-editor"
+    },
+    {
+      "path": "/nl/blog/free-pdf-tool-online-guide",
+      "target": "/blog/choose-a-free-pdf-editor",
+      "status": 308,
+      "location": "/blog/choose-a-free-pdf-editor"
+    },
+    {
+      "path": "/es/blog/free-pdf-tool-online-guide",
+      "target": "/blog/choose-a-free-pdf-editor",
+      "status": 308,
+      "location": "/blog/choose-a-free-pdf-editor"
+    },
+    {
+      "path": "/it/blog/free-pdf-tool-online-guide",
+      "target": "/blog/choose-a-free-pdf-editor",
+      "status": 308,
+      "location": "/blog/choose-a-free-pdf-editor"
+    },
+    {
+      "path": "/pt/blog/free-pdf-tool-online-guide",
+      "target": "/blog/choose-a-free-pdf-editor",
+      "status": 308,
+      "location": "/blog/choose-a-free-pdf-editor"
+    },
+    {
+      "path": "/sv/blog/free-pdf-tool-online-guide",
+      "target": "/blog/choose-a-free-pdf-editor",
+      "status": 308,
+      "location": "/blog/choose-a-free-pdf-editor"
+    },
+    {
+      "path": "/nb/blog/free-pdf-tool-online-guide",
+      "target": "/blog/choose-a-free-pdf-editor",
+      "status": 308,
+      "location": "/blog/choose-a-free-pdf-editor"
+    },
+    {
+      "path": "/da/blog/free-pdf-tool-online-guide",
+      "target": "/blog/choose-a-free-pdf-editor",
+      "status": 308,
+      "location": "/blog/choose-a-free-pdf-editor"
+    },
+    {
+      "path": "/ja/blog/free-pdf-tool-online-guide",
+      "target": "/blog/choose-a-free-pdf-editor",
+      "status": 308,
+      "location": "/blog/choose-a-free-pdf-editor"
+    },
+    {
+      "path": "/ko/blog/free-pdf-tool-online-guide",
+      "target": "/blog/choose-a-free-pdf-editor",
+      "status": 308,
+      "location": "/blog/choose-a-free-pdf-editor"
+    }
+  ]
+}

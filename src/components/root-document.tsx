@@ -57,12 +57,11 @@ export function RootDocument({
       className={`${sans.variable} ${serif.variable}`}
     >
       <head>
-        {process.env.NODE_ENV === 'production' && (
-          <script
-            async
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1970746421579261"
-            crossOrigin="anonymous"
-          />
+        {/* Ownership verification does not require loading advertising on private
+            workspaces, tools, empty listings, or error pages. Ad delivery needs
+            its own reviewed placements and consent integration before enabling. */}
+        {process.env.NODE_ENV === 'production' && isIndexable && (
+          <meta name="google-adsense-account" content="ca-pub-1970746421579261" />
         )}
       </head>
       <body>

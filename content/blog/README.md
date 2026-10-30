@@ -1,20 +1,28 @@
 # Folio editorial articles
 
-`starter-posts.ts` contains fifteen original, complete articles for the public blog. Each has a title, excerpt, category, tags, SEO metadata, rich editor content, descriptive cover alt text, and a cover credit. Most covers are credited Unsplash photographs; the invoice article has its own original AI-generated image. Tool instructions were checked against this application. Translation and Office conversion sections state that these tools are not offered by Folio. The translation article covers file preparation and reviewing work from a separate translator or service.
+`starter-posts.ts` retains fifteen original article sources in `starterPostArchive`. The active `starterPosts` export contains eight articles after the October 31 consolidation. Consolidated sources remain available for history and are excluded from imports. Each has a title, excerpt, category, tags, SEO metadata, rich editor content, descriptive cover alt text, and a cover credit. Most covers are credited Unsplash photographs; the invoice article has its own original AI-generated image. Tool instructions were checked against this application. Translation and Office conversion sections state that these tools are not offered by Folio. The translation article covers file preparation and reviewing work from a separate translator or service.
 
 The QR code and URL shortener guides include practical examples, FAQs, links to the relevant tools, and primary-source references. Their search intent and product checks are recorded in [the editorial research notes](qr-and-url-research.md). They are prepared for draft review; publishing remains an explicit editorial action. Review and publish both together if retaining their cross-links.
 
-The signature generator article covers choosing a signature method, creating a transparent PNG, sizing it for a document, using it in PDFs, Word and Google Docs, troubleshooting, and privacy. Read the complete [article preview](signature-generator-article.md) and [editorial notes](signature-research.md). The Markdown preview is a review copy; the rich content in `starter-posts.ts` is the import source. Its blog slug is `how-to-make-a-signature-online`. The existing `/guides/create-transparent-signature-png` page remains a separate tool walkthrough.
+The signature generator article covers choosing a signature method, creating a transparent PNG, sizing it for a document, using it in PDFs, Word and Google Docs, troubleshooting, and privacy. Read the complete [article preview](signature-generator-article.md) and [editorial notes](signature-research.md). The Markdown preview is a review copy; the rich content in `starter-posts.ts` is the import source. Its blog slug is `how-to-make-a-signature-online`. Its public blog URL now permanently redirects to `/guides/create-transparent-signature-png`; the source is archived.
 
 The image compressor article explains target KB limits, pixel dimensions, JPG/PNG/WebP choices, quality checks, batch downloads, troubleshooting, and local processing. Read the complete [article preview](image-compressor-article.md) and [editorial notes](image-compressor-research.md). Its blog slug is `how-to-compress-images-to-target-size`; its tool is `/compress-images`.
 
-The mobile PDF article answers the requested phone-editing searches with iPhone and Android steps, original-text versus annotation guidance, form filling, downloads, troubleshooting, and storage details. Read the complete [article preview](mobile-pdf-editing-article.md) and [editorial notes](mobile-pdf-editing-research.md). Its blog slug is `how-to-edit-pdf-on-phone`.
+The mobile PDF article answers the requested phone-editing searches with iPhone and Android steps, original-text versus annotation guidance, form filling, downloads, troubleshooting, and storage details. Read the complete [article preview](mobile-pdf-editing-article.md) and [editorial notes](mobile-pdf-editing-research.md). Its archived blog slug is `how-to-edit-pdf-on-phone`, which now permanently redirects to `/guides/how-to-edit-a-pdf-on-mobile`.
 
-Three further articles cover the requested free PDF keywords with separate practical purposes: [choosing a free PDF tool online](free-pdf-tool-online-article.md), [using a free PDF editor for text, forms, and signatures](free-pdf-editor-article.md), and [reviewing and sharing with a PDF editor online](pdf-editor-online-review-article.md). The [research notes](free-pdf-articles-research.md) map the keywords to each article, document product checks, and list primary sources. These are private drafts for editorial review; each can be published independently.
+Three further articles cover the requested free PDF keywords with separate practical purposes: [choosing a free PDF tool online](free-pdf-tool-online-article.md), [using a free PDF editor for text, forms, and signatures](free-pdf-editor-article.md), and [reviewing and sharing with a PDF editor online](pdf-editor-online-review-article.md). The [research notes](free-pdf-articles-research.md) map the keywords to each article, document product checks, and list primary sources. The review/share article remains active; the two general walkthroughs are now consolidated into the maintained editor guide and task-selection article.
 
 October 5 removal: the conversion, translation, and free-tools article sources no longer advertise the removed tools. Apply these copy corrections through `/admin/blog` to any already-published versions when releasing the removal; the importer intentionally does not overwrite existing posts.
 
 The source is a backup for an explicit import, not a runtime fallback. After import, manage the live posts through `/admin/blog`; edits there remain authoritative. Existing posts, edited drafts, and trashed posts are never overwritten by the importer.
+
+## October 31 consolidation and worked examples
+
+Nine repeated public blog URLs now redirect to one maintained article per task. The registry in `src/lib/editorial-consolidation.ts` also excludes them from the public listing, homepage selection, feed, sitemap, and future seeding. The CMS records and their revisions are retained; this release does not delete or overwrite them. The active public library contains ten distinct blog articles, including two database-authored articles outside the eight active starter sources.
+
+Reader exercises are maintained in `src/lib/tutorial-exercises.ts` and rendered after the CMS article body. The CMS remains the source for the article prose, cover, author, and original publication date. Update timestamps and reading time account for the source-maintained exercise. Editing an article does not silently replace its CMS body. Generated downloads and their recorded checks are in `src/lib/tutorial-evidence.json` and `public/samples/tutorials/`.
+
+Deploy the application and practice files together; no live CMS mutation or separate unpublish step is required. See the [follow-up review](../../docs/reviews/TUTORIAL-CONSOLIDATION-2026-10-31.md) for the route map, verification, and rollback instructions.
 
 ## October 15, 2026 content review
 
@@ -67,24 +75,12 @@ npx tsx scripts/seed-blog-posts.ts --publish
 npx tsx scripts/seed-blog-posts.ts --check --only how-to-compress-images-to-target-size
 npx tsx scripts/seed-blog-posts.ts --drafts --only how-to-compress-images-to-target-size
 
-# Work only with the mobile PDF editing article:
-npx tsx scripts/seed-blog-posts.ts --check --only how-to-edit-pdf-on-phone
-npx tsx scripts/seed-blog-posts.ts --drafts --only how-to-edit-pdf-on-phone
-
 # Work only with the invoice generator article:
 npx tsx scripts/seed-blog-posts.ts --check --only first-freelance-invoice-with-free-invoice-generator
 npx tsx scripts/seed-blog-posts.ts --drafts --only first-freelance-invoice-with-free-invoice-generator
 
-# Import only the three free PDF articles as private drafts:
-npx tsx scripts/seed-blog-posts.ts --drafts --only free-pdf-tool-online-guide
-npx tsx scripts/seed-blog-posts.ts --drafts --only free-pdf-editor-add-text-fill-sign
+# Work only with the active review/share article:
 npx tsx scripts/seed-blog-posts.ts --drafts --only pdf-editor-online-review-share
-
-# Work only with the signature article:
-npx tsx scripts/seed-blog-posts.ts --check --only how-to-make-a-signature-online
-npx tsx scripts/seed-blog-posts.ts --drafts --only how-to-make-a-signature-online
-# When ready to publish that article:
-npx tsx scripts/seed-blog-posts.ts --publish --only how-to-make-a-signature-online
 ```
 
 The check command validates content and internal links without connecting to Supabase. Write commands use the existing environment configuration and require migration `009_blog.sql`. When the project has one super admin, that account is used for the import audit trail. For multiple admins, set `FOLIO_BLOG_ACTOR_ID` to an existing, active super admin UUID for the command. No new account or privilege is created.
